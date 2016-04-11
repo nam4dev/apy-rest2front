@@ -1,0 +1,496 @@
+<div>
+    <!-- All Apy Fields directives -->
+    <script type="text/ng-template" id="field-objectid.html">
+        <label for="{{ field }}" ng-if="field.indexOf('_') != 0">{{ field }}</label>
+        <button ng-if="field.indexOf('_') != 0"
+                id="{{ field }}"
+                class="form-control"
+                ng-model="resource[field].$embeddedValue"
+                ng-click="embeddedResourcesPicker(field, schema[field])">
+
+        <span ng-if="states.getCurrent() === states.$$CREATE">
+            <span ng-if="!resource[field].$shortValue">
+                Select <span class="text-capitalize"><strong>{{ field }}</strong></span>
+            </span>
+        </span>
+
+        <span ng-if="states.getCurrent() === states.$$CREATE || states.getCurrent() === states.$$UPDATE">
+            <span ng-if="resource[field].$shortValue">
+                <span class="text-capitalize"><strong>{{ resource[field].$shortValue }}</strong></span>
+            </span>
+        </span>
+
+        </button>
+        <!--<pre ng-if="field.indexOf('_') != 0"><strong>{{ field }}</strong>: {{ resource[field] }}</pre>-->
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ validator }}</pre>-->
+    </script>
+
+
+    <!--<script type="text/ng-template" id="nested-field-string.html">-->
+    <!--<label for="{{ field }}" ng-if="field.indexOf('_') != 0">{{ field }}</label>-->
+    <!--<input ng-model="nestedItem[field]"-->
+    <!--ng-if="field.indexOf('_') != 0"-->
+    <!--class="form-control"-->
+    <!--id="{{ field }}"-->
+    <!--type="{{ validator.type }}"-->
+    <!--minlength="{{ validator.minlength }}"-->
+    <!--maxlength="{{ validator.maxlength }}"-->
+    <!--required="{{ validator.required }}"-->
+    <!--value="{{ nestedItem[field] }}"-->
+    <!--placeholder="{{ field }}" />-->
+    <!--&lt;!&ndash;<pre ng-if="field.indexOf('_') != 0">{{ validator }}</pre>&ndash;&gt;-->
+    <!--&lt;!&ndash;<pre ng-if="field.indexOf('_') != 0">{{ nestedItem[field] }}</pre>&ndash;&gt;-->
+    <!--</script>-->
+
+
+    <script type="text/ng-template" id="field-string.html">
+        <label for="{{ field }}" ng-if="!resource[field].isHidden()">{{ field }}</label>
+        <input ng-model="resource[field].value"
+               ng-if="!resource[field].isHidden() && resource[field].type === 'string'"
+               class="form-control"
+               id="{{ field }}"
+               type="{{ resource[field].type }}"
+               minlength="{{ validator.minlength }}"
+               maxlength="{{ validator.maxlength }}"
+               required="{{ validator.required }}"
+               value="{{ resource[field].value }}"
+               placeholder="{{ field }}" />
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ validator }}</pre>-->
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ resource[field] }}</pre>-->
+    </script>
+
+    <script type="text/ng-template" id="field-integer.html">
+        <label for="{{ field }}" ng-if="!resource[field].isHidden()">{{ field }}</label>
+        <input ng-model="resource[field].value"
+               ng-if="!resource[field].isHidden() && resource[field].type === 'integer'"
+               class="form-control"
+               id="{{ field }}"
+               type="{{ resource[field].type }}"
+               minlength="{{ validator.minlength }}"
+               maxlength="{{ validator.maxlength }}"
+               required="{{ validator.required }}"
+               value="{{ resource[field].value }}"
+               placeholder="{{ field }}" />
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ validator }}</pre>-->
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ resource[field] }}</pre>-->
+    </script>
+
+    <script type="text/ng-template" id="field-datetime.html" >
+        <label for="{{ field }}" ng-if="!resource[field].isHidden()">{{ field }}</label>
+        <input ng-model="resource[field].value"
+               ng-if="!resource[field].isHidden() && resource[field].type === 'datetime'"
+               class="form-control"
+               id="{{ field }}"
+               type="{{ resource[field].type }}"
+               minlength="{{ validator.minlength }}"
+               maxlength="{{ validator.maxlength }}"
+               required="{{ validator.required }}"
+               value="{{ resource[field].value }}"
+               placeholder="{{ field }}" />
+
+        <input uib-datepicker
+               ng-model="resource[field].value"
+               show-weeks="true"
+               class="well well-sm" is-open="opened"/>
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ validator }}</pre>-->
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ resource[field] }}</pre>-->
+    </script>
+    <script type="text/ng-template" id="field-list.html">
+        <label for="{{ field }}" ng-if="!resource[field].isHidden()">{{ field }}</label>
+        <select ng-model="resource[field].value" multiple>
+            <option ng-repeat="allow in validator.allowed" >{{ allow }}</option>
+        </select>
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ validator }}</pre>-->
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ resource[field] }}</pre>-->
+    </script>
+    <script type="text/ng-template" id="field-dict.html">
+        <label for="{{ field }}" ng-if="!resource[field].isHidden()">{{ field }}</label>
+        <button ng-if="!resource[field].isHidden()"
+                id="{{ field }}"
+                class="form-control"
+                ng-model="resource[field]"
+                ng-click="nestedResourcePicker(field, schema[field], resource[field], true)">
+
+        <span ng-if="states.getCurrent() === states.$$CREATE || states.getCurrent() === states.$$UPDATE">
+            <span ng-if="!nestedItem" class="text-capitalize">add <strong>{{ field }}</strong> document</span>
+            <span ng-if="nestedItem" class="text-capitalize"><strong>{{ nestedItem }}</strong></span>
+        </span>
+
+        </button>
+        <!--<pre ng-if="field.indexOf('_') != 0"><strong>{{ nestedFormField }}</strong>: {{ nestedFormItem }}</pre>-->
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ resource[field].value }}</pre>-->
+        <!--<pre>{{ collection.sanitize(schema[field].schema, collection.valueFromType) }}</pre>-->
+    </script>
+
+    <script type="text/ng-template" id="field-media.html">
+
+
+        <!--<div class="form-group">-->
+        <!--<button class="btn btn-warning" ngf-select="imagesSelected($files)" multiple="multiple"  >Upload</button>-->
+        <!--</div>-->
+
+
+        <form class="form-inline">
+
+            <label for="{{ field }}" ng-if="!resource[field].isHidden()">{{ field }}</label>
+
+            <div class="row">
+                <!--<div class="button" ngf-select ng-model="file" name="file" ngf-pattern="'image/*'"-->
+                <!--ngf-accept="'image/*'" ngf-max-size="20MB" ngf-min-height="100"-->
+                <!--ngf-resize="{width: 100, height: 100}">-->
+                <!--Select-->
+                <!--</div>-->
+                <div class="form-group form-group-lg col-md-7">
+                    <button class="form-control btn btn-warning drop-box"
+                            ngf-select="resource[field].setFile($files[0])"
+                            multiple="multiple" >Upload</button>
+                    <!--<i class="glyphicon glyphicon-file"></i>-->
+                    <!--<i class="glyphicon glyphicon-film"></i>-->
+                    <!--<i class="glyphicon glyphicon-music"></i>-->
+                    <!--<div class="button" ngf-select="upload($file)">Upload on file select</div>-->
+                    <!--<div class="button" ngf-select="uploadFiles($files)" multiple="multiple">Upload on file select</div>-->
+                    <!--<div ngf-drop="uploadFiles($files)" class="drop-box"-->
+                    <!--ngf-drag-over-class="'dragover'" ngf-multiple="true"-->
+                    <!--ngf-pattern="'image/*,application/pdf'">Drop Images or PDFs files here</div>-->
+                    <!--<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>-->
+                </div>
+
+                <!--<div class="form-group  form-group-lg col-md-2">-->
+                <!--<button type="submit" ng-click="submit()" class="form-control">-->
+                <!--<i class="glyphicon glyphicon-upload"></i>-->
+                <!--</button>-->
+                <!--</div>-->
+
+                <div class="form-group  form-group-lg col-md-5" ng-if="resource[field].media.path">
+                    <div class="thumbnail">
+                        <img ng-if="resource[field].media.isImage" data-ng-src="{{ resource[field].media.path }}" width="96" height="96" />
+                        <div class="caption text-centered">
+                            <a target="_blank"  ng-href="{{ resource[field].media.path }}" >
+                                <i class="glyphicon glyphicon-link"></i> {{ resource[field].media.name || "link" }}
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="row">
+                <div class="form-group form-group-lg col-md-12">
+                    <div class="center-block center centered">
+                        <pre>{{ resource[field].media }}</pre>
+                        <!--<img src="{{ resource.$endpoint + resource[field].value.substring(1) }}"  style="width: 96px; height: 96px;">-->
+                        <!--&lt;!&ndash;<img ng-repeat="file in files" ngf-src="file"  style="width: 96px; height: 96px;">&ndash;&gt;-->
+                        <!--<audio ng-repeat="file in files" controls ngf-src="file"></audio>-->
+                        <!--<video ng-repeat="file in files" controls ngf-src="file"></video>-->
+                    </div>
+                </div>
+            </div>
+        </form>
+    </script>
+    <!-- End Apy Fields -->
+
+    <!-- All Nested Apy Fields -->
+
+    <script type="text/ng-template" id="nested-field-objectid.html">
+        <label for="{{ nestedField }}" ng-if="nestedField.indexOf('_') != 0">{{ nestedField }}</label>
+        <button ng-if="nestedField.indexOf('_') != 0"
+                id="{{ nestedField }}"
+                class="form-control"
+                ng-model="nestedSubItem.$embeddedValue"
+                ng-click="embeddedResourcesPicker(nestedField, nestedSchema[nestedField])">
+
+        <span ng-if="states.getCurrent() === states.$$NESTED">
+            <span ng-if="!nestedSubItem.$shortValue">
+                Select <span class="text-capitalize"><strong>{{ nestedField }}</strong></span>
+            </span>
+        </span>
+
+        <span ng-if="states.getCurrent() === states.$$NESTED">
+            <span ng-if="nestedSubItem.$shortValue">
+                <span class="text-capitalize"><strong>{{ nestedItem.$shortValue }}</strong></span>
+            </span>
+        </span>
+
+        </button>
+        <!--<pre ng-if="field.indexOf('_') != 0"><strong>{{ field }}</strong>: {{ nestedItem }}</pre>-->
+        <!--<pre ng-if="field.indexOf('_') != 0">{{ validator }}</pre>-->
+    </script>
+
+    <script type="text/ng-template" id="nested-field-string.html">
+        <label for="{{ nestedField }}" ng-if="!nestedItem.isHidden()">{{ nestedField }}</label>
+        <input ng-model="nestedSubItem[nestedField]"
+               ng-if="!nestedItem.isHidden()"
+               class="form-control"
+               id="{{ nestedField }}"
+               type="{{ nestedSubItem[nestedField].type }}"
+               minlength="{{ validator.minlength }}"
+               maxlength="{{ validator.maxlength }}"
+               required="{{ validator.required }}"
+               value="{{ nestedSubItem[nestedField] }}"
+               placeholder="{{ nestedField }}" />
+        <!--<pre ng-if="nestedField.indexOf('_') != 0">{{ validator }}</pre>-->
+        <!--<pre>-->
+        <!--nestedField: {{ nestedField }}-->
+        <!--nestedSubItem: {{ nestedSubItem }}-->
+        <!--</pre>-->
+    </script>
+
+    <script type="text/ng-template" id="nested-field-integer.html">
+        <label for="{{ nestedField }}" ng-if="!nestedItem.isHidden()">{{ nestedField }}</label>
+        <input ng-model="nestedSubItem[nestedField]"
+               ng-if="!nestedItem.isHidden()"
+               class="form-control"
+               id="{{ nestedField }}"
+               type="{{ nestedItem[nestedField].type }}"
+               minlength="{{ validator.minlength }}"
+               maxlength="{{ validator.maxlength }}"
+               required="{{ validator.required }}"
+               value="{{ nestedSubItem[nestedField] }}"
+               placeholder="{{ nestedField }}" />
+        <!--<pre ng-if="nestedField.indexOf('_') != 0">{{ validator }}</pre>-->
+        <!--<pre ng-if="nestedField.indexOf('_') != 0">{{ nestedItem }}</pre>-->
+    </script>
+
+    <script type="text/ng-template" id="nested-field-datetime.html" >
+        <label for="{{ nestedField }}" ng-if="!nestedItem.isHidden()">{{ nestedField }}</label>
+        <input ng-model="nestedSubItem[nestedField]"
+               class="form-control"
+               id="{{ nestedField }}"
+               type="{{ nestedItem.type }}"
+               minlength="{{ validator.minlength }}"
+               maxlength="{{ validator.maxlength }}"
+               required="{{ validator.required }}"
+               value="{{ nestedSubItem[nestedField] }}"
+               placeholder="{{ nestedField }}" />
+
+        <input uib-datepicker
+               ng-model="nestedSubItem[nestedField]"
+               show-weeks="true"
+               class="well well-sm" is-open="opened"/>
+        <!--<pre ng-if="nestedField.indexOf('_') != 0">{{ validator }}</pre>-->
+        <!--<pre ng-if="nestedField.indexOf('_') != 0">{{ nestedItem }}</pre>-->
+    </script>
+    <script type="text/ng-template" id="nested-field-list.html">
+        <label for="{{ nestedField }}" ng-if="!nestedItem.isHidden()">{{ nestedField }}</label>
+        <select ng-model="nestedSubItem[nestedField]" multiple>
+            <option ng-repeat="allow in validator.allowed" >{{ allow }}</option>
+        </select>
+        <!--<pre ng-if="nestedField.indexOf('_') != 0">{{ validator }}</pre>-->
+        <!--<pre ng-if="nestedField.indexOf('_') != 0">{{ nestedItem }}</pre>-->
+    </script>
+    <script type="text/ng-template" id="nested-field-dict.html">
+        <label for="{{ nestedField }}" ng-if="!nestedItem.isHidden()">{{ nestedField }}</label>
+        <button ng-if="!nestedSubItem.isHidden()"
+                id="{{ nestedField }}"
+                class="form-control"
+                ng-model="nestedSubItem"
+                ng-click="nestedResourcePicker(nestedField, nestedSchema[nestedField], nestedSubItem, false)">
+
+        <span ng-if="states.getCurrent() === states.$$NESTED">
+            <span class="text-capitalize">add <strong>{{ nestedField }}</strong> document</span>
+            <!--<span ng-if="!nestedSubItem" class="text-capitalize">add <strong>{{ nestedField }}</strong> document</span>-->
+            <!--<span ng-if="nestedSubItem" class="text-capitalize">-->
+                <!--{{ nestedSubItem.$shortValue }}-->
+            <!--</span>-->
+        </span>
+
+        </button>
+        <!--<pre>{{ nestedSubItem || resource[nestedField] }}</pre>-->
+        <!--<pre ng-if="nestedField.indexOf('_') != 0">{{ validator }}</pre>-->
+        <!--<pre>{{ collection.sanitize(nestedSchema[nestedField].schema, collection.valueFromType) }}</pre>-->
+    </script>
+
+    <!-- End Nested Apy Fields-->
+
+    <table class="table">
+        <thead class="thead-inverse">
+        <tr>
+            <th>#</th>
+            <th ng-repeat="(field, _) in collection.schema" >
+                <strong ng-if="field.indexOf('_') !== 0" class="text-capitalize text-underlined">{{ field }}</strong>
+            </th>
+            <th><i ng-click="createForm()" class="glyphicon glyphicon-plus"></i></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="resource in collection.wrapped track by $index">
+            <th scope="row">{{ $index + 1 }}</th>
+            <td ng-repeat="(field, _) in collection.schema" >
+                <div ng-if="!resource[field].isHidden() && (resource[field].type === 'objectid' || resource[field].type === undefined)">
+                    <!--value: {{ resource[field].value }}-->
+                    <!--shortValue: {{ resource[field].shortValue }}-->
+                    {{ resource[field].$shortValue }}
+                </div>
+
+                <!--<pre>-->
+                <!--value: {{ resource[field].value }}-->
+                <!--shortValue: {{ resource[field].shortValue }}-->
+                <!--$shortValue: {{ resource[field].$shortValue }}-->
+                <!--resource[field].type: {{ resource[field].type }}-->
+                <!--resource[field].isHidden(): {{ resource[field].isHidden() }}-->
+                <!--</pre>-->
+
+                <div ng-if="!resource[field].isHidden() && resource[field].type !== 'objectid'">
+
+                    <div ng-if="resource[field].type === 'dict'">
+                        <p ng-repeat="(key, value) in resource[field].value track by $index" ng-if="value">
+                            <span class="text-capitalize"><strong>{{ key }}</strong></span>: <span>{{ value }}</span>
+                        </p>
+                    </div>
+
+                    <div ng-if="resource[field].type === 'media'">
+                        <a ng-if="resource[field].blob" ng-click="printBlob(resource[field].blob)" >
+                            printBlob link <i class="glyphicon glyphicon-link"></i>
+                        </a>
+                        <div class="row" ng-if="resource[field].media.path">
+                            <div class="col-sm-12 col-md-12">
+                                <div class="thumbnail">
+                                    <img ng-if="resource[field].media.isImage" data-ng-src="{{ resource[field].media.path }}" width="96" height="96" />
+                                    <div class="caption text-centered">
+                                        <a target="_blank"  ng-href="{{ resource[field].media.path }}" >
+                                            {{ resource[field].media.name || "link" }} <i class="glyphicon glyphicon-link"></i>
+                                        </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div ng-if="resource[field].type !== 'dict' && resource[field].type !== 'media'">
+                        {{ resource[field].value }}
+                    </div>
+                </div>
+            </td>
+            <td>
+                <i ng-click="updateForm(resource)" class="glyphicon glyphicon-pencil"></i>
+                <i ng-click="deleteForm(resource)" class="glyphicon glyphicon-remove"></i>
+            </td>
+        </tr>
+        <tr ng-if="collection.wrapped.length == 0">
+            <td class="text-center" colspan="{{ collection.schemaFieldCount + 2 }}"><span >No Items Found.</span></td>
+        </tr>
+        </tbody>
+    </table>
+
+    <script type="text/ng-template" id="myModalContent.html">
+        <div class="modal-header">
+            <h3 class="modal-title" ng-if="states.getCurrent() === states.$$CREATE">
+                <span class="text-capitalize">
+                    Creating <strong>Document</strong>: <i>{{ resource.$title || $route.current.name.replaceAll('_', ' ') }}</i>
+                </span>
+            </h3>
+            <h3 class="modal-title" ng-if="states.getCurrent() === states.$$UPDATE">
+                <span class="text-capitalize">
+                    Updating <strong>{{ resource.$title }}</strong>: <i>{{ resource.$shortValue }}</i>
+                </span>
+            </h3>
+            <h3 class="modal-title" ng-if="states.getCurrent() === states.$$DELETE">
+                 <span class="text-capitalize" >
+                     About to delete <strong>{{ item2delete.$title }}</strong>: <i>{{ item2delete.$shortValue || item2delete._id }}</i></span>
+            </h3>
+        </div>
+        <div class="modal-body">
+            <!-- DELETE Confirmation Form -->
+            <div ng-if="states.getCurrent() === states.$$DELETE">
+
+                <div ng-if="errors.length > 0" class="alert alert-danger">
+                    <ul>
+                        <li ng-repeat="(field, error) in errors track by $index">
+                            {{ field }}: {{ error }}
+                        </li>
+                    </ul>
+                </div>
+                <div class="alert alert-danger" role="alert">
+                    <div>
+                        <p ng-repeat="(key, value) in item2delete.cleaned(false) track by $index" ng-if="value" >
+                            <span class="text-capitalize"><strong>{{ key }}</strong></span>: <span>{{ value }}</span>
+                        </p>
+                    </div>
+                    <hr />
+                    <p>
+                        <strong class="text-underlined">Important</strong>
+                        : According to your settings this action might be irreversible!
+                    </p>
+
+                    <p>
+                        <strong>Are you sure to delete ?</strong>
+                    </p>
+                </div>
+            </div>
+            <!-- End DELETE Confirmation Form -->
+
+            <!-- CREATE & UPDATE Form -->
+            <div ng-if="states.getCurrent() === states.$$CREATE || states.getCurrent() === states.$$UPDATE">
+                <form name="initial" novalidate>
+                    <div ng-if="errors.length > 0" class="alert alert-danger">
+                        <ul>
+                            <li ng-repeat="(field, error) in errors track by $index">
+                                {{ field }}: {{ error }}
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="form-group" ng-repeat="(field, validator) in schema track by $index" >
+                        <apy-field field="{{ validator.type }}, {{ field }}"></apy-field>
+                    </div>
+                </form>
+            </div>
+            <!-- End CREATE & UPDATE Form -->
+
+            <!-- NESTED Form -->
+            <div ng-if="states.getCurrent() === states.$$NESTED">
+                <!--NESTED-->
+                <form name="nested" novalidate>
+                    <div ng-if="errors.length > 0" class="alert alert-danger">
+                        <ul>
+                            <li ng-repeat="(field, error) in errors track by $index">
+                                {{ field }}: {{ error }}
+                            </li>
+                        </ul>
+                    </div>
+                    <!--<pre>{{ resource[field] }}</pre>-->
+                    <!--<pre>{{ nestedSchema }}</pre>-->
+                    <div class="form-group" ng-repeat="(nestedField, validator) in nestedSchema track by $index" >
+                        <!--field ({{ $index }}): {{ nestedField }}-->
+                        <!--validator ({{ $index }}): {{ validator }}-->
+                        <apy-nested-field type="{{ validator.type }}, {{ nestedField }}"></apy-nested-field>
+                    </div>
+                </form>
+            </div>
+            <!-- End NESTED Form -->
+
+            <!-- EMBEDDED Field Form -->
+            <div ng-if="states.getCurrent() === states.$$SELECTION">
+
+                <div ng-if="errors.length > 0" class="alert alert-danger">
+                    <ul>
+                        <li ng-repeat="(field, error) in errors track by $index">
+                            {{ field }}: {{ error }}
+                        </li>
+                    </ul>
+                </div>
+
+                <ul ng-if="embeddedColItems.length > 0"
+                    class="list-group">
+                    <li ng-repeat="selected in embeddedColItems track by $index"
+                        ng-click="selectEmbeddedResource(resource, selected)"
+                        class="list-group-item">
+                        {{ selected.$shortValue }}
+                    </li>
+                </ul>
+                <span ng-if="embeddedColItems.length === 0">No Items found!</span>
+            </div>
+            <!-- End EMBEDDED Field Form -->
+
+        </div>
+        <div class="modal-footer">
+            <button ng-if="states.getCurrent() !== states.$$SELECTION" class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+    <!--<button type="button" class="btn btn-default" ng-click="open()">Open me!</button>-->
+    <!--<button type="button" class="btn btn-default" ng-click="open('lg')">Large modal</button>-->
+    <!--<button type="button" class="btn btn-default" ng-click="open('sm')">Small modal</button>-->
+    <!--<button type="button" class="btn btn-default" ng-click="toggleAnimation()">Toggle Animation ({{ animationsEnabled }})</button>-->
+    <!--<div ng-if="selected">Selection from a modal: {{ selected }}</div>-->
+</div>
