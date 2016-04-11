@@ -2,7 +2,13 @@ logs/*
 !.gitkeep
 node_modules/
 bower_components/
-components/
+components/angular
+components/angular*
+components/bootstrap
+components/html5-*
+components/jquery
+components/ng-*
+components/ui.*
 tmp
 .DS_Store
 .idea
