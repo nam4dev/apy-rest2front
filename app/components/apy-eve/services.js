@@ -537,57 +537,58 @@
             return true;
         };
 
-        /**
-         *
-         * @param array
-         * @param thing
-         * @returns {boolean}
-         */
-        Helper.prototype.arrayContains = function (array, thing) {
-            // if the other array is a falsy value, return false
-            if (!array)
-                return false;
-            //start by assuming the array doesn't contain the thing
-            var result = false;
-            for (var i = 0, l=array.length; i < l; i++)
-            {
-                //if anything in the array is the thing then change our mind from before
-                if (array[i] instanceof Array)
-                {if (array[i].equals(thing))
-                    result = true;}
-                else
-                if (array[i]===thing)
-                    result = true;
-            }
-            //return the decision we left in the variable, result
-            return result;
-        };
-
-        /**
-         *
-         * @param array
-         * @param thing
-         * @returns {number}
-         */
-        Helper.prototype.arrayIndexOf = function (array, thing) {
-            // if the other array is a falsy value, return -1
-            if (!array)
-                return -1;
-            //start by assuming the array doesn't contain the thing
-            var result = -1;
-            for (var i = 0, l=array.length; i < l; i++)
-            {
-                //if anything in the array is the thing then change our mind from before
-                if (array[i] instanceof Array)
-                    if (array[i].equals(thing))
-                        result = i;
-                    else
-                    if (array[i]===thing)
-                        result = i;
-            }
-            //return the decision we left in the variable, result
-            return result;
-        };
+        // TODO: Commented as not used for now, if not needed at all at the end, just remove it!
+        ///**
+        // *
+        // * @param array
+        // * @param thing
+        // * @returns {boolean}
+        // */
+        //Helper.prototype.arrayContains = function (array, thing) {
+        //    // if the other array is a falsy value, return false
+        //    if (!array)
+        //        return false;
+        //    //start by assuming the array doesn't contain the thing
+        //    var result = false;
+        //    for (var i = 0, l=array.length; i < l; i++)
+        //    {
+        //        //if anything in the array is the thing then change our mind from before
+        //        if (array[i] instanceof Array)
+        //        {if (array[i].equals(thing))
+        //            result = true;}
+        //        else
+        //        if (array[i]===thing)
+        //            result = true;
+        //    }
+        //    //return the decision we left in the variable, result
+        //    return result;
+        //};
+        //
+        ///**
+        // *
+        // * @param array
+        // * @param thing
+        // * @returns {number}
+        // */
+        //Helper.prototype.arrayIndexOf = function (array, thing) {
+        //    // if the other array is a falsy value, return -1
+        //    if (!array)
+        //        return -1;
+        //    //start by assuming the array doesn't contain the thing
+        //    var result = -1;
+        //    for (var i = 0, l=array.length; i < l; i++)
+        //    {
+        //        //if anything in the array is the thing then change our mind from before
+        //        if (array[i] instanceof Array)
+        //            if (array[i].equals(thing))
+        //                result = i;
+        //            else
+        //            if (array[i]===thing)
+        //                result = i;
+        //    }
+        //    //return the decision we left in the variable, result
+        //    return result;
+        //};
 
         /**
          * @ngdoc function
@@ -996,13 +997,15 @@
          * @constructor
          */
         var ApySchemaComponent = function ApySchemaComponent (schema) {
-            this.$schema = schema;
+            this.$base = schema;
             this.$embeddeURI = '';
             this.$headers = Object.keys(schema).filter(function (key) {
                 return !key.startsWith('_');
             });
             this.load();
         };
+
+
 
         /**
          * Loads a Schema
@@ -1014,7 +1017,7 @@
         ApySchemaComponent.prototype.load = function load () {
             var self = this;
             var embedded = {};
-            angular.forEach(this.$schema, function (validator, fieldName) {
+            angular.forEach(this.$base, function (validator, fieldName) {
                 self[fieldName] = validator;
                 if(isObject(validator) && validator.type) {
                     switch (validator.type) {
@@ -1033,100 +1036,26 @@
             if(Object.keys(embedded).length) {
                 this.$embeddeURI = 'embedded=' + JSON.stringify(embedded);
             }
-            delete this.$schema;
             return this;
         };
 
         /**
-         * ApyCollectionComponent
          *
-         * @param name
-         * @param schema
          * @param endpoint
-         * @param components
+         * @param schemas
+         * @param excluded
          * @constructor
          */
-        var ApyCollectionComponent = function ApyCollectionComponent (name, endpoint, schema, components=null) {
-            this.$schemaBase = schema;
-            this.$endpointBase = endpoint;
-            this.$schema = new ApySchemaComponent(schema);
-            this.$endpoint = endpoint + name + '?' + this.$schema.$embeddeURI;
-            this.$parent.constructor.call(this, name, "collection", components);
-        };
-
-        ApyCollectionComponent.inheritsFrom(ApyComponent);
-
-        ApyCollectionComponent.prototype.createResource = function createResource (resource) {
-            var component = new ApyResourceComponent(this.$name, this.$schema);
-            component.$endpointBase = this.$endpointBase;
-            this.prepend(component);
-            return component.load(resource || this.createResourceDataFromSchema());
-        };
-
-        ApyCollectionComponent.prototype.removeResource = function remove (resource) {
-            return this.$components.splice(this.$components.indexOf(resource), 1);
-        };
-
-
-
-        ApyCollectionComponent.prototype.valueFromType = function valueFromType (type) {
-            switch (type) {
-                case "list":
-                    return [];
-                case "media":
-                    return {};
-                case 'string':
-                    return "";
-                case "integer":
-                    return -1;
-                case "objectid":
-                    return "";
-                case "datetime":
-                    return new Date();
-                default :
-                    return null;
+        var ApySchemasComponent = function ApySchemasComponent (endpoint, schemas, excluded=null) {
+            if(!schemas || !isObject(schemas)) {
+                throw new Error('A schemas object must be provided (got type => ' + typeof schemas + ') !');
             }
-        };
-
-        ApyComponent.prototype.newDataFromSchema = function newDataFromSchema (schema=null) {
-            var val;
-            switch (schema.type) {
-                case "list":
-                    val = [];
-                    break;
-                case "dict":
-                    val = this.newDataFromSchema(schema.schema);
-                    break;
-                case "media":
-                    val = {};
-                    break;
-                case 'string':
-                    val = "";
-                    break;
-                case "integer":
-                    val = -1;
-                    break;
-                case "objectid":
-                    if (key.startsWith('_')) {
-                        val = "";
-                    }
-                    else {
-                        val = this.newDataFromSchema(service.$schemas[schema.data_relation.resource]);
-                    }
-                    break;
-                case "datetime":
-                    val = new Date();
-                    break;
-                default :
-                    val = null;
-                    break;
-            }
-            return val;
-        };
-
-        ApyComponent.prototype.createResourceDataFromSchema = function createResourceDataFromSchema (schema=null, keyName=null) {
-            var self = this;
-            var data = schema ? {} : {
+            this.$components = {};
+            this.$componentArray = [];
+            this.$endpoint = endpoint;
+            this.$schemas = schemas || {};
+            this.$excluded = excluded || [];
+            this.$template = {
                 _id: "",
                 _etag: "",
                 _links: {
@@ -1139,85 +1068,114 @@
                 _updated: "",
                 _deleted: ""
             };
-            var finalSchema = schema || this.$schemaBase;
-            //console.log("finalSchema =>", finalSchema);
-            var val;
+            this.load();
+        };
 
-            if(keyName) {
-                switch (finalSchema.type) {
-                    case "list":
-                        val = [];
-                        break;
-                    case "dict":
-                        val = self.createResourceDataFromSchema(finalSchema.schema);
-                        break;
-                    case "media":
-                        val = {};
-                        break;
-                    case 'string':
+        ApySchemasComponent.prototype.get = function get (schemaName) {
+            return this.$components[schemaName];
+        };
+
+        ApySchemasComponent.prototype.load = function load () {
+            var self = this;
+            Object.keys(self.$schemas).forEach(function (schemaName) {
+                var schema = new ApySchemaComponent(self.$schemas[schemaName]);
+                self.$components[schemaName] = schema;
+                self.$componentArray.push({
+                    data: schema,
+                    name: schemaName,
+                    route: '/' + schemaName,
+                    endpoint: self.$endpoint + schemaName,
+                    humanName: schemaName.replaceAll('_', ' '),
+                    hidden: self.$excluded.indexOf(schemaName) !== -1
+                });
+            });
+        };
+
+        ApySchemasComponent.prototype.transformData = function transformData(key, value) {
+            var val;
+            switch (value.type) {
+                case "list":
+                    val = [];
+                    break;
+                case "dict":
+                    val = this.schema2data(value.schema);
+                    break;
+                case "media":
+                    val = {};
+                    break;
+                case 'string':
+                    val = "";
+                    break;
+                case "integer":
+                    val = -1;
+                    break;
+                case "objectid":
+                    if(key.startsWith('_')) {
                         val = "";
-                        break;
-                    case "integer":
-                        val = -1;
-                        break;
-                    case "objectid":
-                        if(key.startsWith('_')) {
-                            val = "";
-                        }
-                        else {
-                            val = self.createResourceDataFromSchema(service.$schemas[finalSchema.data_relation.resource]);
-                        }
-                        break;
-                    case "datetime":
-                        val = new Date();
-                        break;
-                    default :
-                        val = null;
-                        break;
-                }
-                data = val;
-                //console.log("Value =>", val, "Key =>", keyName);
+                    }
+                    else {
+                        val = this.schema2data(service.$schemas[value.data_relation.resource]);
+                    }
+                    break;
+                case "datetime":
+                    val = new Date();
+                    break;
+                default :
+                    val = null;
+                    break;
+            }
+            return val;
+        };
+
+        ApySchemasComponent.prototype.schema2data = function schema2data (schema=null, keyName=null) {
+            var self = this;
+            var data = schema ? {} : this.$template;
+            if(keyName) {
+                data = this.transformData(keyName, schema);
             }
             else {
-                angular.forEach(finalSchema, function (value, key) {
-                    //console.log("Value =>", value, "Key =>", key);
-                    switch (value.type) {
-                        case "list":
-                            val = [];
-                            break;
-                        case "dict":
-                            val = self.createResourceDataFromSchema(value.schema);
-                            break;
-                        case "media":
-                            val = {};
-                            break;
-                        case 'string':
-                            val = "";
-                            break;
-                        case "integer":
-                            val = -1;
-                            break;
-                        case "objectid":
-                            if(key.startsWith('_')) {
-                                val = "";
-                            }
-                            else {
-                                val = self.createResourceDataFromSchema(service.$schemas[value.data_relation.resource]);
-                            }
-                            break;
-                        case "datetime":
-                            val = new Date();
-                            break;
-                        default :
-                            val = null;
-                            break;
-                    }
-                    data[key] = val;
-
+                angular.forEach(schema, function (value, key) {
+                    data[key] = self.transformData(key, value);
                 });
             }
-            //console.log("Data =>", data);
             return data;
+        };
+
+        ApySchemasComponent.prototype.createResource = function createResource (name, resource=null) {
+            var schema = this.get(name);
+            if(!schema) throw new Error('No schema provided for name', name);
+            var component = new ApyResourceComponent(name, schema);
+            component.$endpointBase = this.$endpoint;
+            component.load(resource || this.schema2data(schema));
+            return component;
+        };
+
+
+        /**
+         * ApyCollectionComponent
+         *
+         * @param name
+         * @param endpoint
+         * @param components
+         * @constructor
+         */
+        var ApyCollectionComponent = function ApyCollectionComponent (name, endpoint, components=null) {
+            this.$endpointBase = endpoint;
+            this.$schema = service.$instance.get(name);
+            this.$endpoint = endpoint + name + '?' + this.$schema.$embeddeURI;
+            this.$parent.constructor.call(this, name, "collection", components);
+        };
+
+        ApyCollectionComponent.inheritsFrom(ApyComponent);
+
+        ApyCollectionComponent.prototype.createResource = function createResource (resource) {
+            var component = service.$instance.createResource(this.$name, resource);
+            this.prepend(component);
+            return component;
+        };
+
+        ApyCollectionComponent.prototype.removeResource = function remove (resource) {
+            return this.$components.splice(this.$components.indexOf(resource), 1);
         };
 
         ApyCollectionComponent.prototype.reset = function reset () {
@@ -1361,6 +1319,7 @@
         /**
          *
          * @returns {Promise}
+         * *
          */
         ApyCollectionComponent.prototype.savedCount = function savedCount () {
             var savedCount = 0;
@@ -1389,6 +1348,19 @@
         };
 
         ApyResourceComponent.inheritsFrom(ApyComponent);
+
+        ApyResourceComponent.prototype.toString = function () {
+            var filtered = this.$components.filter(function (c) {
+                return c.$required;
+            });
+            if(filtered.length)
+                return '[' + filtered.join(', ') + ']';
+
+            filtered = this.$components.filter(function (c) {
+                return c.$value;
+            });
+            return '[' + filtered.join(', ') + ']';
+        };
 
         /**
          *
@@ -1540,11 +1512,12 @@
 
         /**
          *
+         * @param char
          * @param field
          * @returns {boolean}
          */
-        ApyResourceComponent.prototype.continue = function shallContinue (field) {
-            return field.startsWith && field.startsWith('_');
+        ApyResourceComponent.prototype.continue = function shallContinue (field, char='_') {
+            return field.startsWith && field.startsWith(char);
         };
 
         /**
@@ -1565,7 +1538,7 @@
             for (field in this.$schema) {
                 if(!this.$schema.hasOwnProperty(field) ||
                     this.continue(field) ||
-                    field.startsWith('$')) {
+                    this.continue(field, '$')) {
                     continue;
                 }
                 var subSchema = this.$schema[field];
@@ -1576,10 +1549,11 @@
                     continue;
                 }
                 var fieldObj,
-                    value = resource[field] || this.createResourceDataFromSchema(subSchema, field);
+                    value = resource[field] || service.$instance.schema2data(subSchema, field);
                 switch(type) {
                     case this.$types.DICT:
                         fieldObj = new ApyResourceComponent(field, subSchema.schema, null, 'resource', this.$states);
+                        //fieldObj.$endpointBase = this.$endpointBase;
                         fieldObj.load(value);
                         break;
                     //case this.$types.LIST:
@@ -1592,6 +1566,8 @@
                         fieldObj = new ApyResourceComponent(field,
                             service.$schemas[subSchema.data_relation.resource],
                             null, 'objectid', this.$states);
+                        fieldObj.$endpointBase = this.$endpointBase + subSchema.data_relation.resource;
+
                         fieldObj.loadObjectid(value);
                         break;
                     default:
@@ -1690,6 +1666,10 @@
 
         ApyFieldComponent.inheritsFrom(ApyComponent);
 
+        ApyFieldComponent.prototype.toString = function () {
+            return "" + this.$value;
+        };
+
         ApyFieldComponent.prototype.typeWrapper = function typeWrapper (value) {
             switch (this.$type) {
                 case 'datetime':
@@ -1727,9 +1707,6 @@
                     hasUpdated = this.$value !== this.$memo;
                     break;
             }
-            //this.$logging.log("this.$memo =>", this.$memo);
-            //this.$logging.log("this.$value =>", this.$value);
-            //this.$logging.log("hasUpdated =>", hasUpdated);
             return hasUpdated;
         };
 
@@ -1789,6 +1766,7 @@
         };
 
         $window.ApyFieldComponent = ApyFieldComponent;
+        $window.ApySchemasComponent = ApySchemasComponent;
         $window.ApyResourceComponent = ApyResourceComponent;
         $window.ApyCollectionComponent = ApyCollectionComponent;
     };
@@ -1798,8 +1776,10 @@
      * @param schemas
      */
     ApyCompositeService.prototype.setSchemas = function (schemas) {
-        this.$schemas = schemas;
-        this.$schemasAsArray = this.formatSchemas2Array(schemas, this.$config.excludedEndpointByNames);
+        var ins = this.$instance = new ApySchemasComponent(this.$endpoint, schemas, this.$config.excludedEndpointByNames);
+        this.$schemas = ins.$components;
+        this.$schemasAsArray = ins.$componentArray;
+        return this;
     };
 
     /**
@@ -1809,9 +1789,7 @@
     ApyCompositeService.prototype.loadSchemas = function () {
         this.$syncHttp.open('GET', this.$schemasEndpoint, false);
         this.$syncHttp.send(null);
-        this.$schemas = JSON.parse(this.$syncHttp.response);
-        this.$schemasAsArray = this.formatSchemas2Array(this.$schemas, this.$config.excludedEndpointByNames);
-        return this;
+        return this.setSchemas(JSON.parse(this.$syncHttp.response));
     };
 
     /**
@@ -1854,7 +1832,7 @@
      * @returns {ApyCollectionComponent|*}
      */
     ApyCompositeService.prototype.createCollection = function(name, components=null) {
-        return new ApyCollectionComponent(name, this.$endpoint, this.getSchemaByName(name), components);
+        return new ApyCollectionComponent(name, this.$endpoint, components);
     };
 
     /**
@@ -1880,136 +1858,6 @@
             });
         });
         return schemas;
-    };
-
-    /**
-     * Playground
-     */
-    ApyCompositeService.prototype.playground = function () {
-        this.$log.log('Starting Play ground...');
-        var self = this,
-            peopleGoCollection = new ApyCollectionComponent("people_go", "http://localhost:8000/", {
-                name: "person_go",
-                data: {
-                    lastname: {
-                        minlength: 1,
-                        unique: true,
-                        type: "string",
-                        maxlength: 15,
-                        required: true
-                    },
-                    _id: {
-                        unique: true,
-                        type: "objectid"
-                    },
-                    role: {
-                        type: "list",
-                        allowed: [
-                            "author",
-                            "contributor",
-                            "copy"
-                        ]
-                    },
-                    location: {
-                        type: "dict",
-                        schema: {
-                            born: {
-                                type: "datetime"
-                            },
-                            address: {
-                                type: "dict",
-                                schema: {
-                                    entered_date: {
-                                        type: "datetime"
-                                    },
-                                    details: {
-                                        type: "dict",
-                                        schema: {
-                                            city: {
-                                                type: "string"
-                                            },
-                                            address: {
-                                                type: "string"
-                                            },
-                                            address_complement: {
-                                                type: "string"
-                                            },
-                                            zip_code: {
-                                                type: "integer"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    },
-                    firstname: {
-                        minlength: 1,
-                        type: "string",
-                        maxlength: 10
-                    }
-                }
-            }),
-            peopleCollection = new ApyCollectionComponent("people", "http://localhost:5000/", {
-                name: "person",
-                data: {
-                    "firstname": {"minlength": 1, "type": "string", "maxlength": 10},
-                    "lastname": {"minlength": 1, "unique": true, "type": "string", "maxlength": 15, "required": true},
-                    "born": {"type": "datetime"},
-                    "role": {"type": "list"},
-                    "location": {
-                        "type": "dict",
-                        schema: {
-                            city: {
-                                type: "string"
-                            },
-                            address: {
-                                type: "string"
-                            }
-                        }
-
-                    }
-                }
-            }),
-            mediaJobsCollection = new ApyCollectionComponent("media_jobs", "http://localhost:5000/", {
-                name: "media job",
-                data: {
-                    media: {
-                        type: "media"
-                    },
-                    _id: {
-                        unique: true,
-                        type: "objectid"
-                    },
-                    description: {
-                        type: "string"
-                    },
-                    title: {
-                        type: "string"
-                    }
-                }
-            });
-
-        peopleCollection.fetch().then(function (response) {
-            self.$log.log("peopleCollection");
-            //collection.logChildren();
-            self.$log.log(peopleCollection.cleanedData());
-            //self.$log.log(peopleCollection);
-        });
-
-        peopleGoCollection.fetch().then(function (response) {
-            self.$log.log("peopleGoCollection");
-            //collection.logChildren();
-            self.$log.log(peopleGoCollection.cleanedData());
-            //self.$log.log(peopleGoCollection);
-        });
-
-        mediaJobsCollection.fetch().then(function (response) {
-            self.$log.log("mediaJobsCollection");
-            //mediaJobsCollection.logChildren();
-            self.$log.log(mediaJobsCollection.cleanedData());
-            //self.$log.log(mediaJobsCollection);
-        });
     };
 
     $window.ApyService = ApyService;

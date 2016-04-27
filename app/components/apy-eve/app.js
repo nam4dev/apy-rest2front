@@ -33,8 +33,8 @@
     application.config(['$routeProvider', 'apyProvider', function($routeProvider, apyProvider) {
         // Getting an apyProvider instance
         var provider = apyProvider.$get()
-            //.initEndpoints(endpoint, schemaName)
-            .initEndpoints(endpointStaging, schemaName)
+            .initEndpoints(endpoint, schemaName)
+            //.initEndpoints(endpointStaging, schemaName)
             .loadSchemas();
 
         var schemasAsArray = provider.$schemasAsArray;
@@ -42,7 +42,7 @@
         // setting each schema's route
         angular.forEach(schemasAsArray, function (schema) {
             $routeProvider.when(schema.route, {
-                templateUrl: 'components/apy-eve/viewRefacto.html',
+                templateUrl: 'components/apy-eve/view.html',
                 controller: 'ApyViewCtrl',
                 name: schema.name
             });
@@ -58,8 +58,8 @@
 
     application.controller('IndexCtrl', ['$scope', '$log', '$route', 'apy', 'Upload',
         function ($scope, $log, $route, apyProvider, Upload) {
-            //apyProvider.initEndpoints(endpoint, schemaName).setDependencies(
-            apyProvider.initEndpoints(endpointStaging, schemaName).setDependencies(
+            apyProvider.initEndpoints(endpoint, schemaName).setDependencies(
+            //apyProvider.initEndpoints(endpointStaging, schemaName).setDependencies(
                 {name: "Upload", value: Upload}
             ).setSchemas(schemas);
             $scope.$schemas = apyProvider.$schemasAsArray;

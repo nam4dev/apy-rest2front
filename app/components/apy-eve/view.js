@@ -10,20 +10,24 @@
                     field: '='
                 },
                 template: '<div ng-include="field.$contentUrl"></div>',
-                controller: ['$scope', 'apy', function ($scope, apyProvider) {
+                controller: ['$scope', '$log', function ($scope, $log) {
                     $scope.opened = false;
                     $scope.dateOptions = {};
                     //$scope.$states = apyProvider.$states;
                     $scope.altInputFormats = ['M!/d!/yyyy'];
                     $scope.formats = ['yyyy-MMM-dd HH:mm:ss', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
                     $scope.format = $scope.formats[0];
+
+                    $scope.resourcePicker = function (field) {
+                        $log.log("Field =>", field);
+                        $log.log("Field.$endpointBase =>", field.$endpointBase);
+                    };
                 }]
             };
         }])
 
         .controller('ApyViewCtrl', ['$rootScope', '$scope', '$log', '$route', '$uibModal', 'Upload', 'apy',
             function($rootScope, $scope, $log, $route, $uibModal, Upload, apyProvider) {
-
                 var collection = apyProvider.createCollection($route.current.name);
 
                 $scope.updateHidden = false;
@@ -33,16 +37,19 @@
 
                 collection.fetch()
                     .then(function (response) {
-                        $log.debug(collection);
+                        //$log.debug(collection);
                         $scope.$apply();
                     }).catch(function (error) {
                         $log.error(error);
                     });
 
                 $scope.createResource = function () {
-                    collection
+                    var resource = collection
                         .createResource()
                         .setCreateState();
+
+                    //$log.log("Resource =>", resource);
+                    //$log.log("Resource.$endpointBase =>", resource.$endpointBase);
                 };
 
                 $scope.updateResource = function (resource) {
@@ -109,7 +116,7 @@
                 };
 
                 $scope.delete = function (resource) {
-                    var ok = confirm("Would you really like to delete resource: " + resource.toString() + " ?");
+                    var ok = confirm("Would you really like to delete resource: \n\n`" + resource.toString() + "` ?");
                     if(ok) {
                         $log.log("CONFIRMED");
                         $log.log("About to delete", resource.toString(), "...");
