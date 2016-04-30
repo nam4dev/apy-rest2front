@@ -66,6 +66,15 @@
             });
         }
 
+        String.prototype.replaceAll = function(target, replacement) {
+            return this.split(target).join(replacement);
+        };
+
+        String.prototype.capitalize = function() {
+            var lower = this.toLowerCase();
+            return lower.charAt(0).toUpperCase() + lower.slice(1);
+        };
+
         // Borrowed to AngularJs framework
         /**
          * @name forEach
@@ -725,7 +734,7 @@
 
         ApySchemasComponent.prototype.load = function load () {
             var self = this;
-            Object.keys(self.$schemas).forEach(function (schemaName) {
+            Object.keys(this.$schemas).forEach(function (schemaName) {
                 var schema = new ApySchemaComponent(self.$schemas[schemaName]);
                 self.$components[schemaName] = schema;
                 self.$componentArray.push({
@@ -1064,13 +1073,19 @@
             return updated;
         };
 
-        ApyResourceComponent.prototype.updateSelf = function updateSelf (update) {
-            update = update || {};
+        ApyResourceComponent.prototype.updateSelf = function updateSelf (update, commit=false) {
             var self = this;
+            update = update || {};
+            // Copy private properties such as _id, _etag, ...
+            forEach(update, function (value, name) {
+                if(self.continue(name)) {
+                    self[name] = value
+                }
+            });
             forEach(this.$schema.$base, function (_, fieldName) {
                 self.$components.forEach(function (comp) {
                     if(update.hasOwnProperty(fieldName) && comp.$name === fieldName) {
-                        comp.updateSelf(update[fieldName]);
+                        comp.updateSelf(update[fieldName], commit);
                     }
                 });
             });
@@ -1353,6 +1368,14 @@
                 default :
                     return Object.assign(value);
             }
+        };
+
+        ApyFieldComponent.prototype.updateSelf = function updateSelf (update, commit=false) {
+            this.$value = this.typeWrapper(update);
+            if(commit) {
+                this.$memo = this.clone(update);
+            }
+            return this;
         };
 
         ApyFieldComponent.prototype.reset = function reset () {
