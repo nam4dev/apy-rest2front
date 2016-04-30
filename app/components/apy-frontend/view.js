@@ -10,7 +10,8 @@
                     field: '='
                 },
                 template: '<div ng-include="field.$contentUrl"></div>',
-                controller: ['$scope', '$log', function ($scope, $log) {
+                controller: ['$scope', '$log', '$uibModal', 'apy', function ($scope, $log, $uibModal, apyProvider) {
+                    var resourcePickerWindow;
                     $scope.opened = false;
                     $scope.dateOptions = {};
                     //$scope.$states = apyProvider.$states;
@@ -18,9 +19,28 @@
                     $scope.formats = ['yyyy-MMM-dd HH:mm:ss', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
                     $scope.format = $scope.formats[0];
 
+                    $scope.select = function ($resource, resource) {
+                        //alert(JSON.stringify(resource, null, 4));
+                        //$angular.merge($resource, resource);
+                        $resource = resource;
+                    };
+
+                    $scope.cancel = function ($resource) {
+                        resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                    };
+
                     $scope.resourcePicker = function (field) {
-                        $log.log("Field =>", field);
-                        $log.log("Field.$endpointBase =>", field.$endpointBase);
+                        var collection = apyProvider.createCollection(field.$relationName);
+                        $scope.$resource = field;
+                        $scope.$collection = collection;
+                        collection.fetch().then(function (_) {
+                            resourcePickerWindow = $uibModal.open({
+                                animation: false,
+                                templateUrl: 'modal.html',
+                                controllerAs: 'ModalCtrl',
+                                scope: $scope
+                            });
+                        });
                     };
                 }]
             };

@@ -29,3 +29,38 @@ body {
     width: 75%;
     margin: 0 auto;
 }
+
+.small-title i {
+    font-size: 15px;
+}
+
+.scrolling-table {
+	box-sizing: border-box;
+	display: inline-block;
+	vertical-align: middle;
+	overflow: hidden;
+	width: auto;
+	height: 360px;
+}
+.scrolling-table * {box-sizing: border-box;}
+.scrolling-table > div {
+	position: relative;
+	height: 100%;
+}
+.scrolling-table > div:before {
+	top: 0;
+}
+.scrolling-table > div:before,
+.scrolling-table > div > div:after {
+	content: "";
+	position: absolute;
+	z-index: -1;
+	width: 100%;
+	height: 50%;
+	left: 0;
+}
+.scrolling-table > div > div {
+	max-height: 100%;
+	overflow: scroll;
+	overflow-x: hidden;
+}

@@ -222,4 +222,50 @@
         </tr>
         </tbody>
     </table>
+
+    <script type="text/ng-template" id="modal.html">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                 <span class="text-capitalize" >
+                     <strong>{{ $collection.$name }}</strong> Collection</span>
+            </h3>
+            (<i>Select a resource of your choice amongst the collection</i>)
+        </div>
+        <div class="modal-body">
+            <div class="scrolling-table">
+                <div>
+                    <div>
+                        <table class="table">
+                            <thead class="thead-inverse">
+                            <tr>
+                                <th>#</th>
+                                <th ng-repeat="header in $collection.$schema.$headers" >
+                                    <strong class="text-capitalize text-underlined">{{ header }}</strong>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr style="cursor: pointer;" ng-repeat="resource in $collection.$components track by $index" ng-click="select($resource, resource)" >
+                                <td scope="row">{{ $index + 1 }}</td>
+                                <td ng-repeat="field in resource.$components" >
+                                    <apy-field field="field"></apy-field>
+                                </td>
+                            </tr>
+                            <tr ng-if="$collection.count() === 0">
+                                <td class="text-center" colspan="{{ $collection.$schema.$headers.length + 1 }}">
+                                    <span >No Items Found.</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <!--<button class="btn btn-primary" type="button" ng-click="ok()">OK</button>-->
+            <button class="btn btn-warning" type="button" ng-click="cancel($resource)">Cancel</button>
+        </div>
+    </script>
+
 </div>
