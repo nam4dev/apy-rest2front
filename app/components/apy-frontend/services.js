@@ -861,7 +861,7 @@
         ApySchemasComponent.prototype.createResource = function createResource (name, resource=null) {
             var schema = this.get(name);
             if(!schema) throw new Error('No schema provided for name', name);
-            var component = new ApyResourceComponent(name, schema, null, "resource", null, this.$endpoint);
+            var component = new ApyResourceComponent(name, schema, null, "resource", null, this.$endpoint, name);
             component.load(resource || this.schema2data(schema));
             return component;
         };
@@ -878,7 +878,9 @@
         var ApyCollectionComponent = function ApyCollectionComponent (name, endpoint, components=null) {
             this.$endpointBase = endpoint;
             this.$schema = service.$instance.get(name);
-            this.$endpoint = endpoint + name + '?' + this.$schema.$embeddedURI;
+            this.$endpoint = endpoint + name;
+            if(this.$schema.$embeddedURI)
+                this.$endpoint += '?' + this.$schema.$embeddedURI;
             this.$parent.constructor.call(this, name, "collection", components);
         };
 
@@ -909,7 +911,7 @@
          */
         ApyCollectionComponent.prototype.reset = function reset () {
             this.$components.forEach(function (comp) {
-                comp.reset();
+                if(comp.hasUpdated()) comp.reset();
             });
         };
 
@@ -1083,9 +1085,13 @@
             this.$value = '';
             this.$schema = schema;
             this.$selfUpdated = false;
-            this.$relationName = relationName;
+            this.$endpoint = endpointBase;
             this.$endpointBase = endpointBase;
-            this.$endpoint = this.$endpointBase + relationName + '?' + schema.$embeddedURI;
+            this.$relationName = relationName;
+            if(relationName)
+                this.$endpoint += relationName;
+            if(schema.$embeddedURI)
+                this.$endpoint += '?' + schema.$embeddedURI;
             this.$states = $states || this.createStateHolder(states[1], states);
         };
 
@@ -1145,8 +1151,10 @@
          */
         ApyResourceComponent.prototype.reset = function reset () {
             this.$components.forEach(function (comp) {
-                comp.reset();
+                if(comp.hasUpdated()) comp.reset();
             });
+            if(this.$selfUpdated) this.$selfUpdated = false;
+            this.loadValue();
         };
 
         /**
@@ -1176,8 +1184,8 @@
          */
         ApyResourceComponent.prototype.commitSelf = function commitSelf () {
             this.$components.forEach(function (comp) {
-                if (comp.hasUpdated()) comp.commitSelf();
-                if(comp.hasOwnProperty('$selfUpdated') && comp.$selfUpdated) {
+                comp.commitSelf();
+                if(comp.$selfUpdated) {
                     comp.$selfUpdated = false;
                 }
             });
@@ -1189,7 +1197,7 @@
          * @param commit
          * @returns {ApyResourceComponent}
          */
-        ApyResourceComponent.prototype.updateSelf = function updateSelf (update, commit=false) {
+        ApyResourceComponent.prototype.selfUpdate = function selfUpdate (update, commit=false) {
             var self = this;
             update = update || {};
             // Copy private properties such as _id, _etag, ...
@@ -1202,15 +1210,14 @@
             if(update.hasOwnProperty('$value')) {
                 this.$value = update.$value;
             }
-            // Copy data based on schema
-            forEach(this.$schema.$base, function (_, fieldName) {
-                self.$components.forEach(function (comp) {
-                    if(update.hasOwnProperty(fieldName) && comp.$name === fieldName) {
-                        var newValue = update[fieldName];
-                        if(newValue) comp.updateSelf(newValue, commit);
+            // Copy data
+            if(update.hasOwnProperty('$components')) {
+                self.$components.forEach(function (comp, index) {
+                    if(update.$components[index]) {
+                        comp.selfUpdate(update.$components[index]);
                     }
                 });
-            });
+            }
             // Commit => save the inner state ($value, $memo) of each component recursively
             this.$selfUpdated = !commit;
             if (commit) this.commitSelf();
@@ -1223,7 +1230,7 @@
          * @returns {ApyResourceComponent}
          */
         ApyResourceComponent.prototype.loadResponse = function loadResponse (response) {
-            return this.updateSelf(response.data, true);
+            return this.selfUpdate(response.data, true);
         };
 
         /**
@@ -1412,6 +1419,7 @@
         ApyResourceComponent.prototype.loadValue = function loadValue () {
             var all = '';
             var self = this;
+            this.$value = '';
             forEach(this.$components, function (component) {
                 if(component.$value && !isDate(component.$value)) {
                     var value = component.$value + ', ';
@@ -1532,8 +1540,8 @@
          * @param commit
          * @returns {ApyFieldComponent}
          */
-        ApyFieldComponent.prototype.updateSelf = function updateSelf (update, commit=false) {
-            this.$value = this.typeWrapper(update);
+        ApyFieldComponent.prototype.selfUpdate = function selfUpdate (update, commit=false) {
+            this.$value = this.typeWrapper(update.$value);
             if(commit) {
                 this.commitSelf();
             }
@@ -1544,11 +1552,13 @@
          *
          */
         ApyFieldComponent.prototype.reset = function reset () {
-            this.$value = this.$memo;
+            if(this.hasUpdated()) {
+                this.$value = this.$memo;
+            }
         };
 
         /**
-         * 
+         *
          * @returns {boolean}
          */
         ApyFieldComponent.prototype.hasUpdated = function hasUpdated () {

@@ -21,10 +21,6 @@
 
                     $scope.resourcePicker = function (field) {
                         // UI Callbacks
-                        $scope.select = function (resource) {
-                            field.updateSelf(resource);
-                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
-                        };
                         $scope.cancel = function () {
                             resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
                         };

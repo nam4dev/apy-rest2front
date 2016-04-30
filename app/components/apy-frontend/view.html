@@ -175,14 +175,19 @@
             <th ng-repeat="header in $collection.$schema.$headers" >
                 <strong class="text-capitalize text-underlined">{{ header }}</strong>
             </th>
-            <th><i ng-click="createResource()" class="glyphicon glyphicon-plus"></i></th>
+            <th><i ng-click="createResource()"
+                   class="glyphicon glyphicon-plus"></i></th>
             <th>
-                <i ng-click="updateResources()" ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden" class="glyphicon glyphicon-pencil"></i>
+                <i ng-click="updateResources()"
+                   ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
+                   class="glyphicon glyphicon-pencil"></i>
                 <!--<i ng-click="setRead($collection)" ng-if="!validateHidden" class="glyphicon glyphicon-ok"></i>-->
                 <i ng-click="cancel()" ng-if="$collection.savedCount() > 0 && updateHidden" class="glyphicon glyphicon-arrow-left"></i>
             </th>
             <th>
-                <i ng-click="deleteResources()" ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden" class="glyphicon glyphicon-trash"></i>
+                <i ng-click="deleteResources()"
+                   ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
+                   class="glyphicon glyphicon-trash"></i>
                 <i ng-click="$collection.reset()" ng-if="$collection.count() > 0 && !validateHidden" class="glyphicon glyphicon-erase"></i>
             </th>
         </tr>
@@ -246,15 +251,12 @@
                             <tbody>
                             <tr style="cursor: pointer;"
                                 ng-repeat="resource in $collection.$components track by $index"
-                                ng-click="select(resource)" >
+                                ng-click="field.selfUpdate(resource);cancel();" >
                                 <!--ng-click="$resource.updateSelf(resource)" >-->
-
-
                                 <td scope="row">{{ $index + 1 }}</td>
                                 <td ng-repeat="field in resource.$components" >
                                     <apy-field field="field"></apy-field>
                                 </td>
-
                             </tr>
                             <tr ng-if="$collection.count() === 0">
                                 <td class="text-center"
