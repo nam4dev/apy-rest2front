@@ -66,10 +66,20 @@
             });
         }
 
+        /**
+         *
+         * @param target
+         * @param replacement
+         * @returns {string}
+         */
         String.prototype.replaceAll = function(target, replacement) {
             return this.split(target).join(replacement);
         };
 
+        /**
+         *
+         * @returns {string}
+         */
         String.prototype.capitalize = function() {
             var lower = this.toLowerCase();
             return lower.charAt(0).toUpperCase() + lower.slice(1);
@@ -250,7 +260,6 @@
          */
         function isUndefined(value) {return typeof value === 'undefined';}
 
-
         /**
          * @name isDefined
          * @kind function
@@ -262,7 +271,6 @@
          * @returns {boolean} True if `value` is defined.
          */
         function isDefined(value) {return typeof value !== 'undefined';}
-
 
         /**
          * @name isObject
@@ -280,7 +288,6 @@
             return value !== null && typeof value === 'object';
         }
 
-
         /**
          * Determine if a value is an object with a null prototype
          *
@@ -289,7 +296,6 @@
         function isBlankObject(value) {
             return value !== null && typeof value === 'object' && !getPrototypeOf(value);
         }
-
 
         /**
          * @name isString
@@ -302,7 +308,6 @@
          * @returns {boolean} True if `value` is a `String`.
          */
         function isString(value) {return typeof value === 'string';}
-
 
         /**
          * @name isNumber
@@ -322,7 +327,6 @@
          */
         function isNumber(value) {return typeof value === 'number';}
 
-
         /**
          * @name isDate
          * @kind function
@@ -336,7 +340,6 @@
         function isDate(value) {
             return toString.call(value) === '[object Date]';
         }
-
 
         /**
          * @name isArray
@@ -362,7 +365,6 @@
          */
         function isFunction(value) {return typeof value === 'function';}
 
-
         /**
          * Determines if a value is a regular expression object.
          *
@@ -373,7 +375,6 @@
         function isRegExp(value) {
             return toString.call(value) === '[object RegExp]';
         }
-
 
         /**
          * Checks if `obj` is a window object.
@@ -386,27 +387,47 @@
             return obj && obj.window === obj;
         }
 
-
+        /**
+         *
+         * @param obj
+         * @returns {boolean}
+         */
         function isFile(obj) {
             return toString.call(obj) === '[object File]';
         }
 
-
+        /**
+         *
+         * @param obj
+         * @returns {boolean}
+         */
         function isFormData(obj) {
             return toString.call(obj) === '[object FormData]';
         }
 
-
+        /**
+         *
+         * @param obj
+         * @returns {boolean}
+         */
         function isBlob(obj) {
             return toString.call(obj) === '[object Blob]';
         }
 
-
+        /**
+         *
+         * @param value
+         * @returns {boolean}
+         */
         function isBoolean(value) {
             return typeof value === 'boolean';
         }
 
-
+        /**
+         *
+         * @param obj
+         * @returns {*|boolean}
+         */
         function isPromiseLike(obj) {
             return obj && isFunction(obj.then);
         }
@@ -447,17 +468,32 @@
                 'DELETE'
             ];
 
+        /**
+         *
+         * @param initialState
+         * @param states
+         * @constructor
+         */
         var ApyStateHolder = function (initialState, states) {
             this.$states = states;
             this.$current = initialState;
             this.load();
         };
 
+        /**
+         *
+         * @param state
+         * @returns {ApyStateHolder}
+         */
         ApyStateHolder.prototype.set = function (state) {
             this.$current = state;
             return this;
         };
 
+        /**
+         *
+         * @returns {ApyStateHolder}
+         */
         ApyStateHolder.prototype.load = function () {
             var self = this;
             forEach(this.$states, function (value) {
@@ -662,8 +698,6 @@
             this.load();
         };
 
-
-
         /**
          * Loads a Schema
          * Computes the `embedded` URI fragment
@@ -728,10 +762,18 @@
             this.load();
         };
 
+        /**
+         *
+         * @param schemaName
+         * @returns {*}
+         */
         ApySchemasComponent.prototype.get = function get (schemaName) {
             return this.$components[schemaName];
         };
 
+        /**
+         *
+         */
         ApySchemasComponent.prototype.load = function load () {
             var self = this;
             Object.keys(this.$schemas).forEach(function (schemaName) {
@@ -748,6 +790,12 @@
             });
         };
 
+        /**
+         *
+         * @param key
+         * @param value
+         * @returns {*}
+         */
         ApySchemasComponent.prototype.transformData = function transformData(key, value) {
             var val;
             switch (value.type) {
@@ -784,6 +832,12 @@
             return val;
         };
 
+        /**
+         *
+         * @param schema
+         * @param keyName
+         * @returns {*}
+         */
         ApySchemasComponent.prototype.schema2data = function schema2data (schema=null, keyName=null) {
             var self = this;
             var data = schema ? {} : this.$template;
@@ -798,6 +852,12 @@
             return data;
         };
 
+        /**
+         *
+         * @param name
+         * @param resource
+         * @returns {ApyResourceComponent}
+         */
         ApySchemasComponent.prototype.createResource = function createResource (name, resource=null) {
             var schema = this.get(name);
             if(!schema) throw new Error('No schema provided for name', name);
@@ -824,22 +884,39 @@
 
         ApyCollectionComponent.inheritsFrom(ApyComponent);
 
+        /**
+         *
+         * @param resource
+         * @returns {ApyResourceComponent}
+         */
         ApyCollectionComponent.prototype.createResource = function createResource (resource) {
             var component = service.$instance.createResource(this.$name, resource);
             this.prepend(component);
             return component;
         };
 
+        /**
+         *
+         * @param resource
+         * @returns {Array.<T>}
+         */
         ApyCollectionComponent.prototype.removeResource = function remove (resource) {
             return this.$components.splice(this.$components.indexOf(resource), 1);
         };
 
+        /**
+         *
+         */
         ApyCollectionComponent.prototype.reset = function reset () {
             this.$components.forEach(function (comp) {
                 comp.reset();
             });
         };
 
+        /**
+         *
+         * @returns {boolean}
+         */
         ApyCollectionComponent.prototype.hasCreated = function hasCreated () {
             var created = false;
             this.$components.forEach(function (comp) {
@@ -848,6 +925,10 @@
             return created;
         };
 
+        /**
+         *
+         * @returns {boolean}
+         */
         ApyCollectionComponent.prototype.hasUpdated = function hasUpdated () {
             var updated = false;
             this.$components.forEach(function (comp) {
@@ -1010,6 +1091,10 @@
 
         ApyResourceComponent.inheritsFrom(ApyComponent);
 
+        /**
+         *
+         * @returns {string}
+         */
         ApyResourceComponent.prototype.toString = function () {
             var filtered = this.$components.filter(function (c) {
                 return c.$required;
@@ -1055,17 +1140,28 @@
             return this;
         };
 
+        /**
+         *
+         */
         ApyResourceComponent.prototype.reset = function reset () {
             this.$components.forEach(function (comp) {
                 comp.reset();
             });
         };
 
+        /**
+         *
+         * @returns {boolean}
+         */
         ApyResourceComponent.prototype.hasCreated = function hasCreated () {
             var pkAttributeName = service.$config.pkName;
             return this.hasOwnProperty(pkAttributeName) && !this[pkAttributeName];
         };
 
+        /**
+         *
+         * @returns {boolean}
+         */
         ApyResourceComponent.prototype.hasUpdated = function hasUpdated () {
             if(this.$selfUpdated) return true;
             var updated = false;
@@ -1075,6 +1171,9 @@
             return updated;
         };
 
+        /**
+         *
+         */
         ApyResourceComponent.prototype.commitSelf = function commitSelf () {
             this.$components.forEach(function (comp) {
                 if (comp.hasUpdated()) comp.commitSelf();
@@ -1084,6 +1183,12 @@
             });
         };
 
+        /**
+         *
+         * @param update
+         * @param commit
+         * @returns {ApyResourceComponent}
+         */
         ApyResourceComponent.prototype.updateSelf = function updateSelf (update, commit=false) {
             var self = this;
             update = update || {};
@@ -1112,10 +1217,20 @@
             return this;
         };
 
+        /**
+         *
+         * @param response
+         * @returns {ApyResourceComponent}
+         */
         ApyResourceComponent.prototype.loadResponse = function loadResponse (response) {
             return this.updateSelf(response.data, true);
         };
 
+        /**
+         *
+         * @param method
+         * @returns {Promise}
+         */
         ApyResourceComponent.prototype.createRequest = function createRequest (method='POST') {
             var self = this;
             return new Promise(function (resolve, reject) {
@@ -1291,6 +1406,9 @@
             return cleaned;
         };
 
+        /**
+         *
+         */
         ApyResourceComponent.prototype.loadValue = function loadValue () {
             var all = '';
             var self = this;
@@ -1361,10 +1479,19 @@
 
         ApyFieldComponent.inheritsFrom(ApyComponent);
 
+        /**
+         *
+         * @returns {string}
+         */
         ApyFieldComponent.prototype.toString = function toString () {
             return "" + this.$value;
         };
 
+        /**
+         *
+         * @param value
+         * @returns {*}
+         */
         ApyFieldComponent.prototype.typeWrapper = function typeWrapper (value) {
             switch (this.$type) {
                 case 'datetime':
@@ -1374,6 +1501,11 @@
             }
         };
 
+        /**
+         *
+         * @param value
+         * @returns {*}
+         */
         ApyFieldComponent.prototype.clone = function clone (value) {
             switch (this.$type) {
                 case 'string':
@@ -1385,11 +1517,21 @@
             }
         };
 
+        /**
+         *
+         * @returns {ApyFieldComponent}
+         */
         ApyFieldComponent.prototype.commitSelf = function commitSelf () {
             this.$memo = this.clone(this.$value);
             return this;
         };
 
+        /**
+         *
+         * @param update
+         * @param commit
+         * @returns {ApyFieldComponent}
+         */
         ApyFieldComponent.prototype.updateSelf = function updateSelf (update, commit=false) {
             this.$value = this.typeWrapper(update);
             if(commit) {
@@ -1398,10 +1540,17 @@
             return this;
         };
 
+        /**
+         *
+         */
         ApyFieldComponent.prototype.reset = function reset () {
             this.$value = this.$memo;
         };
 
+        /**
+         * 
+         * @returns {boolean}
+         */
         ApyFieldComponent.prototype.hasUpdated = function hasUpdated () {
             var hasUpdated = false;
             switch (this.$type) {
