@@ -10,12 +10,11 @@
                     class="form-control"
                     ng-click="resourcePicker(field)"
                     ng-model="field.$value">
-                <span ng-if="field.$states.$current === field.$states.CREATE">
-                    <span>
+                <span ng-if="field.$states.$current === field.$states.CREATE ||
+                             field.$states.$current === field.$states.UPDATE" >
+                    <span ng-if="!field.$value">
                         Select <span class="text-capitalize"><strong>{{ field.$name }}</strong></span>
                     </span>
-                </span>
-                <span ng-if="field.$states.$current === field.$states.UPDATE">
                     <span ng-if="field.$value">
                         <span class="text-capitalize"><strong>{{ field.$value }}</strong></span>
                     </span>
@@ -245,14 +244,21 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr style="cursor: pointer;" ng-repeat="resource in $collection.$components track by $index" ng-click="select($resource, resource)" >
+                            <tr style="cursor: pointer;"
+                                ng-repeat="resource in $collection.$components track by $index"
+                                ng-click="select(resource)" >
+                                <!--ng-click="$resource.updateSelf(resource)" >-->
+
+
                                 <td scope="row">{{ $index + 1 }}</td>
                                 <td ng-repeat="field in resource.$components" >
                                     <apy-field field="field"></apy-field>
                                 </td>
+
                             </tr>
                             <tr ng-if="$collection.count() === 0">
-                                <td class="text-center" colspan="{{ $collection.$schema.$headers.length + 1 }}">
+                                <td class="text-center"
+                                    colspan="{{ $collection.$schema.$headers.length + 1 }}">
                                     <span >No Items Found.</span>
                                 </td>
                             </tr>

@@ -19,21 +19,19 @@
                     $scope.formats = ['yyyy-MMM-dd HH:mm:ss', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
                     $scope.format = $scope.formats[0];
 
-                    $scope.select = function ($resource, resource) {
-                        //alert(JSON.stringify(resource, null, 4));
-                        //$angular.merge($resource, resource);
-                        $resource = resource;
-                    };
-
-                    $scope.cancel = function ($resource) {
-                        resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
-                    };
-
                     $scope.resourcePicker = function (field) {
+                        // UI Callbacks
+                        $scope.select = function (resource) {
+                            field.updateSelf(resource);
+                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                        };
+                        $scope.cancel = function () {
+                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                        };
+                        // Data Layer
                         var collection = apyProvider.createCollection(field.$relationName);
-                        $scope.$resource = field;
-                        $scope.$collection = collection;
                         collection.fetch().then(function (_) {
+                            $scope.$collection = collection;
                             resourcePickerWindow = $uibModal.open({
                                 animation: false,
                                 templateUrl: 'modal.html',
@@ -57,7 +55,7 @@
 
                 collection.fetch()
                     .then(function (response) {
-                        //$log.debug(collection);
+                        //$log.debug('Col', collection);
                         $scope.$apply();
                     }).catch(function (error) {
                         $log.error(error);
@@ -104,6 +102,7 @@
 
                 $scope.create = function (resource) {
                     var defer = resource.create();
+                    $log.log('CREATE PROMISE =>', defer);
                     if(defer) {
                         defer.then(function (response) {
                             if(resource.$type ===  "collection") {
@@ -120,7 +119,7 @@
 
                 $scope.update = function (resource) {
                     var defer = resource.update();
-                    $log.log('PROMISE =>', defer);
+                    $log.log('UPDATE PROMISE =>', defer);
                     if(defer){
                         defer.then(function (response) {
                             if(resource.$type ===  "collection") {

@@ -801,8 +801,7 @@
         ApySchemasComponent.prototype.createResource = function createResource (name, resource=null) {
             var schema = this.get(name);
             if(!schema) throw new Error('No schema provided for name', name);
-            var component = new ApyResourceComponent(name, schema);
-            component.$endpointBase = this.$endpoint;
+            var component = new ApyResourceComponent(name, schema, null, "resource", null, this.$endpoint);
             component.load(resource || this.schema2data(schema));
             return component;
         };
@@ -995,15 +994,17 @@
          * @param $states
          * @param components
          * @param endpointBase
+         * @param relationName
          * @constructor
          */
         var ApyResourceComponent = function ApyResourceComponent (name, schema, components=null, type="resource", $states=null, endpointBase=null, relationName=null) {
             this.$parent.constructor.call(this, name, type, components);
             this.$value = '';
             this.$schema = schema;
+            this.$selfUpdated = false;
             this.$relationName = relationName;
-            this.$endpointBase = endpointBase + relationName;
-            this.$endpoint = this.$endpointBase + '?' + schema.$embeddedURI;
+            this.$endpointBase = endpointBase;
+            this.$endpoint = this.$endpointBase + relationName + '?' + schema.$embeddedURI;
             this.$states = $states || this.createStateHolder(states[1], states);
         };
 
@@ -1066,6 +1067,7 @@
         };
 
         ApyResourceComponent.prototype.hasUpdated = function hasUpdated () {
+            if(this.$selfUpdated) return true;
             var updated = false;
             this.$components.forEach(function (comp) {
                 if(comp.hasUpdated()) updated = true;
@@ -1082,28 +1084,29 @@
                     self[name] = value
                 }
             });
+            if(update.hasOwnProperty('$value')) {
+                this.$value = update.$value;
+            }
             forEach(this.$schema.$base, function (_, fieldName) {
                 self.$components.forEach(function (comp) {
                     if(update.hasOwnProperty(fieldName) && comp.$name === fieldName) {
-                        comp.updateSelf(update[fieldName], commit);
+                        var newValue = update[fieldName];
+                        if(newValue) comp.updateSelf(newValue, commit);
                     }
                 });
             });
+            this.$selfUpdated = true;
             return this;
         };
 
         ApyResourceComponent.prototype.loadResponse = function loadResponse (response) {
-            var self = this;
-            forEach(response.data, function (v, k) {
-                self[k] = v;
-            });
-            return this;
+            return this.updateSelf(response.data, true);
         };
 
         ApyResourceComponent.prototype.createRequest = function createRequest (method='POST') {
             var self = this;
             return new Promise(function (resolve, reject) {
-                var uri = self.$endpointBase;
+                var uri = self.$endpointBase + self.$name;
                 var data = null;
                 var headers = {
                     'Content-Type': 'application/json'
@@ -1112,6 +1115,7 @@
                     uri += '/' + self._id;
                     headers['If-Match'] = self._etag;
                 };
+
                 switch (method) {
                     case 'POST':
                         data = self.cleanedData();
@@ -1202,7 +1206,7 @@
          *
          * @param resource
          */
-        ApyResourceComponent.prototype.load = function load (resource) {
+        ApyResourceComponent.prototype._load = function _load (resource) {
             var field;
             for (field in resource) {
                 if(resource.hasOwnProperty(field) && this.continue(field)) {
@@ -1241,9 +1245,7 @@
                         fieldObj = new ApyResourceComponent(field,
                             service.$schemas[relationName],
                             null, 'objectid', this.$states, this.$endpointBase, relationName);
-                        //fieldObj.$endpointBase = this.$endpointBase + subSchema.data_relation.resource;
-
-                        fieldObj.loadObjectid(value);
+                        fieldObj.load(value);
                         break;
                     default:
                         fieldObj = new ApyFieldComponent(field, type, value, subSchema, this.$states);
@@ -1281,13 +1283,15 @@
             var all = '';
             var self = this;
             forEach(this.$components, function (component) {
-                var value = component.$value + ', ';
-                all += value;
-                if(component.$required) {
-                    self.$value += value;
+                if(component.$value && !isDate(component.$value)) {
+                    var value = component.$value + ', ';
+                    all += value;
+                    if(component.$required) {
+                        self.$value += value;
+                    }
                 }
             });
-            if(!this.$value) {
+            if(!this.$value && all) {
                 this.$value = all;
             }
             this.$value = this.$value.slice(0, -2);
@@ -1298,8 +1302,7 @@
          * @param components
          * @returns {ApyResourceComponent}
          */
-        ApyResourceComponent.prototype.loadObjectid = function loadObjectid (components) {
-            var all = '';
+        ApyResourceComponent.prototype.load = function loadObjectid (components) {
             var self = this;
             components = components || {};
             forEach(Object.assign(components), function (v, k) {
@@ -1308,7 +1311,7 @@
                     delete components[k];
                 }
             });
-            this.load(components);
+            this._load(components);
             return this;
         };
 
