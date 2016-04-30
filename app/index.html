@@ -5,7 +5,7 @@
 <!--[if gt IE 8]><!--> <html lang="en" ng-app="apy" class="no-js"> <!--<![endif]-->
 <head>
 
-    <title>My AngularJS App</title>
+    <title>Apy Frontend - Angular</title>
 
     <meta charset="utf-8">
     <meta name="description" content="">
@@ -51,7 +51,7 @@
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
                     </button>
-                    <a class="navbar-brand" href="#">Eve Admin Panel</a>
+                    <a class="navbar-brand" href="#">Apy Frontend</a>
                 </div>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
@@ -91,15 +91,16 @@
         <!--</ul>-->
 
         <div class="jumbotron" ng-show="$route.current.name == 'index'">
-            <h1>Welcome to Eve Admin Panel!</h1>
-            <p>An automated Eve backend Administrative Panel, based on Eve</p>
-            <p><a class="btn btn-primary btn-lg" href="#" role="button">Authenticate</a></p>
+            <h1>Welcome to Apy Frontend!</h1>
+            <p>Automated CRUD views, based on your REST API endpoint schemas</p>
+            <p class="small-title">(<i>For now, 'Eve' is the only supported REST API backend</i>)</p>
+            <p><a class="btn btn-primary btn-lg pull-right" href="#" role="button">Authenticate</a></p>
         </div>
 
         <div ng-view></div>
 
         <footer>
-            <div>apy App: v<span app-version></span></div>
+            <div>Apy Frontend, v<span app-version></span></div>
 
             <script src="components/angular-ui-tree/dist/angular-ui-tree.min.js"></script>
             <!-- shim is needed to support non-HTML5 FormData browsers (IE8-9)-->

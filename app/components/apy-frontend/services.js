@@ -1,58 +1,4 @@
-(function ($window, angular) {'use strict';
-    /**
-     * Keep States and handle them
-     */
-    var ApyStack = function (states, initialState, noStateAllowed) {
-
-        var self = this;
-
-        if(noStateAllowed === undefined) noStateAllowed = false;
-
-        self._load = function () {
-            angular.forEach(self.states, function (state) {
-                self['$$' + state] = state;
-            });
-            return self;
-        };
-
-        self.init = function () {
-            self.states = states || [];
-            self.initialState = initialState;
-            self.innerStates = [initialState];
-            return self._load();
-        };
-
-        self.stack = function (state, noCheck) {
-            if(!noCheck) noCheck = false;
-
-            if(!noCheck && !state in self.states) {
-                throw new Error('Unknown state: ' + state +
-                    ' - Available are: ' + self.states.join());
-            }
-            self.innerStates.push(state);
-            return self;
-        };
-
-        self.getCurrent = function () {
-            return self.innerStates.slice(-1)[0];
-        };
-
-        self.getPrevious = function () {
-            return self.innerStates.slice(-2)[0];
-        };
-
-        self.unstack = function () {
-            var popped = self.innerStates.pop();
-            if (noStateAllowed === false  && popped === undefined) {
-                popped = self.initialState;
-                self.innerStates.push(popped);
-            }
-            return popped;
-        }
-    };
-
-    var service = null;
-
+(function ($window) {'use strict';
 
     /**
      *  The ApyService provides an Object which will load,
@@ -62,424 +8,6 @@
      *  * A configurable endpoint URI
      *  * A configurable CSS theme (default: Bootstrap 3)
      */
-    var ApyService = function ($log, $http, Upload, config) {
-
-        if(!service) {
-            service = new ApyCompositeService($log, $http, Upload, config);
-            //service.playground();
-        }
-
-        // Privileged variables
-        var self = this,
-            $syncHttp = new XMLHttpRequest(),
-            states = ['CREATE', 'READ', 'UPDATE', 'DELETE', 'SELECTION', 'NESTED'];
-
-        self.$log = $log;
-        self.conf = config;
-        //self.collections = {};
-        self.theme = undefined;
-        self.schemas = undefined;
-        self.endpoint = undefined;
-        self.schemasEndpoint = undefined;
-
-        // File Upload field Callbacks
-
-        // upload on file select or drop
-        self.upload = function (resource, file, method) {
-            var cleaned = resource.cleaned(),
-                endpoint,
-                headers = {
-                    'Content-Type': 'application/json'
-                };
-
-            cleaned['media'] = file;
-            switch (method) {
-                case 'POST':
-                    endpoint = self.endpoint + resource.$name;
-                    break;
-                case 'PATCH':
-                case 'DELETE':
-                    endpoint = self.endpoint + resource.$link;
-                    headers['If-Match'] = resource._etag;
-                    break;
-            }
-
-            return self.$Upload.upload({
-                url: endpoint,
-                method: method,
-                data: cleaned,
-                headers: headers
-            }).then(function (resp) {
-                $log.log('Response: ' + resp.data);
-                //$log.log(resp);
-                $log.log('Success ' + resp.config.data.media.name + 'uploaded. ');
-            }, function (resp) {
-                $log.log('Error status: ' + resp.status);
-            }, function (evt) {
-                var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                //$log.log(evt);
-                $log.log('progress: ' + progressPercentage + '% ' + evt.config.data.media.name);
-            });
-        };
-        // for multiple files:
-        self.uploadFiles = function (resource, files, method) {
-            var results = [];
-            if (files && files.length) {
-                for (var i = 0; i < files.length; i++) {
-                    results.push(self.upload(resource, files[i], method));
-                }
-                //TODO: or send them all together for HTML5 browsers:
-                //results.push(self.upload(resource, files));
-            }
-            //$log.log('results: ');
-            //$log.log(results);
-            return results;
-        };
-
-        // upload later on form submit or something similar
-        self.upmit = function(resource, files) {
-            var results = [];
-            //$log.log('[SUBMIT] Files => ');
-            //$log.log(files);
-            if (files) {
-                results = self.uploadFiles(resource, files, 'PATCH');
-            }
-            return results;
-        };
-
-        // upload later on form submit or something similar
-        self.submit = function(resource, files) {
-            var results = [];
-            //$log.log('[SUBMIT] Files => ');
-            //$log.log(files);
-            if (files) {
-                results = self.uploadFiles(resource, files, 'POST');
-            }
-            return results;
-        };
-
-        // Loads Schemas **synchronously** (onload)
-        self._load = function () {
-            $syncHttp.open('GET', self.schemasEndpoint, false);
-            $syncHttp.send(null);
-            self.schemas = JSON.parse($syncHttp.response);
-
-            $log.log('SCHEMAS =>');
-            $log.log(self.schemas);
-
-            return self;
-        };
-
-        /**
-         *
-         * @param states
-         * @param initialState
-         * @param noStateAllowed
-         */
-        self.createStack = function (states, initialState, noStateAllowed) {
-            return new ApyStack(states, initialState, noStateAllowed).init();
-        };
-        // READ as initial state
-        var initialState = states[1];
-        self.states = self.createStack(states, initialState);
-
-        self.setDependencies = function() {
-            for(var i = 0; i < arguments.length; ++i) {
-                //i is always valid index in the arguments object
-                self['$' + arguments[i].name] = arguments[i].value;
-            }
-        };
-
-        self.initEndpoints = function(endpoint, schemaName) {
-            self.schemasEndpoint = endpoint + schemaName;
-            self.endpoint = endpoint;
-        };
-
-        // Entry point
-        // Returns:
-        //        - A Promise object to dynamically set
-        //          your $scope instance accordingly
-        self.init = function(endpoint, schemaName, th) {
-            self.theme = th;
-            self.initEndpoints(endpoint, schemaName);
-            return self._load().formatSchemas2Array(self.schemas, self.conf.excludedEndpointByNames || []);
-        };
-
-        // Fetch Resource(s) based on given parameters and
-        // concatenated endpoint & endpointName value
-        self.fetch = function (resource) {
-            return $http({
-                url: self.endpoint + resource,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                method: 'GET',
-                params: {}
-            });
-        };
-
-        // Create a Resource based on given parameters and
-        // concatenated endpoint & endpointName value
-        self.create = function (resource) {
-            if(resource.submit().length > 0) return;
-            return $http({
-                url: resource.$endpoint,
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                method: 'POST',
-                data: resource.cleaned()
-            });
-        };
-
-        // Update a Resource based on given parameters and
-        // endpoint value
-        self.update = function (resource) {
-            if(resource.upmit().length > 0) return;
-            return $http({
-                url: self.endpoint + resource.$link,
-                headers: {
-                    'If-Match': resource._etag,
-                    'Content-Type': 'application/json'
-                },
-                method: 'PATCH',
-                data: resource.cleaned()
-            });
-        };
-
-        // Delete a Resource based on given parameters and
-        // endpoint value
-        self.delete = function (resource) {
-            return $http({
-                url: self.endpoint + resource.$link,
-                headers: {
-                    'If-Match': resource._etag
-                },
-                method: 'DELETE'
-            });
-        };
-
-        /**
-         *
-         */
-        self.updateTransition = function () {
-            self.states.stack(self.states.$$UPDATE);
-        };
-
-        /**
-         *
-         */
-        self.createTransition = function () {
-            self.states.stack(self.states.$$CREATE);
-        };
-
-        /**
-         *
-         */
-        self.deleteTransition = function () {
-            self.states.stack(self.states.$$DELETE);
-        };
-
-        /**
-         * Public method - Create a ApyCollection instance
-         *
-         * @param schemas
-         * @param schemaName
-         * @param embedded
-         * @returns {*|ApyCollection}
-         */
-        self.createCollection = function (schemas, schemaName, embedded) {
-            return new ApyCollection(self, schemas, schemaName, embedded);
-        };
-
-        /**
-         *
-         * @param field
-         * @param validator
-         * @param resource
-         * @param isInitial
-         * @param $scope
-         */
-        self.onNestedResourceTransition = function (field, validator, resource, isInitial, $scope) {
-            var collection = $scope.collection;
-            self.states.stack(self.states.$$NESTED);
-            $scope.memoNestedField.stack(field);
-            $scope.nestedSchema = validator.schema;
-            var initial = collection.createInitial(validator.schema),
-                value = isInitial ? resource : resource[field];
-
-            if (value instanceof ApyField) {
-                value = value.value;
-            }
-            $scope.nestedSubItem = value;
-
-            $scope.memoNestedFields[field] = {
-                nestedSubItem: value,
-                initialItem: initial,
-                initialSchema: validator.schema
-            };
-            $scope.open();
-        };
-
-        /**
-         *
-         * @param field
-         * @param validator
-         * @param $scope
-         */
-        self.onEmbeddedResourceTransition = function (field, validator, $scope) {
-            self.states.stack(self.states.$$SELECTION);
-            $scope.collection.fetchEmbeddedResources(validator.data_relation.resource)
-                .then(function (items) {
-                    $scope.embeddedColItems = items;
-                    $scope.fieldName = field;
-                    $scope.open();
-                })
-                .catch(function (error) {
-                    $scope.errors.push(error);
-                    $scope.open();
-                });
-        };
-
-        /**
-         *
-         * @param action
-         * @param message
-         * @param $scope
-         */
-        self.onStateTransition = function (action, message, $scope) {
-            var current = self.states.getCurrent(),
-                collection = $scope.collection;
-
-            if(!current) return;
-
-            switch (current) {
-                case self.states.$$NESTED:
-                    $log.log('Popped nested field => ' + $scope.memoNestedField.unstack());
-                    var currentField = $scope.memoNestedField.getCurrent(),
-                        memo = $scope.memoNestedFields[currentField];
-
-                    if(memo) {
-                        $scope.nestedSchema = memo.initialSchema;
-                        $scope.nestedSubItem = memo.nestedSubItem;
-                        switch (action) {
-                            case 'ok':
-                            case 'cancel':
-                                break;
-                        }
-                    }
-                    break;
-
-                case self.states.$$SELECTION:
-                    switch (action) {
-                        case 'ok':
-                            var resource = message.resource || {},
-                                field = message.field,
-                                selected = message.selected;
-
-                            if ($scope.originalFieldsData === undefined) {
-                                $scope.originalFieldsData = {};
-                            }
-                            if(!$scope.originalFieldsData.hasOwnProperty(field) && resource[field]) {
-                                $scope.originalFieldsData[field] = {
-                                    resource: resource[field],
-                                    original: angular.copy(resource[field])
-                                };
-                            }
-                            if(selected !== undefined) {
-                                angular.merge(resource[field], selected);
-                            }
-                            $scope.embeddedColItems = undefined;
-                            break;
-                        case 'cancel':
-                            collection.removeResource($scope.resource);
-                            var fieldsData = $scope.originalFieldsData;
-                            if(fieldsData && Object.keys(fieldsData).length > 0) {
-                                angular.forEach(fieldsData, function (resourceData) {
-                                    if (resourceData && resourceData.original) {
-                                        angular.merge(resourceData.resource, resourceData.original);
-                                    }
-                                });
-                            }
-                            $scope.originalFieldsData = {};
-                            $scope.embeddedColItems = undefined;
-                            break;
-                    }
-                    break;
-
-                case self.states.$$UPDATE:
-                    switch (action) {
-                        case 'ok':
-                            break;
-                        case 'cancel':
-                            $scope.resource = undefined;
-                            break;
-                    }
-                    break;
-
-                case self.states.$$CREATE:
-                    switch (action) {
-                        case 'ok':
-                            break;
-                        case 'cancel':
-                            collection.removeResource($scope.resource);
-                            $scope.resource = undefined;
-                            break;
-                    }
-                    break;
-
-                case self.states.$$DELETE:
-                    switch (action) {
-                        case 'ok':
-                            break;
-                        case 'cancel':
-                            break;
-                    }
-                    break;
-                default :
-                    $log.error('NOk boom');
-                    break;
-            }
-            self.states.unstack();
-        };
-
-        // Public method - format received Schema(s)
-        // into Angular friendly Object instead of Array
-        ApyService.prototype.formatSchemas2Object = function (data) {
-            var schemas = {};
-            angular.forEach(data, function (el) {
-                var name = el['name'];
-                el['endpoint'] = self.endpoint + name;
-                schemas[name] = el;
-            });
-            return schemas;
-        };
-
-        // Public method - format received Schema(s)
-        // into Angular Array instead of Object
-        ApyService.prototype.formatSchemas2Array = function (data, excludedEndpointByNames) {
-            var schemas = [];
-            excludedEndpointByNames = excludedEndpointByNames || [];
-            angular.forEach(data, function (el, name) {
-                //$log.log('Data => ' + name);
-                //$log.log('Included => ');
-                //$log.log(excludedEndpointByNames);
-                //$log.log(excludedEndpointByNames.indexOf(name) === -1);
-                //$log.log(el);
-                if(excludedEndpointByNames.indexOf(name) === -1) {
-                    schemas.push({
-                        endpoint: self.endpoint + name,
-                        name: name,
-                        humanName: name.replaceAll('_', ' '),
-                        data: el
-                    });
-                }
-            });
-            return schemas;
-        };
-    };
-
-
     var ApyCompositeService = function ($log, $http, $upload, config) {
 
         /**
@@ -505,8 +33,119 @@
             return this;
         };
 
+        if (!Object.assign) {
+            Object.defineProperty(Object, 'assign', {
+                enumerable: false,
+                configurable: true,
+                writable: true,
+                value: function(target) {
+                    'use strict';
+                    if (target === undefined || target === null) {
+                        throw new TypeError('Cannot convert first argument to object');
+                    }
+
+                    var to = Object(target);
+                    for (var i = 1; i < arguments.length; i++) {
+                        var nextSource = arguments[i];
+                        if (nextSource === undefined || nextSource === null) {
+                            continue;
+                        }
+                        nextSource = Object(nextSource);
+
+                        var keysArray = Object.keys(nextSource);
+                        for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
+                            var nextKey = keysArray[nextIndex];
+                            var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
+                            if (desc !== undefined && desc.enumerable) {
+                                to[nextKey] = nextSource[nextKey];
+                            }
+                        }
+                    }
+                    return to;
+                }
+            });
+        }
+
+        // Borrowed to AngularJs framework
+        /**
+         * @name forEach
+         * @kind function
+         *
+         * @description
+         * Invokes the `iterator` function once for each item in `obj` collection, which can be either an
+         * object or an array. The `iterator` function is invoked with `iterator(value, key, obj)`, where `value`
+         * is the value of an object property or an array element, `key` is the object property key or
+         * array element index and obj is the `obj` itself. Specifying a `context` for the function is optional.
+         *
+         * It is worth noting that `.forEach` does not iterate over inherited properties because it filters
+         * using the `hasOwnProperty` method.
+         *
+         * Unlike ES262's
+         * [Array.prototype.forEach](http://www.ecma-international.org/ecma-262/5.1/#sec-15.4.4.18),
+         * Providing 'undefined' or 'null' values for `obj` will not throw a TypeError, but rather just
+         * return the value provided.
+         *
+         ```js
+         var values = {name: 'misko', gender: 'male'};
+         var log = [];
+         forEach(values, function(value, key) {
+           this.push(key + ': ' + value);
+         }, log);
+         expect(log).toEqual(['name: misko', 'gender: male']);
+         ```
+         *
+         * @param {Object|Array} obj Object to iterate over.
+         * @param {Function} iterator Iterator function.
+         * @param {Object=} context Object to become context (`this`) for the iterator function.
+         * @returns {Object|Array} Reference to `obj`.
+         */
+        function forEach(obj, iterator, context) {
+            var key, length;
+            if (obj) {
+                if (isFunction(obj)) {
+                    for (key in obj) {
+                        // Need to check if hasOwnProperty exists,
+                        // as on IE8 the result of querySelectorAll is an object without a hasOwnProperty function
+                        if (key != 'prototype' && key != 'length' && key != 'name' && (!obj.hasOwnProperty || obj.hasOwnProperty(key))) {
+                            iterator.call(context, obj[key], key, obj);
+                        }
+                    }
+                } else if (isArray(obj) || isArrayLike(obj)) {
+                    var isPrimitive = typeof obj !== 'object';
+                    for (key = 0, length = obj.length; key < length; key++) {
+                        if (isPrimitive || key in obj) {
+                            iterator.call(context, obj[key], key, obj);
+                        }
+                    }
+                } else if (obj.forEach && obj.forEach !== forEach) {
+                    obj.forEach(iterator, context, obj);
+                } else if (isBlankObject(obj)) {
+                    // createMap() fast path --- Safe to avoid hasOwnProperty check because prototype chain is empty
+                    for (key in obj) {
+                        iterator.call(context, obj[key], key, obj);
+                    }
+                } else if (typeof obj.hasOwnProperty === 'function') {
+                    // Slow path for objects inheriting Object.prototype, hasOwnProperty check needed
+                    for (key in obj) {
+                        if (obj.hasOwnProperty(key)) {
+                            iterator.call(context, obj[key], key, obj);
+                        }
+                    }
+                } else {
+                    // Slow path for objects which do not have a method `hasOwnProperty`
+                    for (key in obj) {
+                        if (hasOwnProperty.call(obj, key)) {
+                            iterator.call(context, obj[key], key, obj);
+                        }
+                    }
+                }
+            }
+            return obj;
+        }
+
         // Inspired by http://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
         var Helper = function () {};
+
         /**
          *
          * @param array
@@ -591,9 +230,7 @@
         //};
 
         /**
-         * @ngdoc function
-         * @name angular.isUndefined
-         * @module ng
+         * @name isUndefined
          * @kind function
          *
          * @description
@@ -606,9 +243,7 @@
 
 
         /**
-         * @ngdoc function
-         * @name angular.isDefined
-         * @module ng
+         * @name isDefined
          * @kind function
          *
          * @description
@@ -621,9 +256,7 @@
 
 
         /**
-         * @ngdoc function
-         * @name angular.isObject
-         * @module ng
+         * @name isObject
          * @kind function
          *
          * @description
@@ -650,9 +283,7 @@
 
 
         /**
-         * @ngdoc function
-         * @name angular.isString
-         * @module ng
+         * @name isString
          * @kind function
          *
          * @description
@@ -665,9 +296,7 @@
 
 
         /**
-         * @ngdoc function
-         * @name angular.isNumber
-         * @module ng
+         * @name isNumber
          * @kind function
          *
          * @description
@@ -686,9 +315,7 @@
 
 
         /**
-         * @ngdoc function
-         * @name angular.isDate
-         * @module ng
+         * @name isDate
          * @kind function
          *
          * @description
@@ -703,9 +330,7 @@
 
 
         /**
-         * @ngdoc function
-         * @name angular.isArray
-         * @module ng
+         * @name isArray
          * @kind function
          *
          * @description
@@ -717,9 +342,7 @@
         var isArray = Array.isArray;
 
         /**
-         * @ngdoc function
-         * @name angular.isFunction
-         * @module ng
+         * @name isFunction
          * @kind function
          *
          * @description
@@ -779,9 +402,35 @@
             return obj && isFunction(obj.then);
         }
 
+        /**
+         * @private
+         * @param {*} obj
+         * @return {boolean} Returns true if `obj` is an array or array-like object (NodeList, Arguments,
+         *                   String ...)
+         */
+        function isArrayLike(obj) {
+            if (obj == null || isWindow(obj)) {
+                return false;
+            }
+
+            // Support: iOS 8.2 (not reproducible in simulator)
+            // "length" in obj used to prevent JIT error (gh-11508)
+            var length = "length" in Object(obj) && obj.length;
+
+            if (obj.nodeType === NODE_TYPE_ELEMENT && length) {
+                return true;
+            }
+
+            return isString(obj) || isArray(obj) || length === 0 ||
+                typeof length === 'number' && length > 0 && (length - 1) in obj;
+        }
+
+        var NODE_TYPE_ELEMENT = 1;
+
         var service             = this,
             getPrototypeOf      = Object.getPrototypeOf,
             toString            = Object.prototype.toString,
+            hasOwnProperty      = Object.prototype.hasOwnProperty,
             states              = [
                 'CREATE',
                 'READ',
@@ -802,7 +451,7 @@
 
         ApyStateHolder.prototype.load = function () {
             var self = this;
-            angular.forEach(this.$states, function (value) {
+            forEach(this.$states, function (value) {
                 var attr = value.toUpperCase();
                 self[attr] = attr;
             });
@@ -849,8 +498,7 @@
              * @param message
              */
             log: function(message) {
-                if(!this.hasOwnProperty('logging'))
-                {
+                if(!this.hasOwnProperty('logging')) {
                     this.setLogging();
                 }
                 this.$logging.log(message);
@@ -998,7 +646,7 @@
          */
         var ApySchemaComponent = function ApySchemaComponent (schema) {
             this.$base = schema;
-            this.$embeddeURI = '';
+            this.$embeddedURI = '';
             this.$headers = Object.keys(schema).filter(function (key) {
                 return !key.startsWith('_');
             });
@@ -1017,7 +665,7 @@
         ApySchemaComponent.prototype.load = function load () {
             var self = this;
             var embedded = {};
-            angular.forEach(this.$base, function (validator, fieldName) {
+            forEach(this.$base, function (validator, fieldName) {
                 self[fieldName] = validator;
                 if(isObject(validator) && validator.type) {
                     switch (validator.type) {
@@ -1034,7 +682,7 @@
                 }
             });
             if(Object.keys(embedded).length) {
-                this.$embeddeURI = 'embedded=' + JSON.stringify(embedded);
+                this.$embeddedURI = 'embedded=' + JSON.stringify(embedded);
             }
             return this;
         };
@@ -1134,7 +782,7 @@
                 data = this.transformData(keyName, schema);
             }
             else {
-                angular.forEach(schema, function (value, key) {
+                forEach(schema, function (value, key) {
                     data[key] = self.transformData(key, value);
                 });
             }
@@ -1162,7 +810,7 @@
         var ApyCollectionComponent = function ApyCollectionComponent (name, endpoint, components=null) {
             this.$endpointBase = endpoint;
             this.$schema = service.$instance.get(name);
-            this.$endpoint = endpoint + name + '?' + this.$schema.$embeddeURI;
+            this.$endpoint = endpoint + name + '?' + this.$schema.$embeddedURI;
             this.$parent.constructor.call(this, name, "collection", components);
         };
 
@@ -1256,6 +904,14 @@
          *
          * @returns {Promise}
          */
+        ApyCollectionComponent.prototype.save = function save () {
+            return this.create().update();
+        };
+
+        /**
+         *
+         * @returns {Promise}
+         */
         ApyCollectionComponent.prototype.fetch = function fetch () {
             var self = this;
             return new Promise(function (resolve, reject) {
@@ -1273,14 +929,6 @@
                     return reject(error);
                 });
             });
-        };
-
-        /**
-         *
-         * @returns {Promise}
-         */
-        ApyCollectionComponent.prototype.save = function save () {
-            return this.create().update();
         };
 
         /**
@@ -1337,13 +985,16 @@
          * @param schema
          * @param $states
          * @param components
+         * @param endpointBase
          * @constructor
          */
-        var ApyResourceComponent = function ApyResourceComponent (name, schema, components=null, type="resource", $states=null) {
+        var ApyResourceComponent = function ApyResourceComponent (name, schema, components=null, type="resource", $states=null, endpointBase=null, relationName=null) {
             this.$parent.constructor.call(this, name, type, components);
             this.$value = '';
-            this.$endpointBase = null;
             this.$schema = schema;
+            this.$relationName = relationName;
+            this.$endpointBase = endpointBase + relationName;
+            this.$endpoint = this.$endpointBase + '?' + schema.$embeddedURI;
             this.$states = $states || this.createStateHolder(states[1], states);
         };
 
@@ -1413,18 +1064,31 @@
             return updated;
         };
 
+        ApyResourceComponent.prototype.updateSelf = function updateSelf (update) {
+            update = update || {};
+            var self = this;
+            forEach(this.$schema.$base, function (_, fieldName) {
+                self.$components.forEach(function (comp) {
+                    if(update.hasOwnProperty(fieldName) && comp.$name === fieldName) {
+                        comp.updateSelf(update[fieldName]);
+                    }
+                });
+            });
+            return this;
+        };
+
         ApyResourceComponent.prototype.loadResponse = function loadResponse (response) {
             var self = this;
-            angular.forEach(response.data, function (v, k) {
+            forEach(response.data, function (v, k) {
                 self[k] = v;
             });
             return this;
         };
 
-        ApyResourceComponent.prototype.createRequest = function (method='POST') {
+        ApyResourceComponent.prototype.createRequest = function createRequest (method='POST') {
             var self = this;
             return new Promise(function (resolve, reject) {
-                var uri = self.$endpointBase + self.$name;
+                var uri = self.$endpointBase;
                 var data = null;
                 var headers = {
                     'Content-Type': 'application/json'
@@ -1433,7 +1097,6 @@
                     uri += '/' + self._id;
                     headers['If-Match'] = self._etag;
                 };
-
                 switch (method) {
                     case 'POST':
                         data = self.cleanedData();
@@ -1506,7 +1169,7 @@
          * @param states
          * @param initialState
          */
-        ApyResourceComponent.prototype.createStateHolder = function (initialState, states) {
+        ApyResourceComponent.prototype.createStateHolder = function createStateHolder (initialState, states) {
             return new ApyStateHolder(initialState, states);
         };
 
@@ -1525,16 +1188,12 @@
          * @param resource
          */
         ApyResourceComponent.prototype.load = function load (resource) {
-
             var field;
-
             for (field in resource) {
                 if(resource.hasOwnProperty(field) && this.continue(field)) {
                     this[field] = resource[field];
                 }
             }
-
-
             for (field in this.$schema) {
                 if(!this.$schema.hasOwnProperty(field) ||
                     this.continue(field) ||
@@ -1563,10 +1222,11 @@
                     //    fieldObj = new ApyResourceComponent(field, subSchema, resource[field]);
                     //    break;
                     case this.$types.OBJECTID:
+                        var relationName = subSchema.data_relation.resource;
                         fieldObj = new ApyResourceComponent(field,
-                            service.$schemas[subSchema.data_relation.resource],
-                            null, 'objectid', this.$states);
-                        fieldObj.$endpointBase = this.$endpointBase + subSchema.data_relation.resource;
+                            service.$schemas[relationName],
+                            null, 'objectid', this.$states, this.$endpointBase, relationName);
+                        //fieldObj.$endpointBase = this.$endpointBase + subSchema.data_relation.resource;
 
                         fieldObj.loadObjectid(value);
                         break;
@@ -1576,6 +1236,7 @@
                 }
                 this.add(fieldObj);
             }
+            this.loadValue();
             return this;
         };
 
@@ -1583,7 +1244,7 @@
          *
          * @returns {{}}
          */
-        ApyResourceComponent.prototype.cleanedData = function () {
+        ApyResourceComponent.prototype.cleanedData = function cleanedData () {
             var cleaned = {};
             for (var i = 0; i < this.count(); i++) {
                 var data;
@@ -1601,24 +1262,10 @@
             return cleaned;
         };
 
-        /**
-         *
-         * @param components
-         * @returns {ApyResourceComponent}
-         */
-        ApyResourceComponent.prototype.loadObjectid = function (components) {
+        ApyResourceComponent.prototype.loadValue = function loadValue () {
             var all = '';
             var self = this;
-            components = components || {};
-            angular.forEach(angular.copy(components), function (v, k) {
-                if(self.continue(k)) {
-                    self[k] = v;
-                    delete components[k];
-                }
-            });
-            this.load(components);
-
-            angular.forEach(this.$components, function (component) {
+            forEach(this.$components, function (component) {
                 var value = component.$value + ', ';
                 all += value;
                 if(component.$required) {
@@ -1629,6 +1276,24 @@
                 this.$value = all;
             }
             this.$value = this.$value.slice(0, -2);
+        };
+
+        /**
+         *
+         * @param components
+         * @returns {ApyResourceComponent}
+         */
+        ApyResourceComponent.prototype.loadObjectid = function loadObjectid (components) {
+            var all = '';
+            var self = this;
+            components = components || {};
+            forEach(Object.assign(components), function (v, k) {
+                if(self.continue(k)) {
+                    self[k] = v;
+                    delete components[k];
+                }
+            });
+            this.load(components);
             return this;
         };
 
@@ -1666,7 +1331,7 @@
 
         ApyFieldComponent.inheritsFrom(ApyComponent);
 
-        ApyFieldComponent.prototype.toString = function () {
+        ApyFieldComponent.prototype.toString = function toString () {
             return "" + this.$value;
         };
 
@@ -1686,7 +1351,7 @@
                 case 'datetime':
                     return this.typeWrapper(value);
                 default :
-                    return angular.copy(value);
+                    return Object.assign(value);
             }
         };
 
@@ -1819,15 +1484,6 @@
     /**
      *
      * @param name
-     * @returns {*}
-     */
-    ApyCompositeService.prototype.getSchemaByName = function (name) {
-        return this.$schemas[name];
-    };
-
-    /**
-     *
-     * @param name
      * @param components
      * @returns {ApyCollectionComponent|*}
      */
@@ -1835,32 +1491,6 @@
         return new ApyCollectionComponent(name, this.$endpoint, components);
     };
 
-    /**
-     * format received Schema(s)
-     * into Array instead of Object
-     *
-     * @param data
-     * @param excludedEndpointByNames
-     * @returns {Array}
-     */
-    ApyCompositeService.prototype.formatSchemas2Array = function (data, excludedEndpointByNames) {
-        var self = this;
-        var schemas = [];
-        excludedEndpointByNames = excludedEndpointByNames || [];
-        angular.forEach(data, function (el, name) {
-            schemas.push({
-                data: el,
-                name: name,
-                route: '/' + name,
-                endpoint: self.$endpoint + name,
-                humanName: name.replaceAll('_', ' '),
-                hidden: excludedEndpointByNames.indexOf(name) !== -1
-            });
-        });
-        return schemas;
-    };
-
-    $window.ApyService = ApyService;
     $window.ApyCompositeService = ApyCompositeService;
 
-})(window, window.angular);
+})(window);

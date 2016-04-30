@@ -42,7 +42,7 @@
         // setting each schema's route
         angular.forEach(schemasAsArray, function (schema) {
             $routeProvider.when(schema.route, {
-                templateUrl: 'components/apy-eve/view.html',
+                templateUrl: 'components/apy-frontend/view.html',
                 controller: 'ApyViewCtrl',
                 name: schema.name
             });
