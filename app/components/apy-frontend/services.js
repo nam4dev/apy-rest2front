@@ -933,7 +933,7 @@
                     self.load(response.data._items);
                     return resolve(response);
                 }).catch(function (error) {
-                    self.$logging.log("[APY-EVE-ERROR] => " + error);
+                    self.$logging.log("[ApyFrontendError] => " + error);
                     return reject(error);
                 });
             });
@@ -1075,6 +1075,15 @@
             return updated;
         };
 
+        ApyResourceComponent.prototype.commitSelf = function commitSelf () {
+            this.$components.forEach(function (comp) {
+                if (comp.hasUpdated()) comp.commitSelf();
+                if(comp.hasOwnProperty('$selfUpdated') && comp.$selfUpdated) {
+                    comp.$selfUpdated = false;
+                }
+            });
+        };
+
         ApyResourceComponent.prototype.updateSelf = function updateSelf (update, commit=false) {
             var self = this;
             update = update || {};
@@ -1084,9 +1093,11 @@
                     self[name] = value
                 }
             });
+            // Copy $value in case of embedded resource
             if(update.hasOwnProperty('$value')) {
                 this.$value = update.$value;
             }
+            // Copy data based on schema
             forEach(this.$schema.$base, function (_, fieldName) {
                 self.$components.forEach(function (comp) {
                     if(update.hasOwnProperty(fieldName) && comp.$name === fieldName) {
@@ -1095,7 +1106,9 @@
                     }
                 });
             });
-            this.$selfUpdated = true;
+            // Commit => save the inner state ($value, $memo) of each component recursively
+            this.$selfUpdated = !commit;
+            if (commit) this.commitSelf();
             return this;
         };
 
@@ -1231,7 +1244,6 @@
                 switch(type) {
                     case this.$types.DICT:
                         fieldObj = new ApyResourceComponent(field, subSchema.schema, null, 'resource', this.$states);
-                        //fieldObj.$endpointBase = this.$endpointBase;
                         fieldObj.load(value);
                         break;
                     //case this.$types.LIST:
@@ -1373,10 +1385,15 @@
             }
         };
 
+        ApyFieldComponent.prototype.commitSelf = function commitSelf () {
+            this.$memo = this.clone(this.$value);
+            return this;
+        };
+
         ApyFieldComponent.prototype.updateSelf = function updateSelf (update, commit=false) {
             this.$value = this.typeWrapper(update);
             if(commit) {
-                this.$memo = this.clone(update);
+                this.commitSelf();
             }
             return this;
         };

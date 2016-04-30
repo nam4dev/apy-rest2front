@@ -56,12 +56,15 @@
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse">
+                    <!--<ul app-navigation></ul>-->
                     <ul class="nav navbar-nav">
-
                         <li ng-repeat="schema in $schemas" ng-if="!schema.hidden">
-                            <a href="#/{{ schema.name }}"><span class="text-capitalize"><strong>{{ schema.humanName || schema.name }}</strong></span></a></li>
-                        <!--ng-click="setSchemaName(schema.name)"-->
-
+                            <a href="#/{{ schema.name }}">
+                                <span class="text-capitalize">
+                                    <strong>{{ schema.humanName || schema.name }}</strong>
+                                </span>
+                            </a>
+                        </li>
                     </ul>
                     <!--<form class="navbar-form navbar-left" role="search">-->
                     <!--<div class="form-group">-->
@@ -85,11 +88,6 @@
                 </div><!-- /.navbar-collapse -->
             </div><!-- /.container-fluid -->
         </nav>
-        <!--<ul class="menu">-->
-        <!--<li ng-repeat="schema in schemasArray">-->
-        <!--<a href="#/{{ schema.name }}" ng-click="setSchemaName(schema.name)">{{ schema.name }}</a></li>-->
-        <!--</ul>-->
-
         <div class="jumbotron" ng-show="$route.current.name == 'index'">
             <h1>Welcome to Apy Frontend!</h1>
             <p>Automated CRUD views, based on your REST API endpoint schemas</p>
@@ -129,6 +127,10 @@
             <script src="components/apy-frontend/directives/version/version.js"></script>
             <script src="components/apy-frontend/directives/version/version-directive.js"></script>
             <script src="components/apy-frontend/directives/version/interpolate-filter.js"></script>
+
+            <!--<script src="components/apy-frontend/directives/navigation/navigation.js"></script>-->
+            <!--<script src="components/apy-frontend/directives/navigation/navigation-directive.js"></script>-->
+            <!--<script src="components/apy-frontend/directives/navigation/interpolate-filter.js"></script>-->
         </footer>
     </div>
 </div>

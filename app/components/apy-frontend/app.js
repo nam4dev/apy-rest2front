@@ -12,6 +12,7 @@
             'ui.tree',
             'apy.view',
             'apy.version'
+            //,'apy.navigation'
         ]),
         schemas;
 
