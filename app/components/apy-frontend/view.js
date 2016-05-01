@@ -19,6 +19,25 @@
                     $scope.formats = ['yyyy-MMM-dd HH:mm:ss', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
                     $scope.format = $scope.formats[0];
 
+                    $scope.expandNested = function (field) {
+                        $scope.ok = function () {
+                            field && field.loadValue && field.loadValue();
+                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                        };
+
+                        $scope.cancel = function () {
+                            field && field.reset();
+                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                        };
+                        $scope.field = field;
+                        resourcePickerWindow = $uibModal.open({
+                            animation: false,
+                            templateUrl: 'modal-nested.html',
+                            controllerAs: 'ModalCtrl',
+                            scope: $scope
+                        });
+                    };
+
                     $scope.resourcePicker = function (field) {
                         // UI Callbacks
                         $scope.cancel = function () {
@@ -30,7 +49,7 @@
                             $scope.$collection = collection;
                             resourcePickerWindow = $uibModal.open({
                                 animation: false,
-                                templateUrl: 'modal.html',
+                                templateUrl: 'modal-embedded.html',
                                 controllerAs: 'ModalCtrl',
                                 scope: $scope
                             });
@@ -58,7 +77,7 @@
 
                 $scope.createResource = function () {
                     collection.createResource()
-                              .setCreateState();
+                        .setCreateState();
                 };
 
                 $scope.updateResource = function (resource) {

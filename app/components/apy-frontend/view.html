@@ -23,6 +23,30 @@
         </div>
     </script>
 
+    <script type="text/ng-template" id="field-resource.html">
+        <div ng-if="field.$states.$current === field.$states.READ">
+            <apy-field ng-repeat="component in field.$components" field="component"></apy-field>
+        </div>
+        <div ng-if="field.$states.$current !== field.$states.READ &&
+                    field.$states.$current !== field.$states.DELETE">
+
+            <button id="{{ field.$name }}"
+                    class="form-control"
+                    ng-click="expandNested(field)"
+                    ng-model="field.$value">
+                <span ng-if="field.$states.$current === field.$states.CREATE ||
+                             field.$states.$current === field.$states.UPDATE" >
+                    <span ng-if="!field.$value">
+                        Add <span class="text-capitalize"><strong>{{ field.$name }}</strong> document</span>
+                    </span>
+                    <span ng-if="field.$value">
+                        <span class="text-capitalize"><strong>{{ field.$value }}</strong></span>
+                    </span>
+                </span>
+            </button>
+        </div>
+    </script>
+
     <script type="text/ng-template" id="field-string.html">
         <div ng-if="field.$states.$current === field.$states.READ">
             {{ field.$value }}
@@ -88,20 +112,6 @@
             <select ng-model="field.$value" multiple>
                 <option ng-repeat="allowed in validator.allowed" >{{ allowed }}</option>
             </select>
-        </div>
-    </script>
-
-    <script type="text/ng-template" id="field-resource.html">
-        <div ng-if="field.$states.$current === field.$states.READ">
-            <apy-field ng-repeat="component in field.$components" field="component"></apy-field>
-        </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
-            <button id="{{ field.$name }}"
-                    class="form-control"
-                    ng-model="field">
-                <span class="text-capitalize">add <strong>{{ field.$name }}</strong> document</span>
-            </button>
         </div>
     </script>
 
@@ -227,7 +237,7 @@
         </tbody>
     </table>
 
-    <script type="text/ng-template" id="modal.html">
+    <script type="text/ng-template" id="modal-embedded.html">
         <div class="modal-header">
             <h3 class="modal-title">
                  <span class="text-capitalize" >
@@ -236,6 +246,7 @@
             (<i>Select a resource of your choice amongst the collection</i>)
         </div>
         <div class="modal-body">
+            <!-- Embedded Resources display control -->
             <div class="scrolling-table">
                 <div>
                     <div>
@@ -252,7 +263,6 @@
                             <tr style="cursor: pointer;"
                                 ng-repeat="resource in $collection.$components track by $index"
                                 ng-click="field.selfUpdate(resource);cancel();" >
-                                <!--ng-click="$resource.updateSelf(resource)" >-->
                                 <td scope="row">{{ $index + 1 }}</td>
                                 <td ng-repeat="field in resource.$components" >
                                     <apy-field field="field"></apy-field>
@@ -269,10 +279,36 @@
                     </div>
                 </div>
             </div>
+            <!-- End Embedded Resource display control -->
         </div>
         <div class="modal-footer">
-            <!--<button class="btn btn-primary" type="button" ng-click="ok()">OK</button>-->
-            <button class="btn btn-warning" type="button" ng-click="cancel($resource)">Cancel</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="modal-nested.html">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                 <span class="text-capitalize" >
+                     <strong>{{ field.$name }}</strong> Document</span>
+            </h3>
+        </div>
+        <div class="modal-body">
+            <!-- CREATE & UPDATE Form -->
+            <div>
+                <form name="initial" novalidate>
+                    <pre>{{ field }}</pre>
+                    <div class="form-group" ng-repeat="comp in field.$components track by $index" >
+                        <label>{{ comp.$name }}</label>
+                        <apy-field field="comp"></apy-field>
+                    </div>
+                </form>
+            </div>
+            <!-- End CREATE & UPDATE Form -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel(field)">Cancel</button>
         </div>
     </script>
 

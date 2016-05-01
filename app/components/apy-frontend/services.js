@@ -809,10 +809,11 @@
                     val = {};
                     break;
                 case 'string':
+                //case "integer":
                     val = "";
                     break;
                 case "integer":
-                    val = -1;
+                    val = 0;
                     break;
                 case "objectid":
                     if(key.startsWith('_')) {
@@ -1057,7 +1058,7 @@
 
         /**
          *
-         * @returns {Promise}
+         * @returns {Integer}
          * *
          */
         ApyCollectionComponent.prototype.savedCount = function savedCount () {
@@ -1423,6 +1424,7 @@
             forEach(this.$components, function (component) {
                 if(component.$value && !isDate(component.$value)) {
                     var value = component.$value + ', ';
+
                     all += value;
                     if(component.$required) {
                         self.$value += value;
@@ -1432,7 +1434,8 @@
             if(!this.$value && all) {
                 this.$value = all;
             }
-            this.$value = this.$value.slice(0, -2);
+            if(this.$value.endsWith(', '))
+                this.$value = this.$value.slice(0, -2);
         };
 
         /**
