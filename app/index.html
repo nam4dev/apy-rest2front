@@ -24,13 +24,13 @@
     <link rel="stylesheet" href="components/apy-frontend/app.css">
 
     <script src="components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
-    <!-- In production use:
-  <script src="//ajax.googleapis.com/ajax/libs/angularjs/x.x.x/angular.min.js"></script>
-  -->
+
     <script src="components/angular/angular.js"></script>
     <script src="components/angular-animate/angular-animate.js"></script>
+
     <script src="components/ui.bootstrap/ui-bootstrap-1.1.2.min.js"></script>
     <script src="components/ui.bootstrap/ui-bootstrap-tpls-1.1.2.min.js"></script>
+
     <script src="components/angular-route/angular-route.js"></script>
 
 </head>
@@ -56,50 +56,29 @@
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
                 <div class="collapse navbar-collapse">
-                    <!--<ul app-navigation></ul>-->
-                    <ul class="nav navbar-nav">
-                        <li ng-repeat="schema in $schemas" ng-if="!schema.hidden">
-                            <a href="#/{{ schema.name }}">
-                                <span class="text-capitalize">
-                                    <strong>{{ schema.humanName || schema.name }}</strong>
-                                </span>
-                            </a>
-                        </li>
-                    </ul>
-                    <!--<form class="navbar-form navbar-left" role="search">-->
-                    <!--<div class="form-group">-->
-                    <!--<input type="text" class="form-control" placeholder="Search">-->
-                    <!--</div>-->
-                    <!--<button type="submit" class="btn btn-default">Submit</button>-->
-                    <!--</form>-->
-                    <!--<ul class="nav navbar-nav navbar-right">-->
-                    <!--<li><a href="#">Link</a></li>-->
-                    <!--<li class="dropdown">-->
-                    <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>-->
-                    <!--<ul class="dropdown-menu">-->
-                    <!--<li><a href="#">Action</a></li>-->
-                    <!--<li><a href="#">Another action</a></li>-->
-                    <!--<li><a href="#">Something else here</a></li>-->
-                    <!--<li role="separator" class="divider"></li>-->
-                    <!--<li><a href="#">Separated link</a></li>-->
-                    <!--</ul>-->
-                    <!--</li>-->
-                    <!--</ul>-->
+                    <div apy-navigation></div>
                 </div><!-- /.navbar-collapse -->
             </div><!-- /.container-fluid -->
         </nav>
-        <div class="jumbotron" ng-show="$route.current.name == 'index'">
+
+        <div ng-if="$route.current.name == 'index'" class="jumbotron" >
             <h1>Welcome to Apy Frontend!</h1>
             <p>Automated CRUD views, based on your REST API endpoint schemas</p>
             <p class="small-title">(<i>For now, 'Eve' is the only supported REST API backend</i>)</p>
-            <p><a class="btn btn-primary btn-lg pull-right" href="#" role="button">Authenticate</a></p>
+            <p>
+                <a class="btn btn-primary btn-lg pull-right"
+                   href="#"
+                   ng-click="authenticate()"
+                   role="button">
+                    Authenticate
+                </a>
+            </p>
         </div>
 
         <div ng-view></div>
 
         <footer>
-            <div>Apy Frontend, v<span app-version></span></div>
-
+            <div>Apy Frontend, v<span apy-version></span></div>
             <script src="components/angular-ui-tree/dist/angular-ui-tree.min.js"></script>
             <!-- shim is needed to support non-HTML5 FormData browsers (IE8-9)-->
             <script>
@@ -108,11 +87,9 @@
                     //only one of jsPath or jsUrl.
                     jsPath: 'components/ng-file-upload/FileAPI.min.js',
 //                    jsUrl: 'yourcdn.com/js/FileAPI.min.js',
-
                     //only one of staticPath or flashUrl.
                     staticPath: 'components/ng-file-upload//FileAPI.flash.swf'
 //                    flashUrl: 'yourcdn.com/js/FileAPI.flash.swf'
-
                     //forceLoad: true, html5: false //to debug flash in HTML5 browsers
                     //noContentTimeout: 10000 (see #528)
                 }
@@ -127,10 +104,6 @@
             <script src="components/apy-frontend/directives/version/version.js"></script>
             <script src="components/apy-frontend/directives/version/version-directive.js"></script>
             <script src="components/apy-frontend/directives/version/interpolate-filter.js"></script>
-
-            <!--<script src="components/apy-frontend/directives/navigation/navigation.js"></script>-->
-            <!--<script src="components/apy-frontend/directives/navigation/navigation-directive.js"></script>-->
-            <!--<script src="components/apy-frontend/directives/navigation/interpolate-filter.js"></script>-->
         </footer>
     </div>
 </div>

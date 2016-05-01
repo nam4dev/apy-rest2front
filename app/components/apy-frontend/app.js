@@ -12,7 +12,6 @@
             'ui.tree',
             'apy.view',
             'apy.version'
-            //,'apy.navigation'
         ]),
         schemas;
 
@@ -60,11 +59,25 @@
     application.controller('IndexCtrl', ['$scope', '$log', '$route', 'apy', 'Upload',
         function ($scope, $log, $route, apyProvider, Upload) {
             apyProvider.initEndpoints(endpoint, schemaName).setDependencies(
-            //apyProvider.initEndpoints(endpointStaging, schemaName).setDependencies(
+                //apyProvider.initEndpoints(endpointStaging, schemaName).setDependencies(
                 {name: "Upload", value: Upload}
             ).setSchemas(schemas);
             $scope.$schemas = apyProvider.$schemasAsArray;
             $scope.$route = $route;
         }]);
+
+    application.directive('apyNavigation', [function () {
+        return {
+            template: '<ul class="nav navbar-nav">' +
+            '<li ng-repeat="schema in $schemas" ng-if="!schema.hidden">' +
+            '<a href="#/{{ schema.name }}">' +
+            '<span class="text-capitalize">' +
+            '<strong>{{ schema.humanName || schema.name }}</strong>' +
+            '</span>' +
+            '</a>' +
+            '</li>' +
+            '</ul>'
+        };
+    }]);
 
 })(window.angular);
