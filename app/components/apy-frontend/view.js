@@ -70,6 +70,7 @@
 
                 collection.fetch()
                     .then(function (_) {
+                        $log.debug('[views.js] Collection', collection);
                         $scope.$apply();
                     }).catch(function (error) {
                         $log.error(error);

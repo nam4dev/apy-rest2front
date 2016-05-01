@@ -617,6 +617,9 @@
                 }
                 return cleaned;
             },
+            initRequest: function initRequest () {
+                return this;
+            },
             /**
              *
              */
@@ -637,6 +640,7 @@
             this.$type = type;
             // Dependencies inherited from Angular
             this.$http = $http;
+            this.$request = null;
             this.$logging = $log;
             this.$upload = $upload;
             // components index
@@ -681,7 +685,7 @@
          *
          */
         ApyComponent.prototype.init = function init () {
-            return this.validate();
+            return this.initRequest().validate();
         };
 
         /**
@@ -691,6 +695,7 @@
          */
         var ApySchemaComponent = function ApySchemaComponent (schema) {
             this.$base = schema;
+            self.$hasMedia = false;
             this.$embeddedURI = '';
             this.$headers = Object.keys(schema).filter(function (key) {
                 return !key.startsWith('_');
@@ -718,6 +723,9 @@
                                     embedded[fieldName] = 1;
                                 }
                             }
+                            break;
+                        case "media":
+                            self.$hasMedia = true;
                             break;
                         default :
                             break;
@@ -809,7 +817,7 @@
                     val = {};
                     break;
                 case 'string':
-                //case "integer":
+                    //case "integer":
                     val = "";
                     break;
                 case "integer":
@@ -867,7 +875,6 @@
             return component;
         };
 
-
         /**
          * ApyCollectionComponent
          *
@@ -886,6 +893,15 @@
         };
 
         ApyCollectionComponent.inheritsFrom(ApyComponent);
+
+        /**
+         *
+         * @returns {ApyCollectionComponent}
+         */
+        ApyCollectionComponent.prototype.initRequest = function initRequest () {
+            this.$request = this.$schema.$hasMedia ? this.$upload.upload : this.$http;
+            return this;
+        };
 
         /**
          *
@@ -1007,7 +1023,11 @@
         ApyCollectionComponent.prototype.fetch = function fetch () {
             var self = this;
             return new Promise(function (resolve, reject) {
-                return self.$http({
+                // FIXME: $upload interface is not a function
+                // FIXME: Therefore a facade instance shall be made to unify
+                // FIXME: both interfaces, allowing us to always use the `$request` interface
+                return self.$request({
+                //return self.$http({
                     url: self.$endpoint,
                     headers: {
                         'Content-Type': 'application/json'
@@ -1082,7 +1102,6 @@
          * @constructor
          */
         var ApyResourceComponent = function ApyResourceComponent (name, schema, components=null, type="resource", $states=null, endpointBase=null, relationName=null) {
-            this.$parent.constructor.call(this, name, type, components);
             this.$value = '';
             this.$schema = schema;
             this.$selfUpdated = false;
@@ -1094,9 +1113,19 @@
             if(schema.$embeddedURI)
                 this.$endpoint += '?' + schema.$embeddedURI;
             this.$states = $states || this.createStateHolder(states[1], states);
+            this.$parent.constructor.call(this, name, type, components);
         };
 
         ApyResourceComponent.inheritsFrom(ApyComponent);
+
+        /**
+         *
+         * @returns {ApyResourceComponent}
+         */
+        ApyResourceComponent.prototype.initRequest = function initRequest () {
+            this.$request = this.$schema.$hasMedia ? this.$upload.upload : this.$http;
+            return this;
+        };
 
         /**
          *
@@ -1183,9 +1212,9 @@
         /**
          *
          */
-        ApyResourceComponent.prototype.commitSelf = function commitSelf () {
+        ApyResourceComponent.prototype.selfCommit = function selfCommit () {
             this.$components.forEach(function (comp) {
-                comp.commitSelf();
+                comp.selfCommit();
                 if(comp.$selfUpdated) {
                     comp.$selfUpdated = false;
                 }
@@ -1221,7 +1250,7 @@
             }
             // Commit => save the inner state ($value, $memo) of each component recursively
             this.$selfUpdated = !commit;
-            if (commit) this.commitSelf();
+            if (commit) this.selfCommit();
             return this;
         };
 
@@ -1266,7 +1295,7 @@
                     default :
                         break;
                 }
-                return self.$http({
+                return self.$request({
                     url: uri,
                     headers: headers,
                     method: method,
@@ -1366,7 +1395,7 @@
                     value = resource[field] || service.$instance.schema2data(subSchema, field);
                 switch(type) {
                     case this.$types.DICT:
-                        fieldObj = new ApyResourceComponent(field, subSchema.schema, null, 'resource', this.$states);
+                        fieldObj = new ApyResourceComponent(field, subSchema.schema, null, this.$types.RESOURCE, this.$states);
                         fieldObj.load(value);
                         break;
                     //case this.$types.LIST:
@@ -1379,11 +1408,11 @@
                         var relationName = subSchema.data_relation.resource;
                         fieldObj = new ApyResourceComponent(field,
                             service.$schemas[relationName],
-                            null, 'objectid', this.$states, this.$endpointBase, relationName);
+                            null, this.$types.OBJECTID, this.$states, this.$endpointBase, relationName);
                         fieldObj.load(value);
                         break;
                     default:
-                        fieldObj = new ApyFieldComponent(field, type, value, subSchema, this.$states);
+                        fieldObj = new ApyFieldComponent(field, type, value, subSchema, this.$states, this.$endpointBase);
                         break;
                 }
                 this.add(fieldObj);
@@ -1402,7 +1431,7 @@
                 var data;
                 var item = this.$components[i];
                 switch (item.$type) {
-                    case 'objectid':
+                    case this.$types.OBJECTID:
                         data = item._id;
                         break;
                     default :
@@ -1464,18 +1493,22 @@
          * @param value
          * @param options
          * @param $states
+         * @param $endpoint
          * @constructor
          */
-        var ApyFieldComponent = function ApyFieldComponent (name, type, value, options=null, $states=null) {
+        var ApyFieldComponent = function ApyFieldComponent (name, type, value, options=null, $states=null, $endpoint=null) {
             this.$states = $states;
             options = options || {};
-            this.$value = this.typeWrapper(value);
+            this.$endpoint = $endpoint;
+
             this.$minlength = options.minlength;
             this.$maxlength = options.maxlength;
             this.$unique = options.unique || false;
             this.$required = options.required || false;
             this.$parent.constructor.call(this, name, type, null);
+
             this.$memo = this.clone(value);
+            this.$value = this.typeWrapper(value);
 
             switch (type) {
                 case 'list':
@@ -1498,6 +1531,35 @@
             return "" + this.$value;
         };
 
+        var ApyMediaResource = function ApyMediaResource($endpoint, name, value) {
+            this.$name = name;
+            if(isObject(value)) {
+                this.load(value);
+            }
+            else {
+                this.$value = value;
+            }
+            if($endpoint.endsWith('/'))
+                $endpoint = $endpoint.slice(0, -1);
+            this.$endpoint = $endpoint;
+        };
+
+        ApyMediaResource.prototype.load = function load (value) {
+            var self = this;
+            forEach(value, function (val, attr) {
+                self['$' + attr] = val;
+            });
+            return this;
+        };
+
+        ApyMediaResource.prototype.cleanedData = function cleanedData () {
+            return this.$file;
+        };
+
+        ApyMediaResource.prototype.toURI = function toURI () {
+            return this.$endpoint + this.$file;
+        };
+
         /**
          *
          * @param value
@@ -1505,6 +1567,8 @@
          */
         ApyFieldComponent.prototype.typeWrapper = function typeWrapper (value) {
             switch (this.$type) {
+                case 'media':
+                    return new ApyMediaResource(this.$endpoint, this.$name, value);
                 case 'datetime':
                     return new Date(value);
                 default :
@@ -1519,6 +1583,7 @@
          */
         ApyFieldComponent.prototype.clone = function clone (value) {
             switch (this.$type) {
+                case 'media':
                 case 'string':
                 case 'integer':
                 case 'datetime':
@@ -1532,7 +1597,7 @@
          *
          * @returns {ApyFieldComponent}
          */
-        ApyFieldComponent.prototype.commitSelf = function commitSelf () {
+        ApyFieldComponent.prototype.selfCommit = function selfCommit () {
             this.$memo = this.clone(this.$value);
             return this;
         };
@@ -1546,7 +1611,7 @@
         ApyFieldComponent.prototype.selfUpdate = function selfUpdate (update, commit=false) {
             this.$value = this.typeWrapper(update.$value);
             if(commit) {
-                this.commitSelf();
+                this.selfCommit();
             }
             return this;
         };
@@ -1628,6 +1693,8 @@
         ApyFieldComponent.prototype.cleanedData = function cleanedData () {
             this.validate();
             switch (this.$type) {
+                case 'media':
+                    return this.$value.cleanedData();
                 case 'datetime':
                     return this.$value.toUTCString();
                 default :
@@ -1635,6 +1702,7 @@
             }
         };
 
+        $window.ApyMediaResource = ApyMediaResource;
         $window.ApyFieldComponent = ApyFieldComponent;
         $window.ApySchemasComponent = ApySchemasComponent;
         $window.ApyResourceComponent = ApyResourceComponent;
