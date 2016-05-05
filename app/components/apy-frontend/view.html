@@ -32,7 +32,7 @@
 
             <button id="{{ field.$name }}"
                     class="form-control"
-                    ng-click="expandNested(field)"
+                    ng-click="expandRecursive(field)"
                     ng-model="field.$value">
                 <span ng-if="field.$states.$current === field.$states.CREATE ||
                              field.$states.$current === field.$states.UPDATE" >
@@ -44,6 +44,100 @@
                     </span>
                 </span>
             </button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-list.html">
+        <!--<pre>{{ field.$value }}</pre>-->
+        <!--<pre>{{ field.$allowed }}</pre>-->
+        <div ng-if="field.$states.$current === field.$states.READ">
+            <ul>
+                <li ng-repeat="value in field.$value" >{{ value }}</li>
+            </ul>
+        </div>
+        <div ng-if="field.$states.$current !== field.$states.READ &&
+                    field.$states.$current !== field.$states.DELETE">
+            <select ng-if="field.$allowed.length" ng-model="field.$value" multiple>
+                <option ng-repeat="allowed in field.$allowed" >{{ allowed }}</option>
+            </select>
+            <select ng-if="!field.$allowed.length" ng-model="field.$value" multiple>toto</select>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-list-complex.html">
+        <!--<pre>{{ field.$value }}</pre>-->
+        <!--<pre>{{ field.$allowed }}</pre>-->
+        <div ng-if="field.$states.$current === field.$states.READ">
+            <ul>
+                LIST_COMPLEX
+                <li ng-repeat="value in field.$value" >{{ value }}</li>
+            </ul>
+        </div>
+        <div ng-if="field.$states.$current !== field.$states.READ &&
+                    field.$states.$current !== field.$states.DELETE">
+            <button id="{{ field.$name }}"
+                    class="form-control"
+                    ng-click="expandRecursive(field)"
+                    ng-model="field.$value">
+                <span ng-if="field.$states.$current === field.$states.CREATE ||
+                             field.$states.$current === field.$states.UPDATE" >
+                    <span ng-if="!field.$value">
+                        Add <span class="text-capitalize"><strong>{{ field.$name }}</strong> document</span>
+                    </span>
+                    <span ng-if="field.$value">
+                        <span class="text-capitalize"><strong>{{ field.$value }}</strong></span>
+                    </span>
+                </span>
+            </button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-media.html">
+        <div ng-if="field.$states.$current === field.$states.READ">
+            <!--{{ field.$value }}-->
+            <img ng-if="field.$value.$isImage" ng-src="{{ field.$value.$uri  }}"  width="96" height="96" />
+            <audio ng-if="field.$value.$isAudio" controls ngf-src="{{ field.$value.$uri  }}"></audio>
+            <video ng-if="field.$value.$isVideo" controls ngf-src="{{ field.$value.$uri  }}"></video>
+            <a ng-href="{{ field.$value.$uri }}" class="media media-object">{{ field.$value.$name }}</a>
+        </div>
+        <div ng-if="field.$states.$current !== field.$states.READ &&
+                    field.$states.$current !== field.$states.DELETE">
+            <form class="form-inline">
+                <div class="row">
+                    <div class="form-group  form-group-lg col-md-7" ng-if="field.$value.$uri">
+                        <div class="thumbnail">
+                            <img ng-if="field.$value.$isImage" ng-src="{{ field.$value.$uri }}" width="96" height="96" />
+                            <audio ng-if="field.$value.$isAudio" controls ngf-src="{{ field.$value.$uri  }}"></audio>
+                            <video ng-if="field.$value.$isVideo" controls ngf-src="{{ field.$value.$uri  }}"></video>
+                            <div class="caption text-centered">
+                                <a target="_blank"  ng-href="{{ field.$value.$uri }}" >
+                                    <i class="glyphicon glyphicon-link"></i> {{ field.$value.$name || "link" }}
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group form-group-lg col-md-5">
+                        <button class="form-control btn btn-warning drop-box"
+                                ngf-select="setFile(field, $files[0])"
+                                multiple="multiple" >Select</button>
+                        <!--<i class="glyphicon glyphicon-file"></i>-->
+                        <!--<i class="glyphicon glyphicon-film"></i>-->
+                        <!--<i class="glyphicon glyphicon-music"></i>-->
+                        <!--<div class="button" ngf-select="upload($file)">Upload on file select</div>-->
+                        <!--<div class="button" ngf-select="uploadFiles($files)" multiple="multiple">Upload on file select</div>-->
+                        <!--<div ngf-drop="uploadFiles($files)" class="drop-box"-->
+                        <!--ngf-drag-over-class="'dragover'" ngf-multiple="true"-->
+                        <!--ngf-pattern="'image/*,application/pdf'">Drop Images or PDFs files here</div>-->
+                        <!--<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>-->
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group form-group-lg col-md-12">
+                        <div class="center-block center centered">
+                        </div>
+                    </div>
+                </div>
+            </form>
         </div>
     </script>
 
@@ -65,7 +159,7 @@
         </div>
     </script>
 
-    <script type="text/ng-template" id="field-integer.html">
+    <script type="text/ng-template" id="field-number.html">
         <div ng-if="field.$states.$current === field.$states.READ">
             {{ field.$value }}
         </div>
@@ -75,12 +169,21 @@
                    class="form-control"
                    id="{{ field.$name }}"
                    type="{{ field.$type }}"
-                   minlength="{{ field.$minlength }}"
-                   maxlength="{{ field.$maxlength }}"
                    required="{{ field.$required }}"
                    value="{{ field.$value }}"
                    placeholder="{{ field.$name }}" />
         </div>
+    </script>
+
+    <script type="text/ng-template" id="field-boolean.html">
+        <input ng-model="field.$value"
+               id="{{ field.$name }}"
+               ng-disabled="field.$states.$current !== field.$states.READ &&
+                                field.$states.$current !== field.$states.DELETE"
+               type="checkbox"
+               class="form-control"
+               required="{{ field.$required }}"
+               value="{{ field.$value }}" />
     </script>
 
     <script type="text/ng-template" id="field-datetime.html" >
@@ -97,88 +200,6 @@
                    is-open="opened"
                    alt-input-formats="altInputFormats" ng-click="opened=true" />
             <!--<button type="button" class="btn btn-default" ng-click="opened=true"><i class="glyphicon glyphicon-calendar"></i></button>-->
-        </div>
-    </script>
-
-    <script type="text/ng-template" id="field-list.html">
-        <div ng-if="field.$states.$current === field.$states.READ">
-            <ul>
-                <li ng-repeat="value in field.$value" >{{ value }}</li>
-            </ul>
-        </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
-            <select ng-model="field.$value" multiple>
-                <option ng-repeat="allowed in field.$allowed" >{{ allowed }}</option>
-            </select>
-        </div>
-    </script>
-
-    <script type="text/ng-template" id="field-media.html">
-        <div ng-if="field.$states.$current === field.$states.READ">
-            <!--{{ field.$value }}-->
-            <!--<img src="{{ field.$value.toURI() }}" class="media media-object" />-->
-            <a ng-href="{{ field.$value.toURI() }}" class="media media-object">{{ field.$value.$name }}</a>
-        </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
-            <!--<div class="form-group">-->
-            <!--<button class="btn btn-warning" ngf-select="imagesSelected($files)" multiple="multiple"  >Upload</button>-->
-            <!--</div>-->
-            <form class="form-inline">
-                <div class="row">
-                    <!--<div class="button" ngf-select ng-model="file" name="file" ngf-pattern="'image/*'"-->
-                    <!--ngf-accept="'image/*'" ngf-max-size="20MB" ngf-min-height="100"-->
-                    <!--ngf-resize="{width: 100, height: 100}">-->
-                    <!--Select-->
-                    <!--</div>-->
-
-                    <div class="form-group  form-group-lg col-md-8" ng-if="field.$value.toURI()">
-                        <div class="thumbnail">
-                            <img ng-if="field.$value.isImage" data-ng-src="{{ field.$value.toURI() }}" width="96" height="96" />
-                            <div class="caption text-centered">
-                                <a target="_blank"  ng-href="{{ field.$value.toURI() }}" >
-                                    <i class="glyphicon glyphicon-link"></i> {{ field.$value.$name || "link" }}
-                                </a>
-                            </div>
-                        </div>
-
-                    </div>
-
-                    <div class="form-group form-group-lg col-md-4">
-                        <button class="form-control btn btn-warning drop-box"
-                                ngf-select="field.$value.$file = $files[0]"
-                                multiple="multiple" >Select</button>
-                        <!--<i class="glyphicon glyphicon-file"></i>-->
-                        <!--<i class="glyphicon glyphicon-film"></i>-->
-                        <!--<i class="glyphicon glyphicon-music"></i>-->
-                        <!--<div class="button" ngf-select="upload($file)">Upload on file select</div>-->
-                        <!--<div class="button" ngf-select="uploadFiles($files)" multiple="multiple">Upload on file select</div>-->
-                        <!--<div ngf-drop="uploadFiles($files)" class="drop-box"-->
-                        <!--ngf-drag-over-class="'dragover'" ngf-multiple="true"-->
-                        <!--ngf-pattern="'image/*,application/pdf'">Drop Images or PDFs files here</div>-->
-                        <!--<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>-->
-                    </div>
-                    <!--<div class="form-group  form-group-lg col-md-2">-->
-                    <!--<button type="submit" ng-click="submit()" class="form-control">-->
-                    <!--<i class="glyphicon glyphicon-upload"></i>-->
-                    <!--</button>-->
-                    <!--</div>-->
-
-
-                </div>
-                <div class="row">
-                    <div class="form-group form-group-lg col-md-12">
-                        <div class="center-block center centered">
-                            <!--<pre>{{ field.media }}</pre>-->
-                            <!--<img src="{{ resource.$endpoint + field.$value.substring(1) }}"  style="width: 96px; height: 96px;">-->
-                            <!--&lt;!&ndash;<img ng-repeat="file in files" ngf-src="file"  style="width: 96px; height: 96px;">&ndash;&gt;-->
-                            <!--<audio ng-repeat="file in files" controls ngf-src="file"></audio>-->
-                            <!--<video ng-repeat="file in files" controls ngf-src="file"></video>-->
-                        </div>
-                    </div>
-                </div>
-            </form>
         </div>
     </script>
     <!-- End Apy Fields -->
@@ -290,7 +311,7 @@
         </div>
     </script>
 
-    <script type="text/ng-template" id="modal-nested.html">
+    <script type="text/ng-template" id="modal-recursive.html">
         <div class="modal-header">
             <h3 class="modal-title">
                  <span class="text-capitalize" >

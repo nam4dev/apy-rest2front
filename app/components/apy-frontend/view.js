@@ -19,7 +19,13 @@
                     $scope.formats = ['yyyy-MMM-dd HH:mm:ss', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
                     $scope.format = $scope.formats[0];
 
-                    $scope.expandNested = function (field) {
+                    $scope.setFile = function (field, file) {
+                        field.$value.setFile(file).then(function (_) {
+                            $scope.$apply();
+                        })
+                    };
+
+                    $scope.expandRecursive = function (field) {
                         $scope.ok = function () {
                             field && field.loadValue && field.loadValue();
                             resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
@@ -32,7 +38,7 @@
                         $scope.field = field;
                         resourcePickerWindow = $uibModal.open({
                             animation: false,
-                            templateUrl: 'modal-nested.html',
+                            templateUrl: 'modal-recursive.html',
                             controllerAs: 'ModalCtrl',
                             scope: $scope
                         });
@@ -99,9 +105,10 @@
                     // TODO: Add confirmation box before deleting
                     var ok = confirm("Would you really like to delete " + collection.count() + " listed resources ?");
                     if(ok) {
-                        $log.log("CONFIRMED");
-                        $log.log("About to delete", collection.count(), "resources...");
-                        //collection.delete();
+                        $log.debug("CONFIRMED");
+                        $log.debug("About to delete", collection.count(), "resources...");
+                        collection.delete();
+
                     }
                 };
 

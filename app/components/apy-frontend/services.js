@@ -527,15 +527,23 @@
                 LIST: "list",
                 DICT: "dict",
                 MEDIA: "media",
+                FLOAT: "float",
+                NUMBER: "number",
                 STRING: "string",
+                BOOLEAN: "boolean",
                 INTEGER: "integer",
                 OBJECTID: "objectid",
                 DATETIME: "datetime",
-                RESOURCE: "resource"
+                RESOURCE: "resource",
+                LIST_COMPLEX: "list-complex"
             },
             $typesMap : {
-                number: ["integer"],
+                number: ["integer", "float", "number"],
                 object: ["datetime", "objectid", "dict", "list"]
+            },
+            $fieldTypesMap: {
+                float: "number",
+                integer: "number"
             },
             /**
              * Logging method
@@ -647,6 +655,10 @@
             this.$components = components || [];
             this.$components = this.isArray(this.$components) ? this.$components : [this.$components];
             // Design related
+
+            if(this.$fieldTypesMap.hasOwnProperty(type)) {
+                type = this.$fieldTypesMap[type];
+            }
             this.$contentUrl = 'field-' + type + '.html';
             this.init();
         };
@@ -808,16 +820,24 @@
             var val;
             switch (value.type) {
                 case "list":
-                    val = [];
+                    if (value.schema) {
+                        val = this.schema2data(value.schema);
+                    }
+                    else {
+                        val = [];
+                    }
                     break;
                 case "dict":
                     val = this.schema2data(value.schema);
                     break;
                 case "media":
-                    val = {};
+                    val = new ApyMediaFile(this.$endpoint, {
+                        'file': null,
+                        'name': "data.bin",
+                        'content_type': 'application/octet-stream'
+                    });
                     break;
                 case 'string':
-                    //case "integer":
                     val = "";
                     break;
                 case "integer":
@@ -1027,7 +1047,7 @@
                 // FIXME: Therefore a facade instance shall be made to unify
                 // FIXME: both interfaces, allowing us to always use the `$request` interface
                 return self.$request({
-                //return self.$http({
+                    //return self.$http({
                     url: self.$endpoint,
                     headers: {
                         'Content-Type': 'application/json'
@@ -1073,6 +1093,15 @@
             this.$components.forEach(function (comp) {
                 comp.delete();
             });
+            return this.clear();
+        };
+
+        /**
+         *
+         * @returns {Promise}
+         */
+        ApyCollectionComponent.prototype.clear = function clear () {
+            this.$components = [];
             return this;
         };
 
@@ -1398,12 +1427,15 @@
                         fieldObj = new ApyResourceComponent(field, subSchema.schema, null, this.$types.RESOURCE, this.$states);
                         fieldObj.load(value);
                         break;
-                    //case this.$types.LIST:
-                    //    fieldObj = new ApyResourceComponent(field, subSchema, resource[field]);
-                    //    break;
-                    //case this.$types.MEDIA:
-                    //    fieldObj = new ApyResourceComponent(field, subSchema, resource[field]);
-                    //    break;
+                    case this.$types.LIST:
+                        if(subSchema.schema) {
+                            console.log('LIST.field,subSchema,value', field, subSchema.schema, value);
+                            fieldObj = new ApyResourceComponent(field, subSchema.schema, null, this.$types.LIST_COMPLEX, this.$states);
+                            fieldObj.load(value);
+                            console.log('LIST.fieldObj', fieldObj);
+                        }
+                        else { console.log('LIST.simple.titi');fieldObj = new ApyFieldComponent(field, type, value, subSchema, this.$states, this.$endpointBase); }
+                        break;
                     case this.$types.OBJECTID:
                         var relationName = subSchema.data_relation.resource;
                         fieldObj = new ApyResourceComponent(field,
@@ -1438,7 +1470,10 @@
                         data = item.cleanedData();
                         break;
                 }
-                cleaned[item.$name] = data;
+                // `if` check avoids to add something
+                // which might be required but already filled.
+                // Specifically with Media Resource Component.
+                if(data) cleaned[item.$name] = data;
             }
             return cleaned;
         };
@@ -1472,7 +1507,7 @@
          * @param components
          * @returns {ApyResourceComponent}
          */
-        ApyResourceComponent.prototype.load = function loadObjectid (components) {
+        ApyResourceComponent.prototype.load = function load (components) {
             var self = this;
             components = components || {};
             forEach(Object.assign(components), function (v, k) {
@@ -1483,6 +1518,96 @@
             });
             this._load(components);
             return this;
+        };
+
+        /**
+         *
+         * @param $endpoint
+         * @param value
+         * @constructor
+         */
+        var ApyMediaFile = function ApyMediaFile($endpoint, value) {
+            if($endpoint.endsWith('/'))
+                $endpoint = $endpoint.slice(0, -1);
+
+            this.$uri = null;
+            this.$endpoint = $endpoint;
+
+            this.load(value);
+        };
+
+        /**
+         *
+         * @param $file
+         */
+        ApyMediaFile.prototype.setFile = function ($file) {
+            if(isFile($file) || isObject($file)) {
+                this.$file = $file.file || $file;
+                this.$name = $file.name || this.$name;
+                this.$type = $file.type || $file.content_type || this.$type;
+                this.$isImage = this.$type ? this.$type.indexOf('image') !== -1 : false;
+                this.$isAudio = this.$type ? this.$type.indexOf('audio') !== -1 : false;
+                this.$isVideo = this.$type ? this.$type.indexOf('video') !== -1 : false;
+                this.$lastModified = $file.lastModified || this.$lastModified;
+                this.$lastModifiedDate = $file.lastModifiedDate || this.$lastModifiedDate;
+            }
+            var self = this;
+
+            return new Promise(function (resolve, reject) {
+                self.loadURI().then(function (uri) {
+                    self.$uri = uri;
+                    return resolve(uri);
+                }).catch(function (e) {
+                    return reject(e);
+                });
+            });
+        };
+
+        /**
+         *
+         *
+         * @param value
+         * @returns {ApyMediaFile}
+         */
+        ApyMediaFile.prototype.load = function load (value) {
+            if(isString(value)) {
+                this.$file = value;
+            }
+            else {
+                this.setFile(value);
+            }
+            return this;
+        };
+
+        /**
+         *
+         * @returns {*}
+         */
+        ApyMediaFile.prototype.cleanedData = function cleanedData () {
+            return isFile(this.$file) ? this.$file: null;
+        };
+
+        /**
+         *
+         * @returns {Promise}
+         */
+        ApyMediaFile.prototype.loadURI = function loadURI () {
+            var self = this;
+            return new Promise(function (resolve, reject) {
+                if(isBlob(self.$file) || isFile(self.$file)) {
+                    var $reader = new FileReader();
+                    $reader.onload = function (e) {
+                        return resolve(e.target.result);
+                    };
+                    $reader.onerror = function (e) {
+                        return reject(e);
+                    };
+                    $reader.readAsDataURL(self.$file);
+                }
+                else {
+                    return resolve(self.$endpoint + self.$file);
+                }
+            });
         };
 
         /**
@@ -1505,10 +1630,7 @@
             this.$maxlength = options.maxlength;
             this.$unique = options.unique || false;
             this.$required = options.required || false;
-            this.$parent.constructor.call(this, name, type, null);
-
-            this.$memo = this.clone(value);
-            this.$value = this.typeWrapper(value);
+            this.$allowed = options.allowed || [];
 
             switch (type) {
                 case 'list':
@@ -1517,7 +1639,13 @@
                 default :
                     break;
             }
-
+            this.$parent.constructor.call(this, name, type, null);
+            // FIXME: The han is biting it own tail
+            // FIXME: This.$value needs to be called before (validate) super
+            // FIXME: and after (ApyMediaFile) according to case
+            // FIXME: Refactor ApyMediaFile not to be dependant of IComponent inheritance
+            this.$value = this.typeWrapper(value);
+            this.$memo = this.clone(value);
             delete this['$components'];
         };
 
@@ -1531,35 +1659,6 @@
             return "" + this.$value;
         };
 
-        var ApyMediaResource = function ApyMediaResource($endpoint, name, value) {
-            this.$name = name;
-            if(isObject(value)) {
-                this.load(value);
-            }
-            else {
-                this.$value = value;
-            }
-            if($endpoint.endsWith('/'))
-                $endpoint = $endpoint.slice(0, -1);
-            this.$endpoint = $endpoint;
-        };
-
-        ApyMediaResource.prototype.load = function load (value) {
-            var self = this;
-            forEach(value, function (val, attr) {
-                self['$' + attr] = val;
-            });
-            return this;
-        };
-
-        ApyMediaResource.prototype.cleanedData = function cleanedData () {
-            return this.$file;
-        };
-
-        ApyMediaResource.prototype.toURI = function toURI () {
-            return this.$endpoint + this.$file;
-        };
-
         /**
          *
          * @param value
@@ -1567,8 +1666,10 @@
          */
         ApyFieldComponent.prototype.typeWrapper = function typeWrapper (value) {
             switch (this.$type) {
+                case 'list':
+                    return value ? value : [];
                 case 'media':
-                    return new ApyMediaResource(this.$endpoint, this.$name, value);
+                    return new ApyMediaFile(this.$endpoint, value);
                 case 'datetime':
                     return new Date(value);
                 default :
@@ -1583,13 +1684,16 @@
          */
         ApyFieldComponent.prototype.clone = function clone (value) {
             switch (this.$type) {
+                case 'list':
                 case 'media':
                 case 'string':
                 case 'integer':
                 case 'datetime':
                     return this.typeWrapper(value);
-                default :
+                case 'dict':
                     return Object.assign(value);
+                default :
+                    return value;
             }
         };
 
@@ -1636,6 +1740,8 @@
                     hasUpdated = !this.$helper.arrayEquals(this.$value, this.$memo);
                     break;
                 case 'datetime':
+                    //console.log('MEMO', this.$memo, 'typeof', typeof this.$memo);
+                    if(!isDate(this.$memo)) this.$memo = new Date(this.$memo);
                     hasUpdated = this.$value.getTime() !== this.$memo.getTime();
                     break;
                 default :
@@ -1680,8 +1786,13 @@
             if(error) {
                 var e = "Component property `" + this.$name + "` shall be of type => " +
                     expectedType + "! Got " + selfType;
-                this.$logging.log(e);
-                this.$logging.log(this.$value);
+
+                // FIXME: The han is biting it own tail
+                // FIXME: This.$value needs to be called before (validate) super
+                // FIXME: and after (ApyMediaFile) according to case
+                // FIXME: Refactor ApyMediaFile not to be dependant of IComponent inheritance
+                //this.$logging.log(e);
+                //this.$logging.log(this.$value);
                 //throw new Error(e);
             }
             return this;
@@ -1702,7 +1813,7 @@
             }
         };
 
-        $window.ApyMediaResource = ApyMediaResource;
+        $window.ApyMediaFile = ApyMediaFile;
         $window.ApyFieldComponent = ApyFieldComponent;
         $window.ApySchemasComponent = ApySchemasComponent;
         $window.ApyResourceComponent = ApyResourceComponent;
