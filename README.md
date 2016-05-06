@@ -270,7 +270,7 @@ For more information on Apy Frontend please check out [Apy Frontend][apy-fronten
 [eve]: http://python-eve.org/
 [angular]: https://angularjs.org/
 [react]: https://facebook.github.io/react/
-[dj-rest-fwk]: 
+[dj-rest-fwk]: http://www.django-rest-framework.org/
 [apy-frontend]: https://gitlab.com/namat4css/apy-frontend
 [git]: http://git-scm.com/
 [bower]: http://bower.io
