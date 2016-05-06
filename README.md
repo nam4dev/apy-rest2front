@@ -1,11 +1,10 @@
 # Apy Frontend — Develop your REST API frontend with ease
 
-This project is a small automated frontend application based on a REST API schema.
-It tries to implement a generic data binding upon a REST API system.
-For now, `python-eve` REST API framework has been integrated to Apy Frontend
-For UI components (data representation & bindings), `AngularJs` is used.
-
-Anyhow, the framework is intended to be plugged to any `ui` or `backend` framework (cf. todo list).
+This project is a small automated frontend application based on a REST API schema. 
+It tries to implement a generic data binding upon a REST API system. 
+For now, [`python-eve`][eve] REST API framework has been integrated to Apy Frontend. 
+For UI components (data representation & bindings), [`AngularJs`][angular] is used. 
+Anyhow, the framework is intended to be plugged to any `UI` or `Backend` framework (cf. **TODO List**).
 
 ## Getting Started
 
@@ -247,30 +246,32 @@ instruction on how to do this.
 
 ## TODO List
 
-+ Configuration Templating System (ui / backend)
+- Configuration Templating System (ui / backend)
+    - UI
+        - Implement [`Angular`][angular] template
+        - Implement [`React`][react] template
+    - Backend
+        - Implement [`Eve`][angular] template
+        - Implement [`Django-rest-framework`][dj-rest-fwk] template
 
-++ UI
-+++ Implement `Angular` template
-+++ Implement `React` template
+- Documentation enhancement.
+    - Make doc-strings & API Documentation.
 
-++ Backend
-+++ Implement `Eve` template
-+++ Implement `Django-rest-api` template
-
-+ Documentation enhancement.
-++ Make doc-strings & API Documentation.
-
-+ Per Resource-based Authentication System.
-+ Data Validation enforced based on schema (when provided).
-
-+ Implement another `ui-framework`, such as `React`.
-+ Implement another `backend-framework`, such as `Django-rest-api`.
-+ Progress handler per Resource (PATCH, POST, DELETE).
+- Per Resource-based Authentication System.
+- Data Validation enforced based on schema (when provided).
+- Implement another `UI-framework`, such as [`React`][react].
+- Implement another `Backend-framework`, such as [`Django-rest-framework`][dj-rest-fwk].
+- Progress handler per Resource (PATCH, POST, DELETE).
 
 ## Contact
 
-For more information on Apy Frontend please check out https://gitlab.com/namat4css/apy-frontend
+For more information on Apy Frontend please check out [Apy Frontend][apy-frontend]
 
+[eve]: http://python-eve.org/
+[angular]: https://angularjs.org/
+[react]: https://facebook.github.io/react/
+[dj-rest-fwk]: 
+[apy-frontend]: https://gitlab.com/namat4css/apy-frontend
 [git]: http://git-scm.com/
 [bower]: http://bower.io
 [npm]: https://www.npmjs.org/
