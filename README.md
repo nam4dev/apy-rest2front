@@ -1,7 +1,11 @@
 # Apy Frontend — Develop your REST API frontend with ease
 
 This project is a small automated frontend application based on a REST API schema.
+It tries to implement a generic data binding upon a REST API system.
+For now, `python-eve` REST API framework has been integrated to Apy Frontend
+For UI components (data representation & bindings), `AngularJs` is used.
 
+Anyhow, the framework is intended to be plugged to any `ui` or `backend` framework (cf. todo list).
 
 ## Getting Started
 
@@ -75,21 +79,13 @@ Now browse to the app at `http://localhost:8000/app/index.html`.
 app/                    --> all of the source files for the application
   app.css               --> default stylesheet
   components/           --> all app specific modules
-    version/              --> version related components
-      version.js                 --> version module declaration and basic "version" value service
-      version_test.js            --> "version" value service tests
-      version-directive.js       --> custom directive that returns the current app version
-      version-directive_test.js  --> version directive tests
-      interpolate-filter.js      --> custom interpolation filter
-      interpolate-filter_test.js --> interpolate filter tests
-  view1/                --> the view1 view template and logic
-    view1.html            --> the partial template
-    view1.js              --> the controller logic
-    view1_test.js         --> tests of the controller
-  view2/                --> the view2 view template and logic
-    view2.html            --> the partial template
-    view2.js              --> the controller logic
-    view2_test.js         --> tests of the controller
+    apy-frontend/       --> Apy frontend framework
+      directives/       --> Apy frontend directives (version, ...)
+      app.css           --> Apy frontend CSS
+      app.js            --> Apy frontend starter implementation
+      services.js       --> Apy frontend Core
+      view.html         --> Apy frontend Angular integration
+      view.js           --> Apy frontend Angular integration
   app.js                --> main application module
   index.html            --> app layout file (the main html template file of the app)
   index-async.html      --> just like index.html, but loads js files asynchronously
@@ -192,21 +188,6 @@ bower update
 This will find the latest versions that match the version ranges specified in the `bower.json` file.
 
 
-## Loading Angular Asynchronously
-
-The apy-frontend project supports loading the framework and application scripts asynchronously.  The
-special `index-async.html` is designed to support this style of loading.  For it to work you must
-inject a piece of Angular JavaScript into the HTML page.  The project has a predefined script to help
-do this.
-
-```
-npm run update-index-async
-```
-
-This will copy the contents of the `angular-loader.js` library file into the `index-async.html` page.
-You can run this every time you update the version of Angular that you are using.
-
-
 ## Serving the Application Files
 
 While angular is client-side-only technology and it's possible to create angular webapps that
@@ -264,16 +245,27 @@ tests when you push to GitHub.
 You will need to enable the integration between Travis and GitHub. See the Travis website for more
 instruction on how to do this.
 
-### CloudBees
+## TODO List
 
-CloudBees have provided a CI/deployment setup:
++ Configuration Templating System (ui / backend)
 
-<a href="https://grandcentral.cloudbees.com/?CB_clickstart=https://raw.github.com/CloudBees-community/angular-js-clickstart/master/clickstart.json">
-<img src="https://d3ko533tu1ozfq.cloudfront.net/clickstart/deployInstantly.png"/></a>
+++ UI
++++ Implement `Angular` template
++++ Implement `React` template
 
-If you run this, you will get a cloned version of this repo to start working on in a private git repo,
-along with a CI service (in Jenkins) hosted that will run unit and end to end tests in both Firefox and Chrome.
+++ Backend
++++ Implement `Eve` template
++++ Implement `Django-rest-api` template
 
++ Documentation enhancement.
+++ Make doc-strings & API Documentation.
+
++ Per Resource-based Authentication System.
++ Data Validation enforced based on schema (when provided).
+
++ Implement another `ui-framework`, such as `React`.
++ Implement another `backend-framework`, such as `Django-rest-api`.
++ Progress handler per Resource (PATCH, POST, DELETE).
 
 ## Contact
 
