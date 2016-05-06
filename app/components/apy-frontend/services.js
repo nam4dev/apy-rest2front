@@ -1807,25 +1807,36 @@
          *
          */
         ApyFieldComponent.prototype.cleanedData = function cleanedData () {
+            var cleaned;
             this.validate();
             console.log(this.$components);
             switch (this.$type) {
-                case this.$types.LIST:
+
                 case this.$types.DICT:
                 case this.$types.RESOURCE:
-                    var cleaned;
-                    for (var i = 0; i < this.count(); i++) {
-                        var item = this.$components[i];
-                        switch (item.$type) {
-                            case this.$types.OBJECTID:
-                                cleaned = item._id;
-                                break;
-                            default :
-                                cleaned = item.cleanedData();
-                                break;
-                        }
-                    }
-                    return cleaned ? cleaned : (this.$type === this.$types.LIST ? [] : {});
+
+                    cleaned = {};
+                    this.$components.filter(function (comp) {
+                        return comp.$type !== $TYPES.POLY
+                    }).forEach(function (comp) {
+                        cleaned[comp.$name] = comp.cleanedData();
+                        console.log('cleanedData.DICT.comp', comp);
+                    });
+                    console.log('cleanedData.DICT', cleaned);
+                    return cleaned;
+
+                case this.$types.LIST:
+
+                    cleaned = [];
+                    this.$components.filter(function (comp) {
+                        return comp.$type !== $TYPES.POLY
+                    }).forEach(function (comp) {
+                        cleaned.push(comp.cleanedData());
+                        console.log('cleanedData.LIST.comp', comp);
+                    });
+                    console.log('cleanedData.LIST', cleaned);
+                    return cleaned;
+
                 case this.$types.MEDIA:
                     return this.$value.cleanedData();
                 case this.$types.DATETIME:
