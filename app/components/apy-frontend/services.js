@@ -1547,15 +1547,12 @@
                     $reader.readAsDataURL(self.$file);
                 }
                 //else if(self.$isVideo || isBlob(self.$file) || isFile(self.$file) || isObject(self.$file) || !self.$file) {
-                //    console.log('$file', self.$file );
-                //    console.log('$isVideo', self.$isVideo);
                 //    var url = null;
                 //    if(self.$file)
                 //        url = URL.createObjectURL(self.$file);
                 //    return resolve(url);
                 //}
                 else {
-                    console.log('T\'mère', self.$type);
                     return resolve(self.$endpoint + self.$file);
                 }
             });
@@ -1607,7 +1604,6 @@
         }
 
         ApyFieldComponent.prototype.postInit = function postInit () {
-            //console.log('ADDED', this.$type);
             switch (this.$type) {
                 case this.$types.LIST:
                 case this.$types.DICT:
@@ -1624,7 +1620,6 @@
 
         ApyFieldComponent.prototype.setType = function setType (parent, type, schemaName=null) {
             this.$type = type;
-            //console.log('TYPE', type);
             if(this.$typesForPoly.indexOf(type) !== -1) {
                 if(this.$fieldTypesMap.hasOwnProperty(type)) {
                     type = this.$fieldTypesMap[type];
@@ -1745,7 +1740,6 @@
                         }).length > 0;
                     break;
                 case this.$types.DATETIME:
-                    //console.log('MEMO', this.$memo, 'typeof', typeof this.$memo);
                     if(!isDate(this.$memo)) this.$memo = new Date(this.$memo);
                     hasUpdated = this.$value.getTime() !== this.$memo.getTime();
                     break;
@@ -1809,34 +1803,24 @@
         ApyFieldComponent.prototype.cleanedData = function cleanedData () {
             var cleaned;
             this.validate();
-            console.log(this.$components);
             switch (this.$type) {
-
                 case this.$types.DICT:
                 case this.$types.RESOURCE:
-
                     cleaned = {};
                     this.$components.filter(function (comp) {
                         return comp.$type !== $TYPES.POLY
                     }).forEach(function (comp) {
                         cleaned[comp.$name] = comp.cleanedData();
-                        console.log('cleanedData.DICT.comp', comp);
                     });
-                    console.log('cleanedData.DICT', cleaned);
                     return cleaned;
-
                 case this.$types.LIST:
-
                     cleaned = [];
                     this.$components.filter(function (comp) {
                         return comp.$type !== $TYPES.POLY
                     }).forEach(function (comp) {
                         cleaned.push(comp.cleanedData());
-                        console.log('cleanedData.LIST.comp', comp);
                     });
-                    console.log('cleanedData.LIST', cleaned);
                     return cleaned;
-
                 case this.$types.MEDIA:
                     return this.$value.cleanedData();
                 case this.$types.DATETIME:
