@@ -1,7 +1,7 @@
 <div>
     <!-- All Apy Fields directives -->
 
-    <script type="text/ng-template" id="field-polyMorph.html">
+    <script type="text/ng-template" id="field-poly.html">
         <div ng-if="field.$states.$current === field.$states.READ">
             <div ng-if="field.$value">
                 {{ field.$value }}
@@ -16,33 +16,51 @@
                     field.$states.$current !== field.$states.DELETE">
             <div class="row">
                 <div class="col-lg-12">
+
+                    <!--field.$service <pre>{{ field.$service }}</pre>-->
+
                     <div class="input-group">
                         <!--<pre>field.$name        : {{ field.$name }}</pre>-->
                         <!--<pre>field.$type        : {{ field.$type }}</pre>-->
                         <!--<pre>field.$types       : {{ field.$types }}</pre>-->
                         <!--<pre>field.$components  : {{ field.$components }}</pre>-->
-                        <!--<pre>field.$typesAsList : {{ field.$typesAsList }}</pre>-->
+                        <!--<pre>field.$typesForPoly : {{ field.$typesForPoly }}</pre>-->
                         <input type="text" class="form-control" aria-label="...">
                         <div class="input-group-btn">
-                            <button ng-if="field.$type && field.$type !== 'polyMorph'"
+                            <button ng-if="field.$type && field.$type !== field.$types.POLY"
                                     type="button"
                                     class="btn btn-default dropdown-toggle"
                                     data-toggle="dropdown"
                                     aria-haspopup="true"
                                     aria-expanded="false">{{ field.$type }} <span class="caret"></span></button>
 
-                            <button ng-if="!field.$type || field.$type === 'polyMorph'"
+                            <button ng-if="!field.$type || field.$type === field.$types.POLY"
                                     type="button"
                                     class="btn btn-default dropdown-toggle"
                                     data-toggle="dropdown"
                                     aria-haspopup="true"
                                     aria-expanded="false">{{ "Type selection" }} <span class="caret"></span></button>
 
-                            <ul class="dropdown-menu dropdown-menu-right">
-                                <li ng-repeat="type in field.$typesAsList" >
-                                    <a ng-click="field.setType(parent, type)" style="cursor: pointer;">{{ type }}</a>
+                            <ul ng-if="!displaySchemaNames" class="dropdown-menu dropdown-menu-right">
+                                <li ng-repeat="type in field.$typesForPoly" >
+                                    <!-- ng-click="field.setType(parent, type)"-->
+                                    <a ng-if="type === 'objectid'"
+                                       ng-click="displayChoices()"
+                                       style="cursor: pointer;">Resource (embedded)</a>
+                                    <a ng-if="type !== 'objectid'"
+                                       ng-click="field.setType(parent, type)"
+                                       style="cursor: pointer;">{{ type.capitalize() }}</a>
                                 </li>
                             </ul>
+
+                            <ul ng-if="displaySchemaNames" class="dropdown-menu dropdown-menu-right">
+                                <li ng-repeat="name in field.$service.$instance.$humanNames track by $index" >
+                                    <!--{{ field.$service.$instance.$names[$index] }}-->
+                                    <a ng-click="hideChoices();field.setType(parent, type, field.$service.$instance.$names[$index])"
+                                       style="cursor: pointer;">{{ name.capitalize() }}</a>
+                                </li>
+                            </ul>
+
                         </div><!-- /btn-group -->
                     </div><!-- /input-group -->
                 </div><!-- /.col-lg-6 -->
@@ -75,7 +93,7 @@
 
     <script type="text/ng-template" id="field-resource.html">
         <div ng-if="field.$states.$current === field.$states.READ">
-            <apy-field ng-repeat="component in field.$components" field="component"></apy-field>
+            <apy-field ng-repeat="component in field.$components" field="component" parent="field"></apy-field>
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
@@ -87,7 +105,7 @@
                 <span ng-if="field.$states.$current === field.$states.CREATE ||
                              field.$states.$current === field.$states.UPDATE" >
                     <span ng-if="!field.$value">
-                        Add <span class="text-capitalize"><strong>{{ field.$name }}</strong> document</span>
+                        Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
                     </span>
                     <span ng-if="field.$value">
                         <span class="text-capitalize"><strong>{{ field.$value }}</strong></span>
@@ -106,7 +124,7 @@
             </div>
             <div ng-if="field.$components">
                 <div ng-repeat="comp in field.$components">
-                    <apy-field ng-if="comp.$type !== 'polyMorph'" field="comp"></apy-field>
+                    <apy-field ng-if="comp.$type !== comp.$types.POLY" field="comp"></apy-field>
                 </div>
             </div>
         </div>
@@ -118,15 +136,14 @@
                     ng-model="field.$value">
                 <span ng-if="field.$states.$current === field.$states.CREATE ||
                              field.$states.$current === field.$states.UPDATE" >
-                    <span ng-if="!field.$components">
-                        Add <span class="text-capitalize"><strong>{{ field.$name }}</strong> document</span>
+                    <span ng-if="field.$components.length === 1">
+                        Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
                     </span>
-                    <span ng-if="field.$components">
-                        <!--<span class="text-capitalize"><strong>{{ field.$components }}</strong></span>-->
+                    <span ng-if="field.$components.length > 1">
+                        <span class="text-capitalize">{{ field.$name || field.$type }} contains <strong>{{ field.$components.length - 1 }}</strong> item(s)</span>
                     </span>
                 </span>
             </button>
-
             <!--<select ng-if="field.$allowed.length" ng-model="field.$value" multiple>-->
             <!--<option ng-repeat="allowed in field.$allowed" >{{ allowed }}</option>-->
             <!--</select>-->
@@ -158,7 +175,6 @@
                                 <a target="_blank"  ng-href="{{ field.$value.$uri }}" >
                                     <i class="glyphicon glyphicon-link"></i> {{ field.$value.$name || "link" }}
                                 </a>
-
                                 <img ng-if="field.$value.$isImage" ng-src="{{ field.$value.$uri }}" width="96" height="96" />
                                 <!--<audio ng-if="field.$value.$isAudio" controls >-->
                                 <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
@@ -166,7 +182,6 @@
                                 <!--<video ng-if="field.$value.$isVideo" controls >-->
                                 <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
                                 <!--</video>-->
-
                             </div>
                         </div>
                     </div>
@@ -255,7 +270,7 @@
         <thead class="thead-inverse">
         <tr>
             <th>#</th>
-            <th ng-repeat="header in $collection.$schema.$headers" >
+            <th ng-repeat="header in $collection.$schema.$headers track by $index" >
                 <strong class="text-capitalize text-underlined">{{ header }}</strong>
             </th>
             <th><i ng-click="createResource()"
@@ -396,9 +411,14 @@
             <!-- CREATE & UPDATE Form -->
             <div>
                 <form name="initial" novalidate>
+                    <!--field: <pre>{{ field }}</pre>-->
+                    <!--field.$components:  <pre>{{ field.$components }}</pre>-->
                     <div class="form-group" ng-repeat="comp in field.$components track by $index" >
-                        <label>{{ comp.$name }}</label>
-                        <apy-field field="comp"></apy-field>
+                        <!--<pre>{{ comp }}</pre>-->
+                        <label for="input-{{ comp.$type }}" >Key</label>
+                        <input class="form-control" id="input-{{ comp.$type }}" ng-model="comp.$name" placeholder="Key for your field..." />
+                        <label ng-if="comp.$name" for="{{ comp.$name }}">{{ comp.$name }}</label>
+                        <apy-field id="{{ comp.$name }}" field="comp" parent="field"></apy-field>
                     </div>
                 </form>
             </div>

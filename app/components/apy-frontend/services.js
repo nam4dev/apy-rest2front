@@ -163,92 +163,6 @@
             return obj;
         }
 
-        // Inspired by http://stackoverflow.com/questions/7837456/how-to-compare-arrays-in-javascript
-        var Helper = function () {};
-
-        /**
-         *
-         * @param array
-         * @param other
-         * @returns {boolean}
-         */
-        Helper.prototype.arrayEquals = function (array, other) {
-            // if the other array is a falsy value, return
-            if (!other)
-                return false;
-
-            // compare lengths - can save a lot of time
-            if (array.length != other.length)
-                return false;
-
-            for (var i = 0, l=array.length; i < l; i++) {
-                // Check if we have nested arrays
-                if (array[i] instanceof Array && other[i] instanceof Array) {
-                    // recurse into the nested arrays
-                    if (!array[i].equals(other[i]))
-                        return false;
-                }
-                else if (array[i] != other[i]) {
-                    // Warning - two different object instances will never be equal: {x:20} != {x:20}
-                    return false;
-                }
-            }
-            return true;
-        };
-
-        // TODO: Commented as not used for now, if not needed at all at the end, just remove it!
-        ///**
-        // *
-        // * @param array
-        // * @param thing
-        // * @returns {boolean}
-        // */
-        //Helper.prototype.arrayContains = function (array, thing) {
-        //    // if the other array is a falsy value, return false
-        //    if (!array)
-        //        return false;
-        //    //start by assuming the array doesn't contain the thing
-        //    var result = false;
-        //    for (var i = 0, l=array.length; i < l; i++)
-        //    {
-        //        //if anything in the array is the thing then change our mind from before
-        //        if (array[i] instanceof Array)
-        //        {if (array[i].equals(thing))
-        //            result = true;}
-        //        else
-        //        if (array[i]===thing)
-        //            result = true;
-        //    }
-        //    //return the decision we left in the variable, result
-        //    return result;
-        //};
-        //
-        ///**
-        // *
-        // * @param array
-        // * @param thing
-        // * @returns {number}
-        // */
-        //Helper.prototype.arrayIndexOf = function (array, thing) {
-        //    // if the other array is a falsy value, return -1
-        //    if (!array)
-        //        return -1;
-        //    //start by assuming the array doesn't contain the thing
-        //    var result = -1;
-        //    for (var i = 0, l=array.length; i < l; i++)
-        //    {
-        //        //if anything in the array is the thing then change our mind from before
-        //        if (array[i] instanceof Array)
-        //            if (array[i].equals(thing))
-        //                result = i;
-        //            else
-        //            if (array[i]===thing)
-        //                result = i;
-        //    }
-        //    //return the decision we left in the variable, result
-        //    return result;
-        //};
-
         /**
          * @name isUndefined
          * @kind function
@@ -517,6 +431,22 @@
         this.$schemas = null;
         this.$schemasEndpoint = null;
 
+        var $TYPES = {
+            LIST: "list",
+            DICT: "dict",
+            POLY: "poly",
+            MEDIA: "media",
+            FLOAT: "float",
+            NUMBER: "number",
+            STRING: "string",
+            BOOLEAN: "boolean",
+            INTEGER: "integer",
+            OBJECTID: "objectid",
+            DATETIME: "datetime",
+            RESOURCE: "resource",
+            COLLECTION: "collection"
+        };
+
         /**
          * Component Interface for the "tree" pattern implementation.constructor.
          * Note: This can be inherited but not instantiated.
@@ -525,27 +455,27 @@
          */
         var IComponent = {
             // Self props
-            $types: {
-                LIST: "list",
-                DICT: "dict",
-                MEDIA: "media",
-                FLOAT: "float",
-                NUMBER: "number",
-                STRING: "string",
-                BOOLEAN: "boolean",
-                INTEGER: "integer",
-                OBJECTID: "objectid",
-                DATETIME: "datetime",
-                RESOURCE: "resource"
-            },
+            $types: $TYPES,
+            $service: service,
             $typesMap : {
-                number: ["integer", "float", "number"],
-                object: ["datetime", "objectid", "dict", "list", "polyMorph"]
+                number: [
+
+                    $TYPES.FLOAT,
+                    $TYPES.NUMBER,
+                    $TYPES.INTEGER
+                ],
+                object: [
+                    $TYPES.DICT,
+                    $TYPES.LIST,
+                    $TYPES.POLY,
+                    $TYPES.DATETIME,
+                    $TYPES.OBJECTID
+                ]
             },
             $fieldTypesMap: {
-                float: "number",
-                integer: "number",
-                dict: 'resource'
+                float: $TYPES.NUMBER,
+                integer: $TYPES.NUMBER,
+                dict: $TYPES.RESOURCE
             },
             /**
              * Logging method
@@ -657,10 +587,13 @@
             // components index
             this.$components = components || [];
             this.$components = this.isArray(this.$components) ? this.$components : [this.$components];
-            this.$typesAsList = [];
+            this.$typesForPoly = [];
             forEach(this.$types, function (type) {
-                self.$typesAsList.push(type);
+                if([$TYPES.COLLECTION, $TYPES.DICT, $TYPES.POLY].indexOf(type) === -1) {
+                    self.$typesForPoly.push(type);
+                }
             });
+            self.$typesForPoly.sort();
             // Design related
 
             if(this.$fieldTypesMap.hasOwnProperty(type)) {
@@ -736,15 +669,15 @@
                 self[fieldName] = validator;
                 if(isObject(validator) && validator.type) {
                     switch (validator.type) {
-                        case "objectid":
+                        case $TYPES.MEDIA:
+                            self.$hasMedia = true;
+                            break;
+                        case $TYPES.OBJECTID:
                             if (fieldName !== '_id') {
                                 if(validator.data_relation.embeddable) {
                                     embedded[fieldName] = 1;
                                 }
                             }
-                            break;
-                        case "media":
-                            self.$hasMedia = true;
                             break;
                         default :
                             break;
@@ -768,6 +701,8 @@
             if(!schemas || !isObject(schemas)) {
                 throw new Error('A schemas object must be provided (got type => ' + typeof schemas + ') !');
             }
+            this.$names = [];
+            this.$humanNames = [];
             this.$components = {};
             this.$componentArray = [];
             this.$endpoint = endpoint;
@@ -805,13 +740,16 @@
             var self = this;
             Object.keys(this.$schemas).forEach(function (schemaName) {
                 var schema = new ApySchemaComponent(self.$schemas[schemaName]);
+                var humanName = schemaName.replaceAll('_', ' ');
+                self.$names.push(schemaName);
+                self.$humanNames.push(humanName);
                 self.$components[schemaName] = schema;
                 self.$componentArray.push({
                     data: schema,
                     name: schemaName,
                     route: '/' + schemaName,
                     endpoint: self.$endpoint + schemaName,
-                    humanName: schemaName.replaceAll('_', ' '),
+                    humanName: humanName,
                     hidden: self.$excluded.indexOf(schemaName) !== -1
                 });
             });
@@ -826,7 +764,7 @@
         ApySchemasComponent.prototype.transformData = function transformData(key, value) {
             var val;
             switch (value.type) {
-                case "list":
+                case $TYPES.LIST:
                     if (value.schema) {
                         val = this.schema2data(value.schema);
                     }
@@ -834,19 +772,26 @@
                         val = [];
                     }
                     break;
-                case "dict":
+                case $TYPES.DICT:
                     val = this.schema2data(value.schema);
                     break;
-                case "media":
+                case $TYPES.MEDIA:
                     val = new ApyMediaFile(this.$endpoint);
                     break;
-                case 'string':
+                case $TYPES.FLOAT:
+                case $TYPES.NUMBER:
+                    val = 0.0;
+                    break;
+                case $TYPES.STRING:
                     val = "";
                     break;
-                case "integer":
+                case $TYPES.INTEGER:
                     val = 0;
                     break;
-                case "objectid":
+                case $TYPES.BOOLEAN:
+                    val = false;
+                    break;
+                case $TYPES.OBJECTID:
                     if(key.startsWith('_')) {
                         val = "";
                     }
@@ -854,7 +799,7 @@
                         val = this.schema2data(service.$schemas[value.data_relation.resource]);
                     }
                     break;
-                case "datetime":
+                case $TYPES.DATETIME:
                     val = new Date();
                     break;
                 default :
@@ -893,7 +838,7 @@
         ApySchemasComponent.prototype.createResource = function createResource (name, resource=null) {
             var schema = this.get(name);
             if(!schema) throw new Error('No schema provided for name', name);
-            var component = new ApyResourceComponent(name, schema, null, "resource", null, this.$endpoint, name);
+            var component = new ApyResourceComponent(name, schema, null, $TYPES.RESOURCE, null, this.$endpoint, name);
             component.load(resource || this.schema2data(schema));
             return component;
         };
@@ -912,7 +857,7 @@
             this.$endpoint = endpoint + name;
             if(this.$schema.$embeddedURI)
                 this.$endpoint += '?' + this.$schema.$embeddedURI;
-            this.$parent.constructor.call(this, name, "collection", components);
+            this.$parent.constructor.call(this, name, $TYPES.COLLECTION, components);
         };
 
         ApyCollectionComponent.inheritsFrom(ApyComponent);
@@ -1142,7 +1087,7 @@
             this.$relationName = relationName;
             if(relationName)
                 this.$endpoint += relationName;
-            if(schema.$embeddedURI)
+            if(schema && schema.$embeddedURI)
                 this.$endpoint += '?' + schema.$embeddedURI;
             this.$states = $states || this.createStateHolder(states[1], states);
             this.$parent.constructor.call(this, name, type, components);
@@ -1155,7 +1100,7 @@
          * @returns {ApyResourceComponent}
          */
         ApyResourceComponent.prototype.initRequest = function initRequest () {
-            this.$request = this.$schema.$hasMedia ? this.$upload.upload : this.$http;
+            this.$request = (this.$schema && this.$schema.$hasMedia) ? this.$upload.upload : this.$http;
             return this;
         };
 
@@ -1656,41 +1601,57 @@
         function needPoly($components) {
             var need = true;
             forEach($components, function (c) {
-                if(c.$type === 'polyMorph') need = false;
+                if(c.$type === $TYPES.POLY) need = false;
             });
             return need;
         }
 
         ApyFieldComponent.prototype.postInit = function postInit () {
-            console.log('ADDED', this.$type);
+            //console.log('ADDED', this.$type);
             switch (this.$type) {
-                case 'list':
-                    //case 'polyMorph':
-                    //console.log('ADDED')
-                    this.$helper = new Helper();
+                case this.$types.LIST:
+                case this.$types.DICT:
+                case this.$types.RESOURCE:
                     this.$components = [];
-                    if(needPoly(this.$components))
-                        this.$components.push(new ApyFieldComponent(null, 'polyMorph', null, {}, this.$states, this.$endpoint));
+                    var poly = new ApyFieldComponent(null, $TYPES.POLY, null, {}, this.$states, this.$endpoint);
+                    this.$components.push(poly);
                     break;
                 default :
-                    delete this['$components'];
                     break;
             }
             return this;
         };
 
-        ApyFieldComponent.prototype.setType = function setType (parent, type) {
+        ApyFieldComponent.prototype.setType = function setType (parent, type, schemaName=null) {
             this.$type = type;
-            console.log('TYPE', type);
-            if(this.$typesAsList.indexOf(type) !== -1) {
+            //console.log('TYPE', type);
+            if(this.$typesForPoly.indexOf(type) !== -1) {
                 if(this.$fieldTypesMap.hasOwnProperty(type)) {
                     type = this.$fieldTypesMap[type];
                 }
-                this.$contentUrl = 'field-' + type + '.html';
+                if(type !== this.$types.DICT) this.$contentUrl = 'field-' + type + '.html';
             }
-            if(needPoly(parent.$components))
-                parent.$components.push(new ApyFieldComponent(null, 'polyMorph', null, {}, this.$states, this.$endpoint));
-            return this.initialize().postInit(parent);
+            if(needPoly(parent.$components)) {
+                var poly;
+                switch (type) {
+                    case this.$types.DICT:
+                        poly = new ApyFieldComponent(null, this.$types.RESOURCE, null, {}, this.$states, this.$endpoint);
+                        parent.$components.push(poly);
+                        return this;
+                    case this.$types.OBJECTID:
+                        poly = new ApyResourceComponent(null,
+                            service.$schemas[schemaName],
+                            null, this.$types.OBJECTID, this.$states, this.$endpoint, schemaName);
+                        //poly.load();
+                        parent.$components.push(poly);
+                        break;
+                    default :
+                        parent.$components.push(
+                            new ApyFieldComponent(null, $TYPES.POLY, null, {}, this.$states, this.$endpoint));
+                        return this.initialize().postInit();
+                }
+            }
+
         };
 
         /**
@@ -1708,11 +1669,11 @@
          */
         ApyFieldComponent.prototype.typeWrapper = function typeWrapper (value) {
             switch (this.$type) {
-                case 'list':
+                case this.$types.LIST:
                     return value ? value : [];
-                case 'media':
+                case this.$types.MEDIA:
                     return new ApyMediaFile(this.$endpoint, value);
-                case 'datetime':
+                case this.$types.DATETIME:
                     return new Date(value);
                 default :
                     return value;
@@ -1726,13 +1687,13 @@
          */
         ApyFieldComponent.prototype.clone = function clone (value) {
             switch (this.$type) {
-                case 'list':
-                case 'media':
-                case 'string':
-                case 'integer':
-                case 'datetime':
+                case this.$types.LIST:
+                case this.$types.MEDIA:
+                case this.$types.STRING:
+                case this.$types.INTEGER:
+                case this.$types.DATETIME:
                     return this.typeWrapper(value);
-                case 'dict':
+                case this.$types.DICT:
                     return isObject(value) ? Object.assign(value) : value;
                 default :
                     return value;
@@ -1778,12 +1739,12 @@
         ApyFieldComponent.prototype.hasUpdated = function hasUpdated () {
             var hasUpdated = false;
             switch (this.$type) {
-                case 'list':
+                case this.$types.LIST:
                     hasUpdated = this.$components.filter(function (c) {
-                        return c.$type !== 'ployMorph';
-                    }).length > 0;
+                            return c.$type !== 'ployMorph';
+                        }).length > 0;
                     break;
-                case 'datetime':
+                case this.$types.DATETIME:
                     //console.log('MEMO', this.$memo, 'typeof', typeof this.$memo);
                     if(!isDate(this.$memo)) this.$memo = new Date(this.$memo);
                     hasUpdated = this.$value.getTime() !== this.$memo.getTime();
@@ -1847,12 +1808,27 @@
          */
         ApyFieldComponent.prototype.cleanedData = function cleanedData () {
             this.validate();
+            console.log(this.$components);
             switch (this.$type) {
-                case 'list':
-                    return this.$components;
-                case 'media':
+                case this.$types.LIST:
+                case this.$types.DICT:
+                case this.$types.RESOURCE:
+                    var cleaned;
+                    for (var i = 0; i < this.count(); i++) {
+                        var item = this.$components[i];
+                        switch (item.$type) {
+                            case this.$types.OBJECTID:
+                                cleaned = item._id;
+                                break;
+                            default :
+                                cleaned = item.cleanedData();
+                                break;
+                        }
+                    }
+                    return cleaned ? cleaned : (this.$type === this.$types.LIST ? [] : {});
+                case this.$types.MEDIA:
                     return this.$value.cleanedData();
-                case 'datetime':
+                case this.$types.DATETIME:
                     return this.$value.toUTCString();
                 default :
                     return this.$value;

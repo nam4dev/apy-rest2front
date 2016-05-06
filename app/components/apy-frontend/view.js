@@ -12,13 +12,24 @@
                 },
                 template: '<div ng-include="field.$contentUrl"></div>',
                 controller: ['$scope', '$log', '$uibModal', 'apy', function ($scope, $log, $uibModal, apyProvider) {
-                    var resourcePickerWindow;
+                    var win;
                     $scope.opened = false;
+                    $scope.displaySchemaNames = false;
                     $scope.dateOptions = {};
                     //$scope.$states = apyProvider.$states;
                     $scope.altInputFormats = ['M!/d!/yyyy'];
                     $scope.formats = ['yyyy-MMM-dd HH:mm:ss', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
                     $scope.format = $scope.formats[0];
+
+                    $scope.displayChoices = function () {
+                        $scope.displaySchemaNames = true;
+                        console.log('FILS DE PUTA')
+                    };
+
+                    $scope.hideChoices = function () {
+                        $scope.displaySchemaNames = false;
+                        console.log('FILS DE PUTA MADRE')
+                    };
 
                     $scope.setFile = function (field, file) {
                         field.$value.setFile(file)
@@ -32,15 +43,15 @@
 
                     $scope.expandList = function (field) {
                         $scope.ok = function () {
-                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                            win && win.dismiss('cancel');
                         };
 
                         $scope.cancel = function () {
-                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                            win && win.dismiss('cancel');
                         };
                         console.log('FIELD', field);
                         //$scope.parent = field;
-                        resourcePickerWindow = $uibModal.open({
+                        win = $uibModal.open({
                             animation: false,
                             templateUrl: 'modal-list.html',
                             controllerAs: 'ModalCtrl',
@@ -51,15 +62,15 @@
                     $scope.expandRecursive = function (field) {
                         $scope.ok = function () {
                             field && field.loadValue && field.loadValue();
-                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                            win && win.dismiss('cancel');
                         };
 
                         $scope.cancel = function () {
                             field && field.reset();
-                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                            win && win.dismiss('cancel');
                         };
                         //$scope.field = field;
-                        resourcePickerWindow = $uibModal.open({
+                        win = $uibModal.open({
                             animation: false,
                             templateUrl: 'modal-recursive.html',
                             controllerAs: 'ModalCtrl',
@@ -70,13 +81,13 @@
                     $scope.resourcePicker = function (field) {
                         // UI Callbacks
                         $scope.cancel = function () {
-                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                            win && win.dismiss('cancel');
                         };
                         // Data Layer
                         var collection = apyProvider.createCollection(field.$relationName);
                         collection.fetch().then(function (_) {
                             $scope.$collection = collection;
-                            resourcePickerWindow = $uibModal.open({
+                            win = $uibModal.open({
                                 animation: false,
                                 templateUrl: 'modal-embedded.html',
                                 controllerAs: 'ModalCtrl',
