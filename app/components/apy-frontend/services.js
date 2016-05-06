@@ -1,3 +1,4 @@
+
 (function ($window) {'use strict';
 
     /**
@@ -461,6 +462,7 @@
             getPrototypeOf      = Object.getPrototypeOf,
             toString            = Object.prototype.toString,
             hasOwnProperty      = Object.prototype.hasOwnProperty,
+            URL                 = $window.URL || $window.webkitURL,
             states              = [
                 'CREATE',
                 'READ',
@@ -534,16 +536,16 @@
                 INTEGER: "integer",
                 OBJECTID: "objectid",
                 DATETIME: "datetime",
-                RESOURCE: "resource",
-                LIST_COMPLEX: "list-complex"
+                RESOURCE: "resource"
             },
             $typesMap : {
                 number: ["integer", "float", "number"],
-                object: ["datetime", "objectid", "dict", "list"]
+                object: ["datetime", "objectid", "dict", "list", "polyMorph"]
             },
             $fieldTypesMap: {
                 float: "number",
-                integer: "number"
+                integer: "number",
+                dict: 'resource'
             },
             /**
              * Logging method
@@ -644,6 +646,7 @@
          * @constructor
          */
         var ApyComponent = function ApyComponent (name, type, components=null) {
+            var self = this;
             this.$name = name;
             this.$type = type;
             // Dependencies inherited from Angular
@@ -654,6 +657,10 @@
             // components index
             this.$components = components || [];
             this.$components = this.isArray(this.$components) ? this.$components : [this.$components];
+            this.$typesAsList = [];
+            forEach(this.$types, function (type) {
+                self.$typesAsList.push(type);
+            });
             // Design related
 
             if(this.$fieldTypesMap.hasOwnProperty(type)) {
@@ -831,11 +838,7 @@
                     val = this.schema2data(value.schema);
                     break;
                 case "media":
-                    val = new ApyMediaFile(this.$endpoint, {
-                        'file': null,
-                        'name': "data.bin",
-                        'content_type': 'application/octet-stream'
-                    });
+                    val = new ApyMediaFile(this.$endpoint);
                     break;
                 case 'string':
                     val = "";
@@ -1427,15 +1430,6 @@
                         fieldObj = new ApyResourceComponent(field, subSchema.schema, null, this.$types.RESOURCE, this.$states);
                         fieldObj.load(value);
                         break;
-                    case this.$types.LIST:
-                        if(subSchema.schema) {
-                            console.log('LIST.field,subSchema,value', field, subSchema.schema, value);
-                            fieldObj = new ApyResourceComponent(field, subSchema.schema, null, this.$types.LIST_COMPLEX, this.$states);
-                            fieldObj.load(value);
-                            console.log('LIST.fieldObj', fieldObj);
-                        }
-                        else { console.log('LIST.simple.titi');fieldObj = new ApyFieldComponent(field, type, value, subSchema, this.$states, this.$endpointBase); }
-                        break;
                     case this.$types.OBJECTID:
                         var relationName = subSchema.data_relation.resource;
                         fieldObj = new ApyResourceComponent(field,
@@ -1555,7 +1549,7 @@
 
             return new Promise(function (resolve, reject) {
                 self.loadURI().then(function (uri) {
-                    self.$uri = uri;
+                    if(uri) self.$uri = uri;
                     return resolve(uri);
                 }).catch(function (e) {
                     return reject(e);
@@ -1593,18 +1587,30 @@
          */
         ApyMediaFile.prototype.loadURI = function loadURI () {
             var self = this;
+
+            if( self.$file instanceof ApyMediaFile) self.setFile(self.$file);
+
             return new Promise(function (resolve, reject) {
-                if(isBlob(self.$file) || isFile(self.$file)) {
-                    var $reader = new FileReader();
-                    $reader.onload = function (e) {
-                        return resolve(e.target.result);
-                    };
-                    $reader.onerror = function (e) {
-                        return reject(e);
+                var $reader = new FileReader();
+                $reader.onerror = function (error) {
+                    return reject(error);
+                };
+                if(self.$isImage && isBlob(self.$file) || isFile(self.$file)) {
+                    $reader.onload = function (evt) {
+                        return resolve(evt.target.result);
                     };
                     $reader.readAsDataURL(self.$file);
                 }
+                //else if(self.$isVideo || isBlob(self.$file) || isFile(self.$file) || isObject(self.$file) || !self.$file) {
+                //    console.log('$file', self.$file );
+                //    console.log('$isVideo', self.$isVideo);
+                //    var url = null;
+                //    if(self.$file)
+                //        url = URL.createObjectURL(self.$file);
+                //    return resolve(url);
+                //}
                 else {
+                    console.log('T\'mère', self.$type);
                     return resolve(self.$endpoint + self.$file);
                 }
             });
@@ -1623,33 +1629,69 @@
          */
         var ApyFieldComponent = function ApyFieldComponent (name, type, value, options=null, $states=null, $endpoint=null) {
             this.$states = $states;
-            options = options || {};
             this.$endpoint = $endpoint;
-
-            this.$minlength = options.minlength;
-            this.$maxlength = options.maxlength;
-            this.$unique = options.unique || false;
-            this.$required = options.required || false;
-            this.$allowed = options.allowed || [];
-
-            switch (type) {
-                case 'list':
-                    this.$helper = new Helper();
-                    break;
-                default :
-                    break;
-            }
+            this.initialize(value, options);
             this.$parent.constructor.call(this, name, type, null);
+            this.postInit();
+        };
+
+        ApyFieldComponent.inheritsFrom(ApyComponent);
+
+        ApyFieldComponent.prototype.initialize = function initialize (value=null, options=null) {
+            options = options || {};
+            this.$minlength = options.minlength || this.$minlength;
+            this.$maxlength = options.maxlength || this.$maxlength;
+            this.$unique = options.unique || this.$unique || false;
+            this.$required = options.required || this.$required || false;
+            this.$allowed = options.allowed || this.$allowed || [];
             // FIXME: The han is biting it own tail
             // FIXME: This.$value needs to be called before (validate) super
             // FIXME: and after (ApyMediaFile) according to case
             // FIXME: Refactor ApyMediaFile not to be dependant of IComponent inheritance
-            this.$value = this.typeWrapper(value);
             this.$memo = this.clone(value);
-            delete this['$components'];
+            this.$value = this.typeWrapper(value);
+            return this;
         };
 
-        ApyFieldComponent.inheritsFrom(ApyComponent);
+        function needPoly($components) {
+            var need = true;
+            forEach($components, function (c) {
+                if(c.$type === 'polyMorph') need = false;
+            });
+            return need;
+        }
+
+        ApyFieldComponent.prototype.postInit = function postInit () {
+            console.log('ADDED', this.$type);
+            switch (this.$type) {
+                case 'list':
+                    //case 'polyMorph':
+                    //console.log('ADDED')
+                    this.$helper = new Helper();
+                    this.$components = [];
+                    if(needPoly(this.$components))
+                        this.$components.push(new ApyFieldComponent(null, 'polyMorph', null, {}, this.$states, this.$endpoint));
+                    break;
+                default :
+                    delete this['$components'];
+                    break;
+            }
+            return this;
+        };
+
+        ApyFieldComponent.prototype.setType = function setType (parent, type) {
+            this.$type = type;
+            console.log('TYPE', type);
+            if(this.$typesAsList.indexOf(type) !== -1) {
+                if(this.$fieldTypesMap.hasOwnProperty(type)) {
+                    type = this.$fieldTypesMap[type];
+                }
+                this.$contentUrl = 'field-' + type + '.html';
+            }
+            if(needPoly(parent.$components))
+                parent.$components.push(new ApyFieldComponent(null, 'polyMorph', null, {}, this.$states, this.$endpoint));
+            return this.initialize().postInit(parent);
+        };
 
         /**
          *
@@ -1691,7 +1733,7 @@
                 case 'datetime':
                     return this.typeWrapper(value);
                 case 'dict':
-                    return Object.assign(value);
+                    return isObject(value) ? Object.assign(value) : value;
                 default :
                     return value;
             }
@@ -1737,7 +1779,9 @@
             var hasUpdated = false;
             switch (this.$type) {
                 case 'list':
-                    hasUpdated = !this.$helper.arrayEquals(this.$value, this.$memo);
+                    hasUpdated = this.$components.filter(function (c) {
+                        return c.$type !== 'ployMorph';
+                    }).length > 0;
                     break;
                 case 'datetime':
                     //console.log('MEMO', this.$memo, 'typeof', typeof this.$memo);
@@ -1791,8 +1835,8 @@
                 // FIXME: This.$value needs to be called before (validate) super
                 // FIXME: and after (ApyMediaFile) according to case
                 // FIXME: Refactor ApyMediaFile not to be dependant of IComponent inheritance
-                //this.$logging.log(e);
-                //this.$logging.log(this.$value);
+                this.$logging.log(e);
+                this.$logging.log(this.$value);
                 //throw new Error(e);
             }
             return this;
@@ -1804,6 +1848,8 @@
         ApyFieldComponent.prototype.cleanedData = function cleanedData () {
             this.validate();
             switch (this.$type) {
+                case 'list':
+                    return this.$components;
                 case 'media':
                     return this.$value.cleanedData();
                 case 'datetime':

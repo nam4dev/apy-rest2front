@@ -1,5 +1,55 @@
 <div>
     <!-- All Apy Fields directives -->
+
+    <script type="text/ng-template" id="field-polyMorph.html">
+        <div ng-if="field.$states.$current === field.$states.READ">
+            <div ng-if="field.$value">
+                {{ field.$value }}
+            </div>
+            <div ng-if="field.$components">
+                <div ng-repeat="comp in field.$components">
+                    <apy-field field="comp"></apy-field>
+                </div>
+            </div>
+        </div>
+        <div ng-if="field.$states.$current !== field.$states.READ &&
+                    field.$states.$current !== field.$states.DELETE">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="input-group">
+                        <!--<pre>field.$name        : {{ field.$name }}</pre>-->
+                        <!--<pre>field.$type        : {{ field.$type }}</pre>-->
+                        <!--<pre>field.$types       : {{ field.$types }}</pre>-->
+                        <!--<pre>field.$components  : {{ field.$components }}</pre>-->
+                        <!--<pre>field.$typesAsList : {{ field.$typesAsList }}</pre>-->
+                        <input type="text" class="form-control" aria-label="...">
+                        <div class="input-group-btn">
+                            <button ng-if="field.$type && field.$type !== 'polyMorph'"
+                                    type="button"
+                                    class="btn btn-default dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">{{ field.$type }} <span class="caret"></span></button>
+
+                            <button ng-if="!field.$type || field.$type === 'polyMorph'"
+                                    type="button"
+                                    class="btn btn-default dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">{{ "Type selection" }} <span class="caret"></span></button>
+
+                            <ul class="dropdown-menu dropdown-menu-right">
+                                <li ng-repeat="type in field.$typesAsList" >
+                                    <a ng-click="field.setType(parent, type)" style="cursor: pointer;">{{ type }}</a>
+                                </li>
+                            </ul>
+                        </div><!-- /btn-group -->
+                    </div><!-- /input-group -->
+                </div><!-- /.col-lg-6 -->
+            </div><!-- /.row -->
+        </div>
+    </script>
+
     <script type="text/ng-template" id="field-objectid.html">
         <div ng-if="field.$states.$current === field.$states.READ">
             {{ field.$value || field._id }}
@@ -51,84 +101,82 @@
         <!--<pre>{{ field.$value }}</pre>-->
         <!--<pre>{{ field.$allowed }}</pre>-->
         <div ng-if="field.$states.$current === field.$states.READ">
-            <ul>
-                <li ng-repeat="value in field.$value" >{{ value }}</li>
-            </ul>
-        </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
-            <select ng-if="field.$allowed.length" ng-model="field.$value" multiple>
-                <option ng-repeat="allowed in field.$allowed" >{{ allowed }}</option>
-            </select>
-            <select ng-if="!field.$allowed.length" ng-model="field.$value" multiple>toto</select>
-        </div>
-    </script>
-
-    <script type="text/ng-template" id="field-list-complex.html">
-        <!--<pre>{{ field.$value }}</pre>-->
-        <!--<pre>{{ field.$allowed }}</pre>-->
-        <div ng-if="field.$states.$current === field.$states.READ">
-            <ul>
-                LIST_COMPLEX
-                <li ng-repeat="value in field.$value" >{{ value }}</li>
-            </ul>
+            <div ng-if="field.$value">
+                {{ field.$value }}
+            </div>
+            <div ng-if="field.$components">
+                <div ng-repeat="comp in field.$components">
+                    <apy-field ng-if="comp.$type !== 'polyMorph'" field="comp"></apy-field>
+                </div>
+            </div>
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
             <button id="{{ field.$name }}"
                     class="form-control"
-                    ng-click="expandRecursive(field)"
+                    ng-click="expandList(field)"
                     ng-model="field.$value">
                 <span ng-if="field.$states.$current === field.$states.CREATE ||
                              field.$states.$current === field.$states.UPDATE" >
-                    <span ng-if="!field.$value">
+                    <span ng-if="!field.$components">
                         Add <span class="text-capitalize"><strong>{{ field.$name }}</strong> document</span>
                     </span>
-                    <span ng-if="field.$value">
-                        <span class="text-capitalize"><strong>{{ field.$value }}</strong></span>
+                    <span ng-if="field.$components">
+                        <!--<span class="text-capitalize"><strong>{{ field.$components }}</strong></span>-->
                     </span>
                 </span>
             </button>
+
+            <!--<select ng-if="field.$allowed.length" ng-model="field.$value" multiple>-->
+            <!--<option ng-repeat="allowed in field.$allowed" >{{ allowed }}</option>-->
+            <!--</select>-->
+            <!--<select ng-if="!field.$allowed.length" ng-model="field.$value" multiple></select>-->
+
         </div>
     </script>
 
     <script type="text/ng-template" id="field-media.html">
         <div ng-if="field.$states.$current === field.$states.READ">
             <!--{{ field.$value }}-->
+            <!--{{ field.$value.$uri }}-->
             <img ng-if="field.$value.$isImage" ng-src="{{ field.$value.$uri  }}"  width="96" height="96" />
-            <audio ng-if="field.$value.$isAudio" controls ngf-src="{{ field.$value.$uri  }}"></audio>
-            <video ng-if="field.$value.$isVideo" controls ngf-src="{{ field.$value.$uri  }}"></video>
+            <!--<audio ng-if="field.$value.$isAudio" controls >-->
+            <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
+            <!--</audio>-->
+            <!--<video ng-if="field.$value.$isVideo" controls >-->
+            <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
+            <!--</video>-->
             <a ng-href="{{ field.$value.$uri }}" class="media media-object">{{ field.$value.$name }}</a>
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
             <form class="form-inline">
                 <div class="row">
-                    <div class="form-group  form-group-lg col-md-7" ng-if="field.$value.$uri">
+                    <div class="form-group  form-group-lg col-md-6" ng-if="field.$value.$uri">
                         <div class="thumbnail">
-                            <img ng-if="field.$value.$isImage" ng-src="{{ field.$value.$uri }}" width="96" height="96" />
-                            <audio ng-if="field.$value.$isAudio" controls ngf-src="{{ field.$value.$uri  }}"></audio>
-                            <video ng-if="field.$value.$isVideo" controls ngf-src="{{ field.$value.$uri  }}"></video>
                             <div class="caption text-centered">
                                 <a target="_blank"  ng-href="{{ field.$value.$uri }}" >
                                     <i class="glyphicon glyphicon-link"></i> {{ field.$value.$name || "link" }}
                                 </a>
+
+                                <img ng-if="field.$value.$isImage" ng-src="{{ field.$value.$uri }}" width="96" height="96" />
+                                <!--<audio ng-if="field.$value.$isAudio" controls >-->
+                                <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
+                                <!--</audio>-->
+                                <!--<video ng-if="field.$value.$isVideo" controls >-->
+                                <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
+                                <!--</video>-->
+
                             </div>
                         </div>
                     </div>
-                    <div class="form-group form-group-lg col-md-5">
-                        <button class="form-control btn btn-warning drop-box"
-                                ngf-select="setFile(field, $files[0])"
-                                multiple="multiple" >Select</button>
-                        <!--<i class="glyphicon glyphicon-file"></i>-->
-                        <!--<i class="glyphicon glyphicon-film"></i>-->
-                        <!--<i class="glyphicon glyphicon-music"></i>-->
-                        <!--<div class="button" ngf-select="upload($file)">Upload on file select</div>-->
-                        <!--<div class="button" ngf-select="uploadFiles($files)" multiple="multiple">Upload on file select</div>-->
-                        <!--<div ngf-drop="uploadFiles($files)" class="drop-box"-->
-                        <!--ngf-drag-over-class="'dragover'" ngf-multiple="true"-->
-                        <!--ngf-pattern="'image/*,application/pdf'">Drop Images or PDFs files here</div>-->
-                        <!--<div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>-->
+                    <div class="form-group form-group-lg col-md-6">
+                        <div ngf-drop="setFile(field, $files[0])" class="drop-box" ngf-drag-over-class="'dragover'">
+                            <button class="form-control btn btn-warning drop-box" ngf-select="setFile(field, $files[0])">
+                                Select or Drop
+                            </button>
+                        </div>
+                        <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
                     </div>
                 </div>
                 <div class="row">
@@ -308,6 +356,32 @@
         </div>
         <div class="modal-footer">
             <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="modal-list.html">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                 <span class="text-capitalize" >
+                     <strong>{{ field.$name }}</strong> Document</span>
+            </h3>
+        </div>
+        <div class="modal-body">
+            <!-- CREATE & UPDATE Form -->
+            <div>
+                <form name="initial" novalidate>
+
+                    <div class="form-group" ng-repeat="comp in field.$components track by $index" >
+                        <!--<pre>{{ comp.$components }}</pre>-->
+                        <apy-field field="comp" parent="field"></apy-field>
+                    </div>
+                </form>
+            </div>
+            <!-- End CREATE & UPDATE Form -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel(field)">Cancel</button>
         </div>
     </script>
 

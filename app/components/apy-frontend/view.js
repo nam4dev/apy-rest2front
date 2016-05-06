@@ -7,7 +7,8 @@
                 restrict: 'E',
                 transclude: true,
                 scope: {
-                    field: '='
+                    field: '=',
+                    parent: '='
                 },
                 template: '<div ng-include="field.$contentUrl"></div>',
                 controller: ['$scope', '$log', '$uibModal', 'apy', function ($scope, $log, $uibModal, apyProvider) {
@@ -20,9 +21,31 @@
                     $scope.format = $scope.formats[0];
 
                     $scope.setFile = function (field, file) {
-                        field.$value.setFile(file).then(function (_) {
-                            $scope.$apply();
-                        })
+                        field.$value.setFile(file)
+                            .then(function (_) {
+                                $scope.$apply();
+                            })
+                            .catch(function (error) {
+                                $log.error(error);
+                            })
+                    };
+
+                    $scope.expandList = function (field) {
+                        $scope.ok = function () {
+                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                        };
+
+                        $scope.cancel = function () {
+                            resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
+                        };
+                        console.log('FIELD', field);
+                        //$scope.parent = field;
+                        resourcePickerWindow = $uibModal.open({
+                            animation: false,
+                            templateUrl: 'modal-list.html',
+                            controllerAs: 'ModalCtrl',
+                            scope: $scope
+                        });
                     };
 
                     $scope.expandRecursive = function (field) {
@@ -35,7 +58,7 @@
                             field && field.reset();
                             resourcePickerWindow && resourcePickerWindow.dismiss('cancel');
                         };
-                        $scope.field = field;
+                        //$scope.field = field;
                         resourcePickerWindow = $uibModal.open({
                             animation: false,
                             templateUrl: 'modal-recursive.html',
