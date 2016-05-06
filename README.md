@@ -8,26 +8,26 @@ Anyhow, the framework is intended to be plugged to any `UI` or `Backend` framewo
 
 ## Getting Started
 
-To get you started you can simply clone the apy-frontend repository and install the dependencies:
+To get you started you can simply clone the `apy-frontend` repository and install the dependencies:
 
 ### Prerequisites
 
-You need git to clone the apy-frontend repository. You can get git from
+You need git to clone the `apy-frontend` repository. You can get git from
 [http://git-scm.com/](http://git-scm.com/).
 
-We also use a number of node.js tools to initialize and test apy-frontend. You must have node.js and
+We also use a number of node.js tools to initialize and test `apy-frontend`. You must have node.js and
 its package manager (npm) installed.  You can get them from [http://nodejs.org/](http://nodejs.org/).
 
-### Clone apy-frontend
+### Clone `Apy Frontend`
 
-Clone the apy-frontend repository using [git][git]:
+Clone the `apy-frontend` repository using [git][git]:
 
 ```
 git clone https://gitlab.com/namat4css/apy-frontend.git
 cd apy-frontend
 ```
 
-If you just want to start a new project without the apy-frontend commit history then you can do:
+If you just want to start a new project without the `apy-frontend` commit history then you can do:
 
 ```bash
 git clone --depth=1 https://gitlab.com/namat4css/apy-frontend.git <your-project-name>
@@ -37,7 +37,7 @@ The `depth=1` tells git to only pull down one commit worth of historical data.
 
 ### Install Dependencies
 
-We have two kinds of dependencies in this project: tools and apy-frontend framework code.  The tools help
+We have two kinds of dependencies in this project: tools and `apy-frontend` framework code.  The tools help
 us manage and test the application.
 
 * We get the tools we depend upon via `npm`, the [node package manager][npm].
@@ -53,10 +53,10 @@ Behind the scenes this will also call `bower install`.  You should find that you
 folders in your project.
 
 * `node_modules` - contains the npm packages for the tools we need
-* `app/bower_components` - contains the apy-frontend framework files
+* `app/bower_components` - contains the `apy-frontend` framework files
 
 *Note that the `bower_components` folder would normally be installed in the root folder but
-apy-frontend changes this location through the `.bowerrc` file.  Putting it in the app folder makes
+`apy-frontend` changes this location through the `.bowerrc` file.  Putting it in the app folder makes
 it easier to serve the files by a webserver.*
 
 ### Run the Application
@@ -96,11 +96,11 @@ e2e-tests/            --> end-to-end tests
 
 ## Testing
 
-There are two kinds of tests in the apy-frontend application: Unit tests and End to End tests.
+There are two kinds of tests in the `apy-frontend` application: Unit tests and End to End tests.
 
 ### Running Unit Tests
 
-The apy-frontend app comes preconfigured with unit tests. These are written in
+The `apy-frontend` app comes preconfigured with unit tests. These are written in
 [Jasmine][jasmine], which we run with the [Karma Test Runner][karma]. We provide a Karma
 configuration file to run them.
 
@@ -129,7 +129,7 @@ npm run test-single-run
 
 ### End to end testing
 
-The apy-frontend app comes with end-to-end tests, again written in [Jasmine][jasmine]. These tests
+The `apy-frontend` app comes with end-to-end tests, again written in [Jasmine][jasmine]. These tests
 are run with the [Protractor][protractor] End-to-End test runner.  It uses native events and has
 special features for Angular-based applications.
 
@@ -144,7 +144,7 @@ can interact with it.
 npm start
 ```
 
-In addition, since Protractor is built upon WebDriver we need to install this.  The apy-frontend
+In addition, since Protractor is built upon WebDriver we need to install this.  The `apy-frontend`
 project comes with a predefined script to do this:
 
 ```
@@ -166,7 +166,7 @@ development server.
 
 ## Updating Apy Frontend
 
-Previously we recommended that you merge in changes to apy-frontend into your own fork of the project.
+Previously we recommended that you merge in changes to `apy-frontend` into your own fork of the project.
 Now that the `apy-frontend` framework library code and tools are acquired through package managers (npm and
 bower) you can use these tools instead to update the dependencies.
 
@@ -197,7 +197,7 @@ etc to function properly when an html page is opened via `file://` scheme instea
 
 ### Running the App during Development
 
-The apy-frontend project comes preconfigured with a local development webserver.  It is a node.js
+The `apy-frontend` project comes preconfigured with a local development webserver.  It is a node.js
 tool called [http-server][http-server].  You can start this webserver with `npm start` but you may choose to
 install the tool globally:
 
@@ -221,7 +221,7 @@ configure your server to serve the files under the `app/` directory.
 ### Travis CI
 
 [Travis CI][travis] is a continuous integration service, which can monitor GitHub for new commits
-to your repository and execute scripts such as building the app or running tests. The apy-frontend
+to your repository and execute scripts such as building the app or running tests. The `apy-frontend`
 project contains a Travis configuration file, `.travis.yml`, which will cause Travis to run your
 tests when you push to GitHub.
 
