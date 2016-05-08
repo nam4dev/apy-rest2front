@@ -249,7 +249,7 @@ instruction on how to do this.
 
 ## Contact
 
-For more information on Apy Frontend please check out [Apy Frontend][apy-frontend]
+For more information, please check out [Apy Frontend][apy-frontend]
 
 [eve]: http://python-eve.org/
 [angular]: https://angularjs.org/
