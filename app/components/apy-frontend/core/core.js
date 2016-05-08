@@ -7,7 +7,7 @@
  *  For UI components (data representation & bindings), AngularJs is used.
  *  Anyhow, the framework is intended to be plugged to any UI or Backend framework...
  *
- *  Copyright (C) ${YEAR}  (${USER}) Namgyal Brisson
+ *  Copyright (C) 2016 Namgyal Brisson
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,7 +27,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  *
- *  `apy-frontend`  Copyright (C) ${YEAR}  (${USER}) Namgyal Brisson.
+ *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
  *  Write here what the module does...
