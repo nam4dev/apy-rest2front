@@ -4,7 +4,7 @@ This project is a small automated frontend application based on a REST API schem
 It tries to implement a generic data binding upon a REST API system. 
 For now, [`python-eve`][eve] REST API framework has been integrated to Apy Frontend. 
 For UI components (data representation & bindings), [`AngularJs`][angular] is used. 
-Anyhow, the framework is intended to be plugged to any `UI` or `Backend` framework (cf. **TODO List**).
+Anyhow, `apy-frontend` is intended to be plugged to any `UI` or `Backend` framework (cf. **TODO List**).
 
 ## Getting Started
 
