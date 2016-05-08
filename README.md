@@ -70,28 +70,34 @@ npm start
 
 Now browse to the app at `http://localhost:8000/app/index.html`.
 
-
-
 ## Directory Layout
 
 ```
-app/                    --> all of the source files for the application
-  app.css               --> default stylesheet
-  components/           --> all app specific modules
-    apy-frontend/       --> Apy frontend framework
-      directives/       --> Apy frontend directives (version, ...)
-      app.css           --> Apy frontend CSS
-      app.js            --> Apy frontend starter implementation
-      services.js       --> Apy frontend Core
-      view.html         --> Apy frontend Angular integration
-      view.js           --> Apy frontend Angular integration
-  app.js                --> main application module
-  index.html            --> app layout file (the main html template file of the app)
-  index-async.html      --> just like index.html, but loads js files asynchronously
-karma.conf.js         --> config file for running unit tests with Karma
-e2e-tests/            --> end-to-end tests
-  protractor-conf.js    --> Protractor config file
-  scenarios.js          --> end-to-end scenarios to be run by Protractor
+apy-frontend/                   --> Apy frontend framework
+  core/                         --> Apy frontend Core (fields, ...)
+    fields/                     --> Apy frontend fields (string, number, media, ...)
+      boolean.js                --> Apy Boolean field logic
+      string.js                 --> Apy String field logic
+      datetime.js               --> Apy Datetime field logic
+      hashmap.js                --> Apy HashMap (dict) field logic
+      hashmap-embedded.js       --> Apy HashMap from data relation (embedded-dict) field logic
+      media.js                  --> Apy Media field logic (any type of Resource, file, picture, music, ...)
+      number.js                 --> Apy Number field logic (groups Integer, Float & Number types)
+    core.js                     --> Apy frontend Core Logic
+    core.css                    --> Apy frontend Core CSS
+  frameworks/                   --> Groups all available UI/Back-end frameworks
+    back/                       --> Groups all available Back-end frameworks
+    front/                      --> Groups all available UI frameworks
+      angular/                  --> Angular `starter` integration
+        app.js                  --> Angular Controller/Settings definition
+        view.html               --> Angular field views HTML representation
+        view.js                 --> Angular field views Logic
+        directives/             --> All directives goes there
+          version/              --> Directive to display current Project version
+            version.js          --> ...
+            ...
+index.html                      --> Angular integration demonstration
+  ...
 ```
 
 ## Testing
