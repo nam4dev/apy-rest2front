@@ -902,7 +902,8 @@
          * @returns {ApyCollectionComponent}
          */
         ApyCollectionComponent.prototype.initRequest = function initRequest () {
-            this.$request = this.$schema.$hasMedia ? this.$upload.upload : this.$http;
+            //this.$request = this.$schema.$hasMedia ? this.$upload.upload : this.$http;
+            this.$request = this.$upload.upload;
             return this;
         };
 
@@ -1136,6 +1137,7 @@
          */
         ApyResourceComponent.prototype.initRequest = function initRequest () {
             this.$request = (this.$schema && this.$schema.$hasMedia) ? this.$upload.upload : this.$http;
+            //this.$request = this.$upload.upload;
             return this;
         };
 
