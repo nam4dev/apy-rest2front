@@ -30,7 +30,23 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Hash-map field abstraction
  *
  *  """
  */
+(function ($window) {
+
+    $window.ApyHashmapField = (function () {
+
+        return function (name, type, value, options=null, $states=null, $endpoint=null) {
+            this.initialize(name, type, value, options=null, $states=null, $endpoint=null);
+            return this;
+        }
+
+    })();
+
+    // Inject Mixin
+    $window.ApyComponentMixin.call(ApyHashmapField.prototype);
+    $window.ApyFieldMixin.call(ApyHashmapField.prototype);
+
+})(window);

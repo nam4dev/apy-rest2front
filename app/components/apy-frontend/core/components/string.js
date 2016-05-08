@@ -30,7 +30,23 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  String field abstraction
  *
  *  """
  */
+(function ($window) {
+
+    $window.ApyStringField = (function () {
+
+        return function (name, type, value, options=null, $states=null, $endpoint=null) {
+            this.initialize(name, type, value, options=null, $states=null, $endpoint=null);
+            return this;
+        }
+
+    })();
+
+    // Inject Mixin
+    $window.ApyComponentMixin.call(ApyStringField.prototype);
+    $window.ApyFieldMixin.call(ApyStringField.prototype);
+
+})(window);

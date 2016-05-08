@@ -30,9 +30,26 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Group field types,
- *    - Float
- *    - Integer
+ *  Boolean field abstraction
  *
  *  """
  */
+
+(function ($window) {
+
+    $window.ApyBooleanField = (function () {
+
+        return function (name, type, value, options=null, $states=null, $endpoint=null) {
+            this.initialize(name, type, value, options=null, $states=null, $endpoint=null);
+            return this;
+        }
+
+    })();
+
+    // Inject Mixin
+    $window.ApyComponentMixin.call(ApyBooleanField.prototype);
+    $window.ApyFieldMixin.call(ApyBooleanField.prototype);
+
+})(window);
+
+
