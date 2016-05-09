@@ -30,23 +30,27 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Datetime field abstraction
+ *  Number field abstraction
+ *
+ *  Group field types,
+ *    - Float
+ *    - Integer
  *
  *  """
  */
 (function ($window) {
 
-    $window.ApyDatetimeField = (function () {
+    $window.ApyNumberField = (function () {
 
-        return function (name, type, value, options, $states, $endpoint) {
-            this.initialize(name, type, value, options, $states, $endpoint);
+        return function (service, name, type, value, options, $states, $endpoint) {
+            this.initialize(service, name, type, value, options, $states, $endpoint);
             return this;
         }
 
     })();
 
     // Inject Mixin
-    $window.ApyComponentMixin.call(ApyDatetimeField.prototype);
-    $window.ApyFieldMixin.call(ApyDatetimeField.prototype);
+    $window.ApyComponentMixin.call(ApyNumberField.prototype);
+    $window.ApyFieldMixin.call(ApyNumberField.prototype);
 
 })(window);

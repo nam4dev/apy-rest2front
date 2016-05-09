@@ -30,24 +30,23 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Media field abstraction
- *  A Media type shall be any type of Resource (music, picture, video, ...)
+ *  String field abstraction
  *
  *  """
  */
 (function ($window) {
 
-    $window.ApyMediaField = (function () {
+    $window.ApyStringField = function () {
 
-        return function (name, type, value, options, $states, $endpoint) {
-            this.initialize(name, type, value, options, $states, $endpoint);
+        return function (service, name, type, value, options, $states, $endpoint) {
+            this.initialize(service, name, type, value, options, $states, $endpoint);
             return this;
         }
 
-    })();
+    }();
 
     // Inject Mixin
-    $window.ApyComponentMixin.call(ApyMediaField.prototype);
-    $window.ApyFieldMixin.call(ApyMediaField.prototype);
+    $window.ApyComponentMixin.call(ApyStringField.prototype);
+    $window.ApyFieldMixin.call(ApyStringField.prototype);
 
 })(window);

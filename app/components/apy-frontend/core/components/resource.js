@@ -30,7 +30,469 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Resource Component
  *
  *  """
  */
+(function ($window) {
+
+    $window.ApyResourceComponent = (function () {
+
+        var states              = [
+            'CREATE',
+            'READ',
+            'UPDATE',
+            'DELETE'
+        ];
+
+        /**
+         *
+         * @returns {ApyResourceComponent}
+         */
+        function initRequest () {
+            this.$request = (this.$schema && this.$schema.$hasMedia) ? this.$upload.upload : this.$http;
+            //this.$request = this.$upload.upload;
+            return this;
+        }
+
+        /**
+         *
+         * @returns {string}
+         */
+        function toString() {
+            var filtered = this.$components.filter(function (c) {
+                return c.$required;
+            });
+            if(filtered.length)
+                return '[' + filtered.join(', ') + ']';
+
+            filtered = this.$components.filter(function (c) {
+                return c.$value;
+            });
+            return '[' + filtered.join(', ') + ']';
+        }
+
+        /**
+         *
+         */
+        function setCreateState () {
+            this.$states.set(states[0]);
+            return this;
+        }
+
+        /**
+         *
+         */
+        function setReadState () {
+            this.$states.set(states[1]);
+            return this;
+        }
+
+        /**
+         *
+         */
+        function setUpdateState () {
+            this.$states.set(states[2]);
+            return this;
+        }
+
+        /**
+         *
+         */
+        function setDeleteState () {
+            this.$states.set(states[3]);
+            return this;
+        }
+
+        /**
+         *
+         */
+        function reset () {
+            this.$components.forEach(function (comp) {
+                if(comp.hasUpdated()) comp.reset();
+            });
+            if(this.$selfUpdated) this.$selfUpdated = false;
+            this.loadValue();
+        }
+
+        /**
+         *
+         * @returns {boolean}
+         */
+        function hasCreated () {
+            var pkAttributeName = this.$service.$config.pkName;
+            return this.hasOwnProperty(pkAttributeName) && !this[pkAttributeName];
+        }
+
+        /**
+         *
+         * @returns {boolean}
+         */
+        function hasUpdated () {
+            if(this.$selfUpdated) return true;
+            var updated = false;
+            this.$components.forEach(function (comp) {
+                if(comp.hasUpdated()) updated = true;
+            });
+            return updated;
+        }
+
+        /**
+         *
+         */
+        function selfCommit () {
+            this.$components.forEach(function (comp) {
+                comp.selfCommit();
+                if(comp.$selfUpdated) {
+                    comp.$selfUpdated = false;
+                }
+            });
+        }
+
+        /**
+         *
+         * @param update
+         * @param commit
+         * @returns {ApyResourceComponent}
+         */
+        function selfUpdate (update, commit) {
+            var self = this;
+            update = update || {};
+            commit = commit || false;
+            // Copy private properties such as _id, _etag, ...
+            forEach(update, function (value, name) {
+                if(self.continue(name)) {
+                    self[name] = value
+                }
+            });
+            // Copy $value in case of embedded resource
+            if(update.hasOwnProperty('$value')) {
+                this.$value = update.$value;
+            }
+            // Copy data
+            if(update.hasOwnProperty('$components')) {
+                self.$components.forEach(function (comp, index) {
+                    if(update.$components[index]) {
+                        comp.selfUpdate(update.$components[index]);
+                    }
+                });
+            }
+            // Commit => save the inner state ($value, $memo) of each component recursively
+            this.$selfUpdated = !commit;
+            if (commit) this.selfCommit();
+            return this;
+        }
+
+        /**
+         *
+         * @param response
+         * @returns {ApyResourceComponent}
+         */
+        function loadResponse (response) {
+            return this.selfUpdate(response.data, true);
+        }
+
+        /**
+         *
+         * @param method
+         * @returns {Promise}
+         */
+        function createRequest (method) {
+            var self = this;
+            method = method || 'POST';
+            return new Promise(function (resolve, reject) {
+                var uri = self.$endpointBase + self.$name;
+                var data = null;
+                var headers = {
+                    'Content-Type': 'application/json'
+                };
+                var setConfig = function () {
+                    uri += '/' + self._id;
+                    headers['If-Match'] = self._etag;
+                };
+
+                switch (method) {
+                    case 'POST':
+                        data = self.cleanedData();
+                        break;
+                    case 'PATCH':
+                        setConfig();
+                        data = self.cleanedData();
+                        break;
+                    case 'DELETE':
+                        setConfig();
+                        break;
+                    default :
+                        break;
+                }
+                return self.$request({
+                    url: uri,
+                    headers: headers,
+                    method: method,
+                    data: data
+                }).then(function (response) {
+                    self.$logging.debug(response);
+                    self.loadResponse(response);
+                    self.setReadState();
+                    return resolve(response);
+                }).catch(function (error) {
+                    self.$logging.error(error);
+                    return reject(error);
+                });
+            });
+        }
+
+        /**
+         *
+         * @returns {Promise}
+         */
+        function create () {
+            if(this.hasCreated() && this.hasUpdated()) {
+                return this.createRequest();
+            }
+            else {
+                this.setReadState();
+            }
+        }
+
+        /**
+         *
+         * @returns {Promise}
+         */
+        function update () {
+            if(this.hasUpdated()) {
+                return this.createRequest('PATCH');
+            }
+            else {
+                this.setReadState();
+            }
+        }
+
+        /**
+         *
+         * @returns {Promise}
+         */
+        function del () {
+            if(!this.hasCreated()) {
+                return this.setDeleteState().createRequest('DELETE');
+            }
+        }
+
+        /**
+         *
+         * @param states
+         * @param initialState
+         */
+        function createStateHolder (initialState, states) {
+            return new ApyStateHolder(initialState, states);
+        }
+
+        /**
+         *
+         * @param char
+         * @param field
+         * @returns {boolean}
+         */
+        function shallContinue (field, char) {
+            char = char || '_';
+            return field.startsWith && field.startsWith(char);
+        }
+
+        /**
+         *
+         * @param resource
+         */
+        function _load (resource) {
+            var field;
+            for (field in resource) {
+                if(resource.hasOwnProperty(field) && this.continue(field)) {
+                    this[field] = resource[field];
+                }
+            }
+            for (field in this.$schema) {
+                if(!this.$schema.hasOwnProperty(field) ||
+                    this.continue(field) ||
+                    this.continue(field, '$')) {
+                    continue;
+                }
+                var subSchema = this.$schema[field];
+                try {
+                    var type = subSchema.type;
+                }
+                catch(e) {
+                    continue;
+                }
+                var fieldObj,
+                    value = resource[field] || this.$service.$instance.schema2data(subSchema, field);
+                switch(type) {
+                    case this.$types.LIST:
+                        fieldObj = new ApyListField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        break;
+                    case this.$types.DICT:
+                        fieldObj = new ApyResourceComponent(this.$service, field, subSchema.schema, null, this.$types.RESOURCE, this.$states);
+                        fieldObj.load(value);
+                        break;
+                    case this.$types.MEDIA:
+                        fieldObj = new ApyMediaField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        break;
+                    case this.$types.STRING:
+                        fieldObj = new ApyStringField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        break;
+                    case this.$types.FLOAT:
+                    case this.$types.NUMBER:
+                    case this.$types.INTEGER:
+                        fieldObj = new ApyNumberField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        break;
+                    case this.$types.BOOLEAN:
+                        fieldObj = new ApyBooleanField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        break;
+
+                    case this.$types.DATETIME:
+                        fieldObj = new ApyDatetimeField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        break;
+                    case this.$types.OBJECTID:
+                        var relationName = subSchema.data_relation.resource;
+                        var schemaObject = this.$service.$schemas[relationName];
+                        fieldObj = new ApyResourceComponent(this.$service, field, schemaObject, null, this.$types.OBJECTID,
+                            this.$states, this.$endpointBase, relationName);
+                        fieldObj.load(value);
+                        break;
+                    default:
+                        throw new Error('Unknown type ' + type);
+                        break;
+                }
+                this.add(fieldObj);
+            }
+            this.loadValue();
+            return this;
+        }
+
+        /**
+         *
+         * @returns {{}}
+         */
+        function cleanedData () {
+            var cleaned = {};
+            for (var i = 0; i < this.count(); i++) {
+                var data;
+                var item = this.$components[i];
+                switch (item.$type) {
+                    case this.$types.OBJECTID:
+                        data = item._id;
+                        break;
+                    default :
+                        data = item.cleanedData();
+                        break;
+                }
+                // `if` check avoids to add something
+                // which might be required but already filled.
+                // Specifically with Media Resource Component.
+                if(data) cleaned[item.$name] = data;
+            }
+            return cleaned;
+        }
+
+        /**
+         *
+         */
+        function loadValue () {
+            var all = '';
+            var self = this;
+            this.$value = '';
+            forEach(this.$components, function (component) {
+                if(component.$value && !isDate(component.$value)) {
+                    var value = component.$value + ', ';
+
+                    all += value;
+                    if(component.$required) {
+                        self.$value += value;
+                    }
+                }
+            });
+            if(!this.$value && all) {
+                this.$value = all;
+            }
+            if(this.$value.endsWith(', '))
+                this.$value = this.$value.slice(0, -2);
+        }
+
+        /**
+         *
+         * @param components
+         * @returns {ApyResourceComponent}
+         */
+        function load (components) {
+            var self = this;
+            components = components || {};
+            forEach(Object.assign(components), function (v, k) {
+                if(self.continue(k)) {
+                    self[k] = v;
+                    delete components[k];
+                }
+            });
+            this._load(components);
+            return this;
+        }
+
+        /**
+         * ApyResourceComponent
+         *
+         * @param name
+         * @param type
+         * @param schema
+         * @param $states
+         * @param components
+         * @param endpointBase
+         * @param relationName
+         * @constructor
+         */
+        return function (service, name, schema, components, type, $states, endpointBase, relationName) {
+            type = type || "resource";
+            this.$value = '';
+            this.$schema = schema;
+            this.$selfUpdated = false;
+            this.$endpoint = endpointBase;
+            this.$endpointBase = endpointBase;
+            this.$relationName = relationName;
+            if(relationName)
+                this.$endpoint += relationName;
+            if(schema && schema.$embeddedURI)
+                this.$endpoint += '?' + schema.$embeddedURI;
+
+
+            this.initRequest       = initRequest      ;
+            this.toString          = toString         ;
+            this.setCreateState    = setCreateState   ;
+            this.setReadState      = setReadState     ;
+            this.setUpdateState    = setUpdateState   ;
+            this.setDeleteState    = setDeleteState   ;
+            this.reset             = reset            ;
+            this.hasCreated        = hasCreated       ;
+            this.hasUpdated        = hasUpdated       ;
+            this.selfCommit        = selfCommit       ;
+            this.selfUpdate        = selfUpdate       ;
+            this.loadResponse      = loadResponse     ;
+            this.createRequest     = createRequest    ;
+            this.create            = create           ;
+            this.update            = update           ;
+            this.delete            = del              ;
+            this.createStateHolder = createStateHolder;
+            this.continue          = shallContinue    ;
+            this._load             = _load            ;
+            this.cleanedData       = cleanedData      ;
+            this.loadValue         = loadValue        ;
+            this.load              = load             ;
+
+            this.$states = $states || this.createStateHolder(states[1], states);
+            this.init(service, name, type, components);
+
+            return this.initRequest();
+        }
+
+    })();
+
+    // Inject Mixin
+    $window.ApyComponentMixin.call(ApyResourceComponent.prototype);
+    $window.ApyResourceComponent = ApyResourceComponent;
+
+})(window);

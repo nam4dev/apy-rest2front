@@ -7,7 +7,7 @@
  *  For UI components (data representation & bindings), AngularJs is used.
  *  Anyhow, the framework is intended to be plugged to any UI or Backend framework...
  *
- *  Copyright (C) 2016 Namgyal Brisson
+ *  Copyright (C) 2016  (apy) Namgyal Brisson
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,26 +27,26 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  *
- *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
+ *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  String field abstraction
+ *  Write here what the module does...
  *
  *  """
  */
 (function ($window) {
 
-    $window.ApyStringField = (function () {
+    $window.ApyPolyField = function () {
 
-        return function (name, type, value, options, $states, $endpoint) {
-            this.initialize(name, type, value, options, $states, $endpoint);
+        return function (service, name, value, options, $states, $endpoint) {
+            this.initialize(service, name, $window.$TYPES.POLY, value, options, $states, $endpoint);
             return this;
         }
 
-    })();
+    }();
 
     // Inject Mixin
-    $window.ApyComponentMixin.call(ApyStringField.prototype);
-    $window.ApyFieldMixin.call(ApyStringField.prototype);
+    $window.ApyComponentMixin.call(ApyPolyField.prototype);
+    $window.ApyFieldMixin.call(ApyPolyField.prototype);
 
 })(window);

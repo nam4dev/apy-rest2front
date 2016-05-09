@@ -30,26 +30,28 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Boolean field abstraction
+ *  Datetime field abstraction
  *
  *  """
  */
-
 (function ($window) {
 
-    $window.ApyBooleanField = (function () {
+    $window.ApyDatetimeField = (function () {
 
-        return function (name, type, value, options, $states, $endpoint) {
-            this.initialize(name, type, value, options, $states, $endpoint);
+        function typeWrapper(value) {
+            return new Date(value);
+        }
+
+        return function (service, name, type, value, options, $states, $endpoint) {
+            this.typeWrapper = typeWrapper;
+            this.initialize(service, name, type, value, options, $states, $endpoint);
             return this;
         }
 
     })();
 
     // Inject Mixin
-    $window.ApyComponentMixin.call(ApyBooleanField.prototype);
-    $window.ApyFieldMixin.call(ApyBooleanField.prototype);
+    $window.ApyComponentMixin.call(ApyDatetimeField.prototype);
+    $window.ApyFieldMixin.call(ApyDatetimeField.prototype);
 
 })(window);
-
-

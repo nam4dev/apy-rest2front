@@ -37,12 +37,16 @@
 
 (function ($window) {
 
+
+
     // Registering mixin globally
     $window.ApyFieldMixin =  (function () {
 
-        function initialize(name, type, value, options, $states, $endpoint) {
+        function initialize(service, name, type, value, options, $states, $endpoint) {
 
-            this.init(name, type, []);
+            this.init(service, name, type, []);
+
+
 
             this.$name = name;
             this.$type = type;
@@ -76,6 +80,7 @@
         }
 
         function needPoly($components) {
+            var self = this;
             var need = true;
             forEach($components, function (c) {
                 if (c.$type === $TYPES.POLY) need = false;
@@ -85,11 +90,11 @@
 
         function postInit() {
             switch (this.$type) {
-                case this.$types.LIST:
-                case this.$types.DICT:
-                case this.$types.RESOURCE:
+                case $TYPES.LIST:
+                case $TYPES.DICT:
+                case $TYPES.RESOURCE:
                     this.$components = [];
-                    var poly = new ApyFieldComponent(null, $TYPES.POLY, null, {}, this.$states, this.$endpoint);
+                    var poly = new ApyPolyField(this.$service, null, null, {}, this.$states, this.$endpoint);
                     this.$components.push(poly);
                     break;
                 default :
@@ -104,26 +109,26 @@
                 if (this.$fieldTypesMap.hasOwnProperty(type)) {
                     type = this.$fieldTypesMap[type];
                 }
-                if (type !== this.$types.DICT) this.$contentUrl = 'field-' + type + '.html';
+                if (type !== $TYPES.DICT) this.$contentUrl = 'field-' + type + '.html';
             }
             if (needPoly(parent.$components)) {
                 var poly;
                 switch (type) {
-                    case this.$types.DICT:
-                        poly = new ApyFieldComponent(null, this.$types.RESOURCE, null, {}, this.$states, this.$endpoint);
+                    case $TYPES.DICT:
+                        poly = new ApyHashmapField(this.$service, null, $TYPES.RESOURCE, null, {}, this.$states, this.$endpoint);
                         parent.$components.push(poly);
                         return this;
-                    case this.$types.OBJECTID:
-                        poly = new ApyResourceComponent(null,
+                    case $TYPES.OBJECTID:
+                        poly = new ApyResourceComponent(this.$service, null,
                             service.$schemas[schemaName],
-                            null, this.$types.OBJECTID, this.$states, this.$endpoint, schemaName);
+                            null, $TYPES.OBJECTID, this.$states, this.$endpoint, schemaName);
                         //poly.load();
                         parent.$components.push(poly);
                         break;
                     default :
                         parent.$components.push(
-                            new ApyFieldComponent(null, $TYPES.POLY, null, {}, this.$states, this.$endpoint));
-                        return this.initialize();
+                            new ApyPolyField(this.$service, null, null, {}, this.$states, this.$endpoint));
+                        return this.setOptions().setValue().postInit();
                 }
             }
 
@@ -144,12 +149,11 @@
          */
         function typeWrapper(value) {
             switch (this.$type) {
-                case this.$types.LIST:
-                    return value ? value : [];
-                case this.$types.MEDIA:
+                case $TYPES.MEDIA:
                     return new ApyMediaFile(this.$endpoint, value);
-                case this.$types.DATETIME:
-                    return new Date(value);
+                    break;
+                case $TYPES.LIST:
+                    return value ? value : [];
                 default :
                     return value;
             }
@@ -162,13 +166,12 @@
          */
         function clone(value) {
             switch (this.$type) {
-                case this.$types.LIST:
-                case this.$types.MEDIA:
-                case this.$types.STRING:
-                case this.$types.INTEGER:
-                case this.$types.DATETIME:
+                case $TYPES.LIST:
+                case $TYPES.STRING:
+                case $TYPES.INTEGER:
+                case $TYPES.DATETIME:
                     return this.typeWrapper(value);
-                case this.$types.DICT:
+                case $TYPES.DICT:
                     return isObject(value) ? Object.assign(value) : value;
                 default :
                     return value;
@@ -177,7 +180,7 @@
 
         /**
          *
-         * @returns {ApyFieldComponent}
+         * @returns {this}
          */
         function selfCommit() {
             this.$memo = this.clone(this.$value);
@@ -188,7 +191,7 @@
          *
          * @param update
          * @param commit
-         * @returns {ApyFieldComponent}
+         * @returns {this}
          */
         function selfUpdate(update, commit) {
             this.$value = this.typeWrapper(update.$value);
@@ -214,12 +217,12 @@
         function hasUpdated() {
             var hasUpdated = false;
             switch (this.$type) {
-                case this.$types.LIST:
+                case $TYPES.LIST:
                     hasUpdated = this.$components.filter(function (c) {
-                            return c.$type !== 'ployMorph';
+                            return c.$type !== $TYPES.POLY;
                         }).length > 0;
                     break;
-                case this.$types.DATETIME:
+                case $TYPES.DATETIME:
                     if (!isDate(this.$memo)) this.$memo = new Date(this.$memo);
                     hasUpdated = this.$value.getTime() !== this.$memo.getTime();
                     break;
@@ -232,7 +235,7 @@
 
         /**
          *
-         * @returns {ApyFieldComponent}
+         * @returns {this}
          */
         function validate() {
             var expectedType = this.$type,
@@ -246,9 +249,9 @@
                 }
             }
             switch (expectedType) {
-                case this.$types.MEDIA:
+                case $TYPES.MEDIA:
                     break;
-                case this.$types.DATETIME:
+                case $TYPES.DATETIME:
                     if (!this.$value || isString(this.$value)) {
                         if (this.$value)
                             this.$value = new Date(this.$value);
@@ -270,8 +273,8 @@
                 // FIXME: This.$value needs to be called before (validate) super
                 // FIXME: and after (ApyMediaFile) according to case
                 // FIXME: Refactor ApyMediaFile not to be dependant of IComponent inheritance
-                this.$logging.log(e);
-                this.$logging.log(this.$value);
+                //this.$logging.log(e);
+                //this.$logging.log(this.$value);
                 //throw new Error(e);
             }
             return this;
@@ -284,8 +287,8 @@
             var cleaned;
             this.validate();
             switch (this.$type) {
-                case this.$types.DICT:
-                case this.$types.RESOURCE:
+                case $TYPES.DICT:
+                case $TYPES.RESOURCE:
                     cleaned = {};
                     this.$components.filter(function (comp) {
                         return comp.$type !== $TYPES.POLY
@@ -293,7 +296,7 @@
                         cleaned[comp.$name] = comp.cleanedData();
                     });
                     return cleaned;
-                case this.$types.LIST:
+                case $TYPES.LIST:
                     cleaned = [];
                     this.$components.filter(function (comp) {
                         return comp.$type !== $TYPES.POLY
@@ -301,16 +304,17 @@
                         cleaned.push(comp.cleanedData());
                     });
                     return cleaned;
-                case this.$types.MEDIA:
+                case $TYPES.MEDIA:
+                    console.log('MEDIA', this);
                     return this.$value.cleanedData();
-                case this.$types.DATETIME:
+                case $TYPES.DATETIME:
                     return this.$value.toUTCString();
                 default :
                     return this.$value;
             }
         }
 
-        return function (name, type, value, options, $states, $endpoint) {
+        return function () {
             this.clone       = clone;
             this.reset       = reset;
             this.setType     = setType;
@@ -326,8 +330,6 @@
             this.hasUpdated  = hasUpdated;
             this.typeWrapper = typeWrapper;
             this.cleanedData = cleanedData;
-
-            this.initialize(name, type, value, options, $states, $endpoint);
             return this;
         }
 

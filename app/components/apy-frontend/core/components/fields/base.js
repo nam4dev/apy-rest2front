@@ -60,7 +60,7 @@
      *
      * @type function
      */
-    // Registering mixin globally
+        // Registering mixin globally
     $window.ApyComponentMixin = (function() {
 
         /**
@@ -152,15 +152,40 @@
             return this;
         }
 
-        function initialize(name, type, components) {
+        function initialize(service, name, type, components) {
+
             var self = this;
+            this.$types = $TYPES;
+            this.$service = service;
+            this.$logging = service.$log;
+            this.$components = [];
+            this.$typesMap = {
+                number: [
+
+                    $TYPES.FLOAT,
+                    $TYPES.NUMBER,
+                    $TYPES.INTEGER
+                ],
+                object: [
+                    $TYPES.DICT,
+                    $TYPES.LIST,
+                    $TYPES.POLY,
+                    $TYPES.DATETIME,
+                    $TYPES.OBJECTID
+                ]
+            };
+            this.$fieldTypesMap = {
+                float: $TYPES.NUMBER,
+                integer: $TYPES.NUMBER,
+                dict: $TYPES.RESOURCE
+            };
             this.$name = name;
             this.$type = type;
             // Dependencies inherited from Angular
-            this.$http = $http;
+            this.$http = service.$http;
             this.$request = null;
-            this.$logging = $log;
-            this.$upload = $upload;
+            this.$logging = service.$log;
+            this.$upload = service.$upload;
             // components index
             this.$components = components || [];
             this.$components = this.isArray(this.$components) ? this.$components : [this.$components];
@@ -186,37 +211,13 @@
             return true;
         }
 
-        return function(service, name, type, components) {
-            this.$types = $TYPES;
-            this.$service = service;
-            this.$logging = service.$log;
-            this.$components = [];
-            this.$typesMap = {
-                number: [
-
-                    $TYPES.FLOAT,
-                    $TYPES.NUMBER,
-                    $TYPES.INTEGER
-                ],
-                object: [
-                    $TYPES.DICT,
-                    $TYPES.LIST,
-                    $TYPES.POLY,
-                    $TYPES.DATETIME,
-                    $TYPES.OBJECTID
-                ]
-            };
-            this.$fieldTypesMap = {
-                float: $TYPES.NUMBER,
-                integer: $TYPES.NUMBER,
-                dict: $TYPES.RESOURCE
-            };
+        return function() {
             this.add = add;
             this.count = count;
             this.remove = remove;
             this.init = initialize;
             this.prepend = prepend;
-            this.isArray = isArray;
+            this.isArray = Array.isArray;
             this.getChild = getChild;
             this.validate = validate;
             this.isFunction = isFunction;
@@ -224,8 +225,6 @@
             this.cleanedData = cleanedData;
             this.hasChildren = hasChildren;
             this.$log = this.$logging = log;
-
-            this.init(name, type, components);
             return this;
         };
     })();

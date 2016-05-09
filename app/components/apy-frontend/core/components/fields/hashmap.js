@@ -7,7 +7,7 @@
  *  For UI components (data representation & bindings), AngularJs is used.
  *  Anyhow, the framework is intended to be plugged to any UI or Backend framework...
  *
- *  Copyright (C) 2016  (apy) Namgyal Brisson
+ *  Copyright (C) 2016 Namgyal Brisson
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,10 +27,26 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  *
- *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
+ *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Hash-map field abstraction
  *
  *  """
  */
+(function ($window) {
+
+    $window.ApyHashmapField = (function () {
+
+        return function (service, name, type, value, options, $states, $endpoint) {
+            this.initialize(service, name, type, value, options, $states, $endpoint);
+            return this;
+        }
+
+    })();
+
+    // Inject Mixin
+    $window.ApyComponentMixin.call(ApyHashmapField.prototype);
+    $window.ApyFieldMixin.call(ApyHashmapField.prototype);
+
+})(window);

@@ -66,6 +66,7 @@
                     };
 
                     $scope.setFile = function (field, file) {
+                        console.log('MEDIA', field);
                         field.$value.setFile(file)
                             .then(function (_) {
                                 $scope.$apply();
