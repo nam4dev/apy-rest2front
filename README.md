@@ -75,23 +75,31 @@ Now browse to the app at `http://localhost:8000/app/index.html`.
 ```
 apy-frontend/                   --> Apy frontend framework
   core/                         --> Apy frontend Core (fields, ...)
-    fields/                     --> Apy frontend fields (string, number, media, ...)
-      boolean.js                --> Apy Boolean field logic
-      string.js                 --> Apy String field logic
-      datetime.js               --> Apy Datetime field logic
-      hashmap.js                --> Apy HashMap (dict) field logic
-      hashmap-embedded.js       --> Apy HashMap from data relation (embedded-dict) field logic
-      media.js                  --> Apy Media field logic (any type of Resource, file, picture, music, ...)
-      number.js                 --> Apy Number field logic (groups Integer, Float & Number types)
-    core.js                     --> Apy frontend Core Logic
+    components/                 --> Apy frontend Components (Collection, Resource, Field, ...)
+      resource.js               --> Apy frontend Resource Component
+      collection.js             --> Apy frontend Collection Component
+      fields/                   --> Apy frontend fields (string, number, media, ...)
+        base.js                 --> Apy Base abstraction (for all Components)
+        field.js                --> Apy Field abstraction
+        poly.js                 --> Apy PolyMorph field abstraction
+        list.js                 --> Apy List field abstraction
+        boolean.js              --> Apy Boolean field abstraction
+        string.js               --> Apy String field abstraction
+        datetime.js             --> Apy Datetime field abstraction
+        hashmap.js              --> Apy HashMap (dict) field abstraction
+        hashmap-embedded.js     --> Apy HashMap from data relation (embedded-dict) field abstraction
+        media.js                --> Apy Media field logic (any type of Resource, file, picture, music, ...)
+        number.js               --> Apy Number field logic (groups Integer, Float & Number types)
+    core.js                     --> Apy frontend Core abstraction
     core.css                    --> Apy frontend Core CSS
+    helper.js                   --> Apy frontend Core CSS
   frameworks/                   --> Groups all available UI/Back-end frameworks
     back/                       --> Groups all available Back-end frameworks
     front/                      --> Groups all available UI frameworks
       angular/                  --> Angular `starter` integration
         app.js                  --> Angular Controller/Settings definition
         view.html               --> Angular field views HTML representation
-        view.js                 --> Angular field views Logic
+        view.js                 --> Angular field views abstraction
         directives/             --> All directives goes there
           version/              --> Directive to display current Project version
             version.js          --> ...
