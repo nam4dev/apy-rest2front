@@ -1,6 +1,6 @@
 {
   "name": "apy-frontend",
-  "description": "This project intends to provide an easy-to-configure (less than a minute) system to get a fully functional CRUD views based on REST API schema. Optionally, providing authentication configuration would allow one to manage Resource permissions ...",
+  "description": "Provide an easy-to-configure system to get a fully functional CRUD views based on a REST API schema",
   "version": "0.7.0",
   "homepage": "https://gitlab.com/namat4css/apy-frontend",
   "license": "MIT",
