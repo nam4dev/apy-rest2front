@@ -39,8 +39,8 @@
 
     $window.ApyMediaField = (function () {
 
-        return function (name, type, value, options=null, $states=null, $endpoint=null) {
-            this.initialize(name, type, value, options=null, $states=null, $endpoint=null);
+        return function (name, type, value, options, $states, $endpoint) {
+            this.initialize(name, type, value, options, $states, $endpoint);
             return this;
         }
 

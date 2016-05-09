@@ -40,7 +40,7 @@
     // Registering mixin globally
     $window.ApyFieldMixin =  (function () {
 
-        function initialize(name, type, value, options=null, $states=null, $endpoint=null) {
+        function initialize(name, type, value, options, $states, $endpoint) {
 
             this.init(name, type, []);
 
@@ -98,7 +98,7 @@
             return this;
         }
 
-        function setType(parent, type, schemaName = null) {
+        function setType(parent, type, schemaName) {
             this.$type = type;
             if (this.$typesForPoly.indexOf(type) !== -1) {
                 if (this.$fieldTypesMap.hasOwnProperty(type)) {
@@ -190,7 +190,7 @@
          * @param commit
          * @returns {ApyFieldComponent}
          */
-        function selfUpdate(update, commit = false) {
+        function selfUpdate(update, commit) {
             this.$value = this.typeWrapper(update.$value);
             if (commit) {
                 this.selfCommit();
@@ -310,7 +310,7 @@
             }
         }
 
-        return function (name, type, value, options=null, $states=null, $endpoint=null) {
+        return function (name, type, value, options, $states, $endpoint) {
             this.clone       = clone;
             this.reset       = reset;
             this.setType     = setType;

@@ -152,7 +152,7 @@
             return this;
         }
 
-        function initialize(name, type, components=null) {
+        function initialize(name, type, components) {
             var self = this;
             this.$name = name;
             this.$type = type;
@@ -186,7 +186,7 @@
             return true;
         }
 
-        return function(service, name, type, components=null) {
+        return function(service, name, type, components) {
             this.$types = $TYPES;
             this.$service = service;
             this.$logging = service.$log;

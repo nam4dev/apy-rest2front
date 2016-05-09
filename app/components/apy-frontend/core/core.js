@@ -610,7 +610,7 @@
          * @param components
          * @constructor
          */
-        var ApyComponent = function ApyComponent (name, type, components=null) {
+        var ApyComponent = function ApyComponent (name, type, components) {
             var self = this;
             this.$name = name;
             this.$type = type;
@@ -732,7 +732,7 @@
          * @param excluded
          * @constructor
          */
-        var ApySchemasComponent = function ApySchemasComponent (endpoint, schemas, excluded=null) {
+        var ApySchemasComponent = function ApySchemasComponent (endpoint, schemas, excluded) {
             if(!schemas || !isObject(schemas)) {
                 throw new Error('A schemas object must be provided (got type => ' + typeof schemas + ') !');
             }
@@ -850,7 +850,7 @@
          * @param keyName
          * @returns {*}
          */
-        ApySchemasComponent.prototype.schema2data = function schema2data (schema=null, keyName=null) {
+        ApySchemasComponent.prototype.schema2data = function schema2data (schema, keyName) {
             var self = this;
             var data = schema ? {} : this.$template;
             if(keyName) {
@@ -870,7 +870,7 @@
          * @param resource
          * @returns {ApyResourceComponent}
          */
-        ApySchemasComponent.prototype.createResource = function createResource (name, resource=null) {
+        ApySchemasComponent.prototype.createResource = function createResource (name, resource) {
             var schema = this.get(name);
             if(!schema) throw new Error('No schema provided for name', name);
             var component = new ApyResourceComponent(name, schema, null, $TYPES.RESOURCE, null, this.$endpoint, name);
@@ -886,7 +886,7 @@
          * @param components
          * @constructor
          */
-        var ApyCollectionComponent = function ApyCollectionComponent (name, endpoint, components=null) {
+        var ApyCollectionComponent = function ApyCollectionComponent (name, endpoint, components) {
             this.$endpointBase = endpoint;
             this.$schema = service.$instance.get(name);
             this.$endpoint = endpoint + name;
@@ -1114,7 +1114,8 @@
          * @param relationName
          * @constructor
          */
-        var ApyResourceComponent = function ApyResourceComponent (name, schema, components=null, type="resource", $states=null, endpointBase=null, relationName=null) {
+        var ApyResourceComponent = function ApyResourceComponent (name, schema, components, type, $states, endpointBase, relationName) {
+            type = type || "resource";
             this.$value = '';
             this.$schema = schema;
             this.$selfUpdated = false;
@@ -1241,9 +1242,10 @@
          * @param commit
          * @returns {ApyResourceComponent}
          */
-        ApyResourceComponent.prototype.selfUpdate = function selfUpdate (update, commit=false) {
+        ApyResourceComponent.prototype.selfUpdate = function selfUpdate (update, commit) {
             var self = this;
             update = update || {};
+            commit = commit || false;
             // Copy private properties such as _id, _etag, ...
             forEach(update, function (value, name) {
                 if(self.continue(name)) {
@@ -1282,8 +1284,9 @@
          * @param method
          * @returns {Promise}
          */
-        ApyResourceComponent.prototype.createRequest = function createRequest (method='POST') {
+        ApyResourceComponent.prototype.createRequest = function createRequest (method) {
             var self = this;
+            method = method || 'POST';
             return new Promise(function (resolve, reject) {
                 var uri = self.$endpointBase + self.$name;
                 var data = null;
@@ -1377,7 +1380,8 @@
          * @param field
          * @returns {boolean}
          */
-        ApyResourceComponent.prototype.continue = function shallContinue (field, char='_') {
+        ApyResourceComponent.prototype.continue = function shallContinue (field, char) {
+            char = char || '_';
             return field.startsWith && field.startsWith(char);
         };
 
@@ -1606,7 +1610,7 @@
          * @param $endpoint
          * @constructor
          */
-        var ApyFieldComponent = function ApyFieldComponent (name, type, value, options=null, $states=null, $endpoint=null) {
+        var ApyFieldComponent = function ApyFieldComponent (name, type, value, options, $states, $endpoint) {
             this.$states = $states;
             this.$endpoint = $endpoint;
             this.initialize(value, options);
@@ -1616,7 +1620,7 @@
 
         ApyFieldComponent.inheritsFrom(ApyComponent);
 
-        ApyFieldComponent.prototype.initialize = function initialize (value=null, options=null) {
+        ApyFieldComponent.prototype.initialize = function initialize (value, options) {
             options = options || {};
             this.$minlength = options.minlength || this.$minlength;
             this.$maxlength = options.maxlength || this.$maxlength;
@@ -1655,7 +1659,7 @@
             return this;
         };
 
-        ApyFieldComponent.prototype.setType = function setType (parent, type, schemaName=null) {
+        ApyFieldComponent.prototype.setType = function setType (parent, type, schemaName) {
             this.$type = type;
             if(this.$typesForPoly.indexOf(type) !== -1) {
                 if(this.$fieldTypesMap.hasOwnProperty(type)) {
@@ -1747,7 +1751,8 @@
          * @param commit
          * @returns {ApyFieldComponent}
          */
-        ApyFieldComponent.prototype.selfUpdate = function selfUpdate (update, commit=false) {
+        ApyFieldComponent.prototype.selfUpdate = function selfUpdate (update, commit) {
+            commit = commit || false;
             this.$value = this.typeWrapper(update.$value);
             if(commit) {
                 this.selfCommit();
@@ -1925,7 +1930,7 @@
      * @param components
      * @returns {ApyCollectionComponent|*}
      */
-    ApyCompositeService.prototype.createCollection = function(name, components=null) {
+    ApyCompositeService.prototype.createCollection = function(name, components) {
         return new ApyCollectionComponent(name, this.$endpoint, components);
     };
 
