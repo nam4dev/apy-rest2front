@@ -43,16 +43,11 @@
     $window.ApyFieldMixin =  (function () {
 
         function initialize(service, name, type, value, options, $states, $endpoint) {
-
             this.init(service, name, type, []);
-
-
-
             this.$name = name;
             this.$type = type;
             this.$states = $states;
             this.$endpoint = $endpoint;
-
             this.setOptions(options)
                 .setValue(value)
                 .postInit();
@@ -80,7 +75,6 @@
         }
 
         function needPoly($components) {
-            var self = this;
             var need = true;
             forEach($components, function (c) {
                 if (c.$type === $TYPES.POLY) need = false;
@@ -89,49 +83,7 @@
         }
 
         function postInit() {
-            switch (this.$type) {
-                case $TYPES.LIST:
-                case $TYPES.DICT:
-                case $TYPES.RESOURCE:
-                    this.$components = [];
-                    var poly = new ApyPolyField(this.$service, null, null, {}, this.$states, this.$endpoint);
-                    this.$components.push(poly);
-                    break;
-                default :
-                    break;
-            }
             return this;
-        }
-
-        function setType(parent, type, schemaName) {
-            this.$type = type;
-            if (this.$typesForPoly.indexOf(type) !== -1) {
-                if (this.$fieldTypesMap.hasOwnProperty(type)) {
-                    type = this.$fieldTypesMap[type];
-                }
-                if (type !== $TYPES.DICT) this.$contentUrl = 'field-' + type + '.html';
-            }
-            if (needPoly(parent.$components)) {
-                var poly;
-                switch (type) {
-                    case $TYPES.DICT:
-                        poly = new ApyHashmapField(this.$service, null, $TYPES.RESOURCE, null, {}, this.$states, this.$endpoint);
-                        parent.$components.push(poly);
-                        return this;
-                    case $TYPES.OBJECTID:
-                        poly = new ApyResourceComponent(this.$service, null,
-                            service.$schemas[schemaName],
-                            null, $TYPES.OBJECTID, this.$states, this.$endpoint, schemaName);
-                        //poly.load();
-                        parent.$components.push(poly);
-                        break;
-                    default :
-                        parent.$components.push(
-                            new ApyPolyField(this.$service, null, null, {}, this.$states, this.$endpoint));
-                        return this.setOptions().setValue().postInit();
-                }
-            }
-
         }
 
         /**
@@ -149,9 +101,6 @@
          */
         function typeWrapper(value) {
             switch (this.$type) {
-                case $TYPES.MEDIA:
-                    return new ApyMediaFile(this.$endpoint, value);
-                    break;
                 case $TYPES.LIST:
                     return value ? value : [];
                 default :
@@ -165,17 +114,7 @@
          * @returns {*}
          */
         function clone(value) {
-            switch (this.$type) {
-                case $TYPES.LIST:
-                case $TYPES.STRING:
-                case $TYPES.INTEGER:
-                case $TYPES.DATETIME:
-                    return this.typeWrapper(value);
-                case $TYPES.DICT:
-                    return isObject(value) ? Object.assign(value) : value;
-                default :
-                    return value;
-            }
+            return this.typeWrapper(value);
         }
 
         /**
@@ -221,10 +160,6 @@
                     hasUpdated = this.$components.filter(function (c) {
                             return c.$type !== $TYPES.POLY;
                         }).length > 0;
-                    break;
-                case $TYPES.DATETIME:
-                    if (!isDate(this.$memo)) this.$memo = new Date(this.$memo);
-                    hasUpdated = this.$value.getTime() !== this.$memo.getTime();
                     break;
                 default :
                     hasUpdated = this.$value !== this.$memo;
@@ -304,11 +239,11 @@
                         cleaned.push(comp.cleanedData());
                     });
                     return cleaned;
-                case $TYPES.MEDIA:
-                    console.log('MEDIA', this);
-                    return this.$value.cleanedData();
-                case $TYPES.DATETIME:
-                    return this.$value.toUTCString();
+                //case $TYPES.MEDIA:
+                //    console.log('MEDIA', this);
+                //    return this.$value.cleanedData();
+                //case $TYPES.DATETIME:
+                //    return this.$value.toUTCString();
                 default :
                     return this.$value;
             }
@@ -317,7 +252,7 @@
         return function () {
             this.clone       = clone;
             this.reset       = reset;
-            this.setType     = setType;
+            //this.setType     = setType;
             this.toString    = toString;
             this.needPoly    = needPoly;
             this.validate    = validate;

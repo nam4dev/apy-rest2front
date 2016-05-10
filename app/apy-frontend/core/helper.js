@@ -403,6 +403,7 @@
         OBJECTID: "objectid",
         DATETIME: "datetime",
         RESOURCE: "resource",
+        POLYLIST: "poly-list",
         COLLECTION: "collection"
     };
 
@@ -543,6 +544,9 @@
     patchObject();
     patchString();
 
+    $window.apy = $window.apy || {};
+    $window.apy.common = $window.apy.common || {};
+
     $window.$TYPES = $TYPES;
     $window.forEach = forEach;
     $window.isUndefined = isUndefined;
@@ -564,5 +568,28 @@
     $window.ApyMediaFile = ApyMediaFile;
     $window.ApyStateHolder = ApyStateHolder;
     $window.ApyStackComponent = ApyStateHolder;
+
+    /**
+     * Common behaviour
+     *
+     * @returns {postInit}
+     */
+    $window.apy.common.postInit = function() {
+        this.$components = [];
+        var poly = new ApyPolyField(this.$service, null, null, {}, this.$states, this.$endpoint);
+        this.$components.push(poly);
+        return this;
+    };
+
+    $window.apy.common.cleanedData = function() {
+        this.validate();
+        var cleaned = {};
+        this.$components.filter(function (comp) {
+            return comp.$type !== $TYPES.POLY
+        }).forEach(function (comp) {
+            cleaned[comp.$name] = comp.cleanedData();
+        });
+        return cleaned;
+    };
 
 })(window);

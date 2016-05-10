@@ -30,28 +30,22 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Media field abstraction
- *  A Media type shall be any type of Resource (music, picture, video, ...)
+ *  Write here what the module does...
  *
  *  """
  */
 (function ($window) {
 
-    $window.ApyMediaField = (function () {
+    $window.ApyEmbeddedField = (function () {
 
-        function cleanedData() {
-            this.validate();
-            console.log('MEDIA', this);
-            return this.$value.cleanedData();
+        function typeWrapper(value) {
+            return isObject(value) ? Object.assign(value) : value;
         }
 
-        var typeWrapper = function(value) {
-            return new ApyMediaFile(this.$endpoint, value);
-        };
-
         return function (service, name, type, value, options, $states, $endpoint) {
-            this.cleanedData = cleanedData;
             this.typeWrapper = typeWrapper;
+            this.postInit = $window.apy.common.postInit;
+            this.cleanedData = $window.apy.common.cleanedData;
             this.initialize(service, name, type, value, options, $states, $endpoint);
             return this;
         }
@@ -59,7 +53,7 @@
     })();
 
     // Inject Mixin
-    $window.ApyComponentMixin.call(ApyMediaField.prototype);
-    $window.ApyFieldMixin.call(ApyMediaField.prototype);
+    $window.ApyComponentMixin.call(ApyEmbeddedField.prototype);
+    $window.ApyFieldMixin.call(ApyEmbeddedField.prototype);
 
 })(window);

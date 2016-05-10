@@ -34,11 +34,62 @@
  *
  *  """
  */
-(function ($window) {
+(function ($window, $) {
+
+    function getFieldClassByType(type) {
+        type = type.capitalize();
+        var fieldClassName = 'Apy' + type + 'Field';
+        if(!$window.hasOwnProperty(fieldClassName)) return null;
+        var f = $window[fieldClassName];
+        console.log('Field, ', type, fieldClassName, f);
+        return f;
+    }
 
     $window.ApyPolyField = function () {
 
+        var mapping = {
+            'float': 'number',
+            'integer': 'number',
+            'resource': 'Hashmap',
+            'objectid': 'Embedded'
+        };
+
+        var fields = Object.assign($TYPES);
+        forEach($TYPES, function (type) {
+            if(['poly', 'poly-list', 'collection'].indexOf(type) === -1) {
+                if(mapping.hasOwnProperty(type)) type = mapping[type];
+                var cls = getFieldClassByType(type);
+                if(cls) fields[type] = cls;
+            }
+        });
+
+        function setType(parent, type, schemaName) {
+            var mappedType = type;
+            if(mapping.hasOwnProperty(type)) {
+                mappedType = mapping[type];
+            }
+            if(['float', 'integer'].indexOf(type) !== -1) type = mappedType;
+            $.extend(true, this, new fields[mappedType](this.$service, null, type, null,
+                this.$service.$schemas[schemaName], this.$states, this.$endpoint));
+            if (this.needPoly(parent.$components)) {
+                parent.$components.push(new ApyPolyField(this.$service, null, null, {},
+                    this.$states, this.$endpoint));
+            }
+
+        }
+
+        var typeWrapper = function(value) {
+            switch (this.$type) {
+                case $TYPES.MEDIA:
+                    return new ApyMediaFile(this.$endpoint, value);
+                default :
+                    return value;
+            }
+        };
+
         return function (service, name, value, options, $states, $endpoint) {
+            this.setType = setType;
+            this.typeWrapper = typeWrapper;
             this.initialize(service, name, $window.$TYPES.POLY, value, options, $states, $endpoint);
             return this;
         }
@@ -49,4 +100,4 @@
     $window.ApyComponentMixin.call(ApyPolyField.prototype);
     $window.ApyFieldMixin.call(ApyPolyField.prototype);
 
-})(window);
+})(window, window.jQuery);

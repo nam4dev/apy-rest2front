@@ -38,11 +38,23 @@
 
     $window.ApyDatetimeField = (function () {
 
+        function cleanedData() {
+            this.validate();
+            return this.$value.toUTCString();
+        }
+
+        function hasUpdated() {
+            if (!isDate(this.$memo)) this.$memo = new Date(this.$memo);
+            return this.$value.getTime() !== this.$memo.getTime();
+        }
+
         function typeWrapper(value) {
             return new Date(value);
         }
 
         return function (service, name, type, value, options, $states, $endpoint) {
+            this.hasUpdated = hasUpdated;
+            this.cleanedData = cleanedData;
             this.typeWrapper = typeWrapper;
             this.initialize(service, name, type, value, options, $states, $endpoint);
             return this;

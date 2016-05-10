@@ -191,7 +191,7 @@
             this.$components = this.isArray(this.$components) ? this.$components : [this.$components];
             this.$typesForPoly = [];
             forEach(this.$types, function (type) {
-                if([$TYPES.COLLECTION, $TYPES.DICT, $TYPES.POLY].indexOf(type) === -1) {
+                if([$TYPES.COLLECTION, $TYPES.DICT, $TYPES.POLY, $TYPES.INTEGER, $TYPES.FLOAT].indexOf(type) === -1) {
                     self.$typesForPoly.push(type);
                 }
             });

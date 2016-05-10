@@ -44,6 +44,7 @@
     $window.ApyListField = function () {
 
         return function (service, name, type, value, options, $states, $endpoint) {
+            this.postInit = $window.apy.common.postInit;
             this.initialize(service, name, type, value, options, $states, $endpoint);
             return this;
         }
