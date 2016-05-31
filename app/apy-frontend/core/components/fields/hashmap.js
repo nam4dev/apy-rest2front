@@ -38,12 +38,12 @@
 
     $window.ApyHashmapField = (function () {
 
-        function typeWrapper(value) {
+        function clone(value) {
             return isObject(value) ? Object.assign(value) : value;
         }
 
         return function (service, name, type, value, options, $states, $endpoint) {
-            this.typeWrapper = typeWrapper;
+            this.clone = clone;
             this.postInit = $window.apy.common.postInit;
             this.cleanedData = $window.apy.common.cleanedData;
             this.initialize(service, name, type, value, options, $states, $endpoint);

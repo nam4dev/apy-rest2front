@@ -30,7 +30,7 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Collection Component
+ *  Apy Collection Component abstraction
  *
  *  """
  */

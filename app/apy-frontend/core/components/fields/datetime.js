@@ -48,14 +48,14 @@
             return this.$value.getTime() !== this.$memo.getTime();
         }
 
-        function typeWrapper(value) {
+        function clone(value) {
             return new Date(value);
         }
 
         return function (service, name, type, value, options, $states, $endpoint) {
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
-            this.typeWrapper = typeWrapper;
+            this.clone = clone;
             this.initialize(service, name, type, value, options, $states, $endpoint);
             return this;
         }

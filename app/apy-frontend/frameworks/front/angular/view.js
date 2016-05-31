@@ -30,7 +30,8 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  `Generic` Angular View Controller
+ *  Handles most of CRUD UI components actions
  *
  *  """
  */
@@ -43,8 +44,7 @@
                 restrict: 'E',
                 transclude: true,
                 scope: {
-                    field: '=',
-                    parent: '='
+                    field: '='
                 },
                 template: '<div ng-include="field.$contentUrl"></div>',
                 controller: ['$scope', '$log', '$uibModal', 'apy', function ($scope, $log, $uibModal, apyProvider) {
@@ -85,7 +85,7 @@
                             win && win.dismiss('cancel');
                         };
                         console.log('FIELD', field);
-                        //$scope.parent = field;
+                        $scope.field = field;
                         win = $uibModal.open({
                             animation: false,
                             templateUrl: 'modal-list.html',

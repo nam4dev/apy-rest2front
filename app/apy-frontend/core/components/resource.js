@@ -30,7 +30,7 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Resource Component
+ *  Apy Resource Component abstraction
  *
  *  """
  */
@@ -51,7 +51,6 @@
          */
         function initRequest () {
             this.$request = (this.$schema && this.$schema.$hasMedia) ? this.$upload.upload : this.$http;
-            //this.$request = this.$upload.upload;
             return this;
         }
 
@@ -289,17 +288,6 @@
 
         /**
          *
-         * @param char
-         * @param field
-         * @returns {boolean}
-         */
-        function shallContinue (field, char) {
-            char = char || '_';
-            return field.startsWith && field.startsWith(char);
-        }
-
-        /**
-         *
          * @param resource
          */
         function _load (resource) {
@@ -326,7 +314,7 @@
                     value = resource[field] || this.$service.$instance.schema2data(subSchema, field);
                 switch(type) {
                     case this.$types.LIST:
-                        fieldObj = new ApyListField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        fieldObj = new ApyListField(this.$service, field, value, subSchema, this.$states, this.$endpointBase);
                         break;
                     case this.$types.DICT:
                         fieldObj = new ApyResourceComponent(this.$service, field, subSchema.schema, null, this.$types.RESOURCE, this.$states);
@@ -477,7 +465,6 @@
             this.update            = update           ;
             this.delete            = del              ;
             this.createStateHolder = createStateHolder;
-            this.continue          = shallContinue    ;
             this._load             = _load            ;
             this.cleanedData       = cleanedData      ;
             this.loadValue         = loadValue        ;

@@ -43,8 +43,37 @@
 
     $window.ApyPolyListField = function () {
 
-        return function (service, name, type, value, options, $states, $endpoint) {
-            this.initialize(service, name, type, value, options, $states, $endpoint);
+        /**
+         *
+         * @param value
+         * @returns {*}
+         */
+        function clone(value) {
+            return value ? value : [];
+        }
+
+        function cleanedData() {
+            var cleaned = [];
+            this.$components.filter(function (comp) {
+                return comp.$type !== $TYPES.POLY
+            }).forEach(function (comp) {
+                cleaned.push(comp.cleanedData());
+            });
+            return cleaned;
+        }
+
+        function hasUpdated() {
+            return this.$components.filter(function (c) {
+                    return c.$type !== $TYPES.POLY;
+                }).length > 0;
+        }
+
+        return function (service, name, listMode, value, options, $states, $endpoint) {
+            this.clone = clone;
+            this.hasUpdated = hasUpdated;
+            this.cleanedData = cleanedData;
+            this.postInit = $window.apy.common.postInit;
+            this.initialize(service, name, $TYPES.POLYLIST, value, options, $states, $endpoint);
             return this;
         }
 

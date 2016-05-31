@@ -30,7 +30,7 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Apy base field abstraction
+ *  Apy Composite base component abstraction (field, resource, collection)
  *
  *  """
  */
@@ -182,8 +182,8 @@
             this.$name = name;
             this.$type = type;
             // Dependencies inherited from Angular
-            this.$http = service.$http;
             this.$request = null;
+            this.$http = service.$http;
             this.$logging = service.$log;
             this.$upload = service.$upload;
             // components index
@@ -201,14 +201,22 @@
                 type = this.$fieldTypesMap[type];
             }
             this.$contentUrl = 'field-' + type + '.html';
-            if(!this.validate()) {
-                throw new Error('Field', this.$name, 'does not validate !');
-            }
             return this.initRequest();
         }
 
         function validate() {
             return true;
+        }
+
+        /**
+         *
+         * @param char
+         * @param field
+         * @returns {boolean}
+         */
+        function shallContinue (field, char) {
+            char = char || '_';
+            return field.startsWith && field.startsWith(char);
         }
 
         return function() {
@@ -221,6 +229,7 @@
             this.getChild = getChild;
             this.validate = validate;
             this.isFunction = isFunction;
+            this.continue = shallContinue;
             this.initRequest = initRequest;
             this.cleanedData = cleanedData;
             this.hasChildren = hasChildren;

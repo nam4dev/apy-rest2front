@@ -146,10 +146,27 @@
 
         /**
          *
+         * @param name
+         * @param resource
+         * @returns {ApyResourceComponent}
+         */
+        ApySchemasComponent.prototype.createResource = function createResource (name, resource) {
+            var schema = this.get(name);
+            if(!schema) throw new Error('No schema provided for name', name);
+            var component = new ApyResourceComponent(service, name, schema, null, $TYPES.RESOURCE, null, this.$endpoint, name);
+            component.load(resource || this.schema2data(schema));
+            return component;
+        };
+
+        /**
+         *
          * @param schemaName
          * @returns {*}
          */
         ApySchemasComponent.prototype.get = function get (schemaName) {
+            if(!this.$components.hasOwnProperty(schemaName)) {
+                throw new Error('Unknown schema name, ' + schemaName);
+            }
             return this.$components[schemaName];
         };
 
@@ -247,20 +264,6 @@
                 });
             }
             return data;
-        };
-
-        /**
-         *
-         * @param name
-         * @param resource
-         * @returns {ApyResourceComponent}
-         */
-        ApySchemasComponent.prototype.createResource = function createResource (name, resource) {
-            var schema = this.get(name);
-            if(!schema) throw new Error('No schema provided for name', name);
-            var component = new ApyResourceComponent(service, name, schema, null, $TYPES.RESOURCE, null, this.$endpoint, name);
-            component.load(resource || this.schema2data(schema));
-            return component;
         };
 
         $window.ApySchemasComponent = ApySchemasComponent;

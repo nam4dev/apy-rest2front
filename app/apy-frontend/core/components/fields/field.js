@@ -30,7 +30,7 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Apy Field Component abstraction
  *
  *  """
  */
@@ -50,7 +50,8 @@
             this.$endpoint = $endpoint;
             this.setOptions(options)
                 .setValue(value)
-                .postInit();
+                .postInit()
+                .validate();
             return this;
         }
 
@@ -65,12 +66,8 @@
         }
 
         function setValue(value) {
-            // FIXME: The han is biting it own tail
-            // FIXME: This.$value needs to be called before (validate) super
-            // FIXME: and after (ApyMediaFile) according to case
-            // FIXME: Refactor ApyMediaFile not to be dependant of IComponent inheritance
             this.$memo = this.clone(value);
-            this.$value = this.typeWrapper(value);
+            this.$value = this.clone(value);
             return this;
         }
 
@@ -99,22 +96,8 @@
          * @param value
          * @returns {*}
          */
-        function typeWrapper(value) {
-            switch (this.$type) {
-                case $TYPES.LIST:
-                    return value ? value : [];
-                default :
-                    return value;
-            }
-        }
-
-        /**
-         *
-         * @param value
-         * @returns {*}
-         */
         function clone(value) {
-            return this.typeWrapper(value);
+            return value;
         }
 
         /**
@@ -133,7 +116,7 @@
          * @returns {this}
          */
         function selfUpdate(update, commit) {
-            this.$value = this.typeWrapper(update.$value);
+            this.$value = this.clone(update.$value);
             if (commit) {
                 this.selfCommit();
             }
@@ -154,18 +137,7 @@
          * @returns {boolean}
          */
         function hasUpdated() {
-            var hasUpdated = false;
-            switch (this.$type) {
-                case $TYPES.LIST:
-                    hasUpdated = this.$components.filter(function (c) {
-                            return c.$type !== $TYPES.POLY;
-                        }).length > 0;
-                    break;
-                default :
-                    hasUpdated = this.$value !== this.$memo;
-                    break;
-            }
-            return hasUpdated;
+            return this.$value !== this.$memo;
         }
 
         /**
@@ -185,6 +157,8 @@
             }
             switch (expectedType) {
                 case $TYPES.MEDIA:
+                case $TYPES.POLYLIST:
+                    // FIXME: TBD
                     break;
                 case $TYPES.DATETIME:
                     if (!this.$value || isString(this.$value)) {
@@ -203,14 +177,9 @@
             if (error) {
                 var e = "Component property `" + this.$name + "` shall be of type => " +
                     expectedType + "! Got " + selfType;
-
-                // FIXME: The han is biting it own tail
-                // FIXME: This.$value needs to be called before (validate) super
-                // FIXME: and after (ApyMediaFile) according to case
-                // FIXME: Refactor ApyMediaFile not to be dependant of IComponent inheritance
-                //this.$logging.log(e);
-                //this.$logging.log(this.$value);
-                //throw new Error(e);
+                this.$logging.log(e);
+                this.$logging.log(this.$value);
+                throw new Error(e);
             }
             return this;
         }
@@ -219,40 +188,13 @@
          *
          */
         function cleanedData() {
-            var cleaned;
             this.validate();
-            switch (this.$type) {
-                case $TYPES.DICT:
-                case $TYPES.RESOURCE:
-                    cleaned = {};
-                    this.$components.filter(function (comp) {
-                        return comp.$type !== $TYPES.POLY
-                    }).forEach(function (comp) {
-                        cleaned[comp.$name] = comp.cleanedData();
-                    });
-                    return cleaned;
-                case $TYPES.LIST:
-                    cleaned = [];
-                    this.$components.filter(function (comp) {
-                        return comp.$type !== $TYPES.POLY
-                    }).forEach(function (comp) {
-                        cleaned.push(comp.cleanedData());
-                    });
-                    return cleaned;
-                //case $TYPES.MEDIA:
-                //    console.log('MEDIA', this);
-                //    return this.$value.cleanedData();
-                //case $TYPES.DATETIME:
-                //    return this.$value.toUTCString();
-                default :
-                    return this.$value;
-            }
+            return this.$value;
         }
 
         return function () {
             this.clone       = clone;
             this.reset       = reset;
-            //this.setType     = setType;
             this.toString    = toString;
             this.needPoly    = needPoly;
             this.validate    = validate;
@@ -263,7 +205,7 @@
             this.selfUpdate  = selfUpdate;
             this.selfCommit  = selfCommit;
             this.hasUpdated  = hasUpdated;
-            this.typeWrapper = typeWrapper;
+            this.clone = clone;
             this.cleanedData = cleanedData;
             return this;
         }

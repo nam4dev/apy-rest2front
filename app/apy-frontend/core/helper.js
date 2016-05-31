@@ -481,18 +481,35 @@
     ApyMediaFile.prototype.loadURI = function loadURI () {
         var self = this;
 
-        if( self.$file instanceof ApyMediaFile) self.setFile(self.$file);
+        function ErrorProxy (error, origin) {
+            return {
+                self: error,
+                message: '' + error,
+                origin: origin
+            }
+        }
 
         return new Promise(function (resolve, reject) {
             var $reader = new FileReader();
-            $reader.onerror = function (error) {
-                return reject(error);
+            $reader.onerror = function (e) {
+                return reject(new ErrorProxy(e, "$reader.onerror"));
             };
             if(self.$isImage && isBlob(self.$file) || isFile(self.$file)) {
                 $reader.onload = function (evt) {
+                    self.$file.isLoaded = true;
+                    self.$file.$result = evt.target.result;
                     return resolve(evt.target.result);
                 };
-                $reader.readAsDataURL(self.$file);
+
+                if(self.$file.isLoaded) return resolve(self.$file.$result);
+
+                try {
+                    $reader.readAsDataURL(self.$file);
+                }
+                catch (e) {
+                    return reject(new ErrorProxy(e, "$reader.readAsDataURL"));
+                }
+
             }
             //else if(self.$isVideo || isBlob(self.$file) || isFile(self.$file) || isObject(self.$file) || !self.$file) {
             //    var url = null;

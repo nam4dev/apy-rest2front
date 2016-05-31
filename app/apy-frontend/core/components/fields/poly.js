@@ -30,7 +30,9 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Poly Morph Field
+ *
+ *  It converts itself to any known types
  *
  *  """
  */
@@ -40,9 +42,7 @@
         type = type.capitalize();
         var fieldClassName = 'Apy' + type + 'Field';
         if(!$window.hasOwnProperty(fieldClassName)) return null;
-        var f = $window[fieldClassName];
-        console.log('Field, ', type, fieldClassName, f);
-        return f;
+        return $window[fieldClassName];
     }
 
     $window.ApyPolyField = function () {
@@ -71,14 +71,18 @@
             if(['float', 'integer'].indexOf(type) !== -1) type = mappedType;
             $.extend(true, this, new fields[mappedType](this.$service, null, type, null,
                 this.$service.$schemas[schemaName], this.$states, this.$endpoint));
-            if (this.needPoly(parent.$components)) {
+            if(!parent) {
+                console.log('No Parent provided for ' +
+                    'ApyPolyField.setType(parent= undefined, type=',
+                    type, 'schemaName=', schemaName);
+            }
+            if (parent && this.needPoly(parent.$components)) {
                 parent.$components.push(new ApyPolyField(this.$service, null, null, {},
                     this.$states, this.$endpoint));
             }
-
         }
 
-        var typeWrapper = function(value) {
+        var clone = function(value) {
             switch (this.$type) {
                 case $TYPES.MEDIA:
                     return new ApyMediaFile(this.$endpoint, value);
@@ -89,7 +93,7 @@
 
         return function (service, name, value, options, $states, $endpoint) {
             this.setType = setType;
-            this.typeWrapper = typeWrapper;
+            this.clone = clone;
             this.initialize(service, name, $window.$TYPES.POLY, value, options, $states, $endpoint);
             return this;
         }

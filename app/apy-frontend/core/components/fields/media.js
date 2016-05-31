@@ -45,13 +45,13 @@
             return this.$value.cleanedData();
         }
 
-        var typeWrapper = function(value) {
+        var clone = function(value) {
             return new ApyMediaFile(this.$endpoint, value);
         };
 
         return function (service, name, type, value, options, $states, $endpoint) {
             this.cleanedData = cleanedData;
-            this.typeWrapper = typeWrapper;
+            this.clone = clone;
             this.initialize(service, name, type, value, options, $states, $endpoint);
             return this;
         }
