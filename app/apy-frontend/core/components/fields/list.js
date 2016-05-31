@@ -61,66 +61,64 @@
          *
          */
         function load (resource) {
-            if(!this.$options.schema) {
+            resource = resource || {};
+            var field = this.$name;
+            var schema = this.$options.schema;
+
+            console.log('LOAD.field', field);
+            console.log('LOAD.schema', schema);
+
+            try {
+                var type = schema.type;
+                console.log('LOAD.type', type);
+                if(!type) return;
+            }
+            catch(e) {
                 return;
             }
-            var schema = this.$options.schema;
-            var field;
-            for (field in schema) {
-                if(!schema.hasOwnProperty(field) ||
-                    this.continue(field) ||
-                    this.continue(field, '$')) {
-                    continue;
-                }
-                var subSchema = schema[field];
-                try {
-                    var type = subSchema.type;
-                    if(!type) continue;
-                }
-                catch(e) {
-                    continue;
-                }
-                var fieldObj,
-                    value = resource[field] || this.$service.$instance.schema2data(subSchema, field);
-                switch(type) {
-                    case this.$types.LIST:
-                        fieldObj = new ApyListField(this.$service, field, value, subSchema, this.$states, this.$endpointBase);
-                        break;
-                    case this.$types.DICT:
-                        fieldObj = new ApyResourceComponent(this.$service, field, subSchema.schema, null, this.$types.RESOURCE, this.$states);
-                        fieldObj.load(value);
-                        break;
-                    case this.$types.MEDIA:
-                        fieldObj = new ApyMediaField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
-                        break;
-                    case this.$types.STRING:
-                        fieldObj = new ApyStringField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
-                        break;
-                    case this.$types.FLOAT:
-                    case this.$types.NUMBER:
-                    case this.$types.INTEGER:
-                        fieldObj = new ApyNumberField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
-                        break;
-                    case this.$types.BOOLEAN:
-                        fieldObj = new ApyBooleanField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
-                        break;
+            var fieldObj,
+                //value = resource[field] || this.$service.$instance.schema2data(schema, field);
+                value = resource[field];
+            console.log('LOAD.value', value);
+            switch(type) {
+                case this.$types.LIST:
+                    fieldObj = new ApyListField(this.$service, field, value, schema, this.$states, this.$endpointBase);
+                    break;
+                case this.$types.DICT:
+                    fieldObj = new ApyResourceComponent(this.$service, field, schema.schema, null, this.$types.RESOURCE, this.$states);
+                    fieldObj.load(value);
+                    break;
+                case this.$types.MEDIA:
+                    fieldObj = new ApyMediaField(this.$service, field, type, value, schema, this.$states, this.$endpointBase);
+                    break;
+                case this.$types.STRING:
+                    fieldObj = new ApyStringField(this.$service, field, type, value, schema, this.$states, this.$endpointBase);
+                    break;
+                case this.$types.FLOAT:
+                case this.$types.NUMBER:
+                case this.$types.INTEGER:
+                    fieldObj = new ApyNumberField(this.$service, field, type, value, schema, this.$states, this.$endpointBase);
+                    break;
+                case this.$types.BOOLEAN:
+                    fieldObj = new ApyBooleanField(this.$service, field, type, value, schema, this.$states, this.$endpointBase);
+                    break;
 
-                    case this.$types.DATETIME:
-                        fieldObj = new ApyDatetimeField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
-                        break;
-                    case this.$types.OBJECTID:
-                        var relationName = subSchema.data_relation.resource;
-                        var schemaObject = this.$service.$schemas[relationName];
-                        fieldObj = new ApyResourceComponent(this.$service, field, schemaObject, null, this.$types.OBJECTID,
-                            this.$states, this.$endpointBase, relationName);
-                        fieldObj.load(value);
-                        break;
-                    default:
-                        throw new Error('Unknown type ' + type);
-                        break;
-                }
-                this.add(fieldObj);
+                case this.$types.DATETIME:
+                    fieldObj = new ApyDatetimeField(this.$service, field, type, value, schema, this.$states, this.$endpointBase);
+                    break;
+                case this.$types.OBJECTID:
+                    var relationName = schema.data_relation.resource;
+                    var schemaObject = this.$service.$schemas[relationName];
+                    fieldObj = new ApyResourceComponent(this.$service, field, schemaObject, null, this.$types.OBJECTID,
+                        this.$states, this.$endpointBase, relationName);
+                    fieldObj.load(value);
+                    break;
+                default:
+                    throw new Error('Unknown type ' + type);
+                    break;
             }
+            console.log('LOAD.fieldObj', fieldObj);
+            this.add(fieldObj);
             return this;
         }
 
@@ -139,8 +137,7 @@
             this.$options = options;
             this.setValue = setValue;
             this.initialize(service, name, $TYPES.LIST, value, options, $states, $endpoint);
-            this.load({});
-
+            this.load();
             console.log('LIST.' + this.$name, this);
             return this;
         }

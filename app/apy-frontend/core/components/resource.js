@@ -291,13 +291,7 @@
          * @param resource
          */
         function _load (resource) {
-            var field;
-            for (field in resource) {
-                if(resource.hasOwnProperty(field) && this.continue(field)) {
-                    this[field] = resource[field];
-                }
-            }
-            for (field in this.$schema) {
+            for (var field in this.$schema) {
                 if(!this.$schema.hasOwnProperty(field) ||
                     this.continue(field) ||
                     this.continue(field, '$')) {
@@ -406,19 +400,19 @@
 
         /**
          *
-         * @param components
+         * @param resource
          * @returns {ApyResourceComponent}
          */
-        function load (components) {
+        function load (resource) {
             var self = this;
-            components = components || {};
-            forEach(Object.assign(components), function (v, k) {
+            resource = resource || {};
+            forEach(Object.assign(resource), function (v, k) {
                 if(self.continue(k)) {
                     self[k] = v;
-                    delete components[k];
+                    delete resource[k];
                 }
             });
-            this._load(components);
+            this._load(resource);
             return this;
         }
 

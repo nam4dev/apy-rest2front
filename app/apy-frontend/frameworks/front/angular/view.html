@@ -421,7 +421,7 @@
             <!-- CREATE & UPDATE Form -->
             <div>
                 <form name="initial" novalidate>
-                    <pre>{{ field }}</pre>
+                    <!--<pre>{{ field.json() }}</pre>-->
                     <div class="form-group" ng-repeat="comp in field.$components track by $index" >
                         <apy-field field="comp"></apy-field>
                     </div>

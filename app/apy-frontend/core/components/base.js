@@ -219,8 +219,19 @@
             return field.startsWith && field.startsWith(char);
         }
 
+        function load (args) {
+            return this;
+        }
+
+        function json (indent) {
+            return JSON.stringify(this, null, indent || 4);
+        }
+
+
         return function() {
             this.add = add;
+            this.json = json;
+            this.load = load;
             this.count = count;
             this.remove = remove;
             this.init = initialize;

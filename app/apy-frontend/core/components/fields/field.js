@@ -192,7 +192,12 @@
             return this.$value;
         }
 
+        function load (args) {
+            return this;
+        }
+
         return function () {
+            this.load        = load;
             this.clone       = clone;
             this.reset       = reset;
             this.toString    = toString;
