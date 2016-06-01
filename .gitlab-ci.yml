@@ -2,9 +2,9 @@ before_script:
   - apt-get update -qq
   - apt-get install -y -qq nodejs nodejs-dev npm
   - npm -v
-  - npm ls graceful-fs
   - npm install bower
 
 test:
   script:
+    - npm ls graceful-fs
     - npm install
