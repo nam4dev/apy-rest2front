@@ -41,7 +41,7 @@
 
         function cleanedData() {
             this.validate();
-            console.log('MEDIA', this);
+            //console.log('MEDIA', this);
             return this.$value.cleanedData();
         }
 

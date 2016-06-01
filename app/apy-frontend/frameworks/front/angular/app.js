@@ -36,8 +36,8 @@
  */
 (function (angular) {'use strict';
 
-    var endpoint = 'http://localhost:8000/',
-        endpointStaging = 'http://wishlist.apy-consulting.com:8000/',
+    var endpoint = 'http://localhost:8001/',
+    //var endpoint = 'http://wishlist.apy-consulting.com:8000/',
         schemaName = 'schemas',
         appTheme = 'bootstrap3',
         application = angular.module('apy', [
@@ -70,7 +70,6 @@
         // Getting an apyProvider instance
         var provider = apyProvider.$get()
             .initEndpoints(endpoint, schemaName)
-            //.initEndpoints(endpointStaging, schemaName)
             .loadSchemas();
 
         var schemasAsArray = provider.$schemasAsArray;
@@ -95,7 +94,6 @@
     application.controller('IndexCtrl', ['$scope', '$log', '$route', 'apy', 'Upload',
         function ($scope, $log, $route, apyProvider, Upload) {
             apyProvider.initEndpoints(endpoint, schemaName).setDependencies(
-                //apyProvider.initEndpoints(endpointStaging, schemaName).setDependencies(
                 {name: "Upload", value: Upload}
             ).setSchemas(schemas);
             $scope.$schemas = apyProvider.$schemasAsArray;

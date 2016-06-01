@@ -66,7 +66,7 @@
                     };
 
                     $scope.setFile = function (field, file) {
-                        console.log('MEDIA', field);
+                        //console.log('MEDIA', field);
                         field.$value.setFile(file)
                             .then(function (_) {
                                 $scope.$apply();
@@ -84,8 +84,8 @@
                         $scope.cancel = function () {
                             win && win.dismiss('cancel');
                         };
-                        console.log('FIELD', field);
-                        $scope.field = field;
+                        //console.log('FIELD', field);
+                        //$scope.field = field;
                         win = $uibModal.open({
                             animation: false,
                             templateUrl: 'modal-list.html',
