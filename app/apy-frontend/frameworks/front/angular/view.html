@@ -31,7 +31,6 @@
 -->
 <div>
     <!-- All Apy Fields directives -->
-
     <script type="text/ng-template" id="field-poly.html">
         <div ng-if="field.$states.$current === field.$states.READ">
             <div ng-if="field.$value">
@@ -47,9 +46,7 @@
                     field.$states.$current !== field.$states.DELETE">
             <div class="row">
                 <div class="col-lg-12">
-
                     <!--field.$service <pre>{{ field.$service }}</pre>-->
-
                     <div class="input-group">
                         <!--<pre>field.$name        : {{ field.$name }}</pre>-->
                         <!--<pre>field.$type        : {{ field.$type }}</pre>-->
@@ -446,16 +443,15 @@
             <!-- CREATE & UPDATE Form -->
             <div>
                 <form name="initial" novalidate>
-                    <!--field: <pre>{{ field }}</pre>-->
-                    <!--field.$components:  <pre>{{ field.$components }}</pre>-->
+                    <!--field:  <pre>{{ field.$name }} - {{ field.$type }} {{ field.$value }}</pre>-->
                     <div class="form-group" ng-repeat="comp in field.$components track by $index" >
-                        <!--<pre>{{ comp }}</pre>-->
+                        <!--<pre>{{ comp.$name }} - {{ comp.$type }} - {{ comp.$components }} - {{ comp.$value }} - {{ comp.$options || comp.$schema }}</pre>-->
                         <!--FIXME: Find a way to distinguish between `no-schema` resource type and `with-schema` ones -->
                         <!--ng-if="comp.$type === 'poly' || field.$type === 'poly'" -->
-                        <label for="input-{{ comp.$type }}" >Key</label>
+                        <!--<label ng-if="!comp.$hasSchema" for="input-{{ comp.$type }}" >Key</label>-->
                         <!--FIXME: Find a way to distinguish between `no-schema` resource type and `with-schema` ones -->
                         <!--ng-if="comp.$type === 'poly' || field.$type === 'poly'" -->
-                        <input class="form-control" id="input-{{ comp.$type }}" ng-model="comp.$name" placeholder="Key for your field..." />
+                        <!--<input ng-if="!comp.$hasSchema" class="form-control" id="input-{{ comp.$type }}" ng-model="comp.$name" placeholder="Key for your field..." />-->
                         <label ng-if="comp.$name" for="{{ comp.$name }}">{{ comp.$name }}</label>
                         <apy-field id="{{ comp.$name }}" field="comp"></apy-field>
                     </div>
@@ -468,5 +464,4 @@
             <button class="btn btn-warning" type="button" ng-click="cancel(field)">Cancel</button>
         </div>
     </script>
-
 </div>
