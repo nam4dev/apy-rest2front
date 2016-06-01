@@ -55,6 +55,7 @@
          */
         function createResource (resource) {
             var component = this.$service.$instance.createResource(this.$name, resource);
+            component.setParent(this);
             this.prepend(component);
             return component;
         }

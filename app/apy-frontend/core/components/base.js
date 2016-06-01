@@ -219,12 +219,25 @@
             return field.startsWith && field.startsWith(char);
         }
 
+        function setParent (parent) {
+            this.$parent = parent;
+            return this;
+        }
+
         function load (args) {
             return this;
         }
 
         function json (indent) {
             return JSON.stringify(this, null, indent || 4);
+        }
+
+        function needPoly() {
+            var need = true;
+            this.$components.forEach(function (c) {
+                if (c.$type === $TYPES.POLY) need = false;
+            });
+            return need;
         }
 
 
@@ -236,9 +249,11 @@
             this.remove = remove;
             this.init = initialize;
             this.prepend = prepend;
-            this.isArray = Array.isArray;
+            this.needPoly = needPoly;
             this.getChild = getChild;
             this.validate = validate;
+            this.setParent = setParent;
+            this.isArray = Array.isArray;
             this.isFunction = isFunction;
             this.continue = shallContinue;
             this.initRequest = initRequest;

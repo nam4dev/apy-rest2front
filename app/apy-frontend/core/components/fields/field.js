@@ -57,6 +57,7 @@
 
         function setOptions(options) {
             options = options || {};
+            this.$options = options;
             this.$minlength = options.minlength || this.$minlength;
             this.$maxlength = options.maxlength || this.$maxlength;
             this.$unique = options.unique || this.$unique || false;
@@ -69,14 +70,6 @@
             this.$memo = this.clone(value);
             this.$value = this.clone(value);
             return this;
-        }
-
-        function needPoly($components) {
-            var need = true;
-            forEach($components, function (c) {
-                if (c.$type === $TYPES.POLY) need = false;
-            });
-            return need;
         }
 
         function postInit() {
@@ -157,7 +150,6 @@
             }
             switch (expectedType) {
                 case $TYPES.MEDIA:
-                case $TYPES.POLYLIST:
                     // FIXME: TBD
                     break;
                 case $TYPES.DATETIME:
@@ -179,7 +171,7 @@
                     expectedType + "! Got " + selfType;
                 this.$logging.log(e);
                 this.$logging.log(this.$value);
-                throw new Error(e);
+                //throw new Error(e);
             }
             return this;
         }
@@ -201,7 +193,6 @@
             this.clone       = clone;
             this.reset       = reset;
             this.toString    = toString;
-            this.needPoly    = needPoly;
             this.validate    = validate;
             this.setValue    = setValue;
             this.postInit    = postInit;

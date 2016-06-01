@@ -313,6 +313,12 @@
                     case this.$types.DICT:
                         fieldObj = new ApyResourceComponent(this.$service, field, subSchema.schema, null, this.$types.RESOURCE, this.$states);
                         fieldObj.load(value);
+                        if(!subSchema.schema) {
+                            //console.log('OHE');
+                            var poly = new ApyPolyField(this.$service, field, null, null, this.$states, this.$endpointBase);
+                            poly.setParent(fieldObj);
+                            fieldObj.add(poly);
+                        }
                         break;
                     case this.$types.MEDIA:
                         fieldObj = new ApyMediaField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
@@ -343,6 +349,7 @@
                         throw new Error('Unknown type ' + type);
                         break;
                 }
+                fieldObj.setParent(this);
                 this.add(fieldObj);
             }
             this.loadValue();
@@ -382,9 +389,9 @@
             var self = this;
             this.$value = '';
             forEach(this.$components, function (component) {
-                if(component.$value && !isDate(component.$value)) {
-                    var value = component.$value + ', ';
-
+                var v = component.$value;
+                if(v && !isDate(v) && !isBoolean(v)) {
+                    var value = v + ', ';
                     all += value;
                     if(component.$required) {
                         self.$value += value;
