@@ -59,26 +59,34 @@
             if(['poly', 'poly-list', 'collection'].indexOf(type) === -1) {
                 if(mapping.hasOwnProperty(type)) type = mapping[type];
                 var cls = getFieldClassByType(type);
-                if(cls) fields[type] = cls;
+                fields[type] = getFieldClassByType(type);
             }
         });
 
-        function setType(parent, type, schemaName) {
+        function setType(type, schemaName) {
             var mappedType = type;
             if(mapping.hasOwnProperty(type)) {
                 mappedType = mapping[type];
             }
             if(['float', 'integer'].indexOf(type) !== -1) type = mappedType;
+            //console.log('fields', fields);
+            //console.log('mappedType', mappedType);
+            //console.log('fields[mappedType]', fields[mappedType]);
             $.extend(true, this, new fields[mappedType](this.$service, null, type, null,
                 this.$service.$schemas[schemaName], this.$states, this.$endpoint));
-            if(!parent) {
+            if(!this.$parent) {
                 console.log('No Parent provided for ' +
                     'ApyPolyField.setType(parent= undefined, type=',
-                    type, 'schemaName=', schemaName);
+                    type, ', schemaName=', schemaName);
             }
-            if (parent && this.needPoly(parent.$components)) {
-                parent.$components.push(new ApyPolyField(this.$service, null, null, {},
-                    this.$states, this.$endpoint));
+            else {
+                //console.log('PARENT', this.$parent)
+            }
+            if (this.$parent && this.$parent.needPoly()) {
+                var poly = new ApyPolyField(this.$service, null, null, {},
+                    this.$states, this.$endpoint);
+                poly.setParent(this.$parent);
+                this.$parent.add(poly);
             }
         }
 
