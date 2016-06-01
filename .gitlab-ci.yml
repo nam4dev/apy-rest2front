@@ -1,6 +1,4 @@
 before_script:
-  - apt-get install build-essential
-  - add-apt-repository ppa:chris-lea/node.js
   - apt-get update -qq
   - apt-get install -y -qq nodejs nodejs-dev npm
   - npm -v
