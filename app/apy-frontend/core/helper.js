@@ -414,8 +414,10 @@
      * @constructor
      */
     var ApyMediaFile = function ApyMediaFile($endpoint, value) {
-        if($endpoint.endsWith('/'))
+        $endpoint = $endpoint || "";
+        if($endpoint && $endpoint.endsWith && $endpoint.endsWith('/')) {
             $endpoint = $endpoint.slice(0, -1);
+        }
 
         this.$uri = null;
         this.$endpoint = $endpoint;
