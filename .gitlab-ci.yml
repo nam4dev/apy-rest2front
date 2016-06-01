@@ -1,5 +1,8 @@
 before_script:
-  - apt-get update -qq && apt-get install -y -qq nodejs
+  - apt-get install python-software-properties
+  - add-apt-repository ppa:chris-lea/node.js
+  - apt-get update -qq
+  - apt-get install -y -qq nodejs nodejs-dev npm
   - npm -v
   - npm install bower
 
