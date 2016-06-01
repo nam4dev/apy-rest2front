@@ -2,4 +2,7 @@ before_script:
   - apt-get update -qq && apt-get install -y -qq nodejs
   - npm -v
   - npm install bower
-  - npm install
+
+test:
+  script:
+    - npm install
