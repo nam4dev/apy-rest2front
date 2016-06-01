@@ -52,11 +52,11 @@
             return new Date(value);
         }
 
-        return function (service, name, type, value, options, $states, $endpoint) {
+        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
             this.clone = clone;
-            this.initialize(service, name, type, value, options, $states, $endpoint);
+            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.DATETIME, null);
             return this;
         }
 

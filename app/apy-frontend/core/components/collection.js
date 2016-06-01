@@ -54,6 +54,7 @@
          * @returns {ApyResourceComponent}
          */
         function createResource (resource) {
+            //console.log('RESOURCE', resource);
             var component = this.$service.$instance.createResource(this.$name, resource);
             component.setParent(this);
             this.prepend(component);
@@ -84,6 +85,7 @@
          */
         function hasCreated () {
             var created = false;
+            //console.log(this.$components);
             this.$components.forEach(function (comp) {
                 if(comp.hasCreated()) created = true;
             });
@@ -172,6 +174,7 @@
                 // FIXME: $upload interface is not a function
                 // FIXME: Therefore a facade instance shall be made to unify
                 // FIXME: both interfaces, allowing us to always use the `$request` interface
+                self.clear();
                 return self.$request({
                     //return self.$http({
                     url: self.$endpoint,
@@ -180,6 +183,7 @@
                     },
                     method: 'GET'
                 }).then(function (response) {
+                    //console.log(response.data._items);
                     self.load(response.data._items);
                     return resolve(response);
                 }).catch(function (error) {
@@ -254,7 +258,7 @@
          * @constructor
          */
         return function (service, name, endpoint, components) {
-            this.init(service, name, $TYPES.COLLECTION, components);
+            this.init(service, name, components, $TYPES.COLLECTION);
             this.$endpointBase = endpoint;
             this.$schema = service.$instance.get(name);
             this.$endpoint = endpoint + name;

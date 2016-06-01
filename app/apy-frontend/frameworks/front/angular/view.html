@@ -161,6 +161,7 @@
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
+
             <select ng-if="field.$allowed && field.$allowed.length" ng-model="field.$value" multiple>
                 <option ng-repeat="allowed in field.$allowed" >{{ allowed }}</option>
             </select>
@@ -340,6 +341,7 @@
                 <i ng-if="resource.$states.$current === resource.$states.CREATE"
                    ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
             </td>
+            <pre>{{ resource }}</pre>
             <td>
                 <i ng-if="resource.$states.$current === resource.$states.UPDATE"
                    ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
@@ -418,9 +420,19 @@
             <!-- CREATE & UPDATE Form -->
             <div>
                 <form name="initial" novalidate>
-                    <!--<pre>{{ field.json() }}</pre>-->
+                    <button class="btn btn-info pull-right"
+                            ng-if="!field.hasPoly()"
+                            ng-click="field.oneMore()">
+                        <i class="glyphicon glyphicon-plus"></i> Add
+                    </button>
                     <div class="form-group" ng-repeat="comp in field.$components track by $index" >
                         <apy-field field="comp"></apy-field>
+
+                        <button class="btn btn-danger pull-right"
+                                ng-if="comp.$type !== comp.$types.POLY && field.count() > 1"
+                                ng-click="field.remove(comp)">
+                            <i class="glyphicon glyphicon-minus"></i> Remove
+                        </button>
                     </div>
                 </form>
             </div>
@@ -445,7 +457,7 @@
                 <form name="initial" novalidate>
                     <!--field:  <pre>{{ field.$name }} - {{ field.$type }} {{ field.$value }}</pre>-->
                     <div class="form-group" ng-repeat="comp in field.$components track by $index" >
-                        <!--<pre>{{ comp.$name }} - {{ comp.$type }} - {{ comp.$components }} - {{ comp.$value }} - {{ comp.$options || comp.$schema }}</pre>-->
+                        <!--<pre>{{ comp.$name }} - {{ comp.$type }} - {{ comp.$components }} - {{ comp.$value }} - {{ comp.$schema || comp.$schema }}</pre>-->
                         <!--FIXME: Find a way to distinguish between `no-schema` resource type and `with-schema` ones -->
                         <!--ng-if="comp.$type === 'poly' || field.$type === 'poly'" -->
                         <!--<label ng-if="!comp.$hasSchema" for="input-{{ comp.$type }}" >Key</label>-->

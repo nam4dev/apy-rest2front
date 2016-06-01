@@ -77,6 +77,7 @@
                     };
 
                     $scope.expandList = function (field) {
+                        //console.log('expandList.field', field);
                         $scope.ok = function () {
                             win && win.dismiss('cancel');
                         };

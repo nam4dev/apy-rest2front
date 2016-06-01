@@ -152,8 +152,7 @@
             return this;
         }
 
-        function initialize(service, name, type, components) {
-
+        function initialize(service, name, components, type) {
             var self = this;
             this.$types = $TYPES;
             this.$service = service;
@@ -240,6 +239,41 @@
             return need;
         }
 
+        function cloneChild() {
+            var component = null;
+            var self = this.getChild(0);
+            if(self) {
+                var fieldClassByType = $window.apy.common.fieldClassByType;
+                var field = fieldClassByType(self.$type);
+                if(!field) {
+                    return this;
+                }
+                var components = null;
+                component = new field(self.$service, self.$name, self.$schema, components,
+                    self.$states, self.$endpoint, self.$type, self.$relationName);
+                component.setParent(this);
+                if(self.hasChildren()) {
+                    self.$components.forEach(function (comp) {
+                        var subField = fieldClassByType(comp.$type);
+                        if(subField && !isBlankObject(subField)) {
+                            var subComp = new subField(comp.$service, comp.$name, comp.$schema, components,
+                                comp.$states, comp.$endpoint, comp.$type, comp.$relationName);
+                            subComp.setParent(component);
+                            component.add(subComp);
+                        }
+                    })
+                }
+            }
+            return component;
+        }
+
+        function oneMore() {
+            var comp = this.cloneChild();
+            if(comp) {
+                this.add(comp);
+            }
+            return this;
+        }
 
         return function() {
             this.add = add;
@@ -247,12 +281,14 @@
             this.load = load;
             this.count = count;
             this.remove = remove;
+            this.oneMore = oneMore;
             this.init = initialize;
             this.prepend = prepend;
             this.needPoly = needPoly;
             this.getChild = getChild;
             this.validate = validate;
             this.setParent = setParent;
+            this.cloneChild = cloneChild;
             this.isArray = Array.isArray;
             this.isFunction = isFunction;
             this.continue = shallContinue;

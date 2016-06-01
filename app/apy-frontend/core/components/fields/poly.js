@@ -38,30 +38,10 @@
  */
 (function ($window, $) {
 
-    function getFieldClassByType(type) {
-        type = type.capitalize();
-        var fieldClassName = 'Apy' + type + 'Field';
-        if(!$window.hasOwnProperty(fieldClassName)) return null;
-        return $window[fieldClassName];
-    }
-
     $window.ApyPolyField = function () {
 
-        var mapping = {
-            'float': 'number',
-            'integer': 'number',
-            'resource': 'Hashmap',
-            'objectid': 'Embedded'
-        };
-
-        var fields = Object.assign($TYPES);
-        forEach($TYPES, function (type) {
-            if(['poly', 'poly-list', 'collection'].indexOf(type) === -1) {
-                if(mapping.hasOwnProperty(type)) type = mapping[type];
-                var cls = getFieldClassByType(type);
-                fields[type] = getFieldClassByType(type);
-            }
-        });
+        var mapping = $window.apy.common.typesMapping;
+        var fieldClassByType = $window.apy.common.fieldClassByType;
 
         function setType(type, schemaName) {
             var mappedType = type;
@@ -72,7 +52,11 @@
             //console.log('fields', fields);
             //console.log('mappedType', mappedType);
             //console.log('fields[mappedType]', fields[mappedType]);
-            $.extend(true, this, new fields[mappedType](this.$service, null, type, null,
+            var field = fieldClassByType(type);
+            if(!field) {
+                throw new Error('Unknown Field type, **' + type + '**');
+            }
+            $.extend(true, this, new field(this.$service, null, type, null,
                 this.$service.$schemas[schemaName], this.$states, this.$endpoint));
             if(!this.$parent) {
                 console.log('No Parent provided for ' +
@@ -99,10 +83,18 @@
             }
         };
 
-        return function (service, name, value, options, $states, $endpoint) {
+        function hasPoly() {
+            return true;
+        }
+
+        // FIXME: value & options parameters shall not be useful as a Poly Morph Field
+        // FIXME: should not care of schema/options and value except if we decide to try to
+        // FIXME: autodetect type based on given value when we've got a schema-less field (which PolyField certainly is).
+        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.hasPoly = hasPoly;
             this.setType = setType;
             this.clone = clone;
-            this.initialize(service, name, $window.$TYPES.POLY, value, options, $states, $endpoint);
+            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.POLY, null);
             return this;
         }
 

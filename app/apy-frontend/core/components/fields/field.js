@@ -42,27 +42,27 @@
     // Registering mixin globally
     $window.ApyFieldMixin =  (function () {
 
-        function initialize(service, name, type, value, options, $states, $endpoint) {
-            this.init(service, name, type, []);
+        function initialize(service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.init(service, name, null, type);
             this.$name = name;
             this.$type = type;
             this.$states = $states;
             this.$endpoint = $endpoint;
-            this.setOptions(options)
+            this.setOptions(schema)
                 .setValue(value)
                 .postInit()
                 .validate();
             return this;
         }
 
-        function setOptions(options) {
-            options = options || {};
-            this.$options = options;
-            this.$minlength = options.minlength || this.$minlength;
-            this.$maxlength = options.maxlength || this.$maxlength;
-            this.$unique = options.unique || this.$unique || false;
-            this.$required = options.required || this.$required || false;
-            this.$allowed = options.allowed || this.$allowed || [];
+        function setOptions(schema) {
+            schema = schema || {};
+            this.$schema = schema;
+            this.$minlength = schema.minlength || this.$minlength;
+            this.$maxlength = schema.maxlength || this.$maxlength;
+            this.$unique = schema.unique || this.$unique || false;
+            this.$required = schema.required || this.$required || false;
+            this.$allowed = schema.allowed || this.$allowed || [];
             return this;
         }
 
@@ -201,7 +201,6 @@
             this.selfUpdate  = selfUpdate;
             this.selfCommit  = selfCommit;
             this.hasUpdated  = hasUpdated;
-            this.clone = clone;
             this.cleanedData = cleanedData;
             return this;
         }

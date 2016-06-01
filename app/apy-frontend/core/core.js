@@ -152,8 +152,10 @@
          */
         ApySchemasComponent.prototype.createResource = function createResource (name, resource) {
             var schema = this.get(name);
-            if(!schema) throw new Error('No schema provided for name', name);
-            var component = new ApyResourceComponent(service, name, schema, null, $TYPES.RESOURCE, null, this.$endpoint, name);
+            if(!schema) {
+                throw new Error('No schema provided for name', name);
+            }
+            var component = new ApyResourceComponent(service, name, schema, null, null, this.$endpoint, $TYPES.RESOURCE, name);
             component.load(resource || this.schema2data(schema));
             return component;
         };

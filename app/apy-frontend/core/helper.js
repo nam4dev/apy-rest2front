@@ -593,14 +593,22 @@
      *
      * @returns {postInit}
      */
-    $window.apy.common.postInit = function() {
+    $window.apy.common.postInit = function postInit() {
         this.$components = [];
         var poly = new ApyPolyField(this.$service, null, null, {}, this.$states, this.$endpoint);
         this.$components.push(poly);
         return this;
     };
 
-    $window.apy.common.cleanedData = function() {
+    function getFieldClassByType(type) {
+        // following naming convention
+        type = type.capitalize();
+        var fieldClassName = 'Apy' + type + 'Field';
+        if(!$window.hasOwnProperty(fieldClassName)) return null;
+        return $window[fieldClassName];
+    }
+
+    $window.apy.common.cleanedData = function cleanedData() {
         this.validate();
         var cleaned = {};
         this.$components.filter(function (comp) {
@@ -610,5 +618,40 @@
         });
         return cleaned;
     };
+
+    $window.apy.common.hasPoly = function hasPoly() {
+        var result = false;
+        console.log('FIELD.$type', this.$type);
+        this.$components.forEach(function (comp) {
+            console.log('COMP.hasPoly()', comp.hasPoly());
+            console.log('comp.$type === $TYPES.POLY', comp.$type === $TYPES.POLY);
+            if(comp.hasPoly() || comp.$type === $TYPES.POLY) {
+                result = true;
+            }
+        });
+        return result;
+    };
+
+
+    $window.apy.common.typesMapping = {
+        'float': 'number',
+        'integer': 'number',
+        'resource': 'Hashmap',
+        'objectid': 'Embedded'
+    };
+
+    $window.apy.common.fieldClassByType = function fieldClassByType(type) {
+        var mapping = $window.apy.common.typesMapping;
+
+        if(['poly', 'collection'].indexOf(type) === -1) {
+            if(mapping.hasOwnProperty(type)) {
+                type = mapping[type];
+            }
+            return getFieldClassByType(type);
+        }
+        return null;
+    };
+
+
 
 })(window);

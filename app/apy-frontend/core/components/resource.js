@@ -246,6 +246,7 @@
          * @returns {Promise}
          */
         function create () {
+            console.log('this.hasCreated()', this.hasCreated(), 'this.hasUpdated()', this.hasUpdated());
             if(this.hasCreated() && this.hasUpdated()) {
                 return this.createRequest();
             }
@@ -308,10 +309,10 @@
                     value = resource[field] || this.$service.$instance.schema2data(subSchema, field);
                 switch(type) {
                     case this.$types.LIST:
-                        fieldObj = new ApyListField(this.$service, field, value, subSchema, this.$states, this.$endpointBase);
+                        fieldObj = new ApyListField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
                         break;
                     case this.$types.DICT:
-                        fieldObj = new ApyResourceComponent(this.$service, field, subSchema.schema, null, this.$types.RESOURCE, this.$states);
+                        fieldObj = new ApyResourceComponent(this.$service, field, subSchema.schema, null, this.$states, null, this.$types.RESOURCE);
                         fieldObj.load(value);
                         if(!subSchema.schema) {
                             //console.log('OHE');
@@ -321,28 +322,31 @@
                         }
                         break;
                     case this.$types.MEDIA:
-                        fieldObj = new ApyMediaField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        fieldObj = new ApyMediaField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
                         break;
                     case this.$types.STRING:
-                        fieldObj = new ApyStringField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        fieldObj = new ApyStringField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
                         break;
                     case this.$types.FLOAT:
                     case this.$types.NUMBER:
                     case this.$types.INTEGER:
-                        fieldObj = new ApyNumberField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        fieldObj = new ApyNumberField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
                         break;
                     case this.$types.BOOLEAN:
-                        fieldObj = new ApyBooleanField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        fieldObj = new ApyBooleanField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
                         break;
 
                     case this.$types.DATETIME:
-                        fieldObj = new ApyDatetimeField(this.$service, field, type, value, subSchema, this.$states, this.$endpointBase);
+                        fieldObj = new ApyDatetimeField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
                         break;
                     case this.$types.OBJECTID:
                         var relationName = subSchema.data_relation.resource;
                         var schemaObject = this.$service.$schemas[relationName];
-                        fieldObj = new ApyResourceComponent(this.$service, field, schemaObject, null, this.$types.OBJECTID,
-                            this.$states, this.$endpointBase, relationName);
+
+
+
+                        fieldObj = new ApyResourceComponent(this.$service, field, schemaObject, null,
+                            this.$states, this.$endpointBase, this.$types.OBJECTID, relationName);
                         fieldObj.load(value);
                         break;
                     default:
@@ -435,19 +439,18 @@
          * @param relationName
          * @constructor
          */
-        return function (service, name, schema, components, type, $states, endpointBase, relationName) {
+        return function (service, name, schema, components, $states, $endpoint, type, relationName) {
             type = type || "resource";
             this.$value = '';
             this.$schema = schema;
             this.$selfUpdated = false;
-            this.$endpoint = endpointBase;
-            this.$endpointBase = endpointBase;
+            this.$endpoint = $endpoint;
+            this.$endpointBase = $endpoint;
             this.$relationName = relationName;
             if(relationName)
                 this.$endpoint += relationName;
             if(schema && schema.$embeddedURI)
                 this.$endpoint += '?' + schema.$embeddedURI;
-
 
             this.initRequest       = initRequest      ;
             this.toString          = toString         ;
@@ -472,7 +475,7 @@
             this.load              = load             ;
 
             this.$states = $states || this.createStateHolder(states[1], states);
-            this.init(service, name, type, components);
+            this.init(service, name, components, type);
 
             return this.initRequest();
         }
