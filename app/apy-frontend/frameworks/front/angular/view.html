@@ -421,7 +421,7 @@
             <div>
                 <form name="initial" novalidate>
                     <button class="btn btn-info pull-right"
-
+                            ng-if="!field.hasPoly()"
                             ng-click="field.oneMore()">
                         <i class="glyphicon glyphicon-plus"></i> Add
                     </button>

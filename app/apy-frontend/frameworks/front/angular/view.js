@@ -121,8 +121,8 @@
                         };
                         // Data Layer
 
-                        console.log('field.$relationName', field.$relationName);
-                        console.log('field', field);
+                        //console.log('field.$relationName', field.$relationName);
+                        //console.log('field', field);
 
                         var collection = apyProvider.createCollection(field.$relationName);
                         collection.fetch().then(function (_) {
