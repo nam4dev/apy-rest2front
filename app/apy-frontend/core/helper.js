@@ -621,10 +621,7 @@
 
     $window.apy.common.hasPoly = function hasPoly() {
         var result = false;
-        console.log('FIELD.$type', this.$type);
         this.$components.forEach(function (comp) {
-            console.log('COMP.hasPoly()', comp.hasPoly());
-            console.log('comp.$type === $TYPES.POLY', comp.$type === $TYPES.POLY);
             if(comp.hasPoly() || comp.$type === $TYPES.POLY) {
                 result = true;
             }
@@ -632,18 +629,16 @@
         return result;
     };
 
-
     $window.apy.common.typesMapping = {
         'float': 'number',
         'integer': 'number',
-        'resource': 'Hashmap',
-        'objectid': 'Embedded'
+        'objectid': 'embedded'
     };
 
     $window.apy.common.fieldClassByType = function fieldClassByType(type) {
         var mapping = $window.apy.common.typesMapping;
 
-        if(['poly', 'collection'].indexOf(type) === -1) {
+        if(['collection'].indexOf(type) === -1) {
             if(mapping.hasOwnProperty(type)) {
                 type = mapping[type];
             }

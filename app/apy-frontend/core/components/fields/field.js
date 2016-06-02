@@ -48,6 +48,7 @@
             this.$type = type;
             this.$states = $states;
             this.$endpoint = $endpoint;
+            this.$relationName = relationName;
             this.setOptions(schema)
                 .setValue(value)
                 .postInit()

@@ -37,7 +37,6 @@
 (function (angular) {'use strict';
 
     var endpoint = 'http://localhost:8001/',
-    //var endpoint = 'http://wishlist.apy-consulting.com:8000/',
         schemaName = 'schemas',
         appTheme = 'bootstrap3',
         application = angular.module('apy', [

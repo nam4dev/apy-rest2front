@@ -176,7 +176,7 @@
                         Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
                     </span>
                     <span ng-if="field.$components.length > 1">
-                        <span class="text-capitalize">{{ field.$name || field.$type }} contains <strong>{{ field.$components.length - 1 }}</strong> item(s)</span>
+                        <span class="text-capitalize">{{ field.$name || field.$type }} contains <strong>{{ field.$components.length }}</strong> item(s)</span>
                     </span>
                 </span>
             </button>
@@ -341,7 +341,7 @@
                 <i ng-if="resource.$states.$current === resource.$states.CREATE"
                    ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
             </td>
-            <pre>{{ resource }}</pre>
+            <!--<pre>{{ resource }}</pre>-->
             <td>
                 <i ng-if="resource.$states.$current === resource.$states.UPDATE"
                    ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
@@ -421,7 +421,7 @@
             <div>
                 <form name="initial" novalidate>
                     <button class="btn btn-info pull-right"
-                            ng-if="!field.hasPoly()"
+
                             ng-click="field.oneMore()">
                         <i class="glyphicon glyphicon-plus"></i> Add
                     </button>
@@ -474,6 +474,24 @@
         <div class="modal-footer">
             <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
             <button class="btn btn-warning" type="button" ng-click="cancel(field)">Cancel</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="modal-error.html">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                 <span class="text-capitalize" >
+                     Error <strong>{{ error.data._error.code }}</strong> : <i>{{ error.data._error.message }}</i>
+                 </span>
+            </h3>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-danger" role="alert" ng-repeat="(k, v) in error.data._issues">
+                {{ k }} => <strong>{{ v }}</strong>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" type="button" ng-click="ok()">OK</button>
         </div>
     </script>
 </div>

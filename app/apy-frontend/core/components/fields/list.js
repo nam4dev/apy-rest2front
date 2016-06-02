@@ -32,11 +32,6 @@
  *  """
  *  List field(s) abstraction
  *
- *  Groups,
- *
- *      - Simple list : known type and/or allowed
- *      - Complex list : unknown type (no type specified in the schema)
- *
  *  """
  */
 (function ($window) {
@@ -56,8 +51,8 @@
         /**
          *
          */
-        function load (resource) {
-            resource = resource || {};
+        function load () {
+            var resource = this.$value || {};
             var type;
             var field = this.$name;
             var schema = this.$schema.schema;
@@ -106,7 +101,7 @@
                 case this.$types.OBJECTID:
                     var relationName = schema.data_relation.resource;
                     var schemaObject = this.$service.$schemas[relationName];
-                    fieldObj = new ApyResourceComponent(this.$service, field, schemaObject, null,
+                    fieldObj = new ApyEmbeddedField(this.$service, field, schemaObject, null,
                         this.$states, this.$endpoint, this.$types.OBJECTID, relationName);
                     break;
                 default:
@@ -155,6 +150,10 @@
          */
         function cleanedData () {
             this.validate();
+            if(this.$allowed && this.$allowed.length &&
+                this.$value && this.$value.length) {
+                return this.$value;
+            }
             var data = [];
             this.$components.filter(function (comp) {
                 return comp.$type !== $TYPES.POLY

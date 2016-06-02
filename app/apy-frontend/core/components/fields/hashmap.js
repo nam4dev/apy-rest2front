@@ -44,8 +44,8 @@
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.clone = clone;
-            //this.postInit = $window.apy.common.postInit;
-            this.cleanedData = $window.apy.common.cleanedData;
+            //this.selfUpdate = selfUpdate;
+            //this.cleanedData = cleanedData;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.RESOURCE, null);
             return this;
         }

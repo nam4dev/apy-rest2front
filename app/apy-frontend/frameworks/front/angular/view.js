@@ -120,6 +120,10 @@
                             win && win.dismiss('cancel');
                         };
                         // Data Layer
+
+                        console.log('field.$relationName', field.$relationName);
+                        console.log('field', field);
+
                         var collection = apyProvider.createCollection(field.$relationName);
                         collection.fetch().then(function (_) {
                             $scope.$collection = collection;
@@ -150,6 +154,20 @@
                     }).catch(function (error) {
                         $log.error(error);
                     });
+
+                $scope.displayError = function (error) {
+                    var win;
+                    $scope.error = error;
+                    $scope.ok = function () {
+                        win && win.dismiss('cancel');
+                    };
+                    win = $uibModal.open({
+                        animation: true,
+                        templateUrl: 'modal-error.html',
+                        controllerAs: 'ModalCtrl',
+                        scope: $scope
+                    });
+                };
 
                 $scope.createResource = function () {
                     collection.createResource()
@@ -188,13 +206,17 @@
                 $scope.create = function (resource) {
                     var defer = resource.create();
                     if(defer) {
-                        defer.then(function (_) {
-                            if(resource.$type ===  "collection") {
-                                $scope.updateHidden = false;
-                                $scope.validateHidden = true;
-                            }
-                            $scope.$apply();
-                        });
+                        defer
+                            .then(function (_) {
+                                if(resource.$type ===  "collection") {
+                                    $scope.updateHidden = false;
+                                    $scope.validateHidden = true;
+                                }
+                                $scope.$apply();
+                            })
+                            .catch(function (error) {
+                                $scope.displayError(error);
+                            });
                     }
                     else {
                         collection.removeResource(resource);
@@ -204,13 +226,17 @@
                 $scope.update = function (resource) {
                     var defer = resource.update();
                     if(defer){
-                        defer.then(function (_) {
-                            if(resource.$type ===  "collection") {
-                                $scope.updateHidden = false;
-                                $scope.validateHidden = true;
-                            }
-                            $scope.$apply();
-                        });
+                        defer
+                            .then(function (_) {
+                                if(resource.$type ===  "collection") {
+                                    $scope.updateHidden = false;
+                                    $scope.validateHidden = true;
+                                }
+                                $scope.$apply();
+                            })
+                            .catch(function (error) {
+                                $scope.displayError(error);
+                            });
                     }
                 };
 
@@ -219,10 +245,14 @@
                     if(ok) {
                         var defer = resource.delete();
                         if(defer) {
-                            defer.then(function (_) {
-                                collection.removeResource(resource);
-                                $scope.$apply();
-                            });
+                            defer
+                                .then(function (_) {
+                                    collection.removeResource(resource);
+                                    $scope.$apply();
+                                })
+                                .catch(function (error) {
+                                    $scope.displayError(error);
+                                });
                         }
                         else {
                             collection.removeResource(resource);

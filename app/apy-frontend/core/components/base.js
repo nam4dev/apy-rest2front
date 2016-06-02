@@ -275,6 +275,30 @@
             return this;
         }
 
+        /**
+         *
+         */
+        function loadValue () {
+            var all = '';
+            var self = this;
+            this.$value = '';
+            this.$components.forEach(function (component) {
+                var v = component.$value;
+                if(v && !isDate(v) && !isBoolean(v)) {
+                    var value = v + ', ';
+                    all += value;
+                    if(component.$required) {
+                        self.$value += value;
+                    }
+                }
+            });
+            if(!this.$value && all) {
+                this.$value = all;
+            }
+            if(this.$value.endsWith(', '))
+                this.$value = this.$value.slice(0, -2);
+        }
+
         return function() {
             this.add = add;
             this.json = json;
@@ -287,6 +311,7 @@
             this.needPoly = needPoly;
             this.getChild = getChild;
             this.validate = validate;
+            this.loadValue = loadValue;
             this.setParent = setParent;
             this.cloneChild = cloneChild;
             this.isArray = Array.isArray;

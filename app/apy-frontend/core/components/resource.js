@@ -366,11 +366,10 @@
          */
         function cleanedData () {
             var cleaned = {};
-            for (var i = 0; i < this.count(); i++) {
+            this.$components.forEach(function (item) {
                 var data;
-                var item = this.$components[i];
                 switch (item.$type) {
-                    case this.$types.OBJECTID:
+                    case $TYPES.OBJECTID:
                         data = item._id;
                         break;
                     default :
@@ -381,32 +380,8 @@
                 // which might be required but already filled.
                 // Specifically with Media Resource Component.
                 if(data) cleaned[item.$name] = data;
-            }
-            return cleaned;
-        }
-
-        /**
-         *
-         */
-        function loadValue () {
-            var all = '';
-            var self = this;
-            this.$value = '';
-            forEach(this.$components, function (component) {
-                var v = component.$value;
-                if(v && !isDate(v) && !isBoolean(v)) {
-                    var value = v + ', ';
-                    all += value;
-                    if(component.$required) {
-                        self.$value += value;
-                    }
-                }
             });
-            if(!this.$value && all) {
-                this.$value = all;
-            }
-            if(this.$value.endsWith(', '))
-                this.$value = this.$value.slice(0, -2);
+            return cleaned;
         }
 
         /**
@@ -442,6 +417,7 @@
         return function (service, name, schema, components, $states, $endpoint, type, relationName) {
             type = type || "resource";
             this.$value = '';
+            this.innerCls = 'ApyResourceComponent';
             this.$schema = schema;
             this.$selfUpdated = false;
             this.$endpoint = $endpoint;
@@ -471,7 +447,6 @@
             this.createStateHolder = createStateHolder;
             this._load             = _load            ;
             this.cleanedData       = cleanedData      ;
-            this.loadValue         = loadValue        ;
             this.load              = load             ;
 
             this.$states = $states || this.createStateHolder(states[1], states);

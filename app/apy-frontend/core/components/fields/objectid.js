@@ -42,11 +42,41 @@
             return isObject(value) ? Object.assign(value) : value;
         }
 
+        function selfUpdate(update, commit) {
+            console.log('victory.this', this);
+            console.log('victory.update', update);
+            this._id = update._id;
+            this.$components = update.$components;
+            this.loadValue();
+            return this;
+        }
+
+        function cleanedData () {
+            //var cleaned = {};
+            //this.$components.forEach(function (item) {
+            //    //var data;
+            //    //switch (item.$type) {
+            //    //    case $TYPES.OBJECTID:
+            //    //        data = item._id;
+            //    //        break;
+            //    //    default :
+            //    //        data = item.cleanedData();
+            //    //        break;
+            //    //}
+            //    // `if` check avoids to add something
+            //    // which might be required but already filled.
+            //    // Specifically with Media Resource Component.
+            //    if(item && item._id) cleaned[item.$name] = item._id;
+            //});
+            return this._id;
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.innerCls = 'ApyEmbeddedField';
             this.clone = clone;
-            this.postInit = $window.apy.common.postInit;
-            this.cleanedData = $window.apy.common.cleanedData;
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.OBJECTID, null);
+            this.selfUpdate = selfUpdate;
+            this.cleanedData = cleanedData;
+            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.OBJECTID, relationName);
             return this;
         }
 

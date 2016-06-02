@@ -153,7 +153,8 @@
         ApySchemasComponent.prototype.createResource = function createResource (name, resource) {
             var schema = this.get(name);
             if(!schema) {
-                throw new Error('No schema provided for name', name);
+                //throw new Error('No schema provided for name', name);
+                console.warn('No schema provided for name', name);
             }
             var component = new ApyResourceComponent(service, name, schema, null, null, this.$endpoint, $TYPES.RESOURCE, name);
             component.load(resource || this.schema2data(schema));
@@ -167,7 +168,8 @@
          */
         ApySchemasComponent.prototype.get = function get (schemaName) {
             if(!this.$components.hasOwnProperty(schemaName)) {
-                throw new Error('Unknown schema name, ' + schemaName);
+                //throw new Error('Unknown schema name, ' + schemaName);
+                console.warn('Unknown schema name,', schemaName);
             }
             return this.$components[schemaName];
         };
