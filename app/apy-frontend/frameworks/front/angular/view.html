@@ -46,14 +46,8 @@
                     field.$states.$current !== field.$states.DELETE">
             <div class="row">
                 <div class="col-lg-12">
-                    <!--field.$service <pre>{{ field.$service }}</pre>-->
                     <div class="input-group">
-                        <!--<pre>field.$name        : {{ field.$name }}</pre>-->
-                        <!--<pre>field.$type        : {{ field.$type }}</pre>-->
-                        <!--<pre>field.$types       : {{ field.$types }}</pre>-->
-                        <!--<pre>field.$components  : {{ field.$components }}</pre>-->
-                        <!--<pre>field.$typesForPoly : {{ field.$typesForPoly }}</pre>-->
-                        <input type="text" class="form-control" aria-label="...">
+                        <input type="text" class="form-control" aria-label="..." value="{{ field.$value }}"/>
                         <div class="input-group-btn">
                             <button ng-if="field.$type && field.$type !== field.$types.POLY"
                                     type="button"
@@ -85,7 +79,6 @@
 
                             <ul ng-if="displaySchemaNames" class="dropdown-menu">
                                 <li ng-repeat="name in field.$service.$instance.$humanNames track by $index" >
-                                    <!--{{ field.$service.$instance.$names[$index] }}-->
                                     <a ng-click="hideChoices();field.setType(type, field.$service.$instance.$names[$index])"
                                        style="cursor: pointer;">{{ name.capitalize() }}</a>
                                 </li>
@@ -153,11 +146,6 @@
                     <li ng-repeat="value in field.$value" >{{ value }}</li>
                 </ul>
             </div>
-            <!--<div ng-if="field.$components">-->
-                <!--<div ng-repeat="comp in field.$components">-->
-                    <!--<apy-field ng-if="comp.$type !== comp.$types.POLY" field="comp"></apy-field>-->
-                <!--</div>-->
-            <!--</div>-->
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
@@ -185,8 +173,6 @@
 
     <script type="text/ng-template" id="field-media.html">
         <div ng-if="field.$states.$current === field.$states.READ">
-            <!--{{ field.$value }}-->
-            <!--{{ field.$value.$uri }}-->
             <img ng-if="field.$value.$isImage" ng-src="{{ field.$value.$uri  }}"  width="96" height="96" />
             <!--<audio ng-if="field.$value.$isAudio" controls >-->
             <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
@@ -296,7 +282,6 @@
                    show-weeks="true"
                    is-open="opened"
                    alt-input-formats="altInputFormats" ng-click="opened=true" />
-            <!--<button type="button" class="btn btn-default" ng-click="opened=true"><i class="glyphicon glyphicon-calendar"></i></button>-->
         </div>
     </script>
     <!-- End Apy Fields -->
@@ -341,7 +326,6 @@
                 <i ng-if="resource.$states.$current === resource.$states.CREATE"
                    ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
             </td>
-            <!--<pre>{{ resource }}</pre>-->
             <td>
                 <i ng-if="resource.$states.$current === resource.$states.UPDATE"
                    ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
@@ -457,9 +441,7 @@
             <!-- CREATE & UPDATE Form -->
             <div>
                 <form name="initial" novalidate>
-                    <!--field:  <pre>{{ field.$name }} - {{ field.$type }} {{ field.$value }}</pre>-->
                     <div class="form-group" ng-repeat="comp in field.$components track by $index" >
-                        <!--<pre>{{ comp.$name }} - {{ comp.$type }} - {{ comp.$components }} - {{ comp.$value }} - {{ comp.$schema || comp.$schema }}</pre>-->
                         <!--FIXME: Find a way to distinguish between `no-schema` resource type and `with-schema` ones -->
                         <!--ng-if="comp.$type === 'poly' || field.$type === 'poly'" -->
                         <!--<label ng-if="!comp.$hasSchema" for="input-{{ comp.$type }}" >Key</label>-->

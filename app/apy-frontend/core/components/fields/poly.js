@@ -57,13 +57,8 @@
             }
         }
 
-        function cloneValue(value) {
-            switch (this.$type) {
-                case $TYPES.MEDIA:
-                    return new ApyMediaFile(this.$endpoint, value);
-                default :
-                    return value;
-            }
+        function cleanedData() {
+            return this.$value;
         }
 
         // FIXME: value & options parameters shall not be useful as a Poly Morph Field
@@ -71,7 +66,6 @@
         // FIXME: autodetect type based on given value when we've got a schema-less field (which PolyField certainly is).
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.setType = setType;
-            this.cloneValue = cloneValue;
             this.$Class = $window.ApyPolyField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.POLY, relationName);
             return this;

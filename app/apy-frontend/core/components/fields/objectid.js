@@ -42,9 +42,7 @@
             return isObject(value) ? Object.assign(value) : value;
         }
 
-        function selfUpdate(update, commit) {
-            console.log('victory.this', this);
-            console.log('victory.update', update);
+        function selfUpdate(update) {
             this._id = update._id;
             this.$components = update.$components;
             this.loadValue();
