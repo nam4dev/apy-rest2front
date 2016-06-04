@@ -42,12 +42,13 @@
             var self = this;
             this.$memo = this.cloneValue(value);
             this.$value = this.cloneValue(value);
-            console.log('VALUE', value);
-            value && value.forEach && value.forEach(function (el) {
-                console.log('VALUE.el', el);
-                self.load(el);
-            });
-            //self.loadValue();
+            if(value && value.forEach) {
+                // Reset components
+                this.$components = [];
+                value.forEach(function (el) {
+                    self.load(el);
+                });
+            }
             return this;
         }
 
@@ -65,7 +66,6 @@
             }
             catch(e) {
                 schema = {};
-                console.log('LOAD.type', e);
             }
             var fieldObj;
             switch(type) {
@@ -73,7 +73,6 @@
                     fieldObj = new ApyListField(this.$service, field, schema, resource, this.$states, this.$endpoint);
                     break;
                 case this.$types.DICT:
-                    //fieldObj = new ApyHashmapField(this.$service, field, schema.schema || {}, resource, this.$states, this.$endpoint);
                     fieldObj = new ApyResourceComponent(this.$service, field, schema.schema, null, this.$states, null, this.$types.RESOURCE);
                     fieldObj.load(resource);
                     if(!schema.schema) {
@@ -145,9 +144,7 @@
                 return this.$value;
             }
             var data = [];
-            this.$components.filter(function (comp) {
-                return comp.$type !== $TYPES.POLY
-            }).forEach(function (comp) {
+            this.$components.forEach(function (comp) {
                 data.push(comp.cleanedData());
             });
             return data;
@@ -158,7 +155,6 @@
             try {
                 var self = this;
                 var fieldClassByType = $window.apy.common.fieldClassByType;
-
                 function iterOverSchema(schema, name) {
                     var cl;
                     var Class = fieldClassByType(schema.type);
@@ -177,7 +173,7 @@
                     clone = iterOverSchema(this.$schema.schema);
                 }
                 else {
-                    clone = this.createPolyField(this.$name, this.$schema);
+                    clone = this.createPolyField(this.$schema, undefined, this.$name);
                 }
             }
             catch (e) {
@@ -204,7 +200,6 @@
             this.cleanedData = cleanedData;
             this.$Class = $window.ApyListField;
             this.initialize(service, name, schema, value, $states, $endpoint, $TYPES.LIST, relationName);
-            this.load();
             return this;
         }
 
