@@ -45,14 +45,14 @@
             return this.$value.cleanedData();
         }
 
-        var clone = function(value) {
+        function cloneValue(value) {
             return new ApyMediaFile(this.$endpoint, value);
-        };
+        }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.clone = clone;
-            this.$Class = $window.ApyMediaField;
+            this.cloneValue = cloneValue;
             this.cleanedData = cleanedData;
+            this.$Class = $window.ApyMediaField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.MEDIA, null);
             return this;
         }

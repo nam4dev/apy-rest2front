@@ -231,48 +231,6 @@
             return JSON.stringify(this, null, indent || 4);
         }
 
-        function cloneChild() {
-            var clone = null;
-            try {
-                var self = this;
-                var fieldClassByType = $window.apy.common.fieldClassByType;
-
-                function iterOverSchema(schema, name) {
-                    var cl;
-                    var Class = fieldClassByType(schema.type);
-                    cl = new Class(self.$service, name, schema, null,
-                        self.$states, self.$endpoint, self.$relationName);
-                    if(schema.schema) {
-                        Object.keys(schema.schema).forEach(function (n) {
-                            var sch = schema.schema[n];
-                            var ch = iterOverSchema(sch, n);
-                            cl.add(ch);
-                        });
-                    }
-                    return cl;
-                }
-                if(this.$schema.schema) {
-                    clone = iterOverSchema(this.$schema.schema);
-                }
-                else {
-                    clone = new $window.ApyPolyField(this.$service, this.$name, this.$schema,
-                        null, this.$states, this.$endpoint, this.$type, this.$relationName);
-                }
-            }
-            catch (e) {
-                console.warn('cloneChild.warning', e);
-            }
-            return clone;
-        }
-
-        function oneMore() {
-            var comp = this.cloneChild();
-            if(comp) {
-                this.add(comp);
-            }
-            return this;
-        }
-
         /**
          *
          */
@@ -297,7 +255,7 @@
                 this.$value = this.$value.slice(0, -2);
         }
 
-        function createInstance(parent, value) {
+        function clone(parent, value) {
             var instance = new this.$Class(this.$service,
                 this.$name, this.$schema, value, this.$states,
                 this.$endpoint, this.$type, this.$relationName);
@@ -309,16 +267,15 @@
             this.add = add;
             this.json = json;
             this.load = load;
+            this.clone = clone;
             this.count = count;
             this.remove = remove;
-            this.oneMore = oneMore;
             this.init = initialize;
             this.prepend = prepend;
             this.getChild = getChild;
             this.validate = validate;
             this.loadValue = loadValue;
             this.setParent = setParent;
-            this.cloneChild = cloneChild;
             this.isArray = Array.isArray;
             this.isFunction = isFunction;
             this.continue = shallContinue;
@@ -326,7 +283,6 @@
             this.cleanedData = cleanedData;
             this.hasChildren = hasChildren;
             this.$log = this.$logging = log;
-            this.createInstance = createInstance;
             return this;
         };
     })();

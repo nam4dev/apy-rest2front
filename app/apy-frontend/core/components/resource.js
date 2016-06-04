@@ -391,9 +391,9 @@
         function load (resource) {
             var self = this;
             resource = resource || {};
-            forEach(Object.assign(resource), function (v, k) {
+            Object.keys(Object.assign(resource)).forEach(function (k) {
                 if(self.continue(k)) {
-                    self[k] = v;
+                    self[k] = resource[k];
                     delete resource[k];
                 }
             });

@@ -40,51 +40,76 @@
 
         function setValue(value) {
             var self = this;
-            this.$memo = this.clone(value);
-            this.$value = this.clone(value);
+            this.$memo = this.cloneValue(value);
+            this.$value = this.cloneValue(value);
+            console.log('VALUE', value);
             value && value.forEach && value.forEach(function (el) {
-                self.$components.push(el);
+                console.log('VALUE.el', el);
+                self.load(el);
             });
+            //self.loadValue();
             return this;
         }
 
         /**
          *
          */
-        function load () {
-            var resource = this.$value || {};
+        function load (val) {
+            var resource = val || this.$value || {};
             var type;
             var field = this.$name;
             var schema = this.$schema.schema;
+
             try {
                 type = schema.type;
             }
             catch(e) {
                 schema = {};
+                console.log('LOAD.type', e);
             }
-            var fieldObj,
-                value = resource[field] || this.$service.$instance.schema2data(schema, field);
+            var fieldObj;
             switch(type) {
-                case $TYPES.LIST:
-                case $TYPES.DICT:
-                case $TYPES.MEDIA:
-                case $TYPES.STRING:
-                case $TYPES.FLOAT:
-                case $TYPES.NUMBER:
-                case $TYPES.INTEGER:
-                case $TYPES.BOOLEAN:
-                case $TYPES.DATETIME:
-                case $TYPES.OBJECTID:
+                case this.$types.LIST:
+                    fieldObj = new ApyListField(this.$service, field, schema, resource, this.$states, this.$endpoint);
+                    break;
+                case this.$types.DICT:
+                    //fieldObj = new ApyHashmapField(this.$service, field, schema.schema || {}, resource, this.$states, this.$endpoint);
+                    fieldObj = new ApyResourceComponent(this.$service, field, schema.schema, null, this.$states, null, this.$types.RESOURCE);
+                    fieldObj.load(resource);
+                    if(!schema.schema) {
+                        fieldObj.add(this.createPolyField(schema, resource));
+                    }
+                    break;
+                case this.$types.MEDIA:
+                    fieldObj = new ApyMediaField(this.$service, field, schema, resource, this.$states, this.$endpoint);
+                    break;
+                case this.$types.STRING:
+                    fieldObj = new ApyStringField(this.$service, field, schema, resource, this.$states, this.$endpoint);
+                    break;
+                case this.$types.FLOAT:
+                case this.$types.NUMBER:
+                case this.$types.INTEGER:
+                    fieldObj = new ApyNumberField(this.$service, field, schema, resource, this.$states, this.$endpoint);
+                    break;
+                case this.$types.BOOLEAN:
+                    fieldObj = new ApyBooleanField(this.$service, field, schema, resource, this.$states, this.$endpoint);
+                    break;
+
+                case this.$types.DATETIME:
+                    fieldObj = new ApyDatetimeField(this.$service, field, schema, resource, this.$states, this.$endpoint);
+                    break;
+                case this.$types.OBJECTID:
+                    var relationName = schema.data_relation.resource;
+                    var schemaObject = this.$service.$schemas[relationName];
+                    fieldObj = new ApyEmbeddedField(this.$service, field, schemaObject, resource,
+                        this.$states, this.$endpoint, this.$types.OBJECTID, relationName);
                     break;
                 default:
-                    fieldObj = new ApyPolyField(this.$service, field, schema, value, this.$states, this.$endpoint);
+                    fieldObj = this.createPolyField(schema, resource);
                     break;
             }
-            if(fieldObj) {
-                fieldObj.setParent(this);
-                this.add(fieldObj);
-            }
-
+            fieldObj.setParent(this);
+            this.add(fieldObj);
             return this;
         }
 
@@ -93,7 +118,7 @@
          * @param value
          * @returns {*}
          */
-        function clone(value) {
+        function cloneValue(value) {
             return value ? value : [];
         }
 
@@ -128,11 +153,53 @@
             return data;
         }
 
+        function cloneChild() {
+            var clone = null;
+            try {
+                var self = this;
+                var fieldClassByType = $window.apy.common.fieldClassByType;
+
+                function iterOverSchema(schema, name) {
+                    var cl;
+                    var Class = fieldClassByType(schema.type);
+                    cl = new Class(self.$service, name, schema, null,
+                        self.$states, self.$endpoint, self.$relationName);
+                    if(schema.schema) {
+                        Object.keys(schema.schema).forEach(function (n) {
+                            var sch = schema.schema[n];
+                            var ch = iterOverSchema(sch, n);
+                            cl.add(ch);
+                        });
+                    }
+                    return cl;
+                }
+                if(this.$schema.schema) {
+                    clone = iterOverSchema(this.$schema.schema);
+                }
+                else {
+                    clone = this.createPolyField(this.$name, this.$schema);
+                }
+            }
+            catch (e) {
+                console.warn('cloneChild.warning', e);
+            }
+            return clone;
+        }
+
+        function oneMore() {
+            var comp = this.cloneChild();
+            if(comp) {
+                this.add(comp);
+            }
+            return this;
+        }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.load = load;
-            this.clone = clone;
-            //this.setValue = setValue;
+            this.oneMore = oneMore;
+            this.setValue = setValue;
+            this.cloneValue = cloneValue;
+            this.cloneChild = cloneChild;
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
             this.$Class = $window.ApyListField;

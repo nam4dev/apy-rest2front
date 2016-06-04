@@ -153,11 +153,11 @@
                     <li ng-repeat="value in field.$value" >{{ value }}</li>
                 </ul>
             </div>
-            <div ng-if="field.$components">
-                <div ng-repeat="comp in field.$components">
-                    <apy-field ng-if="comp.$type !== comp.$types.POLY" field="comp"></apy-field>
-                </div>
-            </div>
+            <!--<div ng-if="field.$components">-->
+                <!--<div ng-repeat="comp in field.$components">-->
+                    <!--<apy-field ng-if="comp.$type !== comp.$types.POLY" field="comp"></apy-field>-->
+                <!--</div>-->
+            <!--</div>-->
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
@@ -488,8 +488,11 @@
             </h3>
         </div>
         <div class="modal-body">
-            <div class="alert alert-danger" role="alert" ng-repeat="(k, v) in error.data._issues">
+            <div class="alert alert-danger" role="alert" ng-if="error.data._issues" ng-repeat="(k, v) in error.data._issues">
                 {{ k }} => <strong>{{ v }}</strong>
+            </div>
+            <div class="alert alert-danger" role="alert" ng-if="!error.data._issues && error.data._error.message" >
+                <strong>{{ error.data._error.message }}</strong>
             </div>
         </div>
         <div class="modal-footer">

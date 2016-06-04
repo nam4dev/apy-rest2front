@@ -38,7 +38,7 @@
 
     $window.ApyHashmapField = (function () {
 
-        function clone(value) {
+        function cloneValue(value) {
             return isObject(value) ? Object.assign(value) : value;
         }
 
@@ -57,10 +57,9 @@
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.$Class = $window.ApyHashmapField;
-            this.clone = clone;
-            //this.selfUpdate = selfUpdate;
+            this.cloneValue = cloneValue;
             this.cleanedData = cleanedData;
+            this.$Class = $window.ApyHashmapField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.RESOURCE, relationName);
             return this;
         }

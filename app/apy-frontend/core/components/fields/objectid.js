@@ -38,7 +38,7 @@
 
     $window.ApyEmbeddedField = (function () {
 
-        function clone(value) {
+        function cloneValue(value) {
             return isObject(value) ? Object.assign(value) : value;
         }
 
@@ -56,7 +56,7 @@
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.clone = clone;
+            this.cloneValue = cloneValue;
             this.selfUpdate = selfUpdate;
             this.cleanedData = cleanedData;
             this.$Class = $window.ApyEmbeddedField;

@@ -51,7 +51,6 @@
             this.$relationName = relationName;
             this.setOptions(schema)
                 .setValue(value)
-                .postInit()
                 .validate();
             return this;
         }
@@ -68,12 +67,8 @@
         }
 
         function setValue(value) {
-            this.$memo = this.clone(value);
-            this.$value = this.clone(value);
-            return this;
-        }
-
-        function postInit() {
+            this.$memo = this.cloneValue(value);
+            this.$value = this.cloneValue(value);
             return this;
         }
 
@@ -90,7 +85,7 @@
          * @param value
          * @returns {*}
          */
-        function clone(value) {
+        function cloneValue(value) {
             return value;
         }
 
@@ -99,7 +94,7 @@
          * @returns {this}
          */
         function selfCommit() {
-            this.$memo = this.clone(this.$value);
+            this.$memo = this.cloneValue(this.$value);
             return this;
         }
 
@@ -110,7 +105,7 @@
          * @returns {this}
          */
         function selfUpdate(update, commit) {
-            this.$value = this.clone(update.$value);
+            this.$value = this.cloneValue(update.$value);
             if (commit) {
                 this.selfCommit();
             }
@@ -189,20 +184,27 @@
             return this;
         }
 
+        function createPolyField (schema, value, name, parent) {
+            var field = new ApyPolyField(this.$service, name || this.$name, schema, value,
+                this.$states, this.$endpoint, this.$type, this.$relationName);
+            field.setParent(parent || this);
+            return field;
+        }
+
         return function () {
-            this.load        = load;
-            this.clone       = clone;
-            this.reset       = reset;
-            this.toString    = toString;
-            this.validate    = validate;
-            this.setValue    = setValue;
-            this.postInit    = postInit;
-            this.setOptions  = setOptions;
-            this.initialize  = initialize;
-            this.selfUpdate  = selfUpdate;
-            this.selfCommit  = selfCommit;
-            this.hasUpdated  = hasUpdated;
-            this.cleanedData = cleanedData;
+            this.load            = load;
+            this.reset           = reset;
+            this.toString        = toString;
+            this.validate        = validate;
+            this.setValue        = setValue;
+            this.cloneValue      = cloneValue;
+            this.setOptions      = setOptions;
+            this.initialize      = initialize;
+            this.selfUpdate      = selfUpdate;
+            this.selfCommit      = selfCommit;
+            this.hasUpdated      = hasUpdated;
+            this.cleanedData     = cleanedData;
+            this.createPolyField = createPolyField;
             return this;
         }
 

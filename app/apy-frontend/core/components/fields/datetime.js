@@ -48,15 +48,15 @@
             return this.$value.getTime() !== this.$memo.getTime();
         }
 
-        function clone(value) {
+        function cloneValue(value) {
             return new Date(value);
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.$Class = $window.ApyDatetimeField;
             this.hasUpdated = hasUpdated;
+            this.cloneValue = cloneValue;
             this.cleanedData = cleanedData;
-            this.clone = clone;
+            this.$Class = $window.ApyDatetimeField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.DATETIME, null);
             return this;
         }
