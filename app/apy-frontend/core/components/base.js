@@ -157,10 +157,8 @@
             this.$types = $TYPES;
             this.$service = service;
             this.$logging = service.$log;
-            this.$components = [];
             this.$typesMap = {
                 number: [
-
                     $TYPES.FLOAT,
                     $TYPES.NUMBER,
                     $TYPES.INTEGER
@@ -168,10 +166,48 @@
                 object: [
                     $TYPES.DICT,
                     $TYPES.LIST,
-                    $TYPES.POLY,
+                    $TYPES.BOOLEAN,
                     $TYPES.DATETIME,
-                    $TYPES.OBJECTID
+                    $TYPES.OBJECTID,
+                    $TYPES.RESOURCE,
                 ]
+            };
+            this.$typeFactories = {};
+            this.$typeFactories[$TYPES.LIST] = function () {
+                return [];
+            };
+            this.$typeFactories[$TYPES.DICT] = function () {
+                return {};
+            };
+            this.$typeFactories[$TYPES.POLY] = function () {
+                return undefined;
+            };
+            this.$typeFactories[$TYPES.MEDIA] = function () {
+                return new ApyMediaFile(this.$endpoint, {});
+            };
+            this.$typeFactories[$TYPES.FLOAT] = function () {
+                return 0.0;
+            };
+            this.$typeFactories[$TYPES.NUMBER] = function () {
+                return 0;
+            };
+            this.$typeFactories[$TYPES.STRING] = function () {
+                return "";
+            };
+            this.$typeFactories[$TYPES.BOOLEAN] = function () {
+                return false;
+            };
+            this.$typeFactories[$TYPES.INTEGER] = function () {
+                return 0;
+            };
+            this.$typeFactories[$TYPES.OBJECTID] = function () {
+                return {_id: undefined};
+            };
+            this.$typeFactories[$TYPES.DATETIME] = function () {
+                return new Date();
+            };
+            this.$typeFactories[$TYPES.RESOURCE] = function () {
+                return {};
             };
             this.$fieldTypesMap = {
                 float: $TYPES.NUMBER,
@@ -189,7 +225,8 @@
             this.$components = components || [];
             this.$components = this.isArray(this.$components) ? this.$components : [this.$components];
             this.$typesForPoly = [];
-            forEach(this.$types, function (type) {
+            Object.keys(this.$types).forEach(function (k) {
+                var type = self.$types[k];
                 if([$TYPES.COLLECTION, $TYPES.DICT, $TYPES.POLY, $TYPES.INTEGER, $TYPES.FLOAT].indexOf(type) === -1) {
                     self.$typesForPoly.push(type);
                 }
