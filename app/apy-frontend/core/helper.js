@@ -591,15 +591,8 @@
     /**
      * Common behaviour
      *
-     * @returns {postInit}
+     * @returns {Class}
      */
-    $window.apy.common.postInit = function postInit() {
-        this.$components = [];
-        var poly = new ApyPolyField(this.$service, null, null, {}, this.$states, this.$endpoint);
-        this.$components.push(poly);
-        return this;
-    };
-
     function getFieldClassByType(type) {
         // following naming convention
         type = type.capitalize();
@@ -608,37 +601,17 @@
         return $window[fieldClassName];
     }
 
-    $window.apy.common.cleanedData = function cleanedData() {
-        this.validate();
-        var cleaned = {};
-        this.$components.filter(function (comp) {
-            return comp.$type !== $TYPES.POLY
-        }).forEach(function (comp) {
-            cleaned[comp.$name] = comp.cleanedData();
-        });
-        return cleaned;
-    };
-
-    $window.apy.common.hasPoly = function hasPoly() {
-        var result = false;
-        this.$components.forEach(function (comp) {
-            if(comp.hasPoly() || comp.$type === $TYPES.POLY) {
-                result = true;
-            }
-        });
-        return result;
-    };
-
-    $window.apy.common.typesMapping = {
+    var mapping = {
         'float': 'number',
         'integer': 'number',
+        'dict': 'hashmap',
+        'resource': 'hashmap',
         'objectid': 'embedded'
     };
 
     $window.apy.common.fieldClassByType = function fieldClassByType(type) {
-        var mapping = $window.apy.common.typesMapping;
-
-        if(['collection'].indexOf(type) === -1) {
+        type = type || 'poly';
+        if(type !== 'collection') {
             if(mapping.hasOwnProperty(type)) {
                 type = mapping[type];
             }

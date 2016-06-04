@@ -85,8 +85,9 @@
                         $scope.cancel = function () {
                             win && win.dismiss('cancel');
                         };
-                        //console.log('FIELD', field);
-                        //$scope.field = field;
+                        if(!field.count()) {
+                            field.oneMore();
+                        }
                         win = $uibModal.open({
                             animation: false,
                             templateUrl: 'modal-list.html',
@@ -120,10 +121,6 @@
                             win && win.dismiss('cancel');
                         };
                         // Data Layer
-
-                        //console.log('field.$relationName', field.$relationName);
-                        //console.log('field', field);
-
                         var collection = apyProvider.createCollection(field.$relationName);
                         collection.fetch().then(function (_) {
                             $scope.$collection = collection;

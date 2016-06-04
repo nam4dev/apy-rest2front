@@ -136,11 +136,11 @@
          */
         function cleanedData() {
             var cleaned = [];
-            for (var i = 0; i < this.count(); i++) {
-                var item = this.getChild(i);
-                if(item.hasUpdated())
-                    cleaned.push(item.cleanedData());
-            }
+            this.$components.filter(function (comp) {
+                return comp.hasUpdated();
+            }).forEach(function (comp) {
+                cleaned.push(comp.cleanedData());
+            });
             return cleaned;
         }
 
@@ -231,40 +231,38 @@
             return JSON.stringify(this, null, indent || 4);
         }
 
-        function needPoly() {
-            var need = true;
-            this.$components.forEach(function (c) {
-                if (c.$type === $TYPES.POLY) need = false;
-            });
-            return need;
-        }
-
         function cloneChild() {
-            var component = null;
-            var self = this.getChild(0);
-            if(self) {
+            var clone = null;
+            try {
+                var self = this;
                 var fieldClassByType = $window.apy.common.fieldClassByType;
-                var field = fieldClassByType(self.$type);
-                if(!field) {
-                    return this;
+
+                function iterOverSchema(schema, name) {
+                    var cl;
+                    var Class = fieldClassByType(schema.type);
+                    cl = new Class(self.$service, name, schema, null,
+                        self.$states, self.$endpoint, self.$relationName);
+                    if(schema.schema) {
+                        Object.keys(schema.schema).forEach(function (n) {
+                            var sch = schema.schema[n];
+                            var ch = iterOverSchema(sch, n);
+                            cl.add(ch);
+                        });
+                    }
+                    return cl;
                 }
-                var components = null;
-                component = new field(self.$service, self.$name, self.$schema, components,
-                    self.$states, self.$endpoint, self.$type, self.$relationName);
-                component.setParent(this);
-                if(self.hasChildren()) {
-                    self.$components.forEach(function (comp) {
-                        var subField = fieldClassByType(comp.$type);
-                        if(subField && !isBlankObject(subField)) {
-                            var subComp = new subField(comp.$service, comp.$name, comp.$schema, components,
-                                comp.$states, comp.$endpoint, comp.$type, comp.$relationName);
-                            subComp.setParent(component);
-                            component.add(subComp);
-                        }
-                    })
+                if(this.$schema.schema) {
+                    clone = iterOverSchema(this.$schema.schema);
+                }
+                else {
+                    clone = new $window.ApyPolyField(this.$service, this.$name, this.$schema,
+                        null, this.$states, this.$endpoint, this.$type, this.$relationName);
                 }
             }
-            return component;
+            catch (e) {
+                console.warn('cloneChild.warning', e);
+            }
+            return clone;
         }
 
         function oneMore() {
@@ -299,6 +297,14 @@
                 this.$value = this.$value.slice(0, -2);
         }
 
+        function createInstance(parent, value) {
+            var instance = new this.$Class(this.$service,
+                this.$name, this.$schema, value, this.$states,
+                this.$endpoint, this.$type, this.$relationName);
+            instance.setParent(parent || this.$parent);
+            return instance;
+        }
+
         return function() {
             this.add = add;
             this.json = json;
@@ -308,7 +314,6 @@
             this.oneMore = oneMore;
             this.init = initialize;
             this.prepend = prepend;
-            this.needPoly = needPoly;
             this.getChild = getChild;
             this.validate = validate;
             this.loadValue = loadValue;
@@ -321,6 +326,7 @@
             this.cleanedData = cleanedData;
             this.hasChildren = hasChildren;
             this.$log = this.$logging = log;
+            this.createInstance = createInstance;
             return this;
         };
     })();

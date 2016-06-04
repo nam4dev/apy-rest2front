@@ -42,11 +42,26 @@
             return isObject(value) ? Object.assign(value) : value;
         }
 
+        /**
+         *
+         * @returns {Array}
+         */
+        function cleanedData() {
+            var cleaned = {};
+            this.$components.filter(function (comp) {
+                return comp.hasUpdated();
+            }).forEach(function (comp) {
+                cleaned[comp.$name] = comp.cleanedData();
+            });
+            return cleaned;
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.$Class = $window.ApyHashmapField;
             this.clone = clone;
             //this.selfUpdate = selfUpdate;
-            //this.cleanedData = cleanedData;
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.RESOURCE, null);
+            this.cleanedData = cleanedData;
+            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.RESOURCE, relationName);
             return this;
         }
 

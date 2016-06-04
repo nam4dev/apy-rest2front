@@ -315,7 +315,6 @@
                         fieldObj = new ApyResourceComponent(this.$service, field, subSchema.schema, null, this.$states, null, this.$types.RESOURCE);
                         fieldObj.load(value);
                         if(!subSchema.schema) {
-                            //console.log('OHE');
                             var poly = new ApyPolyField(this.$service, field, null, null, this.$states, this.$endpointBase);
                             poly.setParent(fieldObj);
                             fieldObj.add(poly);
@@ -417,12 +416,12 @@
         return function (service, name, schema, components, $states, $endpoint, type, relationName) {
             type = type || "resource";
             this.$value = '';
-            this.innerCls = 'ApyResourceComponent';
             this.$schema = schema;
             this.$selfUpdated = false;
             this.$endpoint = $endpoint;
             this.$endpointBase = $endpoint;
             this.$relationName = relationName;
+            this.$Class = $window.ApyResourceComponent;
             if(relationName)
                 this.$endpoint += relationName;
             if(schema && schema.$embeddedURI)
