@@ -50,8 +50,9 @@
         };
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.cleanedData = cleanedData;
             this.clone = clone;
+            this.$Class = $window.ApyMediaField;
+            this.cleanedData = cleanedData;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.MEDIA, null);
             return this;
         }

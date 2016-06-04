@@ -41,6 +41,7 @@
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.BOOLEAN, null);
+            this.$Class = $window.ApyBooleanField;
             return this;
         }
 

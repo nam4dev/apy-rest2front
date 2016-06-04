@@ -53,6 +53,7 @@
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.$Class = $window.ApyDatetimeField;
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
             this.clone = clone;

@@ -43,6 +43,7 @@
     $window.ApyNumberField = (function () {
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.$Class = $window.ApyNumberField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.NUMBER, null);
             return this;
         }

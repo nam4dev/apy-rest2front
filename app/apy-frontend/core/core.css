@@ -40,6 +40,12 @@ body {
     position: relative;
 }
 
+select[multiple], select[size] {
+    width: 100%;
+    font-size: 18pt;
+    border-radius: 10pt;
+}
+
 .text-capitalize {
     text-transform: capitalize;
 }
@@ -58,10 +64,8 @@ body {
     text-decoration: underline;
 }
 
-#content {
-    position: relative;
-    width: 75%;
-    margin: 0 auto;
+.list-field {
+    width: 85%;
 }
 
 .small-title i {
@@ -101,4 +105,10 @@ body {
     max-height: 100%;
     overflow: scroll;
     overflow-x: hidden;
+}
+
+#content {
+    position: relative;
+    width: 75%;
+    margin: 0 auto;
 }

@@ -39,6 +39,7 @@
     $window.ApyStringField = function () {
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.$Class = $window.ApyStringField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.STRING, null);
             return this;
         }

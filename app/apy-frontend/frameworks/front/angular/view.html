@@ -172,10 +172,10 @@
                     ng-model="field.$value">
                 <span ng-if="field.$states.$current === field.$states.CREATE ||
                              field.$states.$current === field.$states.UPDATE" >
-                    <span ng-if="field.$components.length === 1">
+                    <span ng-if="!field.$components.length">
                         Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
                     </span>
-                    <span ng-if="field.$components.length > 1">
+                    <span ng-if="field.$components.length">
                         <span class="text-capitalize">{{ field.$name || field.$type }} contains <strong>{{ field.$components.length }}</strong> item(s)</span>
                     </span>
                 </span>
@@ -414,25 +414,27 @@
             <h3 class="modal-title">
                  <span class="text-capitalize" >
                      <strong>{{ field.$name }}</strong> Document</span>
+                <button class="btn btn-info pull-right"
+                        ng-click="field.oneMore()">
+                    <i class="glyphicon glyphicon-plus"></i> Add
+                </button>
             </h3>
+
         </div>
         <div class="modal-body">
             <!-- CREATE & UPDATE Form -->
             <div>
                 <form name="initial" novalidate>
-                    <button class="btn btn-info pull-right"
-                            ng-if="!field.hasPoly()"
-                            ng-click="field.oneMore()">
-                        <i class="glyphicon glyphicon-plus"></i> Add
-                    </button>
                     <div class="form-group" ng-repeat="comp in field.$components track by $index" >
-                        <apy-field field="comp"></apy-field>
 
                         <button class="btn btn-danger pull-right"
-                                ng-if="comp.$type !== comp.$types.POLY && field.count() > 1"
+                                ng-if="field.count()"
                                 ng-click="field.remove(comp)">
                             <i class="glyphicon glyphicon-minus"></i> Remove
                         </button>
+                        <div class="list-field">
+                            <apy-field field="comp"></apy-field>
+                        </div>
                     </div>
                 </form>
             </div>

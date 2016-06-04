@@ -262,6 +262,7 @@
             this.$endpointBase = endpoint;
             this.$schema = service.$instance.get(name);
             this.$endpoint = endpoint + name;
+            this.$Class = $window.ApyCollectionComponent;
             if(this.$schema.$embeddedURI)
                 this.$endpoint += '?' + this.$schema.$embeddedURI;
 
