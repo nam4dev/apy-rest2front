@@ -67,6 +67,10 @@
         }
 
         function setValue(value) {
+            if(!value) {
+                var factory = this.$typeFactories[this.$type];
+                value = factory? factory() : undefined;
+            }
             this.$memo = this.cloneValue(value);
             this.$value = this.cloneValue(value);
             return this;
@@ -134,6 +138,10 @@
          * @returns {this}
          */
         function validate() {
+
+            if($TYPES.POLY === this.$type) {
+                return this;
+            }
             var expectedType = this.$type,
                 selfType = typeof this.$value,
                 error = false;
@@ -167,7 +175,7 @@
                     expectedType + "! Got " + selfType;
                 this.$logging.log(e);
                 this.$logging.log(this.$value);
-                //throw new Error(e);
+                throw new Error(e);
             }
             return this;
         }
