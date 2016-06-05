@@ -55,6 +55,14 @@
                     'ApyPolyField.setType(parent= undefined, type=',
                     type, ', schemaName=', schemaName);
             }
+            switch (type) {
+                case $TYPES.RESOURCE:
+                    this.add(this.createPolyField({}, null));
+                    break;
+                default :
+                    break;
+            }
+
         }
 
         function cleanedData() {
@@ -66,6 +74,7 @@
         // FIXME: autodetect type based on given value when we've got a schema-less field (which PolyField certainly is).
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.setType = setType;
+            this.$isPolyMorph = true;
             this.$Class = $window.ApyPolyField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.POLY, relationName);
             return this;

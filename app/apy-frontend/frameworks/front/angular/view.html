@@ -120,7 +120,6 @@
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
-
             <button id="{{ field.$name }}"
                     class="form-control"
                     ng-click="expandRecursive(field)"
@@ -231,6 +230,7 @@
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
             <input ng-model="field.$value"
+                   ng-if="field.wordCount() <= 60"
                    class="form-control"
                    id="{{ field.$name }}"
                    type="{{ field.$type }}"
@@ -238,7 +238,20 @@
                    maxlength="{{ field.$maxlength }}"
                    required="{{ field.$required }}"
                    value="{{ field.$value }}"
-                   placeholder="{{ field.$name }}" />
+                    />
+
+            <textarea ng-model="field.$value"
+                      ng-if="field.wordCount() > 60"
+                      placeholder="{{ field.$name }}"
+                      class="form-control"
+                      id="{{ field.$name }}"
+                      minlength="{{ field.$minlength }}"
+                      maxlength="{{ field.$maxlength }}"
+                      required="{{ field.$required }}"
+                    >
+                {{ field.$value }}
+            </textarea>
+
         </div>
     </script>
 
@@ -403,7 +416,6 @@
                     <i class="glyphicon glyphicon-plus"></i> Add
                 </button>
             </h3>
-
         </div>
         <div class="modal-body">
             <!-- CREATE & UPDATE Form -->
@@ -435,6 +447,12 @@
             <h3 class="modal-title">
                  <span class="text-capitalize" >
                      <strong>{{ field.$name }}</strong> Document</span>
+
+                <button class="btn btn-info pull-right"
+                    ng-if="field.$isPolyMorph"
+                        ng-click="field.oneMore()">
+                    <i class="glyphicon glyphicon-plus"></i> Add
+                </button>
             </h3>
         </div>
         <div class="modal-body">
@@ -442,12 +460,9 @@
             <div>
                 <form name="initial" novalidate>
                     <div class="form-group" ng-repeat="comp in field.$components track by $index" >
-                        <!--FIXME: Find a way to distinguish between `no-schema` resource type and `with-schema` ones -->
-                        <!--ng-if="comp.$type === 'poly' || field.$type === 'poly'" -->
-                        <!--<label ng-if="!comp.$hasSchema" for="input-{{ comp.$type }}" >Key</label>-->
-                        <!--FIXME: Find a way to distinguish between `no-schema` resource type and `with-schema` ones -->
-                        <!--ng-if="comp.$type === 'poly' || field.$type === 'poly'" -->
-                        <!--<input ng-if="!comp.$hasSchema" class="form-control" id="input-{{ comp.$type }}" ng-model="comp.$name" placeholder="Key for your field..." />-->
+                        
+                        <label ng-if="comp.$isPolyMorph" for="input-{{ comp.$type }}" >Key</label>
+                        <input ng-if="comp.$isPolyMorph" class="form-control" id="input-{{ comp.$type }}" ng-model="comp.$name" placeholder="Key for your field..." />
                         <label ng-if="comp.$name" for="{{ comp.$name }}">{{ comp.$name }}</label>
                         <apy-field id="{{ comp.$name }}" field="comp"></apy-field>
                     </div>
