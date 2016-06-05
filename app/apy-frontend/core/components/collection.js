@@ -38,6 +38,8 @@
 
     $window.ApyCollectionComponent = (function () {
 
+        var states = ['CREATE', 'READ', 'UPDATE', 'DELETE'];
+
         /**
          *
          * @returns {ApyCollectionComponent}
