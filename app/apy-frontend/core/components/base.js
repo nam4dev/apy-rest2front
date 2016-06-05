@@ -166,10 +166,9 @@
                 object: [
                     $TYPES.DICT,
                     $TYPES.LIST,
-                    $TYPES.BOOLEAN,
                     $TYPES.DATETIME,
                     $TYPES.OBJECTID,
-                    $TYPES.RESOURCE,
+                    $TYPES.RESOURCE
                 ]
             };
             this.$typeFactories = {};
@@ -207,7 +206,7 @@
                 return new Date();
             };
             this.$typeFactories[$TYPES.RESOURCE] = function () {
-                return {};
+                return null;
             };
             this.$fieldTypesMap = {
                 float: $TYPES.NUMBER,
