@@ -44,7 +44,7 @@
 
         /**
          *
-         * @returns {Array}
+         * @returns {Object}
          */
         function cleanedData() {
             var cleaned = {};
@@ -56,49 +56,7 @@
             return cleaned;
         }
 
-        function cloneChild() {
-            var clone = null;
-            try {
-                var self = this;
-                var fieldClassByType = $window.apy.common.fieldClassByType;
-                function iterOverSchema(schema, name) {
-                    var cl;
-                    var Class = fieldClassByType(schema.type);
-                    cl = new Class(self.$service, name, schema, null,
-                        self.$states, self.$endpoint, self.$relationName);
-                    if(schema.schema) {
-                        Object.keys(schema.schema).forEach(function (n) {
-                            var sch = schema.schema[n];
-                            var ch = iterOverSchema(sch, n);
-                            cl.add(ch);
-                        });
-                    }
-                    return cl;
-                }
-                if(this.$schema.schema) {
-                    clone = iterOverSchema(this.$schema.schema);
-                }
-                else {
-                    clone = this.createPolyField(this.$schema, undefined, this.$name);
-                }
-            }
-            catch (e) {
-                console.warn('cloneChild.warning', e);
-            }
-            return clone;
-        }
-
-        function oneMore() {
-            var comp = this.cloneChild();
-            if(comp) {
-                this.add(comp);
-            }
-            return this;
-        }
-
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.oneMore = oneMore;
-            this.cloneChild = cloneChild;
             this.cloneValue = cloneValue;
             this.cleanedData = cleanedData;
             this.$Class = $window.ApyHashmapField;

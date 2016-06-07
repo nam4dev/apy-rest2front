@@ -447,9 +447,8 @@
             <h3 class="modal-title">
                  <span class="text-capitalize" >
                      <strong>{{ field.$name }}</strong> Document</span>
-
                 <button class="btn btn-info pull-right"
-                    ng-if="field.$isPolyMorph"
+                        ng-if="!field.$schema"
                         ng-click="field.oneMore()">
                     <i class="glyphicon glyphicon-plus"></i> Add
                 </button>
@@ -460,11 +459,20 @@
             <div>
                 <form name="initial" novalidate>
                     <div class="form-group" ng-repeat="comp in field.$components track by $index" >
-                        
-                        <label ng-if="comp.$isPolyMorph" for="input-{{ comp.$type }}" >Key</label>
-                        <input ng-if="comp.$isPolyMorph" class="form-control" id="input-{{ comp.$type }}" ng-model="comp.$name" placeholder="Key for your field..." />
+                        <label ng-if="comp.$isPolyMorph && comp.$type !== 'poly'" for="input-{{ comp.$type }}" >Key</label>
+                        <input ng-if="comp.$isPolyMorph && comp.$type !== 'poly'" class="form-control" id="input-{{ comp.$type }}" ng-model="comp.$name" placeholder="Key for your field..." />
                         <label ng-if="comp.$name" for="{{ comp.$name }}">{{ comp.$name }}</label>
-                        <apy-field id="{{ comp.$name }}" field="comp"></apy-field>
+
+                        <button ng-if="comp.$isPolyMorph && field.count()"
+                                class="btn btn-danger pull-right"
+                                ng-click="field.remove(comp)">
+                            <i class="glyphicon glyphicon-minus"></i> Remove
+                        </button>
+                        <div ng-if="comp.$isPolyMorph && field.count()"
+                             class="list-field">
+                            <apy-field id="{{ comp.$name }}" field="comp"></apy-field>
+                        </div>
+                        <apy-field ng-if="!comp.$isPolyMorph" id="{{ comp.$name }}" field="comp"></apy-field>
                     </div>
                 </form>
             </div>

@@ -401,46 +401,6 @@
             return this;
         }
 
-        function cloneChild() {
-            var clone = null;
-            try {
-                var self = this;
-                var fieldClassByType = $window.apy.common.fieldClassByType;
-                function iterOverSchema(schema, name) {
-                    var cl;
-                    var Class = fieldClassByType(schema.type);
-                    cl = new Class(self.$service, name, schema, null,
-                        self.$states, self.$endpoint, self.$relationName);
-                    if(schema.schema) {
-                        Object.keys(schema.schema).forEach(function (n) {
-                            var sch = schema.schema[n];
-                            var ch = iterOverSchema(sch, n);
-                            cl.add(ch);
-                        });
-                    }
-                    return cl;
-                }
-                if(this.$schema.schema) {
-                    clone = iterOverSchema(this.$schema.schema);
-                }
-                else {
-                    clone = this.createPolyField(this.$schema, undefined, this.$name);
-                }
-            }
-            catch (e) {
-                console.warn('cloneChild.warning', e);
-            }
-            return clone;
-        }
-
-        function oneMore() {
-            var comp = this.cloneChild();
-            if(comp) {
-                this.add(comp);
-            }
-            return this;
-        }
-
         /**
          * ApyResourceComponent
          *
@@ -467,8 +427,6 @@
             if(schema && schema.$embeddedURI)
                 this.$endpoint += '?' + schema.$embeddedURI;
 
-            this.cloneChild        = cloneChild       ;
-            this.oneMore           = oneMore          ;
             this.initRequest       = initRequest      ;
             this.toString          = toString         ;
             this.setCreateState    = setCreateState   ;

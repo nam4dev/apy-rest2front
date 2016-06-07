@@ -39,7 +39,7 @@
     $window.ApyStringField = function () {
 
         function wordCount() {
-            return this.$value.length;
+            return this.$value ? this.$value.length : 0;
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {

@@ -192,13 +192,6 @@
             return this;
         }
 
-        function createPolyField (schema, value, name, parent) {
-            var field = new ApyPolyField(this.$service, name || this.$name, schema, value,
-                this.$states, this.$endpoint, this.$type, this.$relationName);
-            field.setParent(parent || this);
-            return field;
-        }
-
         return function () {
             this.load            = load;
             this.reset           = reset;
@@ -212,7 +205,6 @@
             this.selfCommit      = selfCommit;
             this.hasUpdated      = hasUpdated;
             this.cleanedData     = cleanedData;
-            this.createPolyField = createPolyField;
             return this;
         }
 

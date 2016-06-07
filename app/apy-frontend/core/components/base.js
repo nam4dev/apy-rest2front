@@ -169,6 +169,9 @@
                     $TYPES.DATETIME,
                     $TYPES.OBJECTID,
                     $TYPES.RESOURCE
+                ],
+                string: [
+				    $TYPES.OBJECTID
                 ]
             };
             this.$typeFactories = {};
@@ -200,7 +203,7 @@
                 return 0;
             };
             this.$typeFactories[$TYPES.OBJECTID] = function () {
-                return {_id: undefined};
+                return null;
             };
             this.$typeFactories[$TYPES.DATETIME] = function () {
                 return new Date();
@@ -299,6 +302,63 @@
             return instance;
         }
 
+        function cloneChild() {
+            var clone = null;
+            var self = this;
+            var fieldClassByType = $window.apy.common.fieldClassByType;
+            function iterOverSchema(schema, name) {
+                var cl;
+                var relationName;
+                switch (schema.type) {
+                    case $TYPES.OBJECTID:
+                        name = name || schema.data_relation.resource;
+                        relationName = self.$relationName || name;
+                        break;
+                    default :
+                        relationName = self.$relationName;
+                        break;
+                }
+                var Class = fieldClassByType(schema.type);
+                cl = new Class(self.$service, name, schema, null,
+                    self.$states, self.$endpoint, schema.type, relationName);
+                if(schema.schema) {
+                    Object.keys(schema.schema).forEach(function (n) {
+                        var sch = schema.schema[n];
+                        var ch = iterOverSchema(sch, n);
+                        cl.add(ch);
+                    });
+                }
+                return cl;
+            }
+            try {
+                if(this.$schema && this.$schema.schema) {
+                    clone = iterOverSchema(this.$schema.schema);
+                }
+                else {
+                    clone = this.createPolyField(this.$schema, undefined, this.$name);
+                }
+            }
+            catch (e) {
+                console.warn('cloneChild.warning', e);
+            }
+            return clone;
+        }
+
+        function oneMore() {
+            var comp = this.cloneChild();
+            if(comp) {
+                this.add(comp);
+            }
+            return this;
+        }
+
+        function createPolyField (schema, value, name, parent) {
+            var field = new ApyPolyField(this.$service, name || this.$name, schema, value,
+                this.$states, this.$endpoint, this.$type, this.$relationName);
+            field.setParent(parent || this);
+            return field;
+        }
+
         return function() {
             this.add = add;
             this.json = json;
@@ -306,12 +366,14 @@
             this.clone = clone;
             this.count = count;
             this.remove = remove;
+            this.oneMore = oneMore;
             this.init = initialize;
             this.prepend = prepend;
             this.getChild = getChild;
             this.validate = validate;
             this.loadValue = loadValue;
             this.setParent = setParent;
+            this.cloneChild = cloneChild;
             this.isArray = Array.isArray;
             this.isFunction = isFunction;
             this.continue = shallContinue;
@@ -319,6 +381,7 @@
             this.cleanedData = cleanedData;
             this.hasChildren = hasChildren;
             this.$log = this.$logging = log;
+            this.createPolyField = createPolyField;
             return this;
         };
     })();

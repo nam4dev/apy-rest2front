@@ -40,7 +40,7 @@
 
         function setValue(value) {
             var self = this;
-            this.$memo = this.cloneValue(value);
+            this.$memo = 0;
             this.$value = this.cloneValue(value);
             if(value && value.forEach) {
                 // Reset components
@@ -48,6 +48,7 @@
                 value.forEach(function (el) {
                     self.load(el);
                 });
+                this.$memo = this.$components.length;
             }
             return this;
         }
@@ -127,9 +128,14 @@
          */
         function hasUpdated () {
             var updated = false;
-            this.$components.forEach(function (comp) {
-                if(comp.hasUpdated()) updated = true;
-            });
+            if(this.$memo !== this.$components.length) {
+                updated = true;
+            }
+            if(!updated) {
+                this.$components.forEach(function (comp) {
+                    if(comp.hasUpdated()) updated = true;
+                });
+            }
             return updated;
         }
 
@@ -150,52 +156,10 @@
             return data;
         }
 
-        function cloneChild() {
-            var clone = null;
-            try {
-                var self = this;
-                var fieldClassByType = $window.apy.common.fieldClassByType;
-                function iterOverSchema(schema, name) {
-                    var cl;
-                    var Class = fieldClassByType(schema.type);
-                    cl = new Class(self.$service, name, schema, null,
-                        self.$states, self.$endpoint, self.$relationName);
-                    if(schema.schema) {
-                        Object.keys(schema.schema).forEach(function (n) {
-                            var sch = schema.schema[n];
-                            var ch = iterOverSchema(sch, n);
-                            cl.add(ch);
-                        });
-                    }
-                    return cl;
-                }
-                if(this.$schema.schema) {
-                    clone = iterOverSchema(this.$schema.schema);
-                }
-                else {
-                    clone = this.createPolyField(this.$schema, undefined, this.$name);
-                }
-            }
-            catch (e) {
-                console.warn('cloneChild.warning', e);
-            }
-            return clone;
-        }
-
-        function oneMore() {
-            var comp = this.cloneChild();
-            if(comp) {
-                this.add(comp);
-            }
-            return this;
-        }
-
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.load = load;
-            this.oneMore = oneMore;
             this.setValue = setValue;
             this.cloneValue = cloneValue;
-            this.cloneChild = cloneChild;
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
             this.$Class = $window.ApyListField;
