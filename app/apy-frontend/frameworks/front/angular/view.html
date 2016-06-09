@@ -277,24 +277,35 @@
 
     <script type="text/ng-template" id="field-point.html">
         <div ng-if="field.$states.$current === field.$states.READ">
-            <span>{{ field.$name }}</span> ({{ field.$value.x }} - {{ field.$value.y }})
+            <span>{{ field.$name }} <i class="glyphicon glyphicon-map-marker"></i></span> ({{ field.$value.x }} - {{ field.$value.y }})
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
-            <label for="{{ field.$name }}.x">x</label>
-            <input ng-model="field.$value.x"
-                   class="form-control"
-                   id="{{ field.$name }}.x"
-                   required="{{ field.$required }}"
-                   value="{{ field.$value.x }}"
-                   placeholder="{{ field.$name }}" />
-            <label for="{{ field.$name }}.y">y</label>
-            <input ng-model="field.$value.y"
-                   class="form-control"
-                   id="{{ field.$name }}.y"
-                   required="{{ field.$required }}"
-                   value="{{ field.$value.y }}"
-                   placeholder="{{ field.$name }}" />
+            <div class="row">
+                <div class="col-md-1">
+                    <label for="{{ field.$name }}.x">x: </label>
+                </div>
+                <div class="col-md-5">
+                    <input ng-model="field.$value.x"
+                           class="form-control"
+                           id="{{ field.$name }}.x"
+                           required="{{ field.$required }}"
+                           value="{{ field.$value.x }}"
+                           placeholder="{{ field.$name }}" />
+
+                </div>
+                <div class="col-md-1">
+                    <label for="{{ field.$name }}.y">y: </label>
+                </div>
+                <div class="col-md-5">
+                    <input ng-model="field.$value.y"
+                           class="form-control"
+                           id="{{ field.$name }}.y"
+                           required="{{ field.$required }}"
+                           value="{{ field.$value.y }}"
+                           placeholder="{{ field.$name }}" />
+                </div>
+            </div>
         </div>
     </script>
 
@@ -490,7 +501,7 @@
                         <input ng-if="comp.$isPolyMorph && comp.$type !== 'poly'" class="form-control" id="input-{{ comp.$type }}" ng-model="comp.$name" placeholder="Key for your field..." />
 
                         <label ng-if="comp.$type !== 'point' && comp.$name" for="{{ comp.$name }}">{{ comp.$name }}</label>
-                        <label ng-if="comp.$type === 'point' && comp.$name" for="{{ comp.$name }}">{{ comp.$name }} (coordinates)</label>
+                        <label ng-if="comp.$type === 'point' && comp.$name" for="{{ comp.$name }}">{{ comp.$name }} (coordinates <i class="glyphicon glyphicon-map-marker"></i>)</label>
 
                         <button ng-if="comp.$isPolyMorph && field.count()"
                                 class="btn btn-danger pull-right"
