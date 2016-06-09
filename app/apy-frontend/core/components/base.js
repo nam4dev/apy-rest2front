@@ -280,6 +280,10 @@
             this.$components.forEach(function (component) {
                 var v = component.$value;
                 if(v && !isDate(v) && !isBoolean(v)) {
+                    if(v instanceof ApyPoint) {
+                        v.clean();
+                        v = component.$name + ' coordinates(' + v.coordinates + ')';
+                    }
                     var value = v + ', ';
                     all += value;
                     if(component.$required) {
@@ -287,7 +291,7 @@
                     }
                 }
             });
-            if(!this.$value && all) {
+            if(all) {
                 this.$value = all;
             }
             if(this.$value.endsWith(', '))

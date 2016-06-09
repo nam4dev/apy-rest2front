@@ -66,7 +66,6 @@
                     };
 
                     $scope.setFile = function (field, file) {
-                        //console.log('MEDIA', field);
                         field.$value.setFile(file)
                             .then(function (_) {
                                 $scope.$apply();
@@ -77,7 +76,6 @@
                     };
 
                     $scope.expandList = function (field) {
-                        //console.log('expandList.field', field);
                         $scope.ok = function () {
                             win && win.dismiss('cancel');
                         };
@@ -98,7 +96,7 @@
 
                     $scope.expandRecursive = function (field) {
                         $scope.ok = function () {
-                            field && field.loadValue && field.loadValue();
+                            field.loadValue();
                             win && win.dismiss('cancel');
                         };
 
@@ -106,7 +104,6 @@
                             field && field.reset();
                             win && win.dismiss('cancel');
                         };
-                        //$scope.field = field;
                         win = $uibModal.open({
                             animation: false,
                             templateUrl: 'modal-recursive.html',
