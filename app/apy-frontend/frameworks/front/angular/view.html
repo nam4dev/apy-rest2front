@@ -140,7 +140,11 @@
     <script type="text/ng-template" id="field-list.html">
         <div ng-if="field.$states.$current === field.$states.READ">
             <div ng-if="field.$value">
-                <span ng-if="!field.$allowed || !field.$allowed.length">{{ field.$value }}</span>
+                <div ng-if="!field.$allowed || !field.$allowed.length">
+                    <ul>
+                        <apy-field ng-repeat="value in field.$components" field="value" ></apy-field>
+                    </ul>
+                </div>
                 <ul ng-if="field.$allowed && field.$allowed.length">
                     <li ng-repeat="value in field.$value" >{{ value }}</li>
                 </ul>
@@ -267,6 +271,29 @@
                    type="{{ field.$type }}"
                    required="{{ field.$required }}"
                    value="{{ field.$value }}"
+                   placeholder="{{ field.$name }}" />
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-point.html">
+        <div ng-if="field.$states.$current === field.$states.READ">
+            <span>{{ field.$name }}</span> ({{ field.$value.x }} - {{ field.$value.y }})
+        </div>
+        <div ng-if="field.$states.$current !== field.$states.READ &&
+                    field.$states.$current !== field.$states.DELETE">
+            <label for="{{ field.$name }}.x">x</label>
+            <input ng-model="field.$value.x"
+                   class="form-control"
+                   id="{{ field.$name }}.x"
+                   required="{{ field.$required }}"
+                   value="{{ field.$value.x }}"
+                   placeholder="{{ field.$name }}" />
+            <label for="{{ field.$name }}.y">y</label>
+            <input ng-model="field.$value.y"
+                   class="form-control"
+                   id="{{ field.$name }}.y"
+                   required="{{ field.$required }}"
+                   value="{{ field.$value.y }}"
                    placeholder="{{ field.$name }}" />
         </div>
     </script>
@@ -461,7 +488,9 @@
                     <div class="form-group" ng-repeat="comp in field.$components track by $index" >
                         <label ng-if="comp.$isPolyMorph && comp.$type !== 'poly'" for="input-{{ comp.$type }}" >Key</label>
                         <input ng-if="comp.$isPolyMorph && comp.$type !== 'poly'" class="form-control" id="input-{{ comp.$type }}" ng-model="comp.$name" placeholder="Key for your field..." />
-                        <label ng-if="comp.$name" for="{{ comp.$name }}">{{ comp.$name }}</label>
+
+                        <label ng-if="comp.$type !== 'point' && comp.$name" for="{{ comp.$name }}">{{ comp.$name }}</label>
+                        <label ng-if="comp.$type === 'point' && comp.$name" for="{{ comp.$name }}">{{ comp.$name }} (coordinates)</label>
 
                         <button ng-if="comp.$isPolyMorph && field.count()"
                                 class="btn btn-danger pull-right"
@@ -479,7 +508,7 @@
             <!-- End CREATE & UPDATE Form -->
         </div>
         <div class="modal-footer">
-            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-primary" type="button" ng-click="ok(field)">OK</button>
             <button class="btn btn-warning" type="button" ng-click="cancel(field)">Cancel</button>
         </div>
     </script>

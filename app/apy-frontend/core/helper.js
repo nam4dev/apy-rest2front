@@ -395,6 +395,7 @@
         DICT: "dict",
         POLY: "poly",
         MEDIA: "media",
+        POINT: "point",
         FLOAT: "float",
         NUMBER: "number",
         STRING: "string",
@@ -560,6 +561,39 @@
         return this;
     };
 
+    var ApyPoint = function ApyPoint(value) {
+        value = value || {"type": "Point", coordinates: [-1, -1]};
+        this.value = value;
+        this.x = value.coordinates[0];
+        this.y = value.coordinates[1];
+        this.coordinates = value.coordinates;
+        this.clean();
+    };
+
+    ApyPoint.prototype.clean = function clean() {
+        try {
+            this.x = parseFloat(this.x);
+        }
+        catch (e) {
+            this.x = parseInt(this.x);
+        }
+        try {
+            this.y = parseFloat(this.y);
+        }
+        catch (e) {
+            this.y = parseInt(this.y);
+        }
+        this.coordinates = [this.x, this.y];
+    };
+
+    ApyPoint.prototype.cleanedData = function cleanedData() {
+        this.clean();
+        return {
+            "type": "Point",
+            coordinates: this.coordinates
+        };
+    };
+
     patchObject();
     patchString();
 
@@ -584,6 +618,7 @@
     $window.isBoolean = isBoolean;
     $window.isPromiseLike = isPromiseLike;
     $window.isArrayLike = isArrayLike;
+    $window.ApyPoint = ApyPoint;
     $window.ApyMediaFile = ApyMediaFile;
     $window.ApyStateHolder = ApyStateHolder;
     $window.ApyStackComponent = ApyStateHolder;

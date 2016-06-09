@@ -40,18 +40,61 @@
  */
 (function ($window) {
 
-    $window.ApyNumberField = (function () {
+    $window.ApyPointField = (function () {
+
+        function setValue(value) {
+            this.$memo = this.cloneValue(value);
+            this.$value = this.cloneValue(value);
+            return this;
+        }
+
+        /**
+         *
+         * @param value
+         * @returns {ApyPoint}
+         */
+        function cloneValue(value) {
+            return new ApyPoint(value);
+        }
+
+        /**
+         *
+         * @returns {boolean}
+         */
+        function hasUpdated () {
+            var updated = false;
+            if(this.$memo.x !== this.$value.x) {
+                updated = true;
+            }
+            if(this.$memo.y !== this.$value.y) {
+                updated = true;
+            }
+            return updated;
+        }
+
+        /**
+         *
+         * @returns {Object}
+         */
+        function cleanedData () {
+            this.validate();
+            return this.$value.cleanedData();
+        }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.$Class = $window.ApyNumberField;
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.NUMBER, null);
+            this.setValue = setValue;
+            this.cloneValue = cloneValue;
+            this.hasUpdated = hasUpdated;
+            this.cleanedData = cleanedData;
+            this.$Class = $window.ApyPointField;
+            this.initialize(service, name, schema, new ApyPoint(value), $states, $endpoint, $window.$TYPES.POINT, null);
             return this;
         }
 
     })();
 
     // Inject Mixin
-    $window.ApyComponentMixin.call(ApyNumberField.prototype);
-    $window.ApyFieldMixin.call(ApyNumberField.prototype);
+    $window.ApyComponentMixin.call(ApyPointField.prototype);
+    $window.ApyFieldMixin.call(ApyPointField.prototype);
 
 })(window);

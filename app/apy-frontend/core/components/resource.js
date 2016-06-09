@@ -246,7 +246,7 @@
          * @returns {Promise}
          */
         function create () {
-            console.log('this.hasCreated()', this.hasCreated(), 'this.hasUpdated()', this.hasUpdated());
+            console.debug('this.hasCreated()', this.hasCreated(), 'this.hasUpdated()', this.hasUpdated());
             if(this.hasCreated() && this.hasUpdated()) {
                 return this.createRequest();
             }
@@ -320,16 +320,19 @@
                             fieldObj.add(poly);
                         }
                         break;
+                    case $TYPES.POINT:
+                        fieldObj = new ApyPointField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
+                        break;
                     case this.$types.MEDIA:
                         fieldObj = new ApyMediaField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
-                        break;
-                    case this.$types.STRING:
-                        fieldObj = new ApyStringField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
                         break;
                     case this.$types.FLOAT:
                     case this.$types.NUMBER:
                     case this.$types.INTEGER:
                         fieldObj = new ApyNumberField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
+                        break;
+                    case this.$types.STRING:
+                        fieldObj = new ApyStringField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);
                         break;
                     case this.$types.BOOLEAN:
                         fieldObj = new ApyBooleanField(this.$service, field, subSchema, value, this.$states, this.$endpointBase);

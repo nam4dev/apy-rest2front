@@ -154,6 +154,7 @@
             }
             switch (expectedType) {
                 case $TYPES.MEDIA:
+                case $TYPES.POINT:
                     // FIXME: TBD
                     break;
                 case $TYPES.DATETIME:
