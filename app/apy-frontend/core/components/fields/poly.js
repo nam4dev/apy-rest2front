@@ -51,7 +51,7 @@
                 this.$states, this.$endpoint, type, this.$relationName);
             $.extend(true, this, instance);
             if(!this.$parent) {
-                console.log('No Parent provided for ' +
+                console.debug('No Parent provided for ' +
                     'ApyPolyField.setType(parent= undefined, type=',
                     type, ', schemaName=', schemaName);
             }

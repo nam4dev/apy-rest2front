@@ -56,7 +56,6 @@
          * @returns {ApyResourceComponent}
          */
         function createResource (resource) {
-            //console.log('RESOURCE', resource);
             var component = this.$service.$instance.createResource(this.$name, resource);
             component.setParent(this);
             this.prepend(component);
@@ -87,7 +86,6 @@
          */
         function hasCreated () {
             var created = false;
-            //console.log(this.$components);
             this.$components.forEach(function (comp) {
                 if(comp.hasCreated()) created = true;
             });
@@ -185,7 +183,6 @@
                     },
                     method: 'GET'
                 }).then(function (response) {
-                    //console.log(response.data._items);
                     self.load(response.data._items);
                     return resolve(response);
                 }).catch(function (error) {
