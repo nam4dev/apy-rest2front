@@ -168,24 +168,28 @@
          *
          * @returns {Promise}
          */
-        function fetch () {
+        function fetch (progress) {
             var self = this;
+            progress && progress(25);
             return new Promise(function (resolve, reject) {
                 // FIXME: $upload interface is not a function
                 // FIXME: Therefore a facade instance shall be made to unify
                 // FIXME: both interfaces, allowing us to always use the `$request` interface
                 self.clear();
+                progress && progress(50);
                 return self.$request({
-                    //return self.$http({
                     url: self.$endpoint,
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     method: 'GET'
                 }).then(function (response) {
+                    progress && progress(90);
                     self.load(response.data._items);
+                    progress && progress(100);
                     return resolve(response);
                 }).catch(function (error) {
+                    progress && progress(0);
                     self.$logging.log("[ApyFrontendError] => " + error);
                     return reject(error);
                 });
