@@ -431,7 +431,8 @@
                                 ng-click="field.selfUpdate(resource);cancel();" >
                                 <td scope="row">{{ $index + 1 }}</td>
                                 <td ng-repeat="field in resource.$components" >
-                                    <apy-field field="field"></apy-field>
+                                    <apy-field ng-if="field.$type !== 'resource'" field="field"></apy-field>
+                                    <span ng-if="field.$type === 'resource'" >{{ field.$value }}</span>
                                 </td>
                             </tr>
                             <tr ng-if="$collection.count() === 0">
