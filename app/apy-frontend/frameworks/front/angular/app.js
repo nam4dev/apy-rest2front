@@ -59,7 +59,8 @@
                 config = {
                     pkName: '_id',
                     appTheme: appTheme,
-                    excludedEndpointByNames: ['logs']
+                    excludedEndpointByNames: ['logs'],
+                    schemas: {}
                 };
             return new ApyCompositeService($log, $http, Upload, config);
         };
@@ -94,7 +95,7 @@
         function ($scope, $log, $route, apyProvider, Upload) {
             apyProvider.initEndpoints(endpoint, schemaName).setDependencies(
                 {name: "Upload", value: Upload}
-            ).setSchemas(schemas);
+            ).loadSchemas();
             $scope.$schemas = apyProvider.$schemasAsArray;
             $scope.$route = $route;
         }]);

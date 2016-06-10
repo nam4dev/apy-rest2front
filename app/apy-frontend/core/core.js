@@ -114,10 +114,10 @@
          *
          * @param endpoint
          * @param schemas
-         * @param excluded
+         * @param config
          * @constructor
          */
-        var ApySchemasComponent = function ApySchemasComponent (endpoint, schemas, excluded) {
+        var ApySchemasComponent = function ApySchemasComponent (endpoint, schemas, config) {
             if(!schemas || !isObject(schemas)) {
                 throw new Error('A schemas object must be provided (got type => ' + typeof schemas + ') !');
             }
@@ -126,8 +126,10 @@
             this.$components = {};
             this.$componentArray = [];
             this.$endpoint = endpoint;
+            this.$config = config || {};
             this.$schemas = schemas || {};
-            this.$excluded = excluded || [];
+            $.extend(true, this.$schemas, this.$config.schemas || {});
+            this.$excluded = this.$config.excludedEndpointByNames || [];
             this.$template = {
                 _id: "",
                 _etag: "",
@@ -276,7 +278,7 @@
      * @param schemas
      */
     ApyCompositeService.prototype.setSchemas = function (schemas) {
-        var ins = this.$instance = new ApySchemasComponent(this.$endpoint, schemas, this.$config.excludedEndpointByNames);
+        var ins = this.$instance = new ApySchemasComponent(this.$endpoint, schemas, this.$config);
         this.$schemas = ins.$components;
         this.$schemasAsArray = ins.$componentArray;
         return this;
