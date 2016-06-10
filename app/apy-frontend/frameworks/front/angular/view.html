@@ -116,7 +116,8 @@
 
     <script type="text/ng-template" id="field-resource.html">
         <div ng-if="field.$states.$current === field.$states.READ">
-            <apy-field ng-repeat="component in field.$components" field="component"></apy-field>
+            <apy-field ng-if="field.$type !== 'resource'" ng-repeat="component in field.$components" field="component"></apy-field>
+            <span ng-if="field.$type === 'resource'">{{field.$value}}</span>
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
