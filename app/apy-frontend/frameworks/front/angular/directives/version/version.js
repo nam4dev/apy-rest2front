@@ -41,4 +41,4 @@ angular.module('apy.version', [
     'apy.version.version-directive'
 ])
 
-    .value('version', '0.7');
+    .value('version', '0.8');
