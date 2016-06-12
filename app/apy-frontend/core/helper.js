@@ -618,6 +618,7 @@
     $window.isBoolean = isBoolean;
     $window.isPromiseLike = isPromiseLike;
     $window.isArrayLike = isArrayLike;
+
     $window.ApyPoint = ApyPoint;
     $window.ApyMediaFile = ApyMediaFile;
     $window.ApyStateHolder = ApyStateHolder;
@@ -654,7 +655,5 @@
         }
         return null;
     };
-
-
 
 })(window);

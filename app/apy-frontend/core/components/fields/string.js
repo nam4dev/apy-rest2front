@@ -43,7 +43,14 @@
         }
 
         function validate() {
-            
+            if([undefined, null].indexOf(this.$value) !== -1) {
+                console.log('[undefined, null].indexOf(this.$value)', this.$value);
+                this.$value = "";
+            }
+            var selfType = typeof this.$value;
+            if(selfType !== 'string') {
+                throw new Error('toto => Field.String type does not validate (got => ' + selfType + ')');
+            }
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
