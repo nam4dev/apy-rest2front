@@ -1,7 +1,6 @@
 before_script:
   - apt-get install -y -qq curl
   - curl --silent --location https://deb.nodesource.com/setup_5.x | bash -
-  - apt-get install -y -qq npm
 
 test:
   script:
