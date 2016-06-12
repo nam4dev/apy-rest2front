@@ -1,9 +1,9 @@
 before_script:
-  - apt-get update -qq
+  - apt-get install -y -qq curl
+  - curl --silent --location https://deb.nodesource.com/setup_5.x | bash -
   - apt-get install -y -qq nodejs nodejs-dev npm
-  - npm -v
-  - npm install bower
 
 test:
   script:
+    - npm -v
     - npm test
