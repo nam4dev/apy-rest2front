@@ -107,6 +107,10 @@ select[multiple], select[size] {
     overflow-x: hidden;
 }
 
+.loader {
+    height: 3px;
+}
+
 #content {
     position: relative;
     width: 75%;

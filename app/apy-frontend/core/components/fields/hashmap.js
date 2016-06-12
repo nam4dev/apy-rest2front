@@ -56,7 +56,12 @@
             return cleaned;
         }
 
+        function validate() {
+
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.validate = validate;
             this.cloneValue = cloneValue;
             this.cleanedData = cleanedData;
             this.$Class = $window.ApyHashmapField;

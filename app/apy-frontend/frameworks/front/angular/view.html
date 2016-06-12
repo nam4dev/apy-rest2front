@@ -168,7 +168,10 @@
                         Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
                     </span>
                     <span ng-if="field.$components.length">
-                        <span class="text-capitalize">{{ field.$name || field.$type }} contains <strong>{{ field.$components.length }}</strong> item(s)</span>
+                        <span class="text-capitalize"><strong>{{ field.$components.length }}</strong>
+                            <i ng-if="field.$components.length === 1">item</i>
+                            <i ng-if="field.$components.length > 1">items</i>
+                        </span>
                     </span>
                 </span>
             </button>
@@ -338,13 +341,14 @@
     </script>
     <!-- End Apy Fields -->
 
-    <div class="progress loader" style="height: 5px;">
+    <div class="progress loader" ng-if="counter !== 100">
         <div class="progress-bar progress-bar-info progress-bar-striped active"
              role="progressbar" aria-valuenow="counter" aria-valuemin="0" aria-valuemax="100" style="width: {{counter}}%">
             <span class="sr-only">{{counter}}% Complete</span>
         </div>
     </div>
 
+    <!-- FIXME: Link properly concept of isReadOnly to handle Resource permissions (Authentication system ?) -->
     <table class="table">
         <thead class="thead-inverse">
         <tr>
@@ -377,21 +381,21 @@
             </td>
             <td></td>
             <td>
-                <i ng-if="resource.$states.$current === resource.$states.READ"
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.READ"
                    ng-click="updateResource(resource)" class="glyphicon glyphicon-pencil"></i>
-                <i ng-if="resource.$states.$current === resource.$states.CREATE"
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
                    ng-click="create(resource)" class="glyphicon glyphicon-ok"></i>
-                <i ng-if="resource.$states.$current === resource.$states.UPDATE"
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
                    ng-click="update(resource)" class="glyphicon glyphicon-ok"></i>
-                <i ng-if="resource.$states.$current === resource.$states.CREATE"
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
                    ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
             </td>
             <td>
-                <i ng-if="resource.$states.$current === resource.$states.UPDATE"
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
                    ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
-                <i ng-if="resource.$states.$current === resource.$states.CREATE"
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
                    ng-click="removeResource(resource)" class="glyphicon glyphicon-trash"></i>
-                <i ng-if="resource.$states.$current !== resource.$states.CREATE &&
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current !== resource.$states.CREATE &&
                           resource.$states.$current !== resource.$states.UPDATE"
                    ng-click="delete(resource)" class="glyphicon glyphicon-trash"></i>
             </td>

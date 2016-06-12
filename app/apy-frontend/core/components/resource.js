@@ -352,7 +352,9 @@
                         fieldObj.load(value);
                         break;
                     default:
-                        throw new Error('Unknown type ' + type);
+                        this.$logging.log('Unknown type ', type);
+                        fieldObj = new ApyPolyField(this.$service, field, null, value, this.$states, this.$endpointBase);
+                        fieldObj.readOnly = true;
                         break;
                 }
                 fieldObj.setParent(this);
@@ -404,6 +406,14 @@
             return this;
         }
 
+        function isReadOnly() {
+            var readOnly = 0;
+            this.$components.forEach(function (comp) {
+                if(comp.readOnly) readOnly++;
+            });
+            return this.$components.length === readOnly;
+        }
+
         /**
          * ApyResourceComponent
          *
@@ -450,6 +460,7 @@
             this._load             = _load            ;
             this.cleanedData       = cleanedData      ;
             this.load              = load             ;
+            this.isReadOnly        = isReadOnly       ;
 
             this.$states = $states || this.createStateHolder(states[1], states);
             this.init(service, name, components, type);

@@ -156,7 +156,12 @@
             return data;
         }
 
+        function validate() {
+
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.validate = validate;
             this.load = load;
             this.setValue = setValue;
             this.cloneValue = cloneValue;

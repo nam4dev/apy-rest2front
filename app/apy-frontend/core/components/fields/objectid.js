@@ -53,7 +53,12 @@
             return this._id;
         }
 
+        function validate() {
+
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.validate = validate;
             this.cloneValue = cloneValue;
             this.selfUpdate = selfUpdate;
             this.cleanedData = cleanedData;

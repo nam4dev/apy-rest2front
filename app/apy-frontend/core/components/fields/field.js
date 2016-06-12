@@ -135,54 +135,6 @@
 
         /**
          *
-         * @returns {this}
-         */
-        function validate() {
-
-            if($TYPES.POLY === this.$type) {
-                return this;
-            }
-            var expectedType = this.$type,
-                selfType = typeof this.$value,
-                error = false;
-
-            if (this.$typesMap.hasOwnProperty(selfType)) {
-                var allowedValues = this.$typesMap[selfType];
-                if (allowedValues.indexOf(expectedType) > -1) {
-                    selfType = expectedType;
-                }
-            }
-            switch (expectedType) {
-                case $TYPES.MEDIA:
-                case $TYPES.POINT:
-                    // FIXME: TBD
-                    break;
-                case $TYPES.DATETIME:
-                    if (!this.$value || isString(this.$value)) {
-                        if (this.$value)
-                            this.$value = new Date(this.$value);
-                        else
-                            this.$value = new Date();
-                    }
-                    if (!isDate(this.$value)) error = true;
-                    break;
-                default:
-                    if (selfType !== expectedType) error = true;
-                    break;
-            }
-
-            if (error) {
-                var e = "Component property `" + this.$name + "` shall be of type => " +
-                    expectedType + "! Got " + selfType;
-                this.$logging.log(e);
-                this.$logging.log(this.$value);
-                throw new Error(e);
-            }
-            return this;
-        }
-
-        /**
-         *
          */
         function cleanedData() {
             this.validate();
@@ -197,7 +149,6 @@
             this.load            = load;
             this.reset           = reset;
             this.toString        = toString;
-            this.validate        = validate;
             this.setValue        = setValue;
             this.cloneValue      = cloneValue;
             this.setOptions      = setOptions;

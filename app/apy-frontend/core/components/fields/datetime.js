@@ -52,7 +52,18 @@
             return new Date(value);
         }
 
+        function validate() {
+            if (!this.$value || isString(this.$value)) {
+                if (this.$value)
+                    this.$value = new Date(this.$value);
+                else
+                    this.$value = new Date();
+            }
+            if (!isDate(this.$value)) throw new Error('Datetime');
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.validate = validate;
             this.hasUpdated = hasUpdated;
             this.cloneValue = cloneValue;
             this.cleanedData = cleanedData;

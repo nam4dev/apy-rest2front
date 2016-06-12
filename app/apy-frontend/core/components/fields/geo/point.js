@@ -81,7 +81,12 @@
             return this.$value.cleanedData();
         }
 
+        function validate() {
+
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.validate = validate;
             this.setValue = setValue;
             this.cloneValue = cloneValue;
             this.hasUpdated = hasUpdated;

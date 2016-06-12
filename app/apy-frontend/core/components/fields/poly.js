@@ -65,10 +65,14 @@
 
         }
 
+        function validate() {
+
+        }
         // FIXME: value & options parameters shall not be useful as a Poly Morph Field
         // FIXME: should not care of schema/options and value except if we decide to try to
         // FIXME: autodetect type based on given value when we've got a schema-less field (which PolyField certainly is).
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.validate = validate;
             this.setType = setType;
             // Allow to know, this field is a PolyMorph type,
             // as when setType is invoked, its type is entirely overridden.

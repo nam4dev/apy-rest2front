@@ -142,23 +142,6 @@
                 $scope.$collection = collection;
                 $scope.$schemas = apyProvider.$schemasAsArray;
 
-                var timeout;
-
-                function Loader($) {
-                    return {
-                        hide: function (ms) {
-                            $('.loader').hide(ms);
-                            timeout && clearTimeout(timeout);
-                        },
-                        show: function (ms) {
-                            $('.loader').show(ms);
-                        }
-                    }
-                }
-
-                var loader = new Loader($);
-                loader.show();
-
                 function progress(counter) {
                     $scope.counter = counter;
                 }
@@ -166,7 +149,6 @@
                 collection.fetch(progress)
                     .then(function (_) {
                         $scope.$apply();
-                        timeout = setTimeout(loader.hide, 250);
                     }).catch(function (error) {
                         $log.error(error);
                     });
