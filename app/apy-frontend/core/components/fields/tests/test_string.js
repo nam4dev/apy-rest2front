@@ -36,38 +36,4 @@
  */
 describe("Component.Field.String unit tests", function() {
 
-    var _createField = function (value) {
-        return new ApyStringField({$log: console}, "test", {type: "string"}, value);
-    };
-
-    it("must count word(s) properly", function() {
-        var value = "A test string";
-        var stringField = _createField(value);
-        expect(stringField.wordCount()).toBe(value.length);
-    });
-
-    it("[valid type value] nominal case", function() {
-        var value = "A test string";
-        var stringField = _createField(value);
-        expect(stringField.validate()).toBeUndefined();
-    });
-
-    it("[Null type value] shall validate", function() {
-        var value = null;
-        var stringField = _createField(value);
-        expect(stringField.validate()).toBeUndefined();
-    });
-
-    it("[Undefined type value] shall validate", function() {
-        var value = undefined;
-        var stringField = _createField(value);
-        expect(stringField.validate()).toBeUndefined();
-    });
-
-    it("[invalid type value] shall throw an Error", function() {
-        var value = {bad: "input"};
-        expect(function () {
-            _createField(value);
-        }).toThrow();
-    });
 });

@@ -42,19 +42,9 @@
             return this.$value ? this.$value.length : 0;
         }
 
-        function validate() {
-            if([undefined, null].indexOf(this.$value) !== -1) {
-                this.$value = "";
-            }
-            var selfType = typeof this.$value;
-            if(selfType !== 'string') {
-                throw new Error('toto => Field.String type does not validate (got => ' + selfType + ')');
-            }
-        }
-
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.validate = validate;
             this.wordCount = wordCount;
+            this.$internalType = 'string';
             this.$Class = $window.ApyStringField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.STRING, null);
             return this;

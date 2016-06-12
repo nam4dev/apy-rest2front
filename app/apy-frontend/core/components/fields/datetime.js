@@ -44,7 +44,9 @@
         }
 
         function hasUpdated() {
-            if (!isDate(this.$memo)) this.$memo = new Date(this.$memo);
+            if (!isDate(this.$memo)) {
+                this.$memo = new Date(this.$memo);
+            }
             return this.$value.getTime() !== this.$memo.getTime();
         }
 
@@ -54,12 +56,14 @@
 
         function validate() {
             if (!this.$value || isString(this.$value)) {
-                if (this.$value)
+                if (isString(this.$value)) {
                     this.$value = new Date(this.$value);
-                else
+                }
+                else {
                     this.$value = new Date();
+                }
             }
-            if (!isDate(this.$value)) throw new Error('Datetime');
+            if (!isDate(this.$value)) throw new Error('Datetime object or string expected');
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {

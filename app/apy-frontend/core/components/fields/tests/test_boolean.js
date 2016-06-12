@@ -30,7 +30,11 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Boolean Field Uts
  *
  *  """
  */
+
+describe("Component.Field.Boolean unit tests", function() {
+
+});

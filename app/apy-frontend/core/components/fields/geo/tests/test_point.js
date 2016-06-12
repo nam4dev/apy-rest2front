@@ -30,7 +30,31 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Geo Point Field UTs
  *
  *  """
  */
+
+describe("Component.Field.Point unit tests", function() {
+
+    var _createFieldByType = function (type, value, schema) {
+        schema = schema || {};
+        schema.type = type;
+        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
+    };
+
+    var _createField = function (value, schema) {
+        return new _createFieldByType('point', value, schema);
+    };
+
+    it("[setValue] Valid value", function() {
+        var value = {coordinates: [0.0, 1.0]};
+        var field = _createField(value);
+        expect(field.$value).toBeDefined();
+        expect(field.$value.x).toEqual(value.coordinates[0]);
+        expect(field.$value.y).toEqual(value.coordinates[1]);
+        expect(field.$memo).toBeDefined();
+    });
+});
+
+

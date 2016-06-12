@@ -42,12 +42,8 @@
 
     $window.ApyNumberField = (function () {
 
-        function validate() {
-
-        }
-
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.validate = validate;
+            this.$internalType = 'number';
             this.$Class = $window.ApyNumberField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.NUMBER, null);
             return this;

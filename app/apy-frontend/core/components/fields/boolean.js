@@ -39,20 +39,8 @@
 
     $window.ApyBooleanField = (function () {
 
-        function errorMsg() {
-            var msg = 'Field.' + this.$name + ' did not validate' + '\n';
-               msg += 'Type should be Boolean, got ' + typeof this.$value;
-            return msg;
-        }
-
-        function validate() {
-            if(typeof this.$value !== 'boolean') {
-                throw new Error(errorMsg());
-            }
-        }
-
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.validate = validate;
+            this.$internalType = 'boolean';
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.BOOLEAN, null);
             this.$Class = $window.ApyBooleanField;
             return this;

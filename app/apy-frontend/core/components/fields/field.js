@@ -145,10 +145,23 @@
             return this;
         }
 
+        function errorMsg() {
+            var msg = 'Field.' + this.$name + ' did not validate' + '\n';
+               msg += 'Type should be ' + this.$internalType + ', got ' + typeof this.$value;
+            return msg;
+        }
+
+        function validate() {
+            if(typeof this.$value !== this.$internalType) {
+                throw new Error(errorMsg());
+            }
+        }
+
         return function () {
             this.load            = load;
             this.reset           = reset;
             this.toString        = toString;
+            this.validate        = validate;
             this.setValue        = setValue;
             this.cloneValue      = cloneValue;
             this.setOptions      = setOptions;

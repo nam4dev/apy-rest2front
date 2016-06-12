@@ -41,6 +41,7 @@
         function setValue(value) {
             var self = this;
             this.$memo = 0;
+            this.$memoValue = this.cloneValue(value);
             this.$value = this.cloneValue(value);
             if(value && value.forEach) {
                 // Reset components
@@ -115,6 +116,14 @@
 
         /**
          *
+         * @returns {*}
+         */
+        function reset() {
+            this.setValue(this.$memoValue);
+        }
+
+        /**
+         *
          * @param value
          * @returns {*}
          */
@@ -133,7 +142,9 @@
             }
             if(!updated) {
                 this.$components.forEach(function (comp) {
-                    if(comp.hasUpdated()) updated = true;
+                    if(comp.hasUpdated()) {
+                        updated = true;
+                    }
                 });
             }
             return updated;
@@ -161,13 +172,15 @@
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.validate = validate;
             this.load = load;
+            this.reset = reset;
+            this.validate = validate;
             this.setValue = setValue;
             this.cloneValue = cloneValue;
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
             this.$Class = $window.ApyListField;
+            this.$memoValue = [];
             this.initialize(service, name, schema, value, $states, $endpoint, $TYPES.LIST, relationName);
             return this;
         }

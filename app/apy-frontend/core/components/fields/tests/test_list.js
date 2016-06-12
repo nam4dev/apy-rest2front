@@ -30,7 +30,48 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  List Field UTs
  *
  *  """
  */
+
+describe("Component.Field.List unit tests", function() {
+
+    var _createFieldByType = function (type, value, schema) {
+        schema = schema || {};
+        schema.type = type;
+        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
+    };
+
+    var _createField = function (value, schema) {
+        return new _createFieldByType('list', value, schema);
+    };
+
+    it("[hasUpdated][different count] Component should be updated", function() {
+        var original = [_createFieldByType('datetime', new Date())];
+        var field = _createField(original);
+        field.add(_createFieldByType('datetime', new Date()));
+        expect(field.hasUpdated()).toBe(true);
+    });
+
+    it("[hasUpdated][child updated] Component should be updated", function() {
+        var original = [new Date()];
+        var field = _createField(original);
+        expect(field.count()).toBe(1);
+        var child  = field.getChild(0);
+        child.$value = new Date(2011, 10, 15, 10, 58, 55, 48);
+        expect(child.hasUpdated()).toBe(true);
+        expect(field.hasUpdated()).toBe(true);
+    });
+
+    it("[setValue] Valid value", function() {
+        var value = ["A test string child", "Another one :)"];
+        var field = _createField(value, {schema: {type: "string"}});
+        expect(field.$value).toBeDefined();
+        expect(field.$memo).toBeDefined();
+        expect(field.$memoValue).toBeDefined();
+        expect(field.$value).toEqual(value);
+        expect(field.$memoValue).toEqual(value);
+        expect(field.$memo).toEqual(2);
+    });
+});
