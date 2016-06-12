@@ -44,7 +44,6 @@
 
         function validate() {
             if([undefined, null].indexOf(this.$value) !== -1) {
-                console.log('[undefined, null].indexOf(this.$value)', this.$value);
                 this.$value = "";
             }
             var selfType = typeof this.$value;
