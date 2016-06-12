@@ -17,12 +17,10 @@
     "karma-phantomjs-launcher": "^1.0.0",
     "phantomjs-prebuilt": "^2.1.7",
     "protractor": "^2.1.0",
-    "require": "^2.4.20",
     "shelljs": "^0.2.6"
   },
   "scripts": {
     "postinstall": "bower install",
-    "bower-update": "bower update",
     "prestart": "npm install",
     "start": "http-server -a localhost -p 8000",
     "pretest": "npm install",
