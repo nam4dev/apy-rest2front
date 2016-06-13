@@ -30,7 +30,7 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Version directive UTs
  *
  *  """
  */
