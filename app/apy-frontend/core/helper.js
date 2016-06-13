@@ -455,6 +455,20 @@
 
     /**
      *
+     * @returns {Object}
+     */
+    ApyMediaFile.prototype.getInfo = function () {
+        return {
+            file: this.$file,
+            name: this.$name,
+            type: this.$type,
+            lastModified: this.$lastModified,
+            lastModifiedDate: this.$lastModifiedDate
+        }
+    };
+
+    /**
+     *
      *
      * @param value
      * @returns {ApyMediaFile}

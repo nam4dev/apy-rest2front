@@ -45,6 +45,9 @@
         }
 
         function cloneValue(value) {
+            if(value instanceof ApyMediaFile) {
+                value = value.getInfo();
+            }
             return new ApyMediaFile(this.$endpoint, value);
         }
 

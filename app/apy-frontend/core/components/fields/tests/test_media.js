@@ -30,7 +30,125 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Media Field UTs
  *
  *  """
  */
+
+describe("Component.Field.Media unit tests", function() {
+
+    var _createFieldByType = function (type, value, schema) {
+        schema = schema || {};
+        schema.type = type;
+        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
+    };
+
+    var _createField = function (value, schema) {
+        return new _createFieldByType('media', _createFile(value), schema);
+
+    };
+
+    var _createFile = function (value) {
+        return new ApyMediaFile(null, value);
+
+    };
+
+    // FIXME: seems not to be executed until Promise process (async)
+    //var readFile = function (f) {
+    //    return new Promise(function (resolve, reject) {
+    //        var reader = new FileReader();
+    //        reader.onerror = function (e) {
+    //            return reject(e);
+    //        };
+    //        reader.onload = function(e) {
+    //            return resolve(e.target.result);
+    //        };
+    //        reader.readAsDataURL(f);
+    //    });
+    //
+    //};
+
+    it("[cloneValue.String.input] shall return an ApyMediaFile instance", function() {
+        var info = '/media/575bede345feda1fd4515556';
+        var field = _createField(info);
+        expect(field.cloneValue(info) instanceof ApyMediaFile).toBe(true);
+    });
+
+    it("[cloneValue.FileInfo.input] shall return an ApyMediaFile instance", function() {
+        var info = {
+            file: '/media/575bede345feda1fd4515556',
+            content_type: 'image/png',
+            name: "avatar.png"
+        };
+        var field = _createField(info);
+        expect(field.cloneValue(info) instanceof ApyMediaFile).toBe(true);
+    });
+
+    it("[cloneValue.ApyMediaFile.input] shall return an ApyMediaFile instance", function() {
+        var info = {
+            file: '/media/575bede345feda1fd4515556',
+            content_type: 'image/png',
+            name: "avatar.png"
+        };
+        var field = _createField(null);
+        expect(field.cloneValue(_createFile(info)) instanceof ApyMediaFile).toBe(true);
+    });
+
+    it("[cleanedData.String.input] Shall return NULL ($value.$file property)", function() {
+        var info = '/media/575bede345feda1fd4515556';
+        var field = _createField(info);
+        expect(field.cleanedData()).toEqual(null);
+    });
+
+    it("[cleanedData.FileInfo.input] Shall return NULL ($value.$file property)", function() {
+        var info = {
+            file: '/media/575bede345feda1fd4515556',
+            content_type: 'image/png',
+            name: "avatar.png"
+        };
+        var field = _createField(info);
+        expect(field.cleanedData()).toEqual(null);
+    });
+
+    // FIXME: seems not to be executed until Promise process (async)
+    //it("[cleanedData.File.input] Shall return $value.$file property (not NULL)", function() {
+    //    readFile('http://jsfiddle.net/img/logo.png').then(function (file) {
+    //        console.error(file);
+    //        var field = _createField(file);
+    //        expect(field.cleanedData()).toEqual(file.file);
+    //    }).catch(function (error) {
+    //        console.error(error);
+    //        expect(true).toBe(false);
+    //    });
+    //});
+
+    it("[constructor.FileInfo.input] File Instance ($value) properties shall be properly set", function() {
+        var info = {
+            file: '/media/575bede345feda1fd4515556',
+            content_type: 'image/png',
+            name: "avatar.png"
+        };
+        var field = _createField(info);
+        var fieldFile = field.$value;
+        expect(fieldFile instanceof ApyMediaFile).toBe(true);
+        expect(fieldFile.$file).toEqual(info.file);
+        expect(fieldFile.$type).toEqual(info.content_type);
+        expect(fieldFile.$name).toEqual(info.name);
+        expect(fieldFile.$isImage).toBe(true);
+        expect(fieldFile.$lastModified).toEqual(info.lastModified);
+        expect(fieldFile.$lastModifiedDate).toEqual(info.lastModifiedDate);
+    });
+
+    it("[constructor.String.input] File Instance ($value) properties shall be properly set", function() {
+        var info = '/media/575bede345feda1fd4515556';
+        var field = _createField(info);
+        var fieldFile = field.$value;
+        expect(fieldFile instanceof ApyMediaFile).toBe(true);
+        expect(fieldFile.$file).toEqual(info);
+        expect(fieldFile.$type).toBeUndefined();
+        expect(fieldFile.$name).toBeUndefined();
+        expect(fieldFile.$isImage).toBe(false);
+        expect(fieldFile.$lastModified).toBeUndefined();
+        expect(fieldFile.$lastModifiedDate).toBeUndefined();
+    });
+});
