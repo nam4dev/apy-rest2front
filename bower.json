@@ -20,5 +20,8 @@
   },
   "resolutions": {
     "angular": ">1.2.0"
+  },
+  "devDependencies": {
+    "babel-polyfill": "^0.0.1"
   }
 }
