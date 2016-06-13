@@ -51,19 +51,33 @@
         }
 
         function cloneValue(value) {
-            return new Date(value);
+            var clonedValue = value;
+            // Non value & String values cases
+            if (!value || isString(value)) {
+                // String case
+                if (isString(value)) {
+                    clonedValue = new Date(value);
+                }
+                // Non value case
+                else {
+                    clonedValue = new Date();
+                }
+            }
+            // Non value & String values cases
+            else if(isDate(value)) {
+                clonedValue = new Date(value.toUTCString());
+            }
+            // unhandled types case
+            else {
+                throw new Error('Unhandled type for datetime field: ' + typeof value);
+            }
+            return clonedValue;
         }
 
         function validate() {
-            if (!this.$value || isString(this.$value)) {
-                if (isString(this.$value)) {
-                    this.$value = new Date(this.$value);
-                }
-                else {
-                    this.$value = new Date();
-                }
+            if (!isDate(this.$value)) {
+                throw new Error('Datetime object or string expected');
             }
-            if (!isDate(this.$value)) throw new Error('Datetime object or string expected');
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {

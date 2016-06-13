@@ -637,7 +637,8 @@
         return $window[fieldClassName];
     }
 
-    var mapping = {
+    var mapping;
+    $window.apy.common.FIELD_TYPES_MAP = mapping = {
         'float': 'number',
         'integer': 'number',
         'dict': 'hashmap',

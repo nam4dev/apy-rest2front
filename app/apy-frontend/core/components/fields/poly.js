@@ -46,9 +46,18 @@
             if(!field) {
                 throw new Error('Unknown Field type, **' + type + '**');
             }
-            var schema = this.$service.$schemas[schemaName];
+            var schema = schemaName ? this.$service.$schemas[schemaName]: null;
             var instance = new field(this.$service, null, schema, null,
                 this.$states, this.$endpoint, type, this.$relationName);
+
+            if(this.$value && this.$value.forEach) {
+                this.$value.forEach(function (comp) {
+                    instance.add(comp);
+                });
+            }
+            if(this.$value && !instance.$value && instance.$value !== false) {
+                instance.$value = this.$value;
+            }
             $.extend(true, this, instance);
             if(!this.$parent) {
                 console.debug('No Parent provided for ' +
@@ -62,7 +71,6 @@
                 default :
                     break;
             }
-
         }
 
         function validate() {
@@ -74,8 +82,8 @@
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.validate = validate;
             this.setType = setType;
-            // Allow to know, this field is a PolyMorph type,
-            // as when setType is invoked, its type is entirely overridden.
+            // Allow to know, this field is a PolyMorph type as it is the only one to have this property,
+            // as when setType is invoked, its type is entirely overridden with all similar properties.
             this.$isPolyMorph = true;
             this.$Class = $window.ApyPolyField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.POLY, relationName);

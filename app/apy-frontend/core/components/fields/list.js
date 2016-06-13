@@ -128,7 +128,11 @@
          * @returns {*}
          */
         function cloneValue(value) {
-            return value ? value : [];
+            value = value ? value : [];
+            if(!this.isArray(value) && ! isArrayLike(value)) {
+                value = new Array(value);
+            }
+            return value;
         }
 
         /**
