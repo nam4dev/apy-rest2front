@@ -42,8 +42,8 @@
     // Registering mixin globally
     $window.ApyFieldMixin =  (function () {
 
-        function initialize(service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.init(service, name, null, type);
+        function initialize(service, name, schema, value, $states, $endpoint, type, relationName, components) {
+            this.init(service, name, components, type);
             this.$name = name;
             this.$type = type;
             this.$states = $states;
