@@ -86,7 +86,6 @@ describe("Component.Field.Field unit tests", function() {
             ['list', [_createField('poly', 0.0)], [_createField('poly', new Date())]],
             ['hashmap', {}, {test: "a simple test"}],
             ['hashmap', {test: "a simple test"}, {testUpdated: "a simple updated value"}],
-            ['datetime', new Date(), new Date(2011, 10, 15, 10, 58, 55, 48)],
             ['number', 1, 2]
         ];
         fields.forEach(function (fieldInfo) {
@@ -154,7 +153,6 @@ describe("Component.Field.Field unit tests", function() {
             ['string', ""],
             ['boolean', true],
             ['number', 0.0],
-            ['datetime', new Date()],
             ['hashmap', {test: "this is a test"}],
             ['embedded', '5724dfcb45feda3c6fa827f7']
         ];

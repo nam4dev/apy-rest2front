@@ -30,7 +30,89 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Poly Morph Field UTs
  *
  *  """
  */
+
+describe("Component.Field.Poly unit tests", function() {
+
+    var _createFieldByType = function (type, value) {
+        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", {type: type}, value);
+    };
+
+    var _createField = function (value) {
+        return new _createFieldByType('poly', value);
+    };
+
+    var _morphsTo = function (type, value, expectedValue) {
+        var field = _createField(value);
+        field.setParent(_createField('[PARENT] ' + value));
+        expect(field.$value).toEqual(value);
+        expect(field.$type).toEqual('poly');
+        expect(field.$contentUrl).toEqual('field-poly.html');
+        field.setType(type);
+        expect(field.$type).toEqual(type);
+        switch (type) {
+            case 'list':
+                expect(field.count()).toEqual(value.length);
+                break;
+            case 'datetime':
+                expect(isDate(field.$value)).toBe(true);
+                break;
+            default :
+                expect(field.$value).toEqual(expectedValue);
+                break;
+        }
+        if(apy.common.FIELD_TYPES_MAP.hasOwnProperty(type)) {
+            type = apy.common.FIELD_TYPES_MAP[type];
+        }
+        expect(field.$contentUrl).toEqual('field-' + type + '.html');
+    };
+
+    it("[setType] shall morphs from Poly to Boolean type", function() {
+        var expectedValue = false;
+        var value = "A poly field for test";
+        _morphsTo('boolean', value, expectedValue);
+    });
+
+    it("[setType] shall morphs from Poly to Datetime type", function() {
+        var value = new Date();
+        _morphsTo('datetime', value);
+    });
+
+    it("[setType] shall morphs from Poly to Hashmap type", function() {
+        var value = {test: "A test"};
+        // FIXME: Resource & Hashmap seems messed up
+        // FIXME: Grouping all into hashmap or Resource shall be thought about
+        //_morphsTo('hashmap', value, null);
+    });
+
+    it("[setType] shall morphs from Poly to List type", function() {
+        var value = ['One', 'Two', 'Three'];
+        _morphsTo('list', value, null);
+    });
+
+    it("[setType] shall morphs from Poly to Media type", function() {
+        var value = {file: "/image/test.jpg", content_type: "image/jpeg", name: "imageTest"};
+        // FIXME: Promise seems to be a problem to karma
+        // FIXME: Need to groom about that (async & karma)
+        //_morphsTo('media', value);
+    });
+
+    it("[setType] shall morphs from Poly to Number type", function() {
+        var value = 1.0;
+        _morphsTo('number', value, value);
+    });
+
+    it("[setType] shall morphs from Poly to ObjectID (Embedded) type", function() {
+        var value = "575efd2a45feda5202c60e61";
+        // FIXME: Not implemented behavior
+        //_morphsTo('objectid', value);
+    });
+
+    it("[setType] shall morphs from Poly to String", function() {
+        var value = "A test string value";
+        _morphsTo('string', value, value);
+    });
+});

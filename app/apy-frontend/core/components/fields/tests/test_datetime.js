@@ -30,7 +30,76 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Datetime Field UTs
  *
  *  """
  */
+
+describe("Component.Field.Datetime unit tests", function() {
+
+    var _createFieldByType = function (type, value, schema) {
+        schema = schema || {};
+        schema.type = type;
+        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
+    };
+
+    var _createField = function (value, schema) {
+        return new _createFieldByType('datetime', value, schema);
+    };
+
+    it("[setValue] Valid value", function() {
+        var value = new Date();
+        var field = _createField(value);
+        expect(field.$value).toBeDefined();
+        expect(field.$value.toUTCString).toBeDefined();
+        expect(field.$memo).toBeDefined();
+        expect(field.$memo.toUTCString).toBeDefined();
+        expect(field.$value.toUTCString()).toEqual(value.toUTCString());
+        expect(field.$value.toUTCString()).toEqual(field.$memo.toUTCString());
+    });
+
+    it("[cleanedData] shall return an UTC string", function() {
+        var value = new Date();
+        var field = _createField(value);
+        expect(field.cleanedData()).toEqual(value.toUTCString());
+    });
+
+    it("[cloneValue.Null.input] shall return a Date object", function() {
+        var value = null;
+        var field = _createField(value);
+        var clonedValue = field.cloneValue(value);
+        expect(isDate(clonedValue)).toBe(true);
+    });
+
+    it("[cloneValue.Undefined.input] shall return a Date object", function() {
+        var value = undefined;
+        var field = _createField(value);
+        var clonedValue = field.cloneValue(value);
+        expect(isDate(clonedValue)).toBe(true);
+    });
+
+    it("[cloneValue.String.input] shall return an equal Date object", function() {
+        var value = new Date();
+        var field = _createField(null);
+        var clonedValue = field.cloneValue(value.toUTCString());
+        expect(isDate(clonedValue)).toBe(true);
+        expect(clonedValue.toUTCString()).toEqual(value.toUTCString());
+    });
+
+    it("[cloneValue.Date.input] shall return an equal Date object", function() {
+        var value = new Date();
+        var field = _createField(null);
+        var clonedValue = field.cloneValue(value);
+        expect(isDate(clonedValue)).toBe(true);
+        expect(clonedValue.toUTCString()).toEqual(value.toUTCString());
+    });
+
+    it("[reset] Component should be reset to its original value", function() {
+        var memo = new Date(), value = new Date(2011, 10, 15, 10, 58, 55, 48);
+        var field = _createField(memo);
+        field.$value = value;
+        expect(field.$value.toUTCString()).toEqual(value.toUTCString());
+        field.reset();
+        expect(field.$value.toUTCString()).toEqual(memo.toUTCString());
+    });
+});

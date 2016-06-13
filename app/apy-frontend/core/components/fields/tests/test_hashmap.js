@@ -30,7 +30,48 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Hashmap Field UTs
  *
  *  """
  */
+
+describe("Component.Field.HashMap unit tests", function() {
+
+    var _createFieldByType = function (type, value, schema) {
+        schema = schema || {};
+        schema.type = type;
+        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
+    };
+
+    var _createField = function (value, schema) {
+        return new _createFieldByType('hashmap', value, schema);
+    };
+
+    it("[cleanedData] shall return an Object-like instance based on its Component(s) type & state (updated)", function() {
+        var value = {
+            test: "A string value",
+            date: new Date(),
+            items: [
+                "One",
+                "Two"
+            ]
+        };
+        var schema = {
+            test: {type: "string"},
+            date: {type: "datetime"},
+            items: {type: "list", schema: {type: "string"}}
+        };
+        var field = _createField(value, schema);
+
+        //FIXME:
+        //console.log('field', field.cleanedData());
+
+        //field.$components[0].$value = "An updated string value";
+        //field.$components[1].$value = new Date();
+        //
+        //expect(field.cleanedData()).toEqual({
+        //    test: field.$components[0].$value,
+        //    date: field.$components[1].$value
+        //});
+    });
+});
