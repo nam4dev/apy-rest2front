@@ -55,6 +55,60 @@ describe("Component.Field.Point unit tests", function() {
         expect(field.$value.y).toEqual(value.coordinates[1]);
         expect(field.$memo).toBeDefined();
     });
+
+    it("[hasUpdated] Shall be true", function() {
+        var value = {coordinates: [0.0, 1.0]};
+        var field = _createField(value);
+        expect(field.hasUpdated()).toBe(false);
+    });
+
+    it("[hasUpdated.x.updated] Shall be true", function() {
+        var value = {coordinates: [0.0, 1.0]};
+        var field = _createField(value);
+        field.$value.x = 1.0;
+        expect(field.hasUpdated()).toBe(true);
+    });
+
+    it("[hasUpdated.y.updated] Shall be true", function() {
+        var value = {coordinates: [0.0, 1.0]};
+        var field = _createField(value);
+        field.$value.y = 0.0;
+        expect(field.hasUpdated()).toBe(true);
+    });
+
+    it("[hasUpdated.both.updated] Shall be true", function() {
+        var value = {coordinates: [0.0, 1.0]};
+        var field = _createField(value);
+        field.$value.x = 1.0;
+        field.$value.y = 0.0;
+        expect(field.hasUpdated()).toBe(true);
+    });
+
+    it("[cleanedData.updated] Shall return proper value", function() {
+        var value = {coordinates: [0.0, 1.0]};
+        var field = _createField(value);
+        field.$value.x = 1.0;
+        field.$value.y = 0.0;
+        expect(field.cleanedData()).toEqual({type: 'Point', coordinates: [1.0, 0.0]});
+    });
+
+    it("[cleanedData.not.updated] Shall return NULL", function() {
+        var value = {coordinates: [0.0, 1.0]};
+        var field = _createField(value);
+        expect(field.cleanedData()).toEqual(null);
+    });
+
+    it("[cloneValue.ApyPoint] Shall return a valid instance of ApyPoint", function() {
+        var value = new ApyPoint({coordinates: [0.0, 1.0]});
+        var field = _createField(value);
+        expect(field.cloneValue(value) instanceof ApyPoint).toBe(true);
+    });
+
+    it("[cloneValue.not.ApyPoint] Shall return a valid instance of ApyPoint", function() {
+        var value = {coordinates: [0.0, 1.0]};
+        var field = _createField(value);
+        expect(field.cloneValue(value) instanceof ApyPoint).toBe(true);
+    });
 });
 
 

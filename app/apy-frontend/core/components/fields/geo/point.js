@@ -77,13 +77,14 @@
          * @returns {Object}
          */
         function cleanedData () {
-            this.validate();
-            return this.$value.cleanedData();
+            if(this.hasUpdated()) {
+                this.validate();
+                return this.$value.cleanedData();
+            }
+            return null;
         }
 
-        function validate() {
-
-        }
+        function validate() {}
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.validate = validate;

@@ -562,6 +562,9 @@
     };
 
     var ApyPoint = function ApyPoint(value) {
+        if(value instanceof ApyPoint) {
+            value = value.cleanedData();
+        }
         value = value || {"type": "Point", coordinates: [-1, -1]};
         this.value = value;
         this.x = value.coordinates[0];
