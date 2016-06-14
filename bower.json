@@ -1,8 +1,8 @@
 {
   "name": "apy-frontend",
   "description": "Provide an easy-to-configure system to get a fully functional CRUD views based on a REST API schema",
-  "version": "0.7.0",
-  "homepage": "https://gitlab.com/namat4css/apy-frontend",
+  "version": "0.8.0",
+  "homepage": "https://gitlab.com/apysoft/apy-frontend",
   "license": "MIT",
   "private": true,
   "dependencies": {

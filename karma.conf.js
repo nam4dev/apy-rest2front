@@ -2,7 +2,6 @@ module.exports = function(config){
     config.set({
 
         basePath : './',
-
         files : [
             'app/components/babel-polyfill/browser-polyfill.js',
             'app/components/angular/angular.js',

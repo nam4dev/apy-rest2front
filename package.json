@@ -1,12 +1,11 @@
 {
   "name": "apy-frontend",
   "private": true,
-  "version": "0.7.0",
+  "version": "0.8.0",
   "description": "Provide an easy-to-configure system to get a fully functional CRUD views based on a REST API schema",
-  "repository": "https://gitlab.com/namat4css/apy-frontend",
+  "repository": "https://gitlab.com/apysoft/apy-frontend",
   "license": "MIT",
   "devDependencies": {
-    "bower": "^1.3.1",
     "http-server": "^0.6.1",
     "istanbul": "^0.4.3",
     "jasmine-core": "^2.3.4",
@@ -20,8 +19,11 @@
     "protractor": "^2.1.0",
     "shelljs": "^0.2.6"
   },
+  "config": {
+    "unsafe-perm": true
+  },
   "scripts": {
-    "postinstall": "bower install",
+    "postinstall": "./node_modules/bower/bin/bower --allow-root install",
     "prestart": "npm install",
     "start": "http-server -a localhost -p 8000",
     "pretest": "npm install",
@@ -33,6 +35,7 @@
     "protractor": "protractor e2e-tests/protractor.conf.js"
   },
   "dependencies": {
+    "bower": "^1.3.1",
     "base64-regex": "^1.1.1"
   }
 }
