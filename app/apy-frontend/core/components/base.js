@@ -128,7 +128,7 @@
          * @returns {boolean}
          */
         function hasChildren() {
-            return this.$components.length > 0;
+            return this.count() > 0;
         }
         /**
          *
@@ -156,7 +156,6 @@
             var self = this;
             this.$types = $TYPES;
             this.$service = service;
-            this.$logging = service.$log;
             this.$typesMap = {
                 number: [
                     $TYPES.FLOAT,
@@ -276,7 +275,6 @@
         function loadValue () {
             var all = '';
             var self = this;
-            this.$value = '';
             this.$components.forEach(function (component) {
                 var v = component.$value;
                 if(v && !isDate(v) && !isBoolean(v)) {
@@ -286,16 +284,20 @@
                     }
                     var value = v + ', ';
                     all += value;
+                    if(!self.$value) {
+                        self.$value = '';
+                    }
                     if(component.$required) {
                         self.$value += value;
                     }
                 }
             });
-            if(all) {
+            if(!this.$value && all !== '') {
                 this.$value = all;
             }
-            if(this.$value.endsWith(', '))
+            if(this.$value && this.$value.endsWith(', ')) {
                 this.$value = this.$value.slice(0, -2);
+            }
         }
 
         function clone(parent, value) {
