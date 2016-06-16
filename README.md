@@ -108,6 +108,68 @@ index.html                      --> Angular integration demonstration
   ...
 ```
 
+## Frontend Configuration
+
+In order to visualize `apy-frontend` AngularJs implementation,
+you shall need to ensure your backend has following settings enabled,
+```python
+    XML = False && JSON = True
+    # For dynamic backend' schemas to frontend mapping
+    SCHEMA_ENDPOINT = 'your-schema-endpoint-name'
+```
+**For static backend' schemas to frontend mapping, see [Advanced Frontend Configuration](#advanced-frontend-configuration), specifically, [Static backend mapping](#static-backend-mapping)**
+
+Optionally, to increase user experience of Media document(s) visualisation,
+```python
+    RETURN_MEDIA_AS_BASE64_STRING = False
+    RETURN_MEDIA_AS_URL = True
+    EXTENDED_MEDIA_INFO = ['content_type', 'name']
+```
+Then on the frontend side, simply open ``apy-frontend/frameworks/front/angular/app.js`` file.
+**And edit lines**,
+
+```javascript
+    var endpoint = 'http{s}://your.eve.REST.API.URI/';
+    var schemaName = 'your-schema-endpoint-name';
+```
+Enjoy :)
+
+## Advanced Frontend Configuration
+
+This section describes how to tweak Apy Frontend behavior based on settings.
+
+### Static backend mapping
+
+One can specify different schemas definition than the backend as you can configure a snapshot of 
+your Information System (JSON) and set it to ApyFrontend settings.
+
+```javascript
+// AngularJS Integration example
+// apy-frontend/frameworks/front/angular/app.js
+... 
+application.provider("apy", function apyProvider () {
+    this.$get = function apyFactory () {
+        var $injector = angular.injector(['ng', 'ngFileUpload']),
+            ...
+            config = {
+                ...
+                schemas: {
+                    my_lists: {
+                        listOfString: {
+                            schema: {
+                                type: "string",
+                                default: "",
+                                required: true
+                            }
+                        }
+                    }
+                }
+            };
+        return new ApyCompositeService($log, $http, Upload, config);
+    };
+});
+```
+
 ## Testing
 
 There are two kinds of tests in the `apy-frontend` application: Unit tests and End to End tests.
@@ -238,6 +300,16 @@ configure your server to serve the files under the `app/` directory.
 to your repository and execute scripts such as building the app or running tests. The `apy-frontend`
 project contains a Travis configuration file, `.travis.yml`, which will cause Travis to run your
 tests when you push to GitHub.
+
+You will need to enable the integration between Travis and GitHub. See the Travis website for more
+instruction on how to do this.
+
+### GitLab CI
+
+[GitLab CI][docker] is a continuous integration service, which can monitor GitLab for new commits
+to your repository and execute scripts such as building the app or running tests. The `apy-frontend`
+project contains a GitLab configuration file, `.gitlab-ci.yml`, which will cause GitLab to run your
+tests when you push to GitLab.
 
 You will need to enable the integration between Travis and GitHub. See the Travis website for more
 instruction on how to do this.
