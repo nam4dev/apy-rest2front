@@ -76,7 +76,7 @@
          */
         function reset () {
             this.$components.forEach(function (comp) {
-                if(comp.hasUpdated()) comp.reset();
+                comp.reset();
             });
         }
 
@@ -269,10 +269,8 @@
          * @constructor
          */
         return function (service, name, endpoint, components) {
-            this.init(service, name, components, $TYPES.COLLECTION);
+            this.initialize(service, name, service.$instance.get(name), null, null, endpoint + name, $TYPES.COLLECTION, null, components);
             this.$endpointBase = endpoint;
-            this.$schema = service.$instance.get(name);
-            this.$endpoint = endpoint + name;
             this.$Class = $window.ApyCollectionComponent;
             if(this.$schema.$embeddedURI)
                 this.$endpoint += '?' + this.$schema.$embeddedURI;

@@ -43,14 +43,14 @@
             this.$memo = 0;
             this.$memoValue = this.cloneValue(value);
             this.$value = this.cloneValue(value);
-            if(value && value.forEach) {
-                // Reset components
-                this.$components = [];
+            // Reset components
+            this.$components = [];
+            if(Array.isArray(value)) {
                 value.forEach(function (el) {
                     self.load(el);
                 });
-                this.$memo = this.$components.length;
             }
+            this.$memo = this.$components.length;
             return this;
         }
 

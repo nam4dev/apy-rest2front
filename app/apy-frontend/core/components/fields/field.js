@@ -42,19 +42,6 @@
     // Registering mixin globally
     $window.ApyFieldMixin =  (function () {
 
-        function initialize(service, name, schema, value, $states, $endpoint, type, relationName, components) {
-            this.init(service, name, components, type);
-            this.$name = name;
-            this.$type = type;
-            this.$states = $states;
-            this.$endpoint = $endpoint;
-            this.$relationName = relationName;
-            this.setOptions(schema)
-                .setValue(value)
-                .validate();
-            return this;
-        }
-
         function setOptions(schema) {
             schema = schema || {};
             this.$schema = schema;
@@ -86,15 +73,6 @@
 
         /**
          *
-         * @param value
-         * @returns {*}
-         */
-        function cloneValue(value) {
-            return value;
-        }
-
-        /**
-         *
          * @returns {this}
          */
         function selfCommit() {
@@ -118,15 +96,6 @@
 
         /**
          *
-         */
-        function reset() {
-            if (this.hasUpdated()) {
-                this.$value = this.$memo;
-            }
-        }
-
-        /**
-         *
          * @returns {boolean}
          */
         function hasUpdated() {
@@ -145,7 +114,7 @@
             return this;
         }
 
-        function errorMsg() {
+        function _errorMsg() {
             var msg = 'Field.' + this.$name + ' did not validate' + '\n';
                msg += 'Type should be ' + this.$internalType + ', got ' + typeof this.$value;
             return msg;
@@ -153,19 +122,17 @@
 
         function validate() {
             if(typeof this.$value !== this.$internalType) {
-                throw new Error(errorMsg());
+                throw new Error(this._errorMsg());
             }
         }
 
         return function () {
             this.load            = load;
-            this.reset           = reset;
             this.toString        = toString;
             this.validate        = validate;
             this.setValue        = setValue;
-            this.cloneValue      = cloneValue;
+            this._errorMsg       = _errorMsg;
             this.setOptions      = setOptions;
-            this.initialize      = initialize;
             this.selfUpdate      = selfUpdate;
             this.selfCommit      = selfCommit;
             this.hasUpdated      = hasUpdated;

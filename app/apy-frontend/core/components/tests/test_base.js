@@ -37,6 +37,8 @@
 
 describe("Component.Base unit tests", function() {
 
+    var parent = {};
+
     // Mocking Child
     var Child = function (name) {
         this.$value = name + ": A child";
@@ -54,9 +56,11 @@ describe("Component.Base unit tests", function() {
         this.$log = console;
     };
 
-    var _createBaseComponent = function (type, value) {
+    var _createBaseComponent = function (type, value, components) {
         var component = new ApyComponentMixin();
-        component.init(new Service(), "Component.Base.test", value, type);
+        //service, name, schema, value, $states, $endpoint, type, relationName, components
+        component.initialize(new Service(), "Component.Base.test", {}, value, null, null, type, null, components);
+        component.setParent(parent);
         return component;
     };
 
@@ -160,7 +164,7 @@ describe("Component.Base unit tests", function() {
     it("[loadValue] '$value' property shall not be set", function () {
         var component = _createBaseComponent();
         component.loadValue();
-        expect(component.$value).toBeUndefined();
+        expect(component.$value).toEqual('');
     });
 
     it("[loadValue] '$value' property shall be set with only 'required' inner component(s)", function () {
@@ -173,7 +177,7 @@ describe("Component.Base unit tests", function() {
                 child.$required = true;
             }
         }
-        var component = _createBaseComponent('base', components);
+        var component = _createBaseComponent('base', null, components);
         component.loadValue();
         expect(component.$value).toEqual(expectedValue);
     });
@@ -185,7 +189,7 @@ describe("Component.Base unit tests", function() {
             var child = new Child(i);
             components.push(child);
         }
-        var component = _createBaseComponent('base', components);
+        var component = _createBaseComponent('base', null, components);
         component.loadValue();
         expect(component.$value).toEqual(expectedValue);
     });
@@ -199,5 +203,46 @@ describe("Component.Base unit tests", function() {
     it("[shallContinue] Shall return true", function () {
         var component = _createBaseComponent();
         expect(component.continue("_startWithUnderscore")).toBe(true);
+    });
+
+    it("[clone.undefined.$Class] Shall return undefined", function () {
+        var component = _createBaseComponent();
+        component.$Class = undefined;
+        expect(component.clone).toThrow();
+    });
+
+    it("[clone.defined.$Class] Shall return a clone based on $Class property", function () {
+        var clone;
+        var value = "a value";
+        var component = _createBaseComponent('base', null);
+        component.$Class = function () {
+
+            this.$name = arguments[1];
+            this.$type = arguments[6];
+            this.$value = arguments[3];
+            this.$schema = arguments[2];
+            this.$states = arguments[4];
+            this.$service = arguments[0];
+            this.$endpoint = arguments[5];
+            this.$relationName = arguments[7];
+            this.$components = arguments[8];
+
+            this.setParent = function (parent) {
+                expect(parent).toBeDefined();
+            }
+        };
+        clone = component.clone(null, value);
+        expect(clone.$name).toEqual(component.$name);
+        expect(clone.$type).toEqual(component.$type);
+        expect(clone.$value).toEqual(value);
+        expect(clone.$schema).toEqual(component.$schema);
+        expect(clone.$states).toEqual(component.$states);
+        expect(clone.$service).toEqual(component.$service);
+        expect(clone.$endpoint).toEqual(component.$endpoint);
+        expect(clone.$relationName).toEqual(component.$relationName);
+    });
+
+    it('[createPolyField] Shall create a new ApyPolyField instance', function () {
+
     });
 });

@@ -60,7 +60,17 @@
                     pkName: '_id',
                     appTheme: appTheme,
                     excludedEndpointByNames: ['logs'],
-                    schemas: {}
+                    schemas: {
+                        //my_lists: {
+                        //    listOfString: {
+                        //        schema: {
+                        //            type: "string",
+                        //            default: "",
+                        //            required: true
+                        //        }
+                        //    }
+                        //}
+                    }
                 };
             return new ApyCompositeService($log, $http, Upload, config);
         };

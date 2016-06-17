@@ -152,7 +152,7 @@
             return this;
         }
 
-        function initialize(service, name, components, type) {
+        function initialize(service, name, schema, value, $states, $endpoint, type, relationName, components) {
             var self = this;
             this.$types = $TYPES;
             this.$service = service;
@@ -184,7 +184,7 @@
                 return undefined;
             };
             this.$typeFactories[$TYPES.MEDIA] = function () {
-                return new ApyMediaFile(this.$endpoint, {});
+                return new ApyMediaFile(self.$endpoint, {});
             };
             this.$typeFactories[$TYPES.FLOAT] = function () {
                 return 0.0;
@@ -215,8 +215,6 @@
                 integer: $TYPES.NUMBER,
                 dict: $TYPES.RESOURCE
             };
-            this.$name = name;
-            this.$type = type;
             // Dependencies inherited from Angular
             this.$request = null;
             this.$http = service.$http;
@@ -238,7 +236,27 @@
                 type = this.$fieldTypesMap[type];
             }
             this.$contentUrl = 'field-' + type + '.html';
-            return this.initRequest();
+            this.initRequest();
+            this.$name = name;
+            this.$type = type;
+            this.$states = $states;
+            this.$endpoint = $endpoint;
+            this.$relationName = relationName;
+            this.setOptions(schema)
+                .setValue(value)
+                .validate();
+
+            this.$Class = $window.ApyComponentMixin;
+            return this;
+        }
+
+        function setOptions(schema) {
+            this.$schema = schema;
+            return this;
+        }
+
+        function setValue(value) {
+            return this;
         }
 
         function validate() {
@@ -275,6 +293,9 @@
         function loadValue () {
             var all = '';
             var self = this;
+            if(self.$value !== '') {
+                self.$value = '';
+            }
             this.$components.forEach(function (component) {
                 var v = component.$value;
                 if(v && !isDate(v) && !isBoolean(v)) {
@@ -301,10 +322,13 @@
         }
 
         function clone(parent, value) {
+            if(!this.$Class) {
+                throw new Error('No $Class property set !');
+            }
             var instance = new this.$Class(this.$service,
-                this.$name, this.$schema, value, this.$states,
-                this.$endpoint, this.$type, this.$relationName);
-            instance.setParent(parent || this.$parent);
+                    this.$name, this.$schema, value, this.$states,
+                    this.$endpoint, this.$type, this.$relationName);
+                instance.setParent(parent || this.$parent);
             return instance;
         }
 
@@ -365,20 +389,42 @@
             return field;
         }
 
+        /**
+         *
+         * @param value
+         * @returns {*}
+         */
+        function cloneValue(value) {
+            return value;
+        }
+
+        /**
+         *
+         */
+        function reset() {
+            if (this.hasUpdated()) {
+                this.$value = this.cloneValue(this.$memo);
+            }
+        }
+
         return function() {
             this.add = add;
             this.json = json;
             this.load = load;
             this.clone = clone;
             this.count = count;
+            this.reset = reset;
             this.remove = remove;
             this.oneMore = oneMore;
-            this.init = initialize;
             this.prepend = prepend;
             this.getChild = getChild;
             this.validate = validate;
+            this.setValue = setValue;
             this.loadValue = loadValue;
             this.setParent = setParent;
+            this.setOptions = setOptions;
+            this.cloneValue = cloneValue;
+            this.initialize = initialize;
             this.cloneChild = cloneChild;
             this.isArray = Array.isArray;
             this.isFunction = isFunction;

@@ -65,7 +65,6 @@ describe("Component.Field.Media unit tests", function() {
     //        };
     //        reader.readAsDataURL(f);
     //    });
-    //
     //};
 
     it("[cloneValue.String.input] shall return an ApyMediaFile instance", function() {

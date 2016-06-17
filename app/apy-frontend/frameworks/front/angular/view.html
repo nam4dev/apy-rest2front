@@ -37,7 +37,7 @@
                 {{ field.$value }}
             </div>
             <div ng-if="field.$components">
-                <div ng-repeat="comp in field.$components">
+                <div ng-repeat="comp in field.$components track by $index">
                     <apy-field field="comp"></apy-field>
                 </div>
             </div>
@@ -64,7 +64,7 @@
                                     aria-expanded="false">{{ "Type selection" }} <span class="caret"></span></button>
 
                             <ul ng-if="!displaySchemaNames" class="dropdown-menu dropdown-menu-right">
-                                <li ng-repeat="type in field.$typesForPoly" >
+                                <li ng-repeat="type in field.$typesForPoly track by $index" >
                                     <a ng-if="type === 'resource'"
                                        ng-click="field.setType(type)"
                                        style="cursor: pointer;">{{ type.capitalize() }} (nested)</a>
@@ -116,7 +116,7 @@
 
     <script type="text/ng-template" id="field-resource.html">
         <div ng-if="field.$states.$current === field.$states.READ">
-            <apy-field ng-if="field.$type !== 'resource'" ng-repeat="component in field.$components" field="component"></apy-field>
+            <apy-field ng-if="field.$type !== 'resource'" ng-repeat="component in field.$components track by $index" field="component"></apy-field>
             <span ng-if="field.$type === 'resource'">{{field.$value}}</span>
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
@@ -143,11 +143,11 @@
             <div ng-if="field.$value">
                 <div ng-if="!field.$allowed || !field.$allowed.length">
                     <ul>
-                        <apy-field ng-repeat="value in field.$components" field="value" ></apy-field>
+                        <apy-field ng-repeat="value in field.$components track by $index" field="value" ></apy-field>
                     </ul>
                 </div>
                 <ul ng-if="field.$allowed && field.$allowed.length">
-                    <li ng-repeat="value in field.$value" >{{ value }}</li>
+                    <li ng-repeat="value in field.$value track by $index" >{{ value }}</li>
                 </ul>
             </div>
         </div>
@@ -155,7 +155,7 @@
                     field.$states.$current !== field.$states.DELETE">
 
             <select ng-if="field.$allowed && field.$allowed.length" ng-model="field.$value" multiple>
-                <option ng-repeat="allowed in field.$allowed" >{{ allowed }}</option>
+                <option ng-repeat="allowed in field.$allowed track by $index" >{{ allowed }}</option>
             </select>
             <button id="{{ field.$name }}"
                     ng-if="!field.$allowed || !field.$allowed.length"
@@ -376,7 +376,7 @@
         <tbody>
         <tr ng-repeat="resource in $collection.$components track by $index">
             <td scope="row">{{ $index + 1 }}</td>
-            <td ng-repeat="field in resource.$components" >
+            <td ng-repeat="field in resource.$components track by $index" >
                 <apy-field field="field"></apy-field>
             </td>
             <td></td>
@@ -425,7 +425,7 @@
                             <thead class="thead-inverse">
                             <tr>
                                 <th>#</th>
-                                <th ng-repeat="header in $collection.$schema.$headers" >
+                                <th ng-repeat="header in $collection.$schema.$headers track by $index" >
                                     <strong class="text-capitalize text-underlined">{{ header }}</strong>
                                 </th>
                             </tr>
@@ -435,7 +435,7 @@
                                 ng-repeat="resource in $collection.$components track by $index"
                                 ng-click="field.selfUpdate(resource);cancel();" >
                                 <td scope="row">{{ $index + 1 }}</td>
-                                <td ng-repeat="field in resource.$components" >
+                                <td ng-repeat="field in resource.$components track by $index" >
                                     <apy-field ng-if="field.$type !== 'resource'" field="field"></apy-field>
                                     <span ng-if="field.$type === 'resource'" >{{ field.$value }}</span>
                                 </td>
@@ -547,7 +547,7 @@
             </h3>
         </div>
         <div class="modal-body">
-            <div class="alert alert-danger" role="alert" ng-if="error.data._issues" ng-repeat="(k, v) in error.data._issues">
+            <div class="alert alert-danger" role="alert" ng-if="error.data._issues" ng-repeat="(k, v) in error.data._issues track by $index">
                 {{ k }} => <strong>{{ v }}</strong>
             </div>
             <div class="alert alert-danger" role="alert" ng-if="!error.data._issues && error.data._error.message" >

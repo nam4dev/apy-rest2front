@@ -99,6 +99,17 @@
         };
     };
 
+    /**
+     *
+     */
+    var patchArray = function () {
+        if (!Array.isArray) {
+            Array.isArray = function(arg) {
+                return Object.prototype.toString.call(arg) === '[object Array]';
+            };
+        }
+    };
+
     var NODE_TYPE_ELEMENT = 1;
 
     var getPrototypeOf      = Object.getPrototypeOf,
@@ -611,6 +622,7 @@
         };
     };
 
+    patchArray();
     patchObject();
     patchString();
 

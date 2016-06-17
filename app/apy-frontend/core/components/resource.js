@@ -108,9 +108,11 @@
          */
         function reset () {
             this.$components.forEach(function (comp) {
-                if(comp.hasUpdated()) comp.reset();
+                comp.reset();
             });
-            if(this.$selfUpdated) this.$selfUpdated = false;
+            if(this.$selfUpdated) {
+                this.$selfUpdated = false;
+            }
             this.loadValue();
         }
 
@@ -344,9 +346,6 @@
                     case this.$types.OBJECTID:
                         var relationName = subSchema.data_relation.resource;
                         var schemaObject = this.$service.$schemas[relationName];
-
-
-
                         fieldObj = new ApyResourceComponent(this.$service, field, schemaObject, null,
                             this.$states, this.$endpointBase, this.$types.OBJECTID, relationName);
                         fieldObj.load(value);
@@ -427,18 +426,7 @@
          * @constructor
          */
         return function (service, name, schema, components, $states, $endpoint, type, relationName) {
-            type = type || "resource";
-            this.$value = '';
-            this.$schema = schema;
-            this.$selfUpdated = false;
-            this.$endpoint = $endpoint;
-            this.$endpointBase = $endpoint;
-            this.$relationName = relationName;
-            this.$Class = $window.ApyResourceComponent;
-            if(relationName)
-                this.$endpoint += relationName;
-            if(schema && schema.$embeddedURI)
-                this.$endpoint += '?' + schema.$embeddedURI;
+            type = type || $TYPES.RESOURCE;
 
             this.initRequest       = initRequest      ;
             this.toString          = toString         ;
@@ -462,8 +450,17 @@
             this.load              = load             ;
             this.isReadOnly        = isReadOnly       ;
 
-            this.$states = $states || this.createStateHolder(states[1], states);
-            this.init(service, name, components, type);
+            var st = $states || this.createStateHolder(states[1], states);
+
+            this.initialize(service, name, schema, '', st, $endpoint, type, relationName, components);
+            this.$selfUpdated = false;
+            this.$endpointBase = $endpoint;
+            this.$Class = $window.ApyResourceComponent;
+
+            if(relationName)
+                this.$endpoint += relationName;
+            if(schema && schema.$embeddedURI)
+                this.$endpoint += '?' + schema.$embeddedURI;
 
             return this.initRequest();
         }
