@@ -144,11 +144,94 @@ This section describes how to tweak Apy Frontend behavior based on settings.
 
 ``ApyFrontend`` allow one to specify a static snapshot of its Endpoints definition (JSON) into settings (see below example).
 
-**Important** One assume having those exact settings are present in the backend (DOMAIN)
+***This is usually done when schemas endpoint cannot be enabled***
+
+**Important** One assumes those exact settings are present in the backend (DOMAIN) as follow
 
 **Endpoints definition example**
 
 * backend => [Eve REST API Python framework][eve]
+
+```python
+# settings.py
+
+POST = {
+    'item_title': "Post",
+    'schema': {
+        'description': {
+            'type': "string"
+        },
+        'title': {
+            'type': "string"
+        }
+    }
+}
+
+MEMBER = {
+    'item_title': "Member",
+    'schema': {
+        'posts':{
+            'type': "list",
+            'schema': {
+                'type': "objectid",
+                'data_relation': {
+                    'resource': "posts",
+                    'embeddable': True
+                }
+            }
+        },
+        'email': {
+            'type': "string"
+        },
+        'firstName': {
+            'type': "string"
+        },
+        'lastName': {
+            'type': "string"
+        },
+        'location': {
+            'type': "dict",
+            'schema': {
+                'entered_date': {
+                    'required': True,
+                    'type': "datetime"
+                },
+                'details': {
+                    'type': "dict",
+                    'schema': {
+                        'city': {
+                            'required': True,
+                            'type': "string"
+                        },
+                        'zip_code': {
+                            'required': True,
+                            'type': "integer"
+                        },
+                        'state': {
+                            'type': "string"
+                        },
+                        'address': {
+                            'required': True,
+                            'type': "string"
+                        },
+                        'address_complement': {
+                            'type': "string"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+# ...
+
+DOMAIN = {
+    'posts': POST,
+    'members': MEMBER
+}
+```
+
 * frontend => [AngularJS][angular]
 
 ```javascript
