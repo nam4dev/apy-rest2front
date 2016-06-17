@@ -113,7 +113,8 @@ index.html                      --> Angular integration demonstration
 In order to visualize `apy-frontend` AngularJs implementation,
 you shall need to ensure your backend has following settings enabled,
 ```python
-    XML = False && JSON = True
+    XML = False
+    JSON = True
     # For dynamic backend' schemas to frontend mapping
     SCHEMA_ENDPOINT = 'your-schema-endpoint-name'
 ```
@@ -128,6 +129,7 @@ Optionally, to increase user experience of Media document(s) visualisation,
 Then on the frontend side, simply open ``apy-frontend/frameworks/front/angular/app.js`` file.
 **And edit lines**,
 
+
 ```javascript
     var endpoint = 'http{s}://your.eve.REST.API.URI/';
     var schemaName = 'your-schema-endpoint-name';
@@ -140,31 +142,182 @@ This section describes how to tweak Apy Frontend behavior based on settings.
 
 ### Static backend mapping
 
-One can specify different schemas definition than the backend as you can configure a snapshot of 
-your Information System (JSON) and set it to ApyFrontend settings.
+``ApyFrontend`` allow one to specify a static snapshot of its Endpoints definition (JSON) into settings (see below example).
+
+**Important** One assume having those exact settings are present in the backend (DOMAIN)
+
+**Endpoints definition example**
+
+* backend => [Eve REST API Python framework][eve]
+* frontend => [AngularJS][angular]
 
 ```javascript
 // AngularJS Integration example
 // apy-frontend/frameworks/front/angular/app.js
-... 
+
+//...
+
 application.provider("apy", function apyProvider () {
     this.$get = function apyFactory () {
-        var $injector = angular.injector(['ng', 'ngFileUpload']),
-            ...
-            config = {
-                ...
-                schemas: {
-                    my_lists: {
-                        listOfString: {
+        var $injector = angular.injector(['ng', 'ngFileUpload']);
+
+        //...
+
+        // Member's Post endpoint schema
+        var post = {
+            item_title: "Post",
+            schema: {
+                description: {
+                    type: "string"
+                },
+                title: {
+                    type: "string"
+                }
+            }
+        };
+
+        // Member endpoint schema (aka User)
+        var user = {
+            item_title: "Member",
+            schema: {
+                posts:{
+                    type: "list",
+                    schema: {
+                        type: "objectid",
+                        data_relation: {
+                            resource: "posts",
+                            embeddable: true
+                        }
+                    }
+                },
+                email: {
+                    type: "string"
+                },
+                firstName: {
+                    type: "string"
+                },
+                lastName: {
+                    type: "string"
+                },
+                location: {
+                    type: "dict",
+                    schema: {
+                        entered_date: {
+                            required: true,
+                            type: "datetime"
+                        },
+                        details: {
+                            type: "dict",
                             schema: {
-                                type: "string",
-                                default: "",
-                                required: true
+                                city: {
+                                    required: true,
+                                    type: "string"
+                                },
+                                zip_code: {
+                                    required: true,
+                                    type: "integer"
+                                },
+                                state: {
+                                    type: "string"
+                                },
+                                address: {
+                                    required: true,
+                                    type: "string"
+                                },
+                                address_complement: {
+                                    type: "string"
+                                }
                             }
                         }
                     }
                 }
-            };
+            }
+        };
+
+        //...
+
+        config = {
+            //...
+            schemas: {
+                posts: post,
+                members: user
+            }
+        };
+        return new ApyCompositeService($log, $http, Upload, config);
+    };
+});
+```
+
+#### Overriding backend's endpoint(s)
+
+``ApyFrontend`` allow one to override a backend's endpoint when this one does not define a schema for a particular `Resource`.
+
+To get a better understanding see below example :)
+
+**Endpoints definition Override example**
+
+* backend => [Eve REST API Python framework][eve]
+
+```python
+# settings.py
+
+SCHEMA_LESS_LIST = {
+    'schema': {
+        'lists': {
+            # Eve/Mongo allows schema-less Resource
+            'type': 'list'
+        }
+    }
+}
+
+# ...
+
+DOMAIN = {
+    'Lists': SCHEMA_LESS_LIST
+}
+```
+
+* frontend => [AngularJS][angular]
+
+```javascript
+// AngularJS Integration example
+// apy-frontend/frameworks/front/angular/app.js
+
+var endpoint = 'http{s}://your.eve.REST.API.URI/';
+var schemaName = 'your-schema-endpoint-name';
+
+//...
+
+application.provider("apy", function apyProvider () {
+    this.$get = function apyFactory () {
+        var $injector = angular.injector(['ng', 'ngFileUpload']);
+
+        //...
+
+        // endpoint schema override
+        var lists = {
+            item_title: "Interesting Events List",
+            schema: {
+                lists: {
+                    type: 'list',
+                    schema: {
+                        type: "datetime",
+                        default: function() {
+                            return new Date();
+                        }
+                    }
+                }
+            }
+        };
+
+        //...
+
+        config = {
+            //...
+            schemas: {
+                Lists: lists
+            }
+        };
         return new ApyCompositeService($log, $http, Upload, config);
     };
 });
