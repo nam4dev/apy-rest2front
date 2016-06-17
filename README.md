@@ -76,10 +76,12 @@ Now browse to the app at `http://localhost:8000/app/index.html`.
 apy-frontend/                   --> Apy frontend framework
   core/                         --> Apy frontend Core (fields, ...)
     components/                 --> Apy frontend Components (Collection, Resource, Field, ...)
+      base.js                   --> Apy Base abstraction (for all Components)
       resource.js               --> Apy frontend Resource Component
       collection.js             --> Apy frontend Collection Component
       fields/                   --> Apy frontend fields (string, number, media, ...)
-        base.js                 --> Apy Base abstraction (for all Components)
+        geo/                    --> Apy frontend Geo fields (Point, Polygon, Line, ...)
+          point.js              --> Apy frontend Geo Point abstraction
         field.js                --> Apy Field abstraction
         poly.js                 --> Apy PolyMorph field abstraction
         list.js                 --> Apy List field abstraction
@@ -87,7 +89,7 @@ apy-frontend/                   --> Apy frontend framework
         string.js               --> Apy String field abstraction
         datetime.js             --> Apy Datetime field abstraction
         hashmap.js              --> Apy HashMap (dict) field abstraction
-        hashmap-embedded.js     --> Apy HashMap from data relation (embedded-dict) field abstraction
+        objectid.js             --> Apy Object ID (Resource) field abstraction
         media.js                --> Apy Media field logic (any type of Resource, file, picture, music, ...)
         number.js               --> Apy Number field logic (groups Integer, Float & Number types)
     core.js                     --> Apy frontend Core abstraction
@@ -542,13 +544,10 @@ instruction on how to do this.
 
 ### GitLab CI
 
-[GitLab CI][docker] is a continuous integration service, which can monitor GitLab for new commits
+[GitLab CI][gitlab-ci] is a continuous integration service, which can monitor GitLab for new commits
 to your repository and execute scripts such as building the app or running tests. The `apy-frontend`
 project contains a GitLab configuration file, `.gitlab-ci.yml`, which will cause GitLab to run your
 tests when you push to GitLab.
-
-You will need to enable the integration between Travis and GitHub. See the Travis website for more
-instruction on how to do this.
 
 ## TODO List
 
@@ -586,4 +585,5 @@ For more information, please check out [Apy Frontend][apy-frontend]
 [jasmine]: http://jasmine.github.io
 [karma]: http://karma-runner.github.io
 [travis]: https://travis-ci.org/
+[gitlab-ci]: https://about.gitlab.com/gitlab-ci/
 [http-server]: https://github.com/nodeapps/http-server
