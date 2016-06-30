@@ -43,6 +43,9 @@
     $window.ApyPointField = (function () {
 
         function setValue(value) {
+            if(value && !value instanceof ApyPoint) {
+                value = new ApyPoint(value);
+            }
             this.$memo = this.cloneValue(value);
             this.$value = this.cloneValue(value);
             return this;
@@ -93,7 +96,7 @@
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
             this.$Class = $window.ApyPointField;
-            this.initialize(service, name, schema, new ApyPoint(value), $states, $endpoint, $window.$TYPES.POINT, null);
+            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.POINT, null);
             return this;
         }
 
