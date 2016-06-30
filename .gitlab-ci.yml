@@ -8,3 +8,4 @@ test:
   script:
     - ./node_modules/bower/bin/bower --allow-root install
     - npm test
+    - npm protractor
