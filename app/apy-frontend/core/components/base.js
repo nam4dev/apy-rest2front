@@ -37,23 +37,6 @@
 
 (function ($window) {
 
-    // Enum of known types
-    var $TYPES = {
-        LIST: "list",
-        DICT: "dict",
-        POLY: "poly",
-        MEDIA: "media",
-        FLOAT: "float",
-        NUMBER: "number",
-        STRING: "string",
-        BOOLEAN: "boolean",
-        INTEGER: "integer",
-        OBJECTID: "objectid",
-        DATETIME: "datetime",
-        RESOURCE: "resource",
-        COLLECTION: "collection"
-    };
-
     /**
      * Component Interface for the "tree" pattern implementation.constructor.
      * Note: This can be inherited but not instantiated.
@@ -154,6 +137,7 @@
 
         function initialize(service, name, schema, value, $states, $endpoint, type, relationName, components) {
             var self = this;
+            var $TYPES = $window.$TYPES;
             this.$types = $TYPES;
             this.$service = service;
             this.$typesMap = {
