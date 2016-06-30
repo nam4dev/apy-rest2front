@@ -55,9 +55,8 @@
                     instance.add(comp);
                 });
             }
-            if(this.$value && !instance.$value && instance.$value !== false) {
-                instance.$value = this.$value;
-            }
+            var v = this.$value;
+            v && instance.setValue(v);
             $.extend(true, this, instance);
             if(!this.$parent) {
                 console.debug('No Parent provided for ' +
@@ -68,7 +67,7 @@
                 case $TYPES.RESOURCE:
                     this.add(this.createPolyField({}, null));
                     break;
-                default :
+                default:
                     break;
             }
         }
