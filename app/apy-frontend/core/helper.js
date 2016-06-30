@@ -578,11 +578,14 @@
      * @returns {ApyStateHolder}
      */
     ApyStateHolder.prototype.load = function () {
-        var self = this;
-        forEach(this.$states, function (value) {
+        var states = this.$states;
+        for(var value in states) {
+            if(!states.hasOwnProperty(value)) {
+                continue;
+            }
             var attr = value.toUpperCase();
-            self[attr] = attr;
-        });
+            this[attr] = attr;
+        }
         return this;
     };
 

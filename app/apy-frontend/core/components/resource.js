@@ -38,12 +38,12 @@
 
     $window.ApyResourceComponent = (function () {
 
-        var states              = [
-            'CREATE',
-            'READ',
-            'UPDATE',
-            'DELETE'
-        ];
+        var STATES = {
+            CREATE: 'CREATE',
+            READ: 'READ',
+            UPDATE: 'UPDATE',
+            DELETE: 'DELETE'
+        };
 
         /**
          *
@@ -75,7 +75,7 @@
          *
          */
         function setCreateState () {
-            this.$states.set(states[0]);
+            this.$states.set(STATES.CREATE);
             return this;
         }
 
@@ -83,7 +83,7 @@
          *
          */
         function setReadState () {
-            this.$states.set(states[1]);
+            this.$states.set(STATES.READ);
             return this;
         }
 
@@ -91,7 +91,7 @@
          *
          */
         function setUpdateState () {
-            this.$states.set(states[2]);
+            this.$states.set(STATES.UPDATE);
             return this;
         }
 
@@ -99,7 +99,7 @@
          *
          */
         function setDeleteState () {
-            this.$states.set(states[3]);
+            this.$states.set(STATES.DELETE);
             return this;
         }
 
@@ -450,7 +450,7 @@
             this.load              = load             ;
             this.isReadOnly        = isReadOnly       ;
 
-            var st = $states || this.createStateHolder(states[1], states);
+            var st = $states || this.createStateHolder(STATES.READ, STATES);
 
             this.initialize(service, name, schema, '', st, $endpoint, type, relationName, components);
             this.$selfUpdated = false;
