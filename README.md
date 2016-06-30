@@ -529,45 +529,6 @@ http-server -a localhost -p 8000
 Alternatively, you can choose to configure your own webserver, such as apache or nginx. Just
 configure your server to serve the files under the `app/` directory.
 
-
-## Continuous Integration
-
-### Travis CI
-
-[Travis CI][travis] is a continuous integration service, which can monitor GitHub for new commits
-to your repository and execute scripts such as building the app or running tests. The `apy-frontend`
-project contains a Travis configuration file, `.travis.yml`, which will cause Travis to run your
-tests when you push to GitHub.
-
-You will need to enable the integration between Travis and GitHub. See the Travis website for more
-instruction on how to do this.
-
-### GitLab CI
-
-[GitLab CI][gitlab-ci] is a continuous integration service, which can monitor GitLab for new commits
-to your repository and execute scripts such as building the app or running tests. The `apy-frontend`
-project contains a GitLab configuration file, `.gitlab-ci.yml`, which will cause GitLab to run your
-tests when you push to GitLab.
-
-## TODO List
-
-- Configuration Templating System (ui / backend)
-    - UI
-        - Implement [`Angular`][angular] template
-        - Implement [`React`][react] template
-    - Backend
-        - Implement [`Eve`][angular] template
-        - Implement [`Django-rest-framework`][dj-rest-fwk] template
-
-- Documentation enhancement.
-    - Make doc-strings & API Documentation.
-
-- Per Resource-based Authentication System.
-- Data Validation enforced based on schema (when provided).
-- Implement another `UI-framework`, such as [`React`][react].
-- Implement another `Backend-framework`, such as [`Django-rest-framework`][dj-rest-fwk].
-- Progress handler per Resource (PATCH, POST, DELETE).
-
 ## Contact
 
 For more information, please check out [Apy Frontend][apy-frontend]
