@@ -545,6 +545,4 @@ For more information, please check out [Apy Frontend][apy-frontend]
 [protractor]: https://github.com/angular/protractor
 [jasmine]: http://jasmine.github.io
 [karma]: http://karma-runner.github.io
-[travis]: https://travis-ci.org/
-[gitlab-ci]: https://about.gitlab.com/gitlab-ci/
 [http-server]: https://github.com/nodeapps/http-server

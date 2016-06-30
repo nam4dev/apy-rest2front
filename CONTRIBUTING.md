@@ -41,3 +41,10 @@ tests when you push to GitLab.
 - Implement another `UI-framework`, such as [`React`][react].
 - Implement another `Backend-framework`, such as [`Django-rest-framework`][dj-rest-fwk].
 - Progress handler per Resource (PATCH, POST, DELETE).
+
+[eve]: http://python-eve.org/
+[angular]: https://angularjs.org/
+[react]: https://facebook.github.io/react/
+[dj-rest-fwk]: http://www.django-rest-framework.org/
+[travis]: https://travis-ci.org/
+[gitlab-ci]: https://about.gitlab.com/gitlab-ci/
