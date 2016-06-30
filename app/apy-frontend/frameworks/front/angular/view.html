@@ -366,9 +366,9 @@
                 <i ng-click="cancel()" ng-if="$collection.savedCount() > 0 && updateHidden" class="glyphicon glyphicon-arrow-left"></i>
             </th>
             <th>
-                <i ng-click="deleteResources()"
-                   ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
-                   class="glyphicon glyphicon-trash"></i>
+                <i id="gDelete"
+                   ng-click="deleteResources()"
+                   ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden" class="glyphicon glyphicon-trash"></i>
                 <i ng-click="$collection.reset()" ng-if="$collection.count() > 0 && !validateHidden" class="glyphicon glyphicon-erase"></i>
             </th>
         </tr>
