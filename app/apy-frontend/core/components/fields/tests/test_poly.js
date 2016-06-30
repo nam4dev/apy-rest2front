@@ -71,9 +71,8 @@ describe("Component.Field.Poly unit tests", function() {
     };
 
     it("[setType] shall morphs from Poly to Boolean type", function() {
-        var expectedValue = false;
         var value = "A poly field for test";
-        _morphsTo('boolean', value, expectedValue);
+        _morphsTo('boolean', value, value);
     });
 
     it("[setType] shall morphs from Poly to Datetime type", function() {
