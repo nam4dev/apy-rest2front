@@ -1,4 +1,4 @@
-image: node:4.2.2
+image: node:6.6.2
 
 before_script:
   - npm -v
@@ -8,4 +8,4 @@ test:
   script:
     - ./node_modules/bower/bin/bower --allow-root install
     - npm test
-    - npm protractor
+    - npm run protractor
