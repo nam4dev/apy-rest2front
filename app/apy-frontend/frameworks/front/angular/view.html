@@ -356,14 +356,18 @@
             <th ng-repeat="header in $collection.$schema.$headers track by $index" >
                 <strong class="text-capitalize text-underlined">{{ header }}</strong>
             </th>
-            <th><i ng-click="createResource()"
+            <th><i id="gCreate"
+                   ng-click="createResource()"
                    class="glyphicon glyphicon-plus"></i></th>
             <th>
-                <i ng-click="updateResources()"
+                <i id="gUpdate"
+                   ng-click="updateResources()"
                    ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
                    class="glyphicon glyphicon-pencil"></i>
                 <!--<i ng-click="setRead($collection)" ng-if="!validateHidden" class="glyphicon glyphicon-ok"></i>-->
-                <i ng-click="cancel()" ng-if="$collection.savedCount() > 0 && updateHidden" class="glyphicon glyphicon-arrow-left"></i>
+                <i id="gCancel"
+                   ng-click="cancel()"
+                   ng-if="$collection.savedCount() > 0 && updateHidden" class="glyphicon glyphicon-arrow-left"></i>
             </th>
             <th>
                 <i id="gDelete"
