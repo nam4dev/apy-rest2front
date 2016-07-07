@@ -121,7 +121,8 @@
          * @returns {boolean}
          */
         function hasCreated () {
-            var pkAttributeName = this.$service.$config.pkName;
+            // FIXME: Ensure default value according chosen backend (for now only python-eve is available)
+            var pkAttributeName = this.$service.$config.pkName || '_id';
             return this.hasOwnProperty(pkAttributeName) && !this[pkAttributeName];
         }
 
@@ -180,7 +181,9 @@
             }
             // Commit => save the inner state ($value, $memo) of each component recursively
             this.$selfUpdated = !commit;
-            if (commit) this.selfCommit();
+            if (commit) {
+                this.selfCommit();
+            }
             return this;
         }
 
@@ -382,7 +385,9 @@
                 // `if` check avoids to add something
                 // which might be required but already filled.
                 // Specifically with Media Resource Component.
-                if(data) cleaned[item.$name] = data;
+                if(data) {
+                    cleaned[item.$name] = data;
+                }
             });
             return cleaned;
         }

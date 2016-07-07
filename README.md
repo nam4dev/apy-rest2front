@@ -1,3 +1,6 @@
+[![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
+
+
 # Apy Frontend — Develop your REST API frontend with ease
 
 This project is a small automated frontend application based on a REST API schema. 
