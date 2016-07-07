@@ -30,7 +30,11 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Core module.
+ *
+ *  Integrate all Components in a coherent Service module
+ *  Could be used through AngularJs (Service factory)
+ *  Might be functional for react.js framework integration
  *
  *  """
  */
@@ -45,9 +49,6 @@
      *  * A configurable CSS theme (default: Bootstrap 3)
      */
     var ApyCompositeService = function ($log, $http, $upload, config) {
-
-        var service = this;
-
         this.$log = $log;
         this.$http = $http;
         this.$config = config;
@@ -59,218 +60,6 @@
         this.$instance = null;
         this.$schemasAsArray = null;
         this.$schemasEndpoint = null;
-
-        /**
-         *
-         * @param schema
-         * @constructor
-         */
-        var ApySchemaComponent = function ApySchemaComponent (schema) {
-            this.$base = schema;
-            self.$hasMedia = false;
-            this.$embeddedURI = '';
-            this.$headers = Object.keys(schema).filter(function (key) {
-                return !key.startsWith('_');
-            });
-            this.load();
-        };
-
-        /**
-         * Loads a Schema
-         * Computes the `embedded` URI fragment
-         * Set `$isEmbeddable` property
-         *
-         * @returns {ApySchemaComponent}
-         */
-        ApySchemaComponent.prototype.load = function load () {
-            var self = this;
-            var embedded = {};
-            forEach(this.$base, function (validator, fieldName) {
-                self[fieldName] = validator;
-                if(isObject(validator) && validator.type) {
-                    switch (validator.type) {
-                        case $TYPES.MEDIA:
-                            self.$hasMedia = true;
-                            break;
-                        case $TYPES.OBJECTID:
-                            if (fieldName !== '_id') {
-                                if(validator.data_relation.embeddable) {
-                                    embedded[fieldName] = 1;
-                                }
-                            }
-                            break;
-                        default :
-                            break;
-                    }
-                }
-            });
-            if(Object.keys(embedded).length) {
-                this.$embeddedURI = 'embedded=' + JSON.stringify(embedded);
-            }
-            return this;
-        };
-
-        /**
-         *
-         * @param endpoint
-         * @param schemas
-         * @param config
-         * @constructor
-         */
-        var ApySchemasComponent = function ApySchemasComponent (endpoint, schemas, config) {
-            if(!schemas || !isObject(schemas)) {
-                throw new Error('A schemas object must be provided (got type => ' + typeof schemas + ') !');
-            }
-            this.$names = [];
-            this.$humanNames = [];
-            this.$components = {};
-            this.$componentArray = [];
-            this.$endpoint = endpoint;
-            this.$config = config || {};
-            this.$schemas = schemas || {};
-            $.extend(true, this.$schemas, this.$config.schemas || {});
-            this.$excluded = this.$config.excludedEndpointByNames || [];
-            this.$template = {
-                _id: "",
-                _etag: "",
-                _links: {
-                    self: {
-                        href: "",
-                        title: ""
-                    }
-                },
-                _created: "",
-                _updated: "",
-                _deleted: ""
-            };
-            this.load();
-        };
-
-        /**
-         *
-         * @param name
-         * @param resource
-         * @returns {ApyResourceComponent}
-         */
-        ApySchemasComponent.prototype.createResource = function createResource (name, resource) {
-            var schema = this.get(name);
-            if(!schema) {
-                throw new Error('No schema provided for name', name);
-            }
-            var component = new ApyResourceComponent(service, name, schema, null, null, this.$endpoint, $TYPES.RESOURCE, name);
-            component.load(resource || this.schema2data(schema));
-            return component;
-        };
-
-        /**
-         *
-         * @param schemaName
-         * @returns {*}
-         */
-        ApySchemasComponent.prototype.get = function get (schemaName) {
-            if(!this.$components.hasOwnProperty(schemaName)) {
-                throw new Error('Unknown schema name, ' + schemaName);
-            }
-            return this.$components[schemaName];
-        };
-
-        /**
-         *
-         */
-        ApySchemasComponent.prototype.load = function load () {
-            var self = this;
-            Object.keys(this.$schemas).forEach(function (schemaName) {
-                var schema = new ApySchemaComponent(self.$schemas[schemaName]);
-                var humanName = schemaName.replaceAll('_', ' ');
-                self.$names.push(schemaName);
-                self.$humanNames.push(humanName);
-                self.$components[schemaName] = schema;
-                self.$componentArray.push({
-                    data: schema,
-                    name: schemaName,
-                    route: '/' + schemaName,
-                    endpoint: self.$endpoint + schemaName,
-                    humanName: humanName,
-                    hidden: self.$excluded.indexOf(schemaName) !== -1
-                });
-            });
-        };
-
-        /**
-         *
-         * @param key
-         * @param value
-         * @returns {*}
-         */
-        ApySchemasComponent.prototype.transformData = function transformData(key, value) {
-            var val;
-            switch (value.type) {
-                case $TYPES.LIST:
-                    if (value.schema) {
-                        val = this.schema2data(value.schema);
-                    }
-                    else {
-                        val = [];
-                    }
-                    break;
-                case $TYPES.DICT:
-                    val = this.schema2data(value.schema);
-                    break;
-                case $TYPES.MEDIA:
-                    //val = new ApyMediaFile(this.$endpoint);
-                    break;
-                case $TYPES.FLOAT:
-                case $TYPES.NUMBER:
-                    val = 0.0;
-                    break;
-                case $TYPES.STRING:
-                    val = "";
-                    break;
-                case $TYPES.INTEGER:
-                    val = 0;
-                    break;
-                case $TYPES.BOOLEAN:
-                    val = false;
-                    break;
-                case $TYPES.OBJECTID:
-                    if(key.startsWith('_')) {
-                        val = "";
-                    }
-                    else {
-                        val = this.schema2data(service.$schemas[value.data_relation.resource]);
-                    }
-                    break;
-                case $TYPES.DATETIME:
-                    val = new Date();
-                    break;
-                default :
-                    val = null;
-                    break;
-            }
-            return val;
-        };
-
-        /**
-         *
-         * @param schema
-         * @param keyName
-         * @returns {*}
-         */
-        ApySchemasComponent.prototype.schema2data = function schema2data (schema, keyName) {
-            var self = this;
-            var data = schema ? {} : this.$template;
-            if(keyName) {
-                data = this.transformData(keyName, schema);
-            }
-            else {
-                forEach(schema, function (value, key) {
-                    data[key] = self.transformData(key, value);
-                });
-            }
-            return data;
-        };
-
-        $window.ApySchemasComponent = ApySchemasComponent;
     };
 
     /**
@@ -278,7 +67,7 @@
      * @param schemas
      */
     ApyCompositeService.prototype.setSchemas = function (schemas) {
-        var ins = this.$instance = new ApySchemasComponent(this.$endpoint, schemas, this.$config);
+        var ins = this.$instance = new ApySchemasComponent(this.$endpoint, schemas, this.$config, this);
         this.$schemas = ins.$components;
         this.$schemasAsArray = ins.$componentArray;
         return this;

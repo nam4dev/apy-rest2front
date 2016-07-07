@@ -30,7 +30,121 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Core UTs
  *
  *  """
  */
+
+describe("Core.core unit tests", function() {
+    var DEFAULT_CONFIG = {};
+    var DEFAULT_SCHEMAS = {
+        test: {type: 'list'}
+    };
+    var DEFAULT_ENDPOINT = 'http://localhost/';
+
+    var _createService = function ($log, $http, $upload, config) {
+        var service = new ApyCompositeService($log, $http, $upload, config || DEFAULT_CONFIG);
+        var schemasObj = new ApySchemasComponent(DEFAULT_ENDPOINT, DEFAULT_SCHEMAS, DEFAULT_CONFIG, service);
+        service.$instance = schemasObj;
+        service.$schemas = schemasObj.$componentArray;
+        return service;
+    };
+
+    it("[loadSchemas] Shall load schemas synchronously", function () {
+        var schemaName = 'test';
+        var endpoint = 'https://www.tests.fr/';
+        var deps = [
+            {
+                name: "log",
+                value: {}
+            },
+            {
+                name: "http",
+                value: function () {}
+            },
+            {
+                name: "upload",
+                value: {
+                    upload: function () {}
+                }
+            }
+        ];
+        var service = _createService();
+        service.initEndpoints(endpoint, schemaName);
+        service.setDependencies(deps[0], deps[1], deps[2]);
+        // Mocking $syncHttp
+        service.$syncHttp = {
+            open: function () {
+                expect(arguments[0]).toEqual('GET');
+                expect(arguments[1]).toEqual(service.$schemasEndpoint);
+                expect(arguments[2]).toBe(false);
+            },
+            send: function () {
+                expect(arguments[0]).toEqual(null);
+            },
+            response: JSON.stringify(DEFAULT_SCHEMAS)
+        };
+        service.loadSchemas();
+        expect(service.$instance instanceof ApySchemasComponent).toBe(true);
+        expect(service.$schemas).toEqual(service.$instance.$components);
+        expect(service.$schemasAsArray).toEqual(service.$instance.$componentArray);
+    });
+
+    it("[initEndpoints] Endpoints shall be set properly", function () {
+        var schemaName = 'test';
+        var endpoint = 'https://www.tests.fr/';
+        var service = _createService();
+        service.initEndpoints(endpoint, schemaName);
+        expect(service.$endpoint).toEqual(endpoint);
+        expect(service.$schemasEndpoint).toEqual(endpoint + schemaName);
+    });
+
+    it("[setDependencies] Dependencies shall be set properly", function () {
+        var deps = [
+            {
+                name: "log",
+                value: "LogObject"
+            },
+            {
+                name: "http",
+                value: "HttpObject"
+            },
+            {
+                name: "upload",
+                value: "UploadObject"
+            }
+        ];
+        var service = _createService();
+        service.setDependencies(deps[0], deps[1], deps[2]);
+        expect(service.$log).toEqual(deps[0].value);
+        expect(service.$http).toEqual(deps[1].value);
+        expect(service.$upload).toEqual(deps[2].value);
+    });
+
+    it("[createCollection] Shall create an ApyCollectionComponent instance", function () {
+        var schemaName = 'test';
+        var endpoint = 'https://www.tests.fr/';
+        var deps = [
+            {
+                name: "log",
+                value: {}
+            },
+            {
+                name: "http",
+                value: function () {}
+            },
+            {
+                name: "upload",
+                value: {
+                    upload: function () {}
+                }
+            }
+        ];
+        var service = _createService();
+        service.initEndpoints(endpoint, schemaName);
+        service.setDependencies(deps[0], deps[1], deps[2]);
+
+        var collection = service.createCollection(schemaName);
+        expect(collection instanceof ApyCollectionComponent).toBe(true);
+    });
+});

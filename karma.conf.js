@@ -1,6 +1,5 @@
 module.exports = function(config){
     config.set({
-
         basePath : './',
         files : [
             'app/components/babel-polyfill/browser-polyfill.js',
@@ -28,30 +27,58 @@ module.exports = function(config){
             'app/apy-frontend/core/components/resource.js',
             'app/apy-frontend/core/components/collection.js',
 
+            'app/apy-frontend/core/schemas.js',
             'app/apy-frontend/core/core.js',
 
-            'app/apy-frontend/frameworks/front/angular/directives/version/version.js',
-            'app/apy-frontend/frameworks/front/angular/directives/version/version-directive.js',
-            'app/apy-frontend/frameworks/front/angular/directives/version/interpolate-filter.js',
+            'app/apy-frontend/integration/angular/app.js',
+            'app/apy-frontend/integration/angular/view.js',
+            'app/apy-frontend/integration/angular/directives/version/version.js',
+            'app/apy-frontend/integration/angular/directives/version/version-directive.js',
+            'app/apy-frontend/integration/angular/directives/version/interpolate-filter.js',
             'app/apy-frontend/**/tests/**/*.js'
         ],
 
         autoWatch : true,
         frameworks: ['jasmine'],
+        // enable / disable colors in the output (reporters and logs)
+        // CLI --colors --no-colors
+        colors: true,
         //browsers : ['Chrome', 'ChromeCanary', 'Firefox', 'PhantomJS'],
         browsers : ['PhantomJS'],
         plugins : [
+            'karma-jasmine',
+            'karma-coverage',
             'karma-chrome-launcher',
             'karma-firefox-launcher',
             'karma-phantomjs-launcher',
-            'karma-jasmine',
-            'karma-junit-reporter'
+            'karma-threshold-reporter'
         ],
-
-        junitReporter : {
-            outputFile: 'test_out/unit.xml',
-            suite: 'unit'
+        // coverage reporter generates the coverage
+        reporters: ['progress', 'coverage', 'threshold'],
+        preprocessors: {
+            // source files, that you wanna generate coverage for
+            // do not include tests or libraries
+            // (these files will be instrumented by Istanbul)
+            '**/app/apy-frontend/**/!(test_)*.js': ['coverage']
+        },
+        // Coverage minimal thresholds
+        // FIXME: raise up to 90%
+        thresholdReporter: {
+            statements: 62.5,
+            branches: 47.25,
+            functions: 52.5,
+            lines: 62.5
+        },
+        // Configure the reporter
+        coverageReporter: {
+            type : 'html',
+            dir : 'coverage/',
+            instrumenterOptions: {
+                istanbul: {
+                    noCompact: true
+                }
+            },
+            includeAllSources: true
         }
-
     });
 };
