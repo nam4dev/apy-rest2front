@@ -30,7 +30,117 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Collection Component UTs
  *
  *  """
  */
+
+describe("Component.Collection unit tests", function() {
+
+    var DEFAULT_CONFIG = {};
+    var DEFAULT_SCHEMAS = {
+        tests: {
+            test: {type: 'list'}
+        }
+    };
+    var DEFAULT_SCHEMA_NAME = 'test';
+    var DEFAULT_ENDPOINT = 'http://localhost/';
+
+    var _createService = function ($log, $http, $upload, config) {
+        var deps = [
+            {
+                name: "log",
+                value: {}
+            },
+            {
+                name: "http",
+                value: function () {}
+            },
+            {
+                name: "upload",
+                value: {
+                    upload: function () {}
+                }
+            }
+        ];
+        var service = new ApyCompositeService($log, $http, $upload, config || DEFAULT_CONFIG);
+        service.setDependencies(deps[0], deps[1], deps[2]);
+        service.initEndpoints(DEFAULT_ENDPOINT, DEFAULT_SCHEMA_NAME);
+        service.setSchemas(DEFAULT_SCHEMAS);
+        return service;
+    };
+
+    function _createCollection (service, name, endpoint, components) {
+        return new ApyCollectionComponent(service || _createService(), name, endpoint || DEFAULT_ENDPOINT, components);
+    }
+
+    it("[createResource] A Resource instance shall be append to the Collection", function() {
+        var col = _createCollection(undefined, 'tests');
+        col.createResource();
+        expect(col.count()).toEqual(1);
+        expect(col.getChild(0) instanceof ApyResourceComponent).toBe(true);
+    });
+
+    it("[removeResource] Given Resource shall be spliced from the collection", function() {
+        var col = _createCollection(undefined, 'tests');
+        var resource = col.createResource();
+        expect(col.count()).toEqual(1);
+        expect(col.getChild(0) instanceof ApyResourceComponent).toBe(true);
+        col.removeResource(resource);
+        expect(col.count()).toEqual(0);
+    });
+
+    it("[setCreateState] CREATE State shall be passed", function() {
+        var col = _createCollection(undefined, 'tests');
+        col.setState = function (state) {
+            expect(state).toEqual('CREATE');
+        };
+        col.setCreateState();
+    });
+
+    it("[setReadState] READ State shall be passed", function() {
+        var col = _createCollection(undefined, 'tests');
+        col.setState = function (state) {
+            expect(state).toEqual('READ');
+        };
+        col.setReadState();
+    });
+
+    it("[setUpdateState] UPDATE State shall be passed", function() {
+        var col = _createCollection(undefined, 'tests');
+        col.setState = function (state) {
+            expect(state).toEqual('UPDATE');
+        };
+        col.setUpdateState();
+    });
+
+    it("[setDeleteState] DELETE State shall be passed", function() {
+        var col = _createCollection(undefined, 'tests');
+        col.setState = function (state) {
+            expect(state).toEqual('DELETE');
+        };
+        col.setDeleteState();
+    });
+
+    it("[load] Shall load data into Collection components", function() {
+        var resources = [
+            {test: []},
+            {test: [1, 2]},
+            {test: ["One", "Two"]}
+        ];
+        var col = _createCollection(undefined, 'tests');
+        col.load(resources);
+        expect(col.count()).toEqual(resources.length);
+    });
+
+    it("[clear] Shall clear Collection components", function() {
+        var resourceCount = 5;
+        var col = _createCollection(undefined, 'tests');
+        for(var i=0; i<resourceCount; i++) {
+            col.createResource();
+        }
+        expect(col.count()).toEqual(resourceCount);
+        col.clear();
+        expect(col.count()).toEqual(0);
+    });
+});

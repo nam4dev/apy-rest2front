@@ -38,7 +38,12 @@
 
     $window.ApyCollectionComponent = (function () {
 
-        var states = ['CREATE', 'READ', 'UPDATE', 'DELETE'];
+        var STATES = {
+            CREATE: 'CREATE',
+            READ: 'READ',
+            UPDATE: 'UPDATE',
+            DELETE: 'DELETE'
+        };
 
         /**
          *
@@ -120,28 +125,28 @@
          *
          */
         function setCreateState () {
-            return this.setState(states[0]);
+            return this.setState(STATES.CREATE);
         }
 
         /**
          *
          */
         function setReadState () {
-            return this.setState(states[1]);
+            return this.setState(STATES.READ);
         }
 
         /**
          *
          */
         function setUpdateState () {
-            return this.setState(states[2]);
+            return this.setState(STATES.UPDATE);
         }
 
         /**
          *
          */
         function setDeleteState () {
-            return this.setState(states[3]);
+            return this.setState(STATES.DELETE);
         }
 
         /**
@@ -171,15 +176,12 @@
         function fetch (progressHandler) {
             var self = this;
             var progress = progressHandler || function (counter) {
-                    self.$logging.log('Progress handler', counter);
+                    self.$log('Progress handler', counter);
                 };
-            progress(5);
+            progress(25);
             return new Promise(function (resolve, reject) {
-                // FIXME: $upload interface is not a function
-                // FIXME: Therefore a facade instance shall be made to unify
-                // FIXME: both interfaces, allowing us to always use the `$request` interface
                 self.clear();
-                progress(25);
+                progress(50);
                 return self.$request({
                     url: self.$endpoint,
                     headers: {
@@ -187,18 +189,18 @@
                     },
                     method: 'GET'
                 }).then(function (response) {
-                        progress(50);
+                        progress(75);
                         self.load(response.data._items);
                         progress(100);
                         return resolve(response);
                     },
                     function (error) {
-                        self.$logging.log("[ApyFrontendError] => " + error);
+                        self.$log("[ApyFrontendError] => " + error);
                         return reject(error);
                     },
                     function (evt) {
                         var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                        console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+                        self.$log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
                         progress(progressPercentage);
                     });
             });

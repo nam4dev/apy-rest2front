@@ -199,7 +199,7 @@
         switch (value.type) {
             case $TYPES.LIST:
                 if (value.schema) {
-                    val = this.schema2data(value.schema);
+                    val = [this.schema2data(value.schema, {})];
                 }
                 else {
                     val = [];
@@ -208,32 +208,41 @@
             case $TYPES.DICT:
                 val = this.schema2data(value.schema);
                 break;
+            /* istanbul ignore next */
             case $TYPES.MEDIA:
                 //val = new ApyMediaFile(this.$endpoint);
                 break;
             case $TYPES.FLOAT:
             case $TYPES.NUMBER:
-                val = 0.0;
+                val = value.default || 0.0;
                 break;
             case $TYPES.STRING:
-                val = "";
+                val = value.default || "";
                 break;
             case $TYPES.INTEGER:
-                val = 0;
+                val = value.default || 0;
                 break;
             case $TYPES.BOOLEAN:
-                val = false;
+                val = value.default || false;
                 break;
             case $TYPES.OBJECTID:
                 if(key.startsWith('_')) {
                     val = "";
                 }
                 else {
-                    val = this.schema2data(this.$service.$schemas[value.data_relation.resource]);
+                    var keyResource = value.data_relation.resource;
+                    if(this.$service.$schemas &&
+                        this.$service.$schemas.hasOwnProperty(keyResource)) {
+                        var $base = this.$service.$schemas[keyResource].$base;
+                        val = this.schema2data($base);
+                    }
+                    else {
+                        val = {}
+                    }
                 }
                 break;
             case $TYPES.DATETIME:
-                val = new Date();
+                val = value.default ? new Date(value.default) : new Date();
                 break;
             default :
                 val = null;

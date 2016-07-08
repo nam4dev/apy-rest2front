@@ -59,16 +59,19 @@
          * @returns {string}
          */
         function toString() {
+            var values = [];
             var filtered = this.$components.filter(function (c) {
                 return c.$required;
             });
-            if(filtered.length)
-                return '[' + filtered.join(', ') + ']';
+            if(!filtered.length)
+                filtered = this.$components;
 
-            filtered = this.$components.filter(function (c) {
-                return c.$value;
+            filtered.forEach(function (c) {
+                if(c.$value) {
+                    values.push(c.$value);
+                }
             });
-            return '[' + filtered.join(', ') + ']';
+            return '[' + values.join(', ') + ']';
         }
 
         /**
@@ -235,12 +238,12 @@
                     method: method,
                     data: data
                 }).then(function (response) {
-                    self.$logging.debug(response);
+                    self.$log(response);
                     self.loadResponse(response);
                     self.setReadState();
                     return resolve(response);
                 }).catch(function (error) {
-                    self.$logging.error(error);
+                    self.$log(error);
                     return reject(error);
                 });
             });
@@ -354,7 +357,6 @@
                         fieldObj.load(value);
                         break;
                     default:
-                        this.$logging.log('Unknown type ', type);
                         fieldObj = new ApyPolyField(this.$service, field, null, value, this.$states, this.$endpointBase);
                         fieldObj.readOnly = true;
                         break;

@@ -40,13 +40,13 @@ describe("Core.core unit tests", function() {
     var DEFAULT_SCHEMAS = {
         test: {type: 'list'}
     };
+    var DEFAULT_SCHEMA_NAME = 'test';
     var DEFAULT_ENDPOINT = 'http://localhost/';
 
     var _createService = function ($log, $http, $upload, config) {
         var service = new ApyCompositeService($log, $http, $upload, config || DEFAULT_CONFIG);
-        var schemasObj = new ApySchemasComponent(DEFAULT_ENDPOINT, DEFAULT_SCHEMAS, DEFAULT_CONFIG, service);
-        service.$instance = schemasObj;
-        service.$schemas = schemasObj.$componentArray;
+        service.initEndpoints(DEFAULT_ENDPOINT, DEFAULT_SCHEMA_NAME);
+        service.setSchemas(DEFAULT_SCHEMAS);
         return service;
     };
 

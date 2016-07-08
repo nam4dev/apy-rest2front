@@ -64,6 +64,17 @@ describe("Component.Base unit tests", function() {
         return component;
     };
 
+    it("[log] Shall log message using Service logger instance", function () {
+        var message = "A string";
+        var component = _createBaseComponent();
+        component.$service = {
+            $log: function () {
+                expect(arguments[0]).toEqual(message)
+            }
+        };
+        component.$log(message);
+    });
+
     it("[add] Inner $components Array shall contains the child", function () {
         var child = "A string";
         var component = _createBaseComponent();
@@ -151,8 +162,8 @@ describe("Component.Base unit tests", function() {
         expect(component.$typesMap.number).toBeDefined();
         expect(component.$typesMap.string).toBeDefined();
         expect(component.$service).toBeDefined();
-        expect(component.$logging).toBeDefined();
-        expect(component.$typeFactories).toBeDefined();
+        expect(component.$service.$log).toBeDefined();
+        expect(component.$typesFactory).toBeDefined();
         expect(component.$fieldTypesMap).toBeDefined();
         expect(component.$components).toBeDefined();
         expect(component.$components).toEqual(value);
@@ -194,6 +205,17 @@ describe("Component.Base unit tests", function() {
         expect(component.$value).toEqual(expectedValue);
     });
 
+    it("[toString] '$value' property shall be set with only all inner components as none are required", function () {
+        var components = [];
+        var expectedValue = '0: A child, 1: A child, 2: A child, 3: A child, 4: A child';
+        for (var i=0; i<5; i++) {
+            var child = new Child(i);
+            components.push(child);
+        }
+        var component = _createBaseComponent('base', null, components);
+        expect(component.toString()).toEqual(expectedValue);
+        expect(component + '').toEqual(expectedValue);
+    });
 
     it("[shallContinue] Shall return true", function () {
         var component = _createBaseComponent();
@@ -243,6 +265,7 @@ describe("Component.Base unit tests", function() {
     });
 
     it('[createPolyField] Shall create a new ApyPolyField instance', function () {
-
+        var component = _createBaseComponent('base', null);
+        component.createPolyField()
     });
 });

@@ -55,7 +55,7 @@
 
         function setValue(value) {
             if(!value) {
-                var factory = this.$typeFactories[this.$type];
+                var factory = this.$typesFactory[this.$type];
                 value = factory? factory() : undefined;
             }
             this.$memo = this.cloneValue(value);

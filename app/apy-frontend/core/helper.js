@@ -40,6 +40,7 @@
     /**
      *
      */
+    /* istanbul ignore next */
     var patchObject = function () {
         if (!Object.assign) {
             Object.defineProperty(Object, 'assign', {
@@ -104,6 +105,7 @@
      */
     var patchArray = function () {
         if (!Array.isArray) {
+            /* istanbul ignore next */
             Array.isArray = function(arg) {
                 return Object.prototype.toString.call(arg) === '[object Array]';
             };
@@ -149,6 +151,7 @@
      * @param {Object=} context Object to become context (`this`) for the iterator function.
      * @returns {Object|Array} Reference to `obj`.
      */
+    /* istanbul ignore next */
     function forEach(obj, iterator, context) {
         var key, length;
         if (obj) {
@@ -203,6 +206,7 @@
      * @param {*} value Reference to check.
      * @returns {boolean} True if `value` is undefined.
      */
+    /* istanbul ignore next */
     function isUndefined(value) {return typeof value === 'undefined';}
 
     /**
@@ -215,6 +219,7 @@
      * @param {*} value Reference to check.
      * @returns {boolean} True if `value` is defined.
      */
+    /* istanbul ignore next */
     function isDefined(value) {return typeof value !== 'undefined';}
 
     /**
@@ -270,6 +275,7 @@
      * @param {*} value Reference to check.
      * @returns {boolean} True if `value` is a `Number`.
      */
+    /* istanbul ignore next */
     function isNumber(value) {return typeof value === 'number';}
 
     /**
@@ -317,6 +323,7 @@
      * @param {*} value Reference to check.
      * @returns {boolean} True if `value` is a `RegExp`.
      */
+    /* istanbul ignore next */
     function isRegExp(value) {
         return toString.call(value) === '[object RegExp]';
     }
@@ -346,6 +353,7 @@
      * @param obj
      * @returns {boolean}
      */
+    /* istanbul ignore next */
     function isFormData(obj) {
         return toString.call(obj) === '[object FormData]';
     }
@@ -373,6 +381,7 @@
      * @param obj
      * @returns {*|boolean}
      */
+    /* istanbul ignore next */
     function isPromiseLike(obj) {
         return obj && isFunction(obj.then);
     }
@@ -385,6 +394,7 @@
      */
     function isArrayLike(obj) {
         if (obj == null || isWindow(obj)) {
+            /* istanbul ignore next */
             return false;
         }
 
@@ -393,6 +403,7 @@
         var length = "length" in Object(obj) && obj.length;
 
         if (obj.nodeType === NODE_TYPE_ELEMENT && length) {
+            /* istanbul ignore next */
             return true;
         }
 

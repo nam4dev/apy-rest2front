@@ -48,15 +48,20 @@
 
         /**
          *
+         * @returns {this}
+         */
+        function toString() {
+            this.loadValue();
+            return '' + this.$value;
+        }
+
+        /**
+         *
          * @param message
          * @returns {this}
          */
         function log(message) {
-            if(!this.hasOwnProperty('logging')) {
-                alert(message);
-            }
-            this.$logging.log(message);
-            return this;
+            return this.$service && this.$service.$log && this.$service.$log(message);
         }
         /**
          *
@@ -135,8 +140,65 @@
             return this;
         }
 
+        /**
+         *
+         * @returns {Object}
+         */
+        function createTypesFactory() {
+            var $TYPES = $window.$TYPES;
+            var $typesFactory = {};
+            $typesFactory[$TYPES.LIST] = function () {
+                return [];
+            };
+            $typesFactory[$TYPES.DICT] = function () {
+                return {};
+            };
+            $typesFactory[$TYPES.POLY] = function () {
+                return undefined;
+            };
+            $typesFactory[$TYPES.MEDIA] = function () {
+                return new ApyMediaFile(self.$endpoint, {});
+            };
+            $typesFactory[$TYPES.FLOAT] = function () {
+                return 0.0;
+            };
+            $typesFactory[$TYPES.NUMBER] = function () {
+                return 0;
+            };
+            $typesFactory[$TYPES.STRING] = function () {
+                return "";
+            };
+            $typesFactory[$TYPES.BOOLEAN] = function () {
+                return false;
+            };
+            $typesFactory[$TYPES.INTEGER] = function () {
+                return 0;
+            };
+            $typesFactory[$TYPES.OBJECTID] = function () {
+                return null;
+            };
+            $typesFactory[$TYPES.DATETIME] = function () {
+                return new Date();
+            };
+            $typesFactory[$TYPES.RESOURCE] = function () {
+                return null;
+            };
+            return $typesFactory;
+        }
+
+        function createTypesForPolyField ($types) {
+            var $typesForPoly = [];
+            Object.keys($types).forEach(function (k) {
+                var type = $types[k];
+                if([$TYPES.COLLECTION, $TYPES.DICT, $TYPES.POLY, $TYPES.INTEGER, $TYPES.FLOAT].indexOf(type) === -1) {
+                    $typesForPoly.push(type);
+                }
+            });
+            $typesForPoly.sort();
+            return $typesForPoly;
+        }
+
         function initialize(service, name, schema, value, $states, $endpoint, type, relationName, components) {
-            var self = this;
             var $TYPES = $window.$TYPES;
             this.$types = $TYPES;
             this.$service = service;
@@ -157,64 +219,20 @@
 				    $TYPES.OBJECTID
                 ]
             };
-            this.$typeFactories = {};
-            this.$typeFactories[$TYPES.LIST] = function () {
-                return [];
-            };
-            this.$typeFactories[$TYPES.DICT] = function () {
-                return {};
-            };
-            this.$typeFactories[$TYPES.POLY] = function () {
-                return undefined;
-            };
-            this.$typeFactories[$TYPES.MEDIA] = function () {
-                return new ApyMediaFile(self.$endpoint, {});
-            };
-            this.$typeFactories[$TYPES.FLOAT] = function () {
-                return 0.0;
-            };
-            this.$typeFactories[$TYPES.NUMBER] = function () {
-                return 0;
-            };
-            this.$typeFactories[$TYPES.STRING] = function () {
-                return "";
-            };
-            this.$typeFactories[$TYPES.BOOLEAN] = function () {
-                return false;
-            };
-            this.$typeFactories[$TYPES.INTEGER] = function () {
-                return 0;
-            };
-            this.$typeFactories[$TYPES.OBJECTID] = function () {
-                return null;
-            };
-            this.$typeFactories[$TYPES.DATETIME] = function () {
-                return new Date();
-            };
-            this.$typeFactories[$TYPES.RESOURCE] = function () {
-                return null;
-            };
             this.$fieldTypesMap = {
                 float: $TYPES.NUMBER,
                 integer: $TYPES.NUMBER,
                 dict: $TYPES.RESOURCE
             };
-            // Dependencies inherited from Angular
+            this.$typesFactory = createTypesFactory();
+            // Dependencies inherited from Frontend framework (here AngularJs)
             this.$request = null;
             this.$http = service.$http;
-            this.$logging = service.$log;
             this.$upload = service.$upload;
             // components index
             this.$components = components || [];
             this.$components = this.isArray(this.$components) ? this.$components : [this.$components];
-            this.$typesForPoly = [];
-            Object.keys(this.$types).forEach(function (k) {
-                var type = self.$types[k];
-                if([$TYPES.COLLECTION, $TYPES.DICT, $TYPES.POLY, $TYPES.INTEGER, $TYPES.FLOAT].indexOf(type) === -1) {
-                    self.$typesForPoly.push(type);
-                }
-            });
-            self.$typesForPoly.sort();
+            this.$typesForPoly = createTypesForPolyField(this.$types);
             // Design related
             if(this.$fieldTypesMap.hasOwnProperty(type)) {
                 type = this.$fieldTypesMap[type];
@@ -263,10 +281,12 @@
             return this;
         }
 
+        /* istanbul ignore next */
         function load (args) {
             return this;
         }
 
+        /* istanbul ignore next */
         function json (indent) {
             return JSON.stringify(this, null, indent || 4);
         }
@@ -393,6 +413,7 @@
 
         return function() {
             this.add = add;
+            this.$log = log;
             this.json = json;
             this.load = load;
             this.clone = clone;
@@ -401,6 +422,7 @@
             this.remove = remove;
             this.oneMore = oneMore;
             this.prepend = prepend;
+            this.toString = toString;
             this.getChild = getChild;
             this.validate = validate;
             this.setValue = setValue;
@@ -416,7 +438,6 @@
             this.initRequest = initRequest;
             this.cleanedData = cleanedData;
             this.hasChildren = hasChildren;
-            this.$log = this.$logging = log;
             this.createPolyField = createPolyField;
             return this;
         };
