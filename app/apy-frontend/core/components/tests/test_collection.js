@@ -122,6 +122,33 @@ describe("Component.Collection unit tests", function() {
         col.setDeleteState();
     });
 
+    it("[reset] Shall call inner $components reset method", function() {
+        var collection = _createCollection(undefined, 'tests');
+        var callCount = 0;
+        var child1 = {
+            reset: function () {
+                callCount++;
+            }
+        };
+        var child2 = {
+            reset: function () {
+                callCount++;
+            }
+        };
+        var child3 = {
+            reset: function () {
+                callCount++;
+            }
+        };
+        var children = [child1, child2, child3];
+        children.forEach(function (child) {
+            collection.add(child);
+        });
+        expect(collection.count()).toEqual(children.length);
+        collection.reset();
+        expect(callCount).toEqual(children.length);
+    });
+
     it("[load] Shall load data into Collection components", function() {
         var resources = [
             {test: []},
@@ -142,5 +169,220 @@ describe("Component.Collection unit tests", function() {
         expect(col.count()).toEqual(resourceCount);
         col.clear();
         expect(col.count()).toEqual(0);
+    });
+    
+    it("[save] Shall call create & update", function() {
+        var createCall = false;
+        var updateCall = false;
+        var col = _createCollection(undefined, 'tests');
+        col.create = function () {
+            createCall = true;
+            return col;
+        };
+        col.update = function () {
+            updateCall = true;
+        };
+        col.save();
+        expect(createCall).toBe(true);
+        expect(updateCall).toBe(true);
+    });
+
+    it("[create] Create method of all inner components shall be called", function() {
+        var callCount = 0;
+        var col = _createCollection(undefined, 'tests');
+        var children = [
+            {
+                create: function () {
+                    callCount++;
+                }
+            },
+            {
+                create: function () {
+                    callCount++;
+                }
+            },
+            {
+                create: function () {
+                    callCount++;
+                }
+            }
+        ];
+        children.forEach(function (child) {
+            col.add(child);
+        });
+        expect(col.count()).toEqual(children.length);
+        col.create();
+        expect(callCount).toEqual(children.length);
+    });
+
+    it("[update] Update method of all inner components shall be called", function() {
+        var callCount = 0;
+        var col = _createCollection(undefined, 'tests');
+        var children = [
+            {
+                update: function () {
+                    callCount++;
+                }
+            },
+            {
+                update: function () {
+                    callCount++;
+                }
+            },
+            {
+                update: function () {
+                    callCount++;
+                }
+            }
+        ];
+        children.forEach(function (child) {
+            col.add(child);
+        });
+        expect(col.count()).toEqual(children.length);
+        col.update();
+        expect(callCount).toEqual(children.length);
+    });
+
+    it("[delete] Delete method of all inner components shall be called", function() {
+        var callCount = 0;
+        var col = _createCollection(undefined, 'tests');
+        var children = [
+            {
+                delete: function () {
+                    callCount++;
+                }
+            },
+            {
+                delete: function () {
+                    callCount++;
+                }
+            },
+            {
+                delete: function () {
+                    callCount++;
+                }
+            }
+        ];
+        children.forEach(function (child) {
+            col.add(child);
+        });
+        expect(col.count()).toEqual(children.length);
+        col.delete();
+        expect(callCount).toEqual(children.length);
+        expect(col.count()).toEqual(0);
+    });
+
+    it("[hasCreated] Shall return true (some components are true)", function() {
+        var callCount = 0;
+        var col = _createCollection(undefined, 'tests');
+        col.add({
+            hasCreated: function () {
+                callCount++;
+                return false;
+            }
+        });
+        col.add({
+            hasCreated: function () {
+                callCount++;
+                return false;
+            }
+        });
+        col.add({
+            hasCreated: function () {
+                callCount++;
+                return true;
+            }
+        });
+        expect(col.hasCreated()).toBe(true);
+        expect(callCount).toEqual(3);
+    });
+
+    it("[hasCreated] Shall return false (none of components are true)", function() {
+        var callCount = 0;
+        var col = _createCollection(undefined, 'tests');
+        col.add({
+            hasCreated: function () {
+                callCount++;
+                return false;
+            }
+        });
+        col.add({
+            hasCreated: function () {
+                callCount++;
+                return false;
+            }
+        });
+        col.add({
+            hasCreated: function () {
+                callCount++;
+                return false;
+            }
+        });
+        expect(col.hasCreated()).toBe(false);
+        expect(callCount).toEqual(3);
+    });
+
+    it("[hasUpdated] Shall return true (some components are true)", function() {
+        var callCount = 0;
+        var col = _createCollection(undefined, 'tests');
+        col.add({
+            hasUpdated: function () {
+                callCount++;
+                return false;
+            }
+        });
+        col.add({
+            hasUpdated: function () {
+                callCount++;
+                return true;
+            }
+        });
+        col.add({
+            hasUpdated: function () {
+                callCount++;
+                return false;
+            }
+        });
+        expect(col.hasUpdated()).toBe(true);
+        expect(callCount).toEqual(3);
+    });
+
+    it("[hasUpdated] Shall return false (none of components are true)", function() {
+        var callCount = 0;
+        var col = _createCollection(undefined, 'tests');
+        col.add({
+            hasUpdated: function () {
+                callCount++;
+                return false;
+            }
+        });
+        col.add({
+            hasUpdated: function () {
+                callCount++;
+                return false;
+            }
+        });
+        col.add({
+            hasUpdated: function () {
+                callCount++;
+                return false;
+            }
+        });
+        expect(col.hasUpdated()).toBe(false);
+        expect(callCount).toEqual(3);
+    });
+
+    it("[savedCount] Shall return the amount of Saved resource (_id != empty)", function() {
+        var col = _createCollection(undefined, 'tests');
+        col.add({
+            _id: "0123456789"
+        });
+        col.add({
+            _id: undefined
+        });
+        col.add({
+            _id: undefined
+        });
+        expect(col.savedCount()).toEqual(1);
     });
 });

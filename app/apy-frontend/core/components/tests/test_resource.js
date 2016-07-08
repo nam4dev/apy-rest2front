@@ -40,7 +40,15 @@ describe("Component.Resource unit tests", function() {
     var DEFAULT_CONFIG = {};
     var DEFAULT_SCHEMAS = {
         tests: {
-            test: {type: 'list'}
+            test: {
+                type: 'list',
+                schema: {
+                    type: "string"
+                }
+            }
+        },
+        parents: {
+            name: { type: "string" }
         }
     };
     var DEFAULT_SCHEMA_NAME = 'test';
@@ -120,15 +128,15 @@ describe("Component.Resource unit tests", function() {
 
     it("[reset] $selfUpdated shall be false", function() {
         var resource = _createResource(undefined, 'test', DEFAULT_SCHEMAS.tests);
-        resource._id = undefined;
-        expect(resource.hasCreated()).toBe(true);
+        resource.$selfUpdated = true;
+        resource.reset();
+        expect(resource.$selfUpdated).toBe(false);
     });
 
     it("[hasCreated] Shall return true as pkName is not set", function() {
         var resource = _createResource(undefined, 'test', DEFAULT_SCHEMAS.tests);
-        resource.$selfUpdated = true;
-        resource.reset();
-        expect(resource.$selfUpdated).toBe(false);
+        resource._id = undefined;
+        expect(resource.hasCreated()).toBe(true);
     });
 
     it("[hasCreated] Shall return false as pkName is set", function() {
@@ -164,4 +172,409 @@ describe("Component.Resource unit tests", function() {
         expect(resource.count()).toEqual(3);
         expect(resource.hasUpdated()).toBe(true);
     });
+
+    it("[selfCommit] Shall set $selfUpdated to false", function() {
+        var resource = _createResource(undefined, 'test', DEFAULT_SCHEMAS.tests);
+        var callCount = 0;
+        var child1 = {
+            $selfUpdated: true,
+            selfCommit: function () {
+                callCount++;
+            }
+        };
+        var child2 = {
+            $selfUpdated: true,
+            selfCommit: function () {
+                callCount++;
+            }
+        };
+        var child3 = {
+            $selfUpdated: true,
+            selfCommit: function () {
+                callCount++;
+            }
+        };
+        var children = [child1, child2, child3];
+        children.forEach(function (child) {
+            resource.add(child);
+        });
+        resource.selfCommit();
+        expect(callCount).toEqual(children.length);
+        children.forEach(function (child) {
+            expect(child.$selfUpdated).toBe(false);
+        });
+    });
+
+    it("[selfUpdate] Shall update accordingly", function() {
+        var resource = _createResource(undefined, 'test', DEFAULT_SCHEMAS.tests);
+        resource._id = "Shall.be.overridden";
+        resource.testing = undefined;
+        var update = {
+            _id: "An ID value",
+            testing: "A testing value to be set",
+            $value: "Shall be mapped"
+        };
+        resource.selfUpdate(update);
+        expect(resource._id).toEqual(update._id);
+        expect(resource.$value).toEqual(update.$value);
+    });
+
+    it("[load] Shall load from given Object (Resource) - LIST", function() {
+        var resource = _createResource(undefined, 'test', DEFAULT_SCHEMAS.tests);
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            test: ["One", "Ready"]
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        expect(resource.$components[0].$value).toEqual(resourceObject.test);
+    });
+
+    it("[load] Shall load from given Object (Resource) - DICT with schema", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'dict',
+                schema: {
+                    lastname: { type: "string" },
+                    firstname: { type: "string" }
+                }
+            }
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            test: {
+                lastname: "TEST",
+                firstname: "Test"
+            }
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        expect(resource.$components[0].$value).toEqual("TEST, Test");
+    });
+
+    it("[load] Shall load from given Object (Resource) - DICT without schema", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'dict'
+            }
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            test: {
+                lastname: "TEST",
+                firstname: "Test"
+            }
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        var child = resource.$components[0];
+        expect(child instanceof ApyResourceComponent).toBe(true);
+        expect(child.$components[0] instanceof ApyPolyField).toBe(true);
+    });
+
+    it("[load] Shall load from given Object (Resource) - POINT", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'point'
+            }
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            test: {"type":"Point","coordinates":[1.2678,-1.6579]}
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        var child = resource.$components[0];
+        expect(child instanceof ApyPointField).toBe(true);
+    });
+
+    it("[load] Shall load from given Object (Resource) - MEDIA", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'media'
+            }
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            imageTest: {
+                "content_type":"image/png",
+                "file": "https://media.tests.fr/0123456789",
+                name: "a-test-image.png"
+            }
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        var child = resource.$components[0];
+        expect(child instanceof ApyMediaField).toBe(true);
+    });
+
+    it("[load] Shall load from given Object (Resource) - FLOAT", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'float',
+                default: 1.0
+            }
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            coefficient: 2.5
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        var child = resource.$components[0];
+        expect(child instanceof ApyNumberField).toBe(true);
+    });
+
+    it("[load] Shall load from given Object (Resource) - NUMBER", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'number',
+                default: 1.0
+            }
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            coefficient: 2.5
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        var child = resource.$components[0];
+        expect(child instanceof ApyNumberField).toBe(true);
+    });
+
+    it("[load] Shall load from given Object (Resource) - INTEGER", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'float',
+                default: 2
+            }
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            coefficient: 5
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        var child = resource.$components[0];
+        expect(child instanceof ApyNumberField).toBe(true);
+    });
+
+    it("[load] Shall load from given Object (Resource) - BOOLEAN", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'boolean',
+                default: true
+            }
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            coefficient: 5
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        var child = resource.$components[0];
+        expect(child instanceof ApyBooleanField).toBe(true);
+    });
+
+    it("[load] Shall load from given Object (Resource) - DATETIME", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'datetime',
+                default: new Date()
+            }
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            event: new Date()
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        var child = resource.$components[0];
+        expect(child instanceof ApyDatetimeField).toBe(true);
+    });
+
+    it("[load] Shall load from given Object (Resource) - OBJECTID", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'objectid',
+                default: "0123456789",
+                data_relation: {
+                    resource: "parents"
+                }
+            }
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            parent: _id + _etag
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        var child = resource.$components[0];
+        expect(child instanceof ApyResourceComponent).toBe(true);
+    });
+
+    it("[load] Shall load from given Object (Resource) - NO TYPE", function() {
+        var resource = _createResource(undefined, 'test', {
+            test: {}
+        });
+        var _id = "0123456789";
+        var _etag = "9876543210";
+        var resourceObject = {
+            _id: _id,
+            _etag: _etag,
+            parent: _id + _etag
+        };
+        resource.load(resourceObject);
+        expect(resourceObject._id).toBeUndefined();
+        expect(resourceObject._etag).toBeUndefined();
+        expect(resource._id).toEqual(_id);
+        expect(resource._etag).toEqual(_etag);
+        var child = resource.$components[0];
+        expect(child instanceof ApyPolyField).toBe(true);
+    });
+
+    it("[cleanedData] Shall return a well-formed Object mirroring inner components state", function() {
+        var count = 3;
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'list',
+                default: "0123456789",
+                data_relation: {
+                    resource: "parents"
+                }
+            }
+        });
+        for(var i=0; i<count; i++) {
+            resource.add({
+                $name: "name" + i,
+                $type: "string",
+                $value: "Incremental " + i,
+                cleanedData: function () {
+                    return this.$value;
+                }
+            });
+        }
+        resource.add({
+            _id: "01234567889",
+            $name: "parent",
+            $type: "objectid"
+        });
+
+        var expectedData = {
+            name0: "Incremental 0",
+            name1: "Incremental 1",
+            name2: "Incremental 2",
+            parent: "01234567889"
+
+        };
+        expect(resource.cleanedData()).toEqual(expectedData);
+    });
+
+    it("[isReadOnly] Shall return true as all components held are `readOnly`", function() {
+        var count = 3;
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'objectid',
+                default: "0123456789",
+                data_relation: {
+                    resource: "parents"
+                }
+            }
+        });
+        for(var i=0; i<count; i++) {
+            resource.add({
+                readOnly: true
+            });
+        }
+        expect(resource.isReadOnly()).toBe(true);
+    });
+
+    it("[isReadOnly] Shall return false as only some components held are `readOnly`", function() {
+        var count = 3;
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'objectid',
+                default: "0123456789",
+                data_relation: {
+                    resource: "parents"
+                }
+            }
+        });
+        for(var i=0; i<count; i++) {
+            resource.add({
+                readOnly: true
+            });
+        }
+        resource.add({
+            readOnly: false
+        });
+        expect(resource.isReadOnly()).toBe(false);
+    });
+
 });
