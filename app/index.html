@@ -30,10 +30,10 @@
 *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
 -->
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" ng-app="apy" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" ng-app="apy" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" ng-app="apy" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" ng-app="apy" class="no-js"> <!--<![endif]-->
+<!--[if lt IE 7]>      <html lang="en" ng-app="apy-frontend" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" ng-app="apy-frontend" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" ng-app="apy-frontend" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" ng-app="apy-frontend" class="no-js"> <!--<![endif]-->
 <head>
 
     <title>Apy Frontend - Angular</title>
@@ -112,7 +112,6 @@
 
         <footer>
             <div>Apy Frontend, v<span apy-version></span></div>
-            <script src="components/angular-ui-tree/dist/angular-ui-tree.min.js"></script>
             <!-- shim is needed to support non-HTML5 FormData browsers (IE8-9)-->
             <script>
                 //optional need to be loaded before angular-file-upload-shim(.min).js
@@ -152,9 +151,12 @@
             <script src="apy-frontend/core/schemas.js"></script>
             <script src="apy-frontend/core/core.js"></script>
 
-            <!-- UI integration (AngularJs) -->
+            <!-- UI integration (AngularJs) !IMPORTANT! Keep import order -->
             <script src="apy-frontend/integration/angular/view.js"></script>
+            <script src="apy-frontend/integration/angular/directives/field.js"></script>
+
             <script src="apy-frontend/integration/angular/app.js"></script>
+
             <script src="apy-frontend/integration/angular/directives/version/version.js"></script>
             <script src="apy-frontend/integration/angular/directives/version/version-directive.js"></script>
             <script src="apy-frontend/integration/angular/directives/version/interpolate-filter.js"></script>

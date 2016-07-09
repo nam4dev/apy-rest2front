@@ -30,8 +30,10 @@ module.exports = function(config){
             'app/apy-frontend/core/schemas.js',
             'app/apy-frontend/core/core.js',
 
-            'app/apy-frontend/integration/angular/app.js',
             'app/apy-frontend/integration/angular/view.js',
+            'app/apy-frontend/integration/angular/directives/field.js',
+            'app/apy-frontend/integration/angular/app.js',
+
             'app/apy-frontend/integration/angular/directives/version/version.js',
             'app/apy-frontend/integration/angular/directives/version/version-directive.js',
             'app/apy-frontend/integration/angular/directives/version/interpolate-filter.js',
@@ -64,10 +66,10 @@ module.exports = function(config){
         // Coverage minimal thresholds
         // FIXME: raise up to 90%
         thresholdReporter: {
-            statements: 77.5,
-            branches: 70,
-            functions: 70,
-            lines: 77.5
+            statements: 85,
+            branches: 75,
+            functions: 85,
+            lines: 85
         },
         // Configure the reporter
         coverageReporter: {

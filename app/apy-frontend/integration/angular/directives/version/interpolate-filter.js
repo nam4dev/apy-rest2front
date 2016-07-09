@@ -36,10 +36,12 @@
  */
 'use strict';
 
-angular.module('apy.version.interpolate-filter', [])
+angular.module('apy-frontend.version.interpolate-filter', [])
 
-    .filter('interpolate', ['version', function(version) {
-        return function(text) {
-            return String(text).replace(/\%VERSION\%/mg, version);
-        };
-    }]);
+    .filter('interpolate', ['version',
+        /* istanbul ignore next */
+        function(version) {
+            return function(text) {
+                return String(text).replace(/\%VERSION\%/mg, version);
+            };
+        }]);

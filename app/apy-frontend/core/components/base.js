@@ -61,8 +61,10 @@
          * @returns {this}
          */
         function log(message) {
-            return this.$service && this.$service.$log && this.$service.$log(message);
+            this.$service && this.$service.$log && this.$service.$log.log(message);
+            return this;
         }
+
         /**
          *
          * @param child
@@ -72,6 +74,7 @@
             this.$components.push(child);
             return this;
         }
+
         /**
          *
          * @param child
@@ -81,6 +84,7 @@
             this.$components.unshift(child);
             return this;
         }
+
         /**
          *
          * @returns {Number}
@@ -88,6 +92,7 @@
         function count() {
             return this.$components.length;
         }
+
         /**
          *
          * @param child
@@ -103,6 +108,7 @@
             }
             return this;
         }
+
         /**
          *
          * @param i
@@ -111,6 +117,7 @@
         function getChild(i) {
             return this.$components[i];
         }
+
         /**
          *
          * @returns {boolean}
@@ -118,6 +125,7 @@
         function hasChildren() {
             return this.count() > 0;
         }
+
         /**
          *
          * @returns {Array}
@@ -200,6 +208,7 @@
 
         function initialize(service, name, schema, value, $states, $endpoint, type, relationName, components) {
             var $TYPES = $window.$TYPES;
+            this.__logger = undefined;
             this.$types = $TYPES;
             this.$service = service;
             this.$typesMap = {
@@ -216,7 +225,7 @@
                     $TYPES.RESOURCE
                 ],
                 string: [
-				    $TYPES.OBJECTID
+                    $TYPES.OBJECTID
                 ]
             };
             this.$fieldTypesMap = {
@@ -330,9 +339,9 @@
                 throw new Error('No $Class property set !');
             }
             var instance = new this.$Class(this.$service,
-                    this.$name, this.$schema, value, this.$states,
-                    this.$endpoint, this.$type, this.$relationName);
-                instance.setParent(parent || this.$parent);
+                this.$name, this.$schema, value, this.$states,
+                this.$endpoint, this.$type, this.$relationName);
+            instance.setParent(parent || this.$parent);
             return instance;
         }
 

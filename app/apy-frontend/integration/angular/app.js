@@ -39,14 +39,13 @@
     var endpoint = 'http://localhost:8001/',
         schemaName = 'schemas',
         appTheme = 'bootstrap3',
-        application = angular.module('apy', [
+        application = angular.module('apy-frontend', [
             'ngRoute',
             'ngAnimate',
             'ngFileUpload',
             'ui.bootstrap',
-            'ui.tree',
-            'apy.view',
-            'apy.version'
+            'apy-frontend.view',
+            'apy-frontend.version'
         ]),
         schemas;
 
@@ -60,17 +59,7 @@
                     pkName: '_id',
                     appTheme: appTheme,
                     excludedEndpointByNames: ['logs'],
-                    schemas: {
-                        //my_lists: {
-                        //    listOfString: {
-                        //        schema: {
-                        //            type: "string",
-                        //            default: "",
-                        //            required: true
-                        //        }
-                        //    }
-                        //}
-                    }
+                    schemas: {}
                 };
             return new ApyCompositeService($log, $http, Upload, config);
         };

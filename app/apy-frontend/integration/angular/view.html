@@ -366,7 +366,7 @@
                    class="glyphicon glyphicon-pencil"></i>
                 <!--<i ng-click="setRead($collection)" ng-if="!validateHidden" class="glyphicon glyphicon-ok"></i>-->
                 <i id="gCancel"
-                   ng-click="cancel()"
+                   ng-click="read()"
                    ng-if="$collection.savedCount() > 0 && updateHidden" class="glyphicon glyphicon-arrow-left"></i>
             </th>
             <th>
@@ -560,6 +560,25 @@
         </div>
         <div class="modal-footer">
             <button class="btn btn-danger" type="button" ng-click="ok()">OK</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="modal-warning.html">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                 <span class="text-capitalize" >
+                     Warning - About to <strong>{{ action }}</strong> : <i>{{ count }}</i> <span ng-if="count <= 1">Item</span><span ng-if="count > 1">Items</span>
+                 </span>
+            </h3>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-warning" role="alert" ng-if="message">
+                {{ message }}
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-info" type="button" ng-click="cancel()">Cancel</button>
         </div>
     </script>
 </div>

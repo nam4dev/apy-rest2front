@@ -51,14 +51,16 @@ describe("Component.Base unit tests", function() {
         }
     };
 
-    // Mocking Service
+    // Mocked Service
     var Service = function () {
-        this.$log = console;
+        this.$log = {
+            log: function stub() {
+            }
+        };
     };
 
     var _createBaseComponent = function (type, value, components) {
         var component = new ApyComponentMixin();
-        //service, name, schema, value, $states, $endpoint, type, relationName, components
         component.initialize(new Service(), "Component.Base.test", {}, value, null, null, type, null, components);
         component.setParent(parent);
         return component;
@@ -68,8 +70,10 @@ describe("Component.Base unit tests", function() {
         var message = "A string";
         var component = _createBaseComponent();
         component.$service = {
-            $log: function () {
-                expect(arguments[0]).toEqual(message)
+            $log: {
+                log: function () {
+                    expect(arguments[0]).toEqual(message);
+                }
             }
         };
         component.$log(message);

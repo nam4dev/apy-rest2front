@@ -37,101 +37,7 @@
  */
 (function ($angular) {'use strict';
 
-    $angular.module('apy.view', ['ngRoute'])
-
-        .directive('apyField', [function() {
-            return {
-                restrict: 'E',
-                transclude: true,
-                scope: {
-                    field: '='
-                },
-                template: '<div ng-include="field.$contentUrl"></div>',
-                controller: ['$scope', '$log', '$uibModal', 'apy', function ($scope, $log, $uibModal, apyProvider) {
-                    var win;
-                    $scope.opened = false;
-                    $scope.displaySchemaNames = false;
-                    $scope.dateOptions = {};
-                    //$scope.$states = apyProvider.$states;
-                    $scope.altInputFormats = ['M!/d!/yyyy'];
-                    $scope.formats = ['yyyy-MMM-dd HH:mm:ss', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
-                    $scope.format = $scope.formats[0];
-
-                    $scope.displayChoices = function () {
-                        $scope.displaySchemaNames = true;
-                    };
-
-                    $scope.hideChoices = function () {
-                        $scope.displaySchemaNames = false;
-                    };
-
-                    $scope.setFile = function (field, file) {
-                        field.$value.setFile(file)
-                            .then(function (_) {
-                                $scope.$apply();
-                            })
-                            .catch(function (error) {
-                                $log.error(error);
-                            })
-                    };
-
-                    $scope.expandList = function (field) {
-                        $scope.ok = function () {
-                            win && win.dismiss('cancel');
-                        };
-
-                        $scope.cancel = function () {
-                            win && win.dismiss('cancel');
-                        };
-                        if(!field.count()) {
-                            field.oneMore();
-                        }
-                        win = $uibModal.open({
-                            animation: false,
-                            templateUrl: 'modal-list.html',
-                            controllerAs: 'ModalCtrl',
-                            scope: $scope
-                        });
-                    };
-
-                    $scope.expandRecursive = function (field) {
-                        $scope.ok = function () {
-                            field.loadValue();
-                            win && win.dismiss('cancel');
-                        };
-
-                        $scope.cancel = function () {
-                            field && field.reset();
-                            win && win.dismiss('cancel');
-                        };
-                        win = $uibModal.open({
-                            animation: false,
-                            templateUrl: 'modal-recursive.html',
-                            controllerAs: 'ModalCtrl',
-                            scope: $scope
-                        });
-                    };
-
-                    $scope.resourcePicker = function (field) {
-                        // UI Callbacks
-                        $scope.cancel = function () {
-                            win && win.dismiss('cancel');
-                        };
-                        // Data Layer
-                        var collection = apyProvider.createCollection(field.$relationName);
-                        collection.fetch().then(function (_) {
-                            $scope.$collection = collection;
-                            win = $uibModal.open({
-                                animation: false,
-                                templateUrl: 'modal-embedded.html',
-                                controllerAs: 'ModalCtrl',
-                                scope: $scope
-                            });
-                        });
-                    };
-                }]
-            };
-        }])
+    $angular.module('apy-frontend.view', ['ngRoute'])
 
         .controller('ApyViewCtrl', ['$rootScope', '$scope', '$log', '$route', '$uibModal', 'Upload', 'apy',
             function($rootScope, $scope, $log, $route, $uibModal, Upload, apyProvider) {
@@ -187,20 +93,31 @@
                 };
 
                 $scope.deleteResources = function () {
-                    // TODO: Add confirmation box before deleting
-                    var ok = confirm("Would you really like to delete " + collection.count() + " listed resources ?");
-                    if(ok) {
+                    $scope.ok = function () {
                         collection.delete();
-
-                    }
+                        win && win.dismiss('cancel');
+                    };
+                    $scope.cancel = function () {
+                        win && win.dismiss('cancel');
+                    };
+                    $scope.count = collection.count();
+                    $scope.action = "Delete";
+                    $scope.message = "Would you really like to delete " + $scope.count + " listed resources ?";
+                    var win = $uibModal.open({
+                        animation: true,
+                        templateUrl: 'modal-warning.html',
+                        controllerAs: 'ModalCtrl',
+                        scope: $scope
+                    });
                 };
 
-                $scope.cancel = function () {
+                $scope.read = function () {
                     collection.setReadState();
                     $scope.updateHidden = false;
                     $scope.validateHidden = true;
                 };
 
+                /* istanbul ignore next */
                 $scope.create = function (resource) {
                     var defer = resource.create();
                     if(defer) {
@@ -221,6 +138,7 @@
                     }
                 };
 
+                /* istanbul ignore next */
                 $scope.update = function (resource) {
                     var defer = resource.update();
                     if(defer){
@@ -238,9 +156,9 @@
                     }
                 };
 
+                /* istanbul ignore next */
                 $scope.delete = function (resource) {
-                    var ok = confirm("Would you really like to delete resource: \n\n`" + resource.toString() + "` ?");
-                    if(ok) {
+                    $scope.ok = function () {
                         var defer = resource.delete();
                         if(defer) {
                             defer
@@ -255,7 +173,20 @@
                         else {
                             collection.removeResource(resource);
                         }
-                    }
+                        win && win.dismiss('cancel');
+                    };
+                    $scope.cancel = function () {
+                        win && win.dismiss('cancel');
+                    };
+                    $scope.count = 1;
+                    $scope.action = "Delete";
+                    $scope.message = "Would you really like to delete resource: \n\n`" + resource + "` ?";
+                    var win = $uibModal.open({
+                        animation: true,
+                        templateUrl: 'modal-warning.html',
+                        controllerAs: 'ModalCtrl',
+                        scope: $scope
+                    });
                 };
             }]);
 
