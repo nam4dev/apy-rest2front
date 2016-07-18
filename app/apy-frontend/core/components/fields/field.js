@@ -65,10 +65,11 @@
 
         /**
          *
-         * @returns {string}
+         * @returns {this}
          */
         function toString() {
-            return "" + this.$value;
+            this.loadValue();
+            return '' + this.$value;
         }
 
         /**
@@ -83,23 +84,11 @@
         /**
          *
          * @param update
-         * @param commit
          * @returns {this}
          */
-        function selfUpdate(update, commit) {
+        function selfUpdate(update) {
             this.$value = this.cloneValue(update.$value);
-            if (commit) {
-                this.selfCommit();
-            }
             return this;
-        }
-
-        /**
-         *
-         * @returns {boolean}
-         */
-        function hasUpdated() {
-            return this.$value !== this.$memo;
         }
 
         /**
@@ -110,10 +99,6 @@
             return this.$value;
         }
 
-        function load (args) {
-            return this;
-        }
-
         function _errorMsg() {
             var msg = 'Field.' + this.$name + ' did not validate' + '\n';
                msg += 'Type should be ' + this.$internalType + ', got ' + typeof this.$value;
@@ -121,13 +106,12 @@
         }
 
         function validate() {
-            if(typeof this.$value !== this.$internalType) {
+            if(this.$value && typeof this.$value !== this.$internalType) {
                 throw new Error(this._errorMsg());
             }
         }
 
         return function () {
-            this.load            = load;
             this.toString        = toString;
             this.validate        = validate;
             this.setValue        = setValue;
@@ -135,7 +119,6 @@
             this.setOptions      = setOptions;
             this.selfUpdate      = selfUpdate;
             this.selfCommit      = selfCommit;
-            this.hasUpdated      = hasUpdated;
             this.cleanedData     = cleanedData;
             return this;
         }

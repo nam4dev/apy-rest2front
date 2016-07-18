@@ -34,6 +34,7 @@
  *
  *  """
  */
+/* istanbul ignore next */
 (function (angular) {'use strict';
 
     var endpoint = 'http://localhost:8001/',

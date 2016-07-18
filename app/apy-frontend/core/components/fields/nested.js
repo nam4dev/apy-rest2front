@@ -7,7 +7,7 @@
  *  For UI components (data representation & bindings), AngularJs is used.
  *  Anyhow, the framework is intended to be plugged to any UI or Backend framework...
  *
- *  Copyright (C) 2016  (apy) Namgyal Brisson
+ *  Copyright (C) 2016 Namgyal Brisson
  *
  *  Permission is hereby granted, free of charge, to any person obtaining a copy
  *  of this software and associated documentation files (the "Software"), to deal
@@ -27,51 +27,43 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  *
- *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
+ *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Hashmap Field UTs
+ *  Hash-map field abstraction
  *
  *  """
  */
+(function ($window) {
 
-describe("Component.Field.HashMap unit tests", function() {
+    $window.ApyNestedField = (function () {
 
-    var _createFieldByType = function (type, value, schema) {
-        schema = schema || {};
-        schema.type = type;
-        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
-    };
+        /**
+         *
+         * @param value
+         * @returns {*}
+         */
+        function cloneValue(value) {
+            return isObject(value) ? Object.assign(value) : value;
+        }
 
-    var _createField = function (value, schema) {
-        return new _createFieldByType('hashmap', value, schema);
-    };
+        // FIXME
+        function validate() {}
 
-    it("[cleanedData] shall return an Object-like instance based on its Component(s) type & state (updated)", function() {
-        var value = {
-            test: "A string value",
-            date: new Date(),
-            items: [
-                "One",
-                "Two"
-            ]
-        };
-        var schema = {
-            test: {type: "string"},
-            date: {type: "datetime"},
-            items: {type: "list", schema: {type: "string"}}
-        };
-        var field = _createField(value, schema);
+        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.validate = validate;
+            this.cloneValue = cloneValue;
+            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.RESOURCE, relationName);
+            this.$Class = $window.ApyNestedField;
+            this.load(value);
+            return this;
+        }
 
-        //FIXME:
-        //console.log('field', field.cleanedData());
+    })();
 
-        //field.$components[0].$value = "An updated string value";
-        //field.$components[1].$value = new Date();
-        //
-        //expect(field.cleanedData()).toEqual({
-        //    test: field.$components[0].$value,
-        //    date: field.$components[1].$value
-        //});
-    });
-});
+    // Inject Mixins
+    $window.ApyComponentMixin.call(ApyNestedField.prototype);
+    $window.ApyFieldMixin.call(ApyNestedField.prototype);
+    $window.ApyCompositeMixin.call(ApyNestedField.prototype);
+
+})(window);

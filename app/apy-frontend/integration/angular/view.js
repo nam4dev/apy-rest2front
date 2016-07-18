@@ -100,15 +100,20 @@
                     $scope.cancel = function () {
                         win && win.dismiss('cancel');
                     };
-                    $scope.count = collection.count();
-                    $scope.action = "Delete";
-                    $scope.message = "Would you really like to delete " + $scope.count + " listed resources ?";
+
+                    setWarningContext(collection.$components);
+
                     var win = $uibModal.open({
                         animation: true,
                         templateUrl: 'modal-warning.html',
                         controllerAs: 'ModalCtrl',
                         scope: $scope
                     });
+                };
+
+                $scope.saveAll = function () {
+                    collection.save();
+                    $scope.read();
                 };
 
                 $scope.read = function () {
@@ -178,9 +183,9 @@
                     $scope.cancel = function () {
                         win && win.dismiss('cancel');
                     };
-                    $scope.count = 1;
-                    $scope.action = "Delete";
-                    $scope.message = "Would you really like to delete resource: \n\n`" + resource + "` ?";
+
+                    setWarningContext([resource]);
+
                     var win = $uibModal.open({
                         animation: true,
                         templateUrl: 'modal-warning.html',
@@ -188,6 +193,20 @@
                         scope: $scope
                     });
                 };
+
+                function setWarningContext(components) {
+                    var count;
+                    components = components || [];
+                    count = components.length;
+                    $scope.count = count;
+                    $scope.action = "Delete";
+                    $scope.message = "Would you really like to delete " + count + " listed resource";
+                    if(count > 1) {
+                        $scope.message += "s"
+                    }
+                    $scope.message += " ?";
+                    $scope.components = components;
+                }
             }]);
 
 })(window.angular);

@@ -30,7 +30,7 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  AngularJs integration : field directive
  *
  *  """
  */
@@ -48,6 +48,20 @@
             $scope.altInputFormats = ['M!/d!/yyyy'];
             $scope.formats = ['yyyy-MMM-dd HH:mm:ss', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
             $scope.format = $scope.formats[0];
+
+            $scope.displayError = function (error) {
+                var win;
+                $scope.error = error;
+                $scope.ok = function () {
+                    win && win.dismiss('cancel');
+                };
+                win = $uibModal.open({
+                    animation: true,
+                    templateUrl: 'modal-error.html',
+                    controllerAs: 'ModalCtrl',
+                    scope: $scope
+                });
+            };
 
             $scope.displayChoices = function () {
                 $scope.displaySchemaNames = true;
@@ -112,16 +126,27 @@
                     win && win.dismiss('cancel');
                 };
                 // Data Layer
-                var collection = apyProvider.createCollection(field.$relationName);
-                collection.fetch().then(function (_) {
-                    $scope.$collection = collection;
-                    win = $uibModal.open({
-                        animation: false,
-                        templateUrl: 'modal-embedded.html',
-                        controllerAs: 'ModalCtrl',
-                        scope: $scope
+                try {
+                    var collection = apyProvider.createCollection(field.$relationName);
+                    collection.fetch().then(function (_) {
+                        $scope.$collection = collection;
+                        win = $uibModal.open({
+                            animation: false,
+                            templateUrl: 'modal-embedded.html',
+                            controllerAs: 'ModalCtrl',
+                            scope: $scope
+                        });
                     });
-                });
+                } catch(error) {
+                    $scope.displayError({
+                        data: {
+                            _error: {
+                                code: "UNEXPECTED",
+                                message: '' + error
+                            }
+                        }
+                    });
+                }
             };
         }
 

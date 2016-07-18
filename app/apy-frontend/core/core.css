@@ -111,6 +111,15 @@ select[multiple], select[size] {
     height: 3px;
 }
 
+.pointer {
+    cursor: pointer;
+}
+
+.current-resource {
+    color: #eeeeee;
+    background-color: #428bca;
+}
+
 #content {
     position: relative;
     width: 75%;

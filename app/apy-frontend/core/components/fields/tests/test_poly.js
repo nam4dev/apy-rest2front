@@ -64,11 +64,19 @@ describe("Component.Field.Poly unit tests", function() {
                 expect(field.$value).toEqual(expectedValue);
                 break;
         }
-        if(apy.common.FIELD_TYPES_MAP.hasOwnProperty(type)) {
-            type = apy.common.FIELD_TYPES_MAP[type];
-        }
         expect(field.$contentUrl).toEqual('field-' + type + '.html');
     };
+
+    it("[setType] shall throw an Error when unknown type is provided", function() {
+        var value = "A poly field for test";
+        var field = _createField(value);
+        field.setParent(_createField('[PARENT] ' + value));
+
+        function wrapper() {
+            field.setType("unknown");
+        }
+        expect(wrapper).toThrow();
+    });
 
     it("[setType] shall morphs from Poly to Boolean type", function() {
         var value = "A poly field for test";

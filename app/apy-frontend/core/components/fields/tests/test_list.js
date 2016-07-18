@@ -66,12 +66,46 @@ describe("Component.Field.List unit tests", function() {
 
     it("[setValue] Valid value", function() {
         var value = ["A test string child", "Another one :)"];
-        var field = _createField(value, {schema: {type: "string"}});
+        var field = _createField(value, {type: "string"});
         expect(field.$value).toBeDefined();
         expect(field.$memo).toBeDefined();
         expect(field.$memoValue).toBeDefined();
         expect(field.$value).toEqual(value);
         expect(field.$memoValue).toEqual(value);
         expect(field.$memo).toEqual(2);
+    });
+
+    it("[cloneValue] Shall wrap into an Array when no Array provided", function() {
+        var value = ["One"];
+        var field = _createField(value, {type: "string"});
+        var cloned = field.cloneValue(value[0]);
+        expect(cloned).toEqual(value);
+    });
+
+    it("[cleanedData] Validation shall be called", function() {
+        var validateCalled = false;
+        var value = ["A test string child", "Another one :)"];
+        var field = _createField(value, {type: "string"});
+        field.validate = function () {
+            validateCalled = true;
+        };
+        var cleaned = field.cleanedData();
+        expect(validateCalled).toBe(true);
+        expect(cleaned).toEqual(value);
+    });
+
+    it("[cleanedData] Cleaned value shall be valid", function() {
+        var value = ["A test string child", "Another one :)"];
+        var field = _createField(value, {type: "string"});
+        var cleaned = field.cleanedData();
+        expect(cleaned).toEqual(value);
+    });
+
+    it("[cleanedData] Cleaned value shall be valid when $allowed are specified", function() {
+        var value = ["One", "Three"];
+        var field = _createField(value, {type: "string", allowed: ["One", "Two", "Three"]});
+        var cleaned = field.cleanedData();
+        expect(cleaned).toEqual(value);
+        expect(field.$value).toEqual(value);
     });
 });

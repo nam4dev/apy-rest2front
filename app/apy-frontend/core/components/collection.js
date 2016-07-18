@@ -45,14 +45,8 @@
             DELETE: 'DELETE'
         };
 
-        /**
-         *
-         * @returns {ApyCollectionComponent}
-         */
-        function initRequest () {
-            //this.$request = this.$schema.$hasMedia ? this.$upload.upload : this.$http;
-            this.$request = this.$upload.upload;
-            return this;
+        function toString() {
+            return '[' + this.$components.join(', ') + ']';
         }
 
         /**
@@ -104,7 +98,9 @@
         function hasUpdated () {
             var updated = false;
             this.$components.forEach(function (comp) {
-                if(comp.hasUpdated()) updated = true;
+                if(comp.hasUpdated()) {
+                    updated = true;
+                }
             });
             return updated;
         }
@@ -277,7 +273,6 @@
             if(this.$schema.$embeddedURI)
                 this.$endpoint += '?' + this.$schema.$embeddedURI;
 
-            this.initRequest     = initRequest   ;
             this.createResource  = createResource;
             this.removeResource  = remove        ;
             this.reset           = reset         ;
@@ -295,15 +290,15 @@
             this.update          = update        ;
             this.delete          = del           ;
             this.clear           = clear         ;
+            this.toString        = toString      ;
             this.savedCount      = savedCount    ;
 
-            return this.initRequest();
+            return this;
         }
 
     })();
 
     // Inject Mixin
     $window.ApyComponentMixin.call(ApyCollectionComponent.prototype);
-    $window.ApyCollectionComponent = ApyCollectionComponent;
 
 })(window);

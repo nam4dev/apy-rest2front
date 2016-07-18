@@ -30,11 +30,7 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Number field abstraction
- *
- *  Group field types,
- *    - Float
- *    - Integer
+ *  GEO Point field abstraction (GeoJSON)
  *
  *  """
  */
@@ -43,9 +39,6 @@
     $window.ApyPointField = (function () {
 
         function setValue(value) {
-            if(value && !value instanceof ApyPoint) {
-                value = new ApyPoint(value);
-            }
             this.$memo = this.cloneValue(value);
             this.$value = this.cloneValue(value);
             return this;
@@ -80,11 +73,8 @@
          * @returns {Object}
          */
         function cleanedData () {
-            if(this.hasUpdated()) {
-                this.validate();
-                return this.$value.cleanedData();
-            }
-            return null;
+            this.validate();
+            return this.$value.cleanedData();
         }
 
         function validate() {}

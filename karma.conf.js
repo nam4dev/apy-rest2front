@@ -10,16 +10,17 @@ module.exports = function(config){
 
             'app/apy-frontend/core/helper.js',
             'app/apy-frontend/core/components/base.js',
+            'app/apy-frontend/core/components/common.js',
             'app/apy-frontend/core/components/fields/field.js',
 
             'app/apy-frontend/core/components/fields/media.js',
             'app/apy-frontend/core/components/fields/number.js',
             'app/apy-frontend/core/components/fields/string.js',
-            'app/apy-frontend/core/components/fields/hashmap.js',
             'app/apy-frontend/core/components/fields/boolean.js',
             'app/apy-frontend/core/components/fields/datetime.js',
-            'app/apy-frontend/core/components/fields/objectid.js',
             'app/apy-frontend/core/components/fields/list.js',
+            'app/apy-frontend/core/components/fields/embedded.js',
+            'app/apy-frontend/core/components/fields/nested.js',
             'app/apy-frontend/core/components/fields/field.js',
             'app/apy-frontend/core/components/fields/geo/point.js',
             'app/apy-frontend/core/components/fields/poly.js',
@@ -66,10 +67,10 @@ module.exports = function(config){
         // Coverage minimal thresholds
         // FIXME: raise up to 90%
         thresholdReporter: {
-            statements: 85,
-            branches: 75,
+            statements: 87.25,
+            branches: 76.5,
             functions: 85,
-            lines: 85
+            lines: 87.5
         },
         // Configure the reporter
         coverageReporter: {

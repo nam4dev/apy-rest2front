@@ -38,7 +38,11 @@
 describe("Component.Field.Field unit tests", function() {
 
     var _createField = function (type, value) {
-        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", {type: type}, value);
+        return new window['Apy' + type.capitalize() + 'Field'](
+            {$log: console},
+            type + ".test",
+            {type: type},
+            value);
     };
 
     it("[validate][valid type value] nominal case (String, Boolean, Number fields)", function() {
@@ -68,24 +72,12 @@ describe("Component.Field.Field unit tests", function() {
         });
     });
 
-    it("[validate][invalid type value] shall throw an Error (String, Boolean, Number fields)", function() {
-        var fields = [['string', {bad: "input"}], ['boolean', {bad: "input"}], ['number', {bad: "input"}]];
-        fields.forEach(function (fieldInfo) {
-            var type = fieldInfo[0], value = fieldInfo[1];
-            expect(function () {
-                _createField(type, value);
-            }).toThrow();
-        });
-    });
-
     it("[reset] Component should be reset to its original value", function() {
         var fields = [
             ['string', "", "test"],
             ['boolean', false, true],
             ['list', [], [_createField('poly', new Date())]],
             ['list', [_createField('poly', 0.0)], [_createField('poly', new Date())]],
-            ['hashmap', {}, {test: "a simple test"}],
-            ['hashmap', {test: "a simple test"}, {testUpdated: "a simple updated value"}],
             ['number', 1, 2]
         ];
         fields.forEach(function (fieldInfo) {
@@ -117,8 +109,6 @@ describe("Component.Field.Field unit tests", function() {
             'string',
             'boolean',
             'datetime',
-            'hashmap',
-            'embedded',
             'point',
             'number'
         ];
@@ -135,8 +125,6 @@ describe("Component.Field.Field unit tests", function() {
             'string',
             'boolean',
             'datetime',
-            'hashmap',
-            'embedded',
             'point',
             'number'
         ];
@@ -152,9 +140,7 @@ describe("Component.Field.Field unit tests", function() {
         var fields = [
             ['string', ""],
             ['boolean', true],
-            ['number', 0.0],
-            ['hashmap', {test: "this is a test"}],
-            ['embedded', '5724dfcb45feda3c6fa827f7']
+            ['number', 0.0]
         ];
         fields.forEach(function (fieldInfo) {
             var type = fieldInfo[0], value = fieldInfo[1];
@@ -172,8 +158,6 @@ describe("Component.Field.Field unit tests", function() {
             'string',
             'boolean',
             'datetime',
-            'hashmap',
-            'embedded',
             'poly',
             'point',
             'number'
@@ -191,8 +175,6 @@ describe("Component.Field.Field unit tests", function() {
             'string',
             'boolean',
             'datetime',
-            'hashmap',
-            'embedded',
             'poly',
             'point',
             'number'

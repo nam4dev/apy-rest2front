@@ -30,25 +30,27 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Schemas mapping management
+ *
+ *  Compute embedded URI
+ *  Compose Resource Component
  *
  *  """
  */
 (function ($window) { 'use strict';
 
     /**
-     *
-     */
-
-    /**
      * Represents a Schema instance.
-     * Basically, it represents one of your backend Resource specification (schema)
+     * Basically, it represents one of
+     * your backend Resource specification (schema)
      *
      * @param schema
+     * @param name
      * @constructor
      */
-    var ApySchemaComponent = function ApySchemaComponent (schema) {
+    var ApySchemaComponent = function ApySchemaComponent (schema, name) {
         this.$base = schema;
+        this.$name = name;
         self.$hasMedia = false;
         this.$embeddedURI = '';
         this.$headers = Object.keys(schema).filter(function (key) {
@@ -57,18 +59,18 @@
         this.load();
     };
 
-    /**
-     * Loads a Schema
-     * Computes the `embedded` URI fragment
-     * Evaluates `$isEmbeddable` property
-     *
-     * @returns {ApySchemaComponent}
-     */
-    ApySchemaComponent.prototype.load = function load () {
-        var self = this;
-        var embedded = {};
-        forEach(this.$base, function (validator, fieldName) {
-            self[fieldName] = validator;
+    function recursiveLoad(self, schema, embedded, level) {
+        level = level || 0;
+        embedded = embedded || {};
+        forEach(schema, function (validator, fieldName) {
+            if(level === 0) {
+                self[fieldName] = validator;
+            }
+            if(validator.schema) {
+                var wrappedSchema = {};
+                wrappedSchema[fieldName] = validator.schema;
+                recursiveLoad(self, wrappedSchema, embedded, level + 1);
+            }
             if(isObject(validator) && validator.type) {
                 switch (validator.type) {
                     case $TYPES.MEDIA:
@@ -86,6 +88,18 @@
                 }
             }
         });
+    }
+
+    /**
+     * Loads a Schema
+     * Computes the `embedded` URI fragment
+     * Evaluates `$isEmbeddable` property
+     *
+     * @returns {ApySchemaComponent}
+     */
+    ApySchemaComponent.prototype.load = function load () {
+        var embedded = {};
+        recursiveLoad(this, this.$base, embedded);
         if(Object.keys(embedded).length) {
             this.$embeddedURI = 'embedded=' + JSON.stringify(embedded);
         }
@@ -93,10 +107,7 @@
     };
 
     /**
-     *
-     */
-
-    /**
+     * A Collection of Schema instances
      *
      * @param endpoint
      * @param schemas
@@ -149,9 +160,8 @@
         if(!schema) {
             throw new Error('No schema provided for name', name);
         }
-        var component = new ApyResourceComponent(this.$service, name, schema, null, null, this.$endpoint, $TYPES.RESOURCE, name);
-        component.load(resource || this.schema2data(schema));
-        return component;
+        var value = resource || this.schema2data(schema);
+        return new ApyResourceComponent(this.$service, name, schema, value, null, this.$endpoint, $TYPES.RESOURCE, name);
     };
 
     /**
@@ -172,7 +182,7 @@
     ApySchemasComponent.prototype.load = function load () {
         var self = this;
         Object.keys(this.$schemas).forEach(function (schemaName) {
-            var schema = new ApySchemaComponent(self.$schemas[schemaName]);
+            var schema = new ApySchemaComponent(self.$schemas[schemaName], schemaName);
             var humanName = schemaName.replaceAll('_', ' ');
             self.$names.push(schemaName);
             self.$humanNames.push(humanName);
@@ -199,7 +209,14 @@
         switch (value.type) {
             case $TYPES.LIST:
                 if (value.schema) {
-                    val = [this.schema2data(value.schema, {})];
+                    switch(value.schema.type) {
+                        case $TYPES.OBJECTID:
+                            val = [];
+                            break;
+                        default :
+                            val = [this.transformData(undefined, value.schema)];
+                            break;
+                    }
                 }
                 else {
                     val = [];
@@ -226,7 +243,7 @@
                 val = value.default || false;
                 break;
             case $TYPES.OBJECTID:
-                if(key.startsWith('_')) {
+                if(key && key.startsWith && key.startsWith('_')) {
                     val = "";
                 }
                 else {
@@ -259,11 +276,12 @@
      */
     ApySchemasComponent.prototype.schema2data = function schema2data (schema, keyName) {
         var self = this;
-        var data = schema ? {} : this.$template;
+        var data;
         if(keyName) {
             data = this.transformData(keyName, schema);
         }
         else {
+            data = schema ? {} : this.$template;
             forEach(schema, function (value, key) {
                 data[key] = self.transformData(key, value);
             });

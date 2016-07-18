@@ -85,8 +85,9 @@
             this.hasUpdated = hasUpdated;
             this.cloneValue = cloneValue;
             this.cleanedData = cleanedData;
-            this.$Class = $window.ApyDatetimeField;
+            this.$internalType = 'object';
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.DATETIME, null);
+            this.$Class = $window.ApyDatetimeField;
             return this;
         }
 

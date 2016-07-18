@@ -238,6 +238,26 @@
         return value !== null && typeof value === 'object';
     }
 
+    function isEmpty(obj) {
+
+        // null and undefined are "empty"
+        if (obj == null) return true;
+
+        // Assume if it has a length property with a non-zero value
+        // that that property is correct.
+        if (obj.length > 0)    return false;
+        if (obj.length === 0)  return true;
+
+        // Otherwise, does it have any properties of its own?
+        // Note that this doesn't handle
+        // toString and valueOf enumeration bugs in IE < 9
+        for (var key in obj) {
+            if (hasOwnProperty.call(obj, key)) return false;
+        }
+
+        return true;
+    }
+
     /**
      * Determine if a value is an object with a null prototype
      *
@@ -426,7 +446,6 @@
         OBJECTID: "objectid",
         DATETIME: "datetime",
         RESOURCE: "resource",
-        POLYLIST: "poly-list",
         COLLECTION: "collection"
     };
 
@@ -446,6 +465,13 @@
         this.$endpoint = $endpoint;
 
         this.load(value);
+    };
+
+    /**
+     *
+     */
+    ApyMediaFile.prototype.toString = function toString() {
+        return '(' + [this.$name, this.$type].join(', ') + ')';
     };
 
     /**
@@ -604,7 +630,21 @@
         if(value instanceof ApyPoint) {
             value = value.cleanedData();
         }
-        value = value || {"type": "Point", coordinates: [-1, -1]};
+        if(Array.isArray(value)) {
+            value = {
+                coordinates: value
+            };
+        }
+        if(!value) {
+            value = {};
+        }
+        if(!value.hasOwnProperty('type')) {
+            value.type = "Point";
+        }
+        if(!value.hasOwnProperty('coordinates')) {
+            value.coordinates = [-1, -1];
+        }
+
         this.value = value;
         this.x = value.coordinates[0];
         this.y = value.coordinates[1];
@@ -655,6 +695,7 @@
     $window.isFunction = isFunction;
     $window.isRegExp = isRegExp;
     $window.isWindow = isWindow;
+    $window.isEmpty = isEmpty;
     $window.isFile = isFile;
     $window.isFormData = isFormData;
     $window.isBlob = isBlob;
@@ -676,24 +717,20 @@
         // following naming convention
         type = type.capitalize();
         var fieldClassName = 'Apy' + type + 'Field';
-        if(!$window.hasOwnProperty(fieldClassName)) return null;
+        if(!$window.hasOwnProperty(fieldClassName)) {
+            return null;
+        }
         return $window[fieldClassName];
     }
-
-    var mapping;
-    $window.apy.common.FIELD_TYPES_MAP = mapping = {
-        'float': 'number',
-        'integer': 'number',
-        'dict': 'hashmap',
-        'resource': 'hashmap',
-        'objectid': 'embedded'
-    };
 
     $window.apy.common.fieldClassByType = function fieldClassByType(type) {
         type = type || 'poly';
         if(type !== 'collection') {
-            if(mapping.hasOwnProperty(type)) {
-                type = mapping[type];
+            if(type === 'dict') {
+                type = 'nested';
+            }
+            else if(type === 'objectid') {
+                type = 'embedded';
             }
             return getFieldClassByType(type);
         }

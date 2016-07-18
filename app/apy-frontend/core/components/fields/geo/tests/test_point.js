@@ -92,10 +92,10 @@ describe("Component.Field.Point unit tests", function() {
         expect(field.cleanedData()).toEqual({type: 'Point', coordinates: [1.0, 0.0]});
     });
 
-    it("[cleanedData.not.updated] Shall return NULL", function() {
+    it("[cleanedData.not.updated] Shall return proper value", function() {
         var value = {coordinates: [0.0, 1.0]};
         var field = _createField(value);
-        expect(field.cleanedData()).toEqual(null);
+        expect(field.cleanedData()).toEqual({type: 'Point', coordinates: [0.0, 1.0]});
     });
 
     it("[cloneValue.ApyPoint] Shall return a valid instance of ApyPoint", function() {

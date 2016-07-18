@@ -161,14 +161,9 @@ describe("Component.Base unit tests", function() {
         expect(component.$type).toBeDefined();
         expect(component.$type).toEqual(type);
         expect(component.$types).toBeDefined();
-        expect(component.$typesMap).toBeDefined();
-        expect(component.$typesMap.object).toBeDefined();
-        expect(component.$typesMap.number).toBeDefined();
-        expect(component.$typesMap.string).toBeDefined();
         expect(component.$service).toBeDefined();
         expect(component.$service.$log).toBeDefined();
         expect(component.$typesFactory).toBeDefined();
-        expect(component.$fieldTypesMap).toBeDefined();
         expect(component.$components).toBeDefined();
         expect(component.$components).toEqual(value);
         expect(component.$typesForPoly).toBeDefined();
@@ -211,7 +206,7 @@ describe("Component.Base unit tests", function() {
 
     it("[toString] '$value' property shall be set with only all inner components as none are required", function () {
         var components = [];
-        var expectedValue = '0: A child, 1: A child, 2: A child, 3: A child, 4: A child';
+        var expectedValue = '[0: A child, 1: A child, 2: A child, 3: A child, 4: A child]';
         for (var i=0; i<5; i++) {
             var child = new Child(i);
             components.push(child);

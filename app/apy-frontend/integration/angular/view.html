@@ -103,11 +103,14 @@
                     ng-model="field.$value">
                 <span ng-if="field.$states.$current === field.$states.CREATE ||
                              field.$states.$current === field.$states.UPDATE" >
-                    <span ng-if="!field.$value">
+                    <span ng-if="!field._id && !field.$value">
                         Select <span class="text-capitalize"><strong>{{ field.$name }}</strong></span>
                     </span>
                     <span ng-if="field.$value">
                         <span class="text-capitalize"><strong>{{ field.$value }}</strong></span>
+                    </span>
+                    <span ng-if="field._id && !field.$value">
+                        <span><strong>{{ field._id }}</strong></span>
                     </span>
                 </span>
             </button>
@@ -341,76 +344,7 @@
     </script>
     <!-- End Apy Fields -->
 
-    <div class="progress loader" ng-if="counter !== 100">
-        <div class="progress-bar progress-bar-info progress-bar-striped active"
-             role="progressbar" aria-valuenow="counter" aria-valuemin="0" aria-valuemax="100" style="width: {{counter}}%">
-            <span class="sr-only">{{counter}}% Complete</span>
-        </div>
-    </div>
-
-    <!-- FIXME: Link properly concept of isReadOnly to handle Resource permissions (Authentication system ?) -->
-    <table class="table">
-        <thead class="thead-inverse">
-        <tr>
-            <th>#</th>
-            <th ng-repeat="header in $collection.$schema.$headers track by $index" >
-                <strong class="text-capitalize text-underlined">{{ header }}</strong>
-            </th>
-            <th><i id="gCreate"
-                   ng-click="createResource()"
-                   class="glyphicon glyphicon-plus"></i></th>
-            <th>
-                <i id="gUpdate"
-                   ng-click="updateResources()"
-                   ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
-                   class="glyphicon glyphicon-pencil"></i>
-                <!--<i ng-click="setRead($collection)" ng-if="!validateHidden" class="glyphicon glyphicon-ok"></i>-->
-                <i id="gCancel"
-                   ng-click="read()"
-                   ng-if="$collection.savedCount() > 0 && updateHidden" class="glyphicon glyphicon-arrow-left"></i>
-            </th>
-            <th>
-                <i id="gDelete"
-                   ng-click="deleteResources()"
-                   ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden" class="glyphicon glyphicon-trash"></i>
-                <i ng-click="$collection.reset()" ng-if="$collection.count() > 0 && !validateHidden" class="glyphicon glyphicon-erase"></i>
-            </th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr ng-repeat="resource in $collection.$components track by $index">
-            <td scope="row">{{ $index + 1 }}</td>
-            <td ng-repeat="field in resource.$components track by $index" >
-                <apy-field field="field"></apy-field>
-            </td>
-            <td></td>
-            <td>
-                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.READ"
-                   ng-click="updateResource(resource)" class="glyphicon glyphicon-pencil"></i>
-                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
-                   ng-click="create(resource)" class="glyphicon glyphicon-ok"></i>
-                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
-                   ng-click="update(resource)" class="glyphicon glyphicon-ok"></i>
-                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
-                   ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
-            </td>
-            <td>
-                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
-                   ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
-                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
-                   ng-click="removeResource(resource)" class="glyphicon glyphicon-trash"></i>
-                <i ng-if="!resource.isReadOnly() && resource.$states.$current !== resource.$states.CREATE &&
-                          resource.$states.$current !== resource.$states.UPDATE"
-                   ng-click="delete(resource)" class="glyphicon glyphicon-trash"></i>
-            </td>
-        </tr>
-        <tr ng-if="$collection.count() === 0">
-            <td class="text-center" colspan="{{ $collection.$schema.$headers.length + 4 }}">
-                <span >No Items Found.</span>
-            </td>
-        </tr>
-        </tbody>
-    </table>
+    <!-- Apy Modals -->
 
     <script type="text/ng-template" id="modal-embedded.html">
         <div class="modal-header">
@@ -435,7 +369,8 @@
                             </tr>
                             </thead>
                             <tbody>
-                            <tr style="cursor: pointer;"
+                            <tr class="pointer"
+                                ng-class="{'current-resource': resource._id === field._id}"
                                 ng-repeat="resource in $collection.$components track by $index"
                                 ng-click="field.selfUpdate(resource);cancel();" >
                                 <td scope="row">{{ $index + 1 }}</td>
@@ -575,10 +510,92 @@
             <div class="alert alert-warning" role="alert" ng-if="message">
                 {{ message }}
             </div>
+            <div class="alert alert-warning" role="alert" ng-if="components">
+                <ul class="list-group"
+                    ng-repeat="comp in components track by $index">
+                    <li class="list-group-item">
+                        <span class="badge">{{ $index + 1 }}</span>
+                        {{ comp.toString() }}
+                    </li>
+                </ul>
+            </div>
         </div>
         <div class="modal-footer">
             <button class="btn btn-danger" type="button" ng-click="ok()">OK</button>
             <button class="btn btn-info" type="button" ng-click="cancel()">Cancel</button>
         </div>
     </script>
+
+    <!-- End Apy Modals -->
+
+    <div class="progress loader" ng-if="counter !== 100">
+        <div class="progress-bar progress-bar-info progress-bar-striped active"
+             role="progressbar" aria-valuenow="counter" aria-valuemin="0" aria-valuemax="100" style="width: {{counter}}%">
+            <span class="sr-only">{{counter}}% Complete</span>
+        </div>
+    </div>
+
+    <!-- FIXME: Link properly concept of isReadOnly to handle Resource permissions (Authentication system ?) -->
+    <table class="table">
+        <thead class="thead-inverse">
+        <tr>
+            <th>#</th>
+            <th ng-repeat="header in $collection.$schema.$headers track by $index" >
+                <strong class="text-capitalize text-underlined">{{ header }}</strong>
+            </th>
+            <th><i id="gCreate"
+                   ng-click="createResource()"
+                   class="glyphicon glyphicon-plus"></i></th>
+            <th>
+                <i id="gUpdate"
+                   ng-click="updateResources()"
+                   ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
+                   class="glyphicon glyphicon-pencil"></i>
+                <i ng-click="saveAll()" ng-if="!validateHidden" class="glyphicon glyphicon-ok"></i>
+                <i id="gCancel"
+                   ng-click="read()"
+                   ng-if="$collection.savedCount() > 0 && updateHidden" class="glyphicon glyphicon-arrow-left"></i>
+            </th>
+            <th>
+                <i id="gDelete"
+                   ng-click="deleteResources()"
+                   ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden" class="glyphicon glyphicon-trash"></i>
+                <i ng-click="$collection.reset()" ng-if="$collection.count() > 0 && !validateHidden" class="glyphicon glyphicon-erase"></i>
+            </th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="resource in $collection.$components track by $index">
+            <td scope="row">{{ $index + 1 }}</td>
+            <td ng-repeat="field in resource.$components track by $index" >
+                <apy-field field="field"></apy-field>
+            </td>
+            <td></td>
+            <td>
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.READ"
+                   ng-click="updateResource(resource)" class="glyphicon glyphicon-pencil"></i>
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                   ng-click="create(resource)" class="glyphicon glyphicon-ok"></i>
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
+                   ng-click="update(resource)" class="glyphicon glyphicon-ok"></i>
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                   ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
+            </td>
+            <td>
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
+                   ng-click="resource.reset()" class="glyphicon glyphicon-erase"></i>
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                   ng-click="removeResource(resource)" class="glyphicon glyphicon-trash"></i>
+                <i ng-if="!resource.isReadOnly() && resource.$states.$current !== resource.$states.CREATE &&
+                          resource.$states.$current !== resource.$states.UPDATE"
+                   ng-click="delete(resource)" class="glyphicon glyphicon-trash"></i>
+            </td>
+        </tr>
+        <tr ng-if="$collection.count() === 0">
+            <td class="text-center" colspan="{{ $collection.$schema.$headers.length + 4 }}">
+                <span >No Items Found.</span>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 </div>

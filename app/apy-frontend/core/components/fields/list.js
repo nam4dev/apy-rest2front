@@ -45,7 +45,7 @@
             this.$value = this.cloneValue(value);
             // Reset components
             this.$components = [];
-            if(Array.isArray(value)) {
+            if(this.isArray(value)) {
                 value.forEach(function (el) {
                     self.load(el);
                 });
@@ -58,59 +58,16 @@
          *
          */
         function load (val) {
-            var resource = val || this.$value || {};
             var type;
-            var field = this.$name;
+            var value = val || this.$value || {};
             var schema = this.$schema.schema;
-
             try {
                 type = schema.type;
             }
             catch(e) {
                 schema = {};
             }
-            var fieldObj;
-            switch(type) {
-                case this.$types.LIST:
-                    fieldObj = new ApyListField(this.$service, field, schema, resource, this.$states, this.$endpoint);
-                    break;
-                case this.$types.DICT:
-                    fieldObj = new ApyResourceComponent(this.$service, field, schema.schema, null, this.$states, null, this.$types.RESOURCE);
-                    fieldObj.load(resource);
-                    if(!schema.schema) {
-                        fieldObj.add(this.createPolyField(schema, resource));
-                    }
-                    break;
-                case this.$types.MEDIA:
-                    fieldObj = new ApyMediaField(this.$service, field, schema, resource, this.$states, this.$endpoint);
-                    break;
-                case this.$types.STRING:
-                    fieldObj = new ApyStringField(this.$service, field, schema, resource, this.$states, this.$endpoint);
-                    break;
-                case this.$types.FLOAT:
-                case this.$types.NUMBER:
-                case this.$types.INTEGER:
-                    fieldObj = new ApyNumberField(this.$service, field, schema, resource, this.$states, this.$endpoint);
-                    break;
-                case this.$types.BOOLEAN:
-                    fieldObj = new ApyBooleanField(this.$service, field, schema, resource, this.$states, this.$endpoint);
-                    break;
-
-                case this.$types.DATETIME:
-                    fieldObj = new ApyDatetimeField(this.$service, field, schema, resource, this.$states, this.$endpoint);
-                    break;
-                case this.$types.OBJECTID:
-                    var relationName = schema.data_relation.resource;
-                    var schemaObject = this.$service.$schemas[relationName];
-                    fieldObj = new ApyEmbeddedField(this.$service, field, schemaObject, resource,
-                        this.$states, this.$endpoint, this.$types.OBJECTID, relationName);
-                    break;
-                default:
-                    fieldObj = this.createPolyField(schema, resource);
-                    break;
-            }
-            fieldObj.setParent(this);
-            this.add(fieldObj);
+            this.$$createField(type, this.$name, schema, value, this.$endpoint, true);
             return this;
         }
 
@@ -129,7 +86,7 @@
          */
         function cloneValue(value) {
             value = value ? value : [];
-            if(!this.isArray(value) && ! isArrayLike(value)) {
+            if(!this.isArray(value)) {
                 value = new Array(value);
             }
             return value;
@@ -166,26 +123,61 @@
             }
             var data = [];
             this.$components.forEach(function (comp) {
-                data.push(comp.cleanedData());
+                var cleaned = comp.cleanedData();
+                if(cleaned || cleaned === false || cleaned === 0) {
+                    data.push(cleaned);
+                }
             });
             return data;
         }
 
+        /**
+         *
+         */
         function validate() {
+            this.parentValidate();
+            if(!this.isArray(this.$value)) {
+                throw new Error("Value shall be an Array !");
+            }
+            this.$components.forEach(function (comp) {
+                comp.validate();
+            });
+        }
 
+        /**
+         *
+         * @returns {string}
+         */
+        function selfCommit() {
+            this.$memo = this.$components.length;
+            this.$components.forEach(function (comp) {
+                comp.selfCommit();
+            })
+        }
+
+        /**
+         *
+         * @returns {string}
+         */
+        function toString() {
+            return '[' + this.cleanedData().join(', ') + ']';
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.load = load;
             this.reset = reset;
+            this.toString = toString;
+            this.parentValidate = this.validate;
             this.validate = validate;
             this.setValue = setValue;
+            this.selfCommit = selfCommit;
             this.cloneValue = cloneValue;
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
-            this.$Class = $window.ApyListField;
+            this.$internalType = 'object';
             this.$memoValue = [];
             this.initialize(service, name, schema, value, $states, $endpoint, $TYPES.LIST, relationName);
+            this.$Class = $window.ApyListField;
             return this;
         }
 
@@ -194,5 +186,7 @@
     // Inject Mixin
     $window.ApyComponentMixin.call(ApyListField.prototype);
     $window.ApyFieldMixin.call(ApyListField.prototype);
+    $window.ApyRequestMixin.call(ApyListField.prototype);
+    $window.ApyCompositeMixin.call(ApyListField.prototype);
 
 })(window);

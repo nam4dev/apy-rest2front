@@ -58,6 +58,7 @@
             var v = this.$value;
             v && instance.setValue(v);
             $.extend(true, this, instance);
+            /* istanbul ignore next */
             if(!this.$parent) {
                 console.debug('No Parent provided for ' +
                     'ApyPolyField.setType(parent= undefined, type=',
@@ -72,9 +73,9 @@
             }
         }
 
-        function validate() {
+        // FIXME
+        function validate() {}
 
-        }
         // FIXME: value & options parameters shall not be useful as a Poly Morph Field
         // FIXME: should not care of schema/options and value except if we decide to try to
         // FIXME: autodetect type based on given value when we've got a schema-less field (which PolyField certainly is).
@@ -84,8 +85,8 @@
             // Allow to know, this field is a PolyMorph type as it is the only one to have this property,
             // as when setType is invoked, its type is entirely overridden with all similar properties.
             this.$isPolyMorph = true;
-            this.$Class = $window.ApyPolyField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.POLY, relationName);
+            this.$Class = $window.ApyPolyField;
             return this;
         }
 

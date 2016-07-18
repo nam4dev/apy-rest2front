@@ -39,6 +39,10 @@
 
     $window.ApyMediaField = (function () {
 
+        function toString() {
+            return this.$value.toString();
+        }
+
         function cleanedData() {
             this.validate();
             return this.$value.cleanedData();
@@ -51,16 +55,40 @@
             return new ApyMediaFile(this.$endpoint, value);
         }
 
-        function validate() {
+        // FIXME
+        function validate() {}
 
+        function hasUpdated() {
+            function getTime(value) {
+                var $value;
+                if(value && value.getTime) {
+                    $value = value.getTime();
+                }
+                return $value;
+            }
+            return getTime(this.$memo.$lastModifiedDate) !==
+                getTime(this.$value.$lastModifiedDate);
+        }
+
+        /**
+         *
+         */
+        function reset() {
+            if (this.hasUpdated()) {
+                this.$value = this.cloneValue(this.$memo);
+            }
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.reset = reset;
             this.validate = validate;
+            this.toString = toString;
             this.cloneValue = cloneValue;
+            this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
-            this.$Class = $window.ApyMediaField;
+            this.$internalType = 'object';
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.MEDIA, null);
+            this.$Class = $window.ApyMediaField;
             return this;
         }
 

@@ -30,15 +30,15 @@
  *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  ObjectID Field UTs
+ *  Hashmap Field UTs
  *
  *  """
  */
-describe("Component.Field.ObjectID unit tests", function() {
+
+describe("Component.Field.Nested unit tests", function() {
 
     var _createFieldByType = function (type, value, schema) {
         schema = schema || {};
-        schema.type = type;
         return new window['Apy' + type.capitalize() + 'Field']({
             $log: console,
             $instance: {
@@ -46,33 +46,38 @@ describe("Component.Field.ObjectID unit tests", function() {
                     return {}
                 }
             }
+
         }, type + ".test", schema, value);
     };
 
     var _createField = function (value, schema) {
-        return new _createFieldByType('embedded', value, schema);
+        return new _createFieldByType('nested', value, schema);
     };
 
-    it("[selfUpdate] Shall update instance `_id` & `$components` attributes", function() {
+    it("[cleanedData] shall return an Object-like instance based on its Component(s) type & state (updated)", function() {
         var value = {
-            _id: "0123456789A9876543210"
+            test: "A string value",
+            date: new Date(),
+            items: [
+                "One",
+                "Two"
+            ]
         };
-        var field = _createField({});
-        expect(field._id).toBeUndefined();
-        field.selfUpdate(value);
-        expect(field._id).toEqual(value._id);
-        expect(field.$components).toEqual([]);
-    });
+        var schema = {
+            test: {type: "string"},
+            date: {type: "datetime"},
+            items: {type: "list", schema: {type: "string"}}
+        };
+        var field = _createField(value, schema);
 
-    it("[cleanedData] Shall return instance `_id` attribute", function() {
-        var value = {
-            _id: "0123456789A9876543210"
-        };
-        var field = _createField(value);
-        field.selfUpdate(value);
+        field.$components[0].$value = "An updated string value";
+        field.$components[1].$value = new Date();
+
         var cleaned = field.cleanedData();
-        expect(cleaned).toEqual(value._id);
-        expect(cleaned).toEqual(field._id);
+        expect(cleaned).toEqual({
+            test: field.$components[0].$value,
+            date: field.$components[1].$value.toUTCString(),
+            items: value.items
+        });
     });
-
 });

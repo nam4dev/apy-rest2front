@@ -43,10 +43,10 @@
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.wordCount = wordCount;
             this.$internalType = 'string';
-            this.$Class = $window.ApyStringField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.STRING, null);
+            this.wordCount = wordCount;
+            this.$Class = $window.ApyStringField;
             return this;
         }
 

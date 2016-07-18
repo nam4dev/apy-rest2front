@@ -48,11 +48,34 @@
 
         /**
          *
-         * @returns {this}
+         * @returns {string}
          */
         function toString() {
-            this.loadValue();
-            return '' + this.$value;
+            var values = [];
+            var excludedTypes = [
+                $TYPES.BOOLEAN,
+                $TYPES.DATETIME
+            ];
+
+            var filtered = this.$components.filter(function (c) {
+                return c.$required && excludedTypes.indexOf(c.$type) === -1;
+            });
+
+            if(!filtered.length) {
+                filtered = this.$components.filter(function (c) {
+                    return excludedTypes.indexOf(c.$type) === -1;
+                });
+            }
+
+            filtered.forEach(function (c) {
+                if(c.$value) {
+                    var toString = c.$value.toString();
+                    if(toString) {
+                        values.push(toString);
+                    }
+                }
+            });
+            return '[' + values.join(', ') + ']';
         }
 
         /**
@@ -142,14 +165,6 @@
 
         /**
          *
-         * @returns {initRequest}
-         */
-        function initRequest() {
-            return this;
-        }
-
-        /**
-         *
          * @returns {Object}
          */
         function createTypesFactory() {
@@ -198,7 +213,7 @@
             var $typesForPoly = [];
             Object.keys($types).forEach(function (k) {
                 var type = $types[k];
-                if([$TYPES.COLLECTION, $TYPES.DICT, $TYPES.POLY, $TYPES.INTEGER, $TYPES.FLOAT].indexOf(type) === -1) {
+                if([$TYPES.COLLECTION, $TYPES.RESOURCE, $TYPES.POLY, $TYPES.INTEGER, $TYPES.FLOAT].indexOf(type) === -1) {
                     $typesForPoly.push(type);
                 }
             });
@@ -211,51 +226,22 @@
             this.__logger = undefined;
             this.$types = $TYPES;
             this.$service = service;
-            this.$typesMap = {
-                number: [
-                    $TYPES.FLOAT,
-                    $TYPES.NUMBER,
-                    $TYPES.INTEGER
-                ],
-                object: [
-                    $TYPES.DICT,
-                    $TYPES.LIST,
-                    $TYPES.DATETIME,
-                    $TYPES.OBJECTID,
-                    $TYPES.RESOURCE
-                ],
-                string: [
-                    $TYPES.OBJECTID
-                ]
-            };
-            this.$fieldTypesMap = {
-                float: $TYPES.NUMBER,
-                integer: $TYPES.NUMBER,
-                dict: $TYPES.RESOURCE
-            };
             this.$typesFactory = createTypesFactory();
-            // Dependencies inherited from Frontend framework (here AngularJs)
-            this.$request = null;
+            // FIXME: Dependencies inherited from Frontend framework (here AngularJs)
             this.$http = service.$http;
             this.$upload = service.$upload;
             // components index
             this.$components = components || [];
             this.$components = this.isArray(this.$components) ? this.$components : [this.$components];
             this.$typesForPoly = createTypesForPolyField(this.$types);
-            // Design related
-            if(this.$fieldTypesMap.hasOwnProperty(type)) {
-                type = this.$fieldTypesMap[type];
-            }
             this.$contentUrl = 'field-' + type + '.html';
-            this.initRequest();
             this.$name = name;
             this.$type = type;
             this.$states = $states;
             this.$endpoint = $endpoint;
             this.$relationName = relationName;
             this.setOptions(schema)
-                .setValue(value)
-                .validate();
+                .setValue(value);
 
             this.$Class = $window.ApyComponentMixin;
             return this;
@@ -263,6 +249,7 @@
 
         function setOptions(schema) {
             this.$schema = schema;
+            this.$request = (this.$schema && this.$schema.$hasMedia) ? this.$upload.upload : this.$http;
             return this;
         }
 
@@ -271,7 +258,17 @@
         }
 
         function validate() {
-            return true;
+            var errors = [];
+            this.$components.forEach(function (component) {
+                try {
+                    component.validate()
+                } catch (error) {
+                    errors.push(error);
+                }
+            });
+            if(errors.length) {
+                throw new Error('Validation Error: ' + errors.join(', '));
+            }
         }
 
         /**
@@ -297,17 +294,33 @@
 
         /* istanbul ignore next */
         function json (indent) {
-            return JSON.stringify(this, null, indent || 4);
+            if(this.$type === this.$types.OBJECTID) {
+                var self = {};
+                for(var own in this) {
+                    if(this.hasOwnProperty(own)) {
+                        var prop = this[own];
+                        if(isObject(prop)) {
+                            prop = '[Object]';
+                        }
+                        if(isFunction(prop)) {
+                            prop = '[Function]';
+                        }
+                        self[own] = prop;
+                    }
+                }
+                self['$id'] = this._id;
+                return JSON.stringify(self, null, indent || 4);
+            }
         }
 
         /**
          *
          */
         function loadValue () {
-            var all = '';
-            var self = this;
-            if(self.$value !== '') {
-                self.$value = '';
+            var all = [];
+            var required = [];
+            if(this.$value !== '') {
+                this.$value = '';
             }
             this.$components.forEach(function (component) {
                 var v = component.$value;
@@ -316,21 +329,19 @@
                         v.clean();
                         v = component.$name + ' coordinates(' + v.coordinates + ')';
                     }
-                    var value = v + ', ';
-                    all += value;
-                    if(!self.$value) {
-                        self.$value = '';
-                    }
-                    if(component.$required) {
-                        self.$value += value;
+                    if(v) {
+                        all.push(v);
+                        if(component.$required) {
+                            required.push(v);
+                        }
                     }
                 }
             });
-            if(!this.$value && all !== '') {
-                this.$value = all;
+            if(required.length) {
+                this.$value = required.join(', ');
             }
-            if(this.$value && this.$value.endsWith(', ')) {
-                this.$value = this.$value.slice(0, -2);
+            else if(!required.length && all.length) {
+                this.$value = all.join(', ');
             }
         }
 
@@ -354,28 +365,20 @@
                 var relationName;
                 switch (schema.type) {
                     case $TYPES.OBJECTID:
-                        name = name || schema.data_relation.resource;
-                        relationName = self.$relationName || name;
+                        relationName = schema.data_relation.resource || self.$relationName || name;
                         break;
                     default :
                         relationName = self.$relationName;
                         break;
                 }
                 var Class = fieldClassByType(schema.type);
-                cl = new Class(self.$service, name, schema, null,
+                cl = new Class(self.$service, relationName || name, schema.schema, null,
                     self.$states, self.$endpoint, schema.type, relationName);
-                if(schema.schema) {
-                    Object.keys(schema.schema).forEach(function (n) {
-                        var sch = schema.schema[n];
-                        var ch = iterOverSchema(sch, n);
-                        cl.add(ch);
-                    });
-                }
                 return cl;
             }
             try {
                 if(this.$schema && this.$schema.schema) {
-                    clone = iterOverSchema(this.$schema.schema);
+                    clone = iterOverSchema(this.$schema.schema, this.$name);
                 }
                 else {
                     clone = this.createPolyField(this.$schema, undefined, this.$name);
@@ -413,11 +416,34 @@
 
         /**
          *
+         * @returns {boolean}
+         */
+        function hasUpdated() {
+            return this.$value !== this.$memo;
+        }
+
+        /**
+         *
          */
         function reset() {
             if (this.hasUpdated()) {
                 this.$value = this.cloneValue(this.$memo);
             }
+        }
+
+        /**
+         *
+         * @returns {boolean}
+         */
+        function isReadOnly() {
+            var readOnly = 0;
+            this.$components.forEach(function (comp) {
+                if(comp.readOnly ||
+                    (comp.hasOwnProperty('isReadOnly') && comp.isReadOnly())) {
+                    readOnly++;
+                }
+            });
+            return this.$components.length === readOnly;
         }
 
         return function() {
@@ -433,10 +459,12 @@
             this.prepend = prepend;
             this.toString = toString;
             this.getChild = getChild;
-            this.validate = validate;
             this.setValue = setValue;
+            this.validate = validate;
             this.loadValue = loadValue;
             this.setParent = setParent;
+            this.isReadOnly = isReadOnly;
+            this.hasUpdated = hasUpdated;
             this.setOptions = setOptions;
             this.cloneValue = cloneValue;
             this.initialize = initialize;
@@ -444,7 +472,6 @@
             this.isArray = Array.isArray;
             this.isFunction = isFunction;
             this.continue = shallContinue;
-            this.initRequest = initRequest;
             this.cleanedData = cleanedData;
             this.hasChildren = hasChildren;
             this.createPolyField = createPolyField;

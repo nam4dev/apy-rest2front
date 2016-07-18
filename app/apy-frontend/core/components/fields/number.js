@@ -44,8 +44,8 @@
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'number';
-            this.$Class = $window.ApyNumberField;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.NUMBER, null);
+            this.$Class = $window.ApyNumberField;
             return this;
         }
 

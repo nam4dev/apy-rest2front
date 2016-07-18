@@ -94,6 +94,23 @@ describe("Component.Field.Datetime unit tests", function() {
         expect(clonedValue.toUTCString()).toEqual(value.toUTCString());
     });
 
+    it("[cloneValue.Bad.input] shall throw an Error", function() {
+        var field = _createField(null);
+        function wrapper() {
+            field.cloneValue([]);
+        }
+        expect(wrapper).toThrow();
+    });
+
+    it("[validate] shall throw an Error when bad input type is provided", function() {
+        var field = _createField(null);
+        function wrapper() {
+            field.$value = [];
+            field.validate();
+        }
+        expect(wrapper).toThrow();
+    });
+
     it("[reset] Component should be reset to its original value", function() {
         var memo = new Date(), value = new Date(2011, 10, 15, 10, 58, 55, 48);
         var field = _createField(memo);

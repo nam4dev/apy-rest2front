@@ -35,5 +35,24 @@
  *  """
  */
 describe("Component.Field.String unit tests", function() {
+    var _createFieldByType = function (type, value, schema) {
+        schema = schema || {};
+        schema.type = type;
+        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
+    };
 
+    var _createField = function (value, schema) {
+        return new _createFieldByType('string', value, schema);
+    };
+
+    it("[wordCount] Shall return $value length when defined", function() {
+        var value = "A wonderful string, pretty long one :)";
+        var field = _createField(value);
+        expect(field.wordCount()).toEqual(value.length);
+    });
+
+    it("[wordCount] Shall return 0 when $value is not defined", function() {
+        var field = _createField(undefined);
+        expect(field.wordCount()).toEqual(0);
+    });
 });

@@ -42,35 +42,98 @@
             return isObject(value) ? Object.assign(value) : value;
         }
 
-        function selfUpdate(update) {
+        function selfCommit() {
+            var cleaned = this.cleanedData();
+            cleaned._id = this._id;
+            cleaned._etag = this._etag;
+            cleaned._links = this._links;
+            cleaned._created = this._created;
+            cleaned._updated = this._updated;
+            this.$memo = cleaned;
+        }
+
+        function selfUpdate(update, commit) {
             this._id = update._id;
-            this.$components = update.$components;
+            this._etag = update._etag;
+            this._links = update._links;
+            this._created = update._created;
+            this._updated = update._updated;
+            this.$components = update.$components || [];
             this.loadValue();
             return this;
+        }
+
+        function hasUpdated () {
+            var updated;
+            if(this.$memo && this.$memo._id) {
+                updated = this.$memo._id !== this._id;
+            }
+            else {
+                updated = this.$memo !== this._id;
+            }
+            return updated;
         }
 
         function cleanedData () {
             return this._id;
         }
 
-        function validate() {
+        /**
+         *
+         * @returns {string}
+         */
+        function toString() {
+            return this._id;
+        }
 
+        /**
+         *
+         */
+        function reset() {
+            if (this.hasUpdated()) {
+                this.$components = [];
+                this.load(this.$memo);
+            }
+        }
+
+        function validate() {
+            var id = this._id;
+            if(id === undefined || id === null) {
+                var message = 'An Embedded Field should have a non-empty ID[' + typeof id + ']';
+                throw new Error(message);
+            }
+        }
+
+        function setValue(value) {
+            if(isString(value)) {
+                value = {_id: value};
+            }
+            this.load(value);
+            this.$memo = this.cloneValue(value);
+            return this;
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.reset = reset;
+            this.toString = toString;
             this.validate = validate;
+            this.setValue = setValue;
             this.cloneValue = cloneValue;
+            this.hasUpdated = hasUpdated;
             this.selfUpdate = selfUpdate;
+            this.selfCommit = selfCommit;
             this.cleanedData = cleanedData;
-            this.$Class = $window.ApyEmbeddedField;
+            this.$internalType = 'object';
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.OBJECTID, relationName);
+            this.$Class = $window.ApyEmbeddedField;
             return this;
         }
 
     })();
 
-    // Inject Mixin
+    // Inject Mixins
     $window.ApyComponentMixin.call(ApyEmbeddedField.prototype);
     $window.ApyFieldMixin.call(ApyEmbeddedField.prototype);
+    $window.ApyCompositeMixin.call(ApyEmbeddedField.prototype);
 
 })(window);
