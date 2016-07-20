@@ -51,6 +51,7 @@
          * @returns {string}
          */
         function toString() {
+            var self = this;
             var values = [];
             var excludedTypes = [
                 $TYPES.BOOLEAN,
@@ -66,16 +67,20 @@
                     return excludedTypes.indexOf(c.$type) === -1;
                 });
             }
-
             filtered.forEach(function (c) {
                 if(c.$value) {
-                    var toString = c.$value.toString();
+                    var toString = c.toString() || c.$value.toString();
                     if(toString) {
                         values.push(toString);
                     }
                 }
             });
-            return '[' + values.join(', ') + ']';
+            if(values) {
+                return '[' + values.join(', ') + ']';
+            }
+            else {
+                return ""
+            }
         }
 
         /**
@@ -224,6 +229,7 @@
         function initialize(service, name, schema, value, $states, $endpoint, type, relationName, components) {
             var $TYPES = $window.$TYPES;
             this.__logger = undefined;
+            this.$originalValue = this.cloneValue(value);
             this.$types = $TYPES;
             this.$service = service;
             this.$typesFactory = createTypesFactory();
@@ -446,10 +452,15 @@
             return this.$components.length === readOnly;
         }
 
+        function data() {
+            return this.$originalValue;
+        }
+
         return function() {
             this.add = add;
             this.$log = log;
             this.json = json;
+            this.data = data;
             this.load = load;
             this.clone = clone;
             this.count = count;

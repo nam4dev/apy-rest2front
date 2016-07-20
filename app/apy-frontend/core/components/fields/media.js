@@ -87,7 +87,7 @@
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.MEDIA, null);
+            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.MEDIA, relationName);
             this.$Class = $window.ApyMediaField;
             return this;
         }

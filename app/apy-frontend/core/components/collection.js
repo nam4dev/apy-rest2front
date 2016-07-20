@@ -192,6 +192,7 @@
                     },
                     function (error) {
                         self.$log("[ApyFrontendError] => " + error);
+                        progress(100);
                         return reject(error);
                     },
                     function (evt) {
@@ -273,25 +274,26 @@
             if(this.$schema.$embeddedURI)
                 this.$endpoint += '?' + this.$schema.$embeddedURI;
 
-            this.createResource  = createResource;
-            this.removeResource  = remove        ;
-            this.reset           = reset         ;
-            this.hasCreated      = hasCreated    ;
-            this.hasUpdated      = hasUpdated    ;
-            this.setState        = setState      ;
-            this.setCreateState  = setCreateState;
-            this.setReadState    = setReadState  ;
-            this.setUpdateState  = setUpdateState;
-            this.setDeleteState  = setDeleteState;
-            this.load            = load          ;
-            this.save            = save          ;
-            this.fetch           = fetch         ;
-            this.create          = create        ;
-            this.update          = update        ;
-            this.delete          = del           ;
-            this.clear           = clear         ;
-            this.toString        = toString      ;
-            this.savedCount      = savedCount    ;
+            this.load = load;
+            this.save = save;
+            this.delete = del;
+            this.clear = clear;
+            this.reset = reset;
+            this.fetch = fetch;
+            this.create = create;
+            this.update = update;
+            this.setState = setState;
+            this.toString = toString;
+            this.savedCount = savedCount;
+            this.removeResource = remove;
+            this.hasCreated = hasCreated;
+            this.hasUpdated = hasUpdated;
+            this.setReadState = setReadState;
+            this.createResource = createResource;
+            this.setCreateState = setCreateState;
+            this.setUpdateState = setUpdateState;
+            this.setDeleteState = setDeleteState;
+
 
             return this;
         }

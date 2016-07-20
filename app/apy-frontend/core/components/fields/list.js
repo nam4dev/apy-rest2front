@@ -155,18 +155,21 @@
             })
         }
 
-        /**
-         *
-         * @returns {string}
-         */
         function toString() {
-            return '[' + this.cleanedData().join(', ') + ']';
+            var strings = [];
+            this.$components.forEach(function (comp) {
+                var toString = comp.toString();
+                if(toString) {
+                    strings.push(toString);
+                }
+            });
+            return '[' + strings.join('; ') + ']';
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.load = load;
             this.reset = reset;
-            this.toString = toString;
+            //this.toString = toString;
             this.parentValidate = this.validate;
             this.validate = validate;
             this.setValue = setValue;

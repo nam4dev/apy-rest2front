@@ -34,7 +34,7 @@
     <script type="text/ng-template" id="field-poly.html">
         <div ng-if="field.$states.$current === field.$states.READ">
             <div ng-if="field.$value">
-                {{ field.$value }}
+                {{ field.toString() }}
             </div>
             <div ng-if="field.$components">
                 <div ng-repeat="comp in field.$components track by $index">
@@ -93,7 +93,7 @@
 
     <script type="text/ng-template" id="field-objectid.html">
         <div ng-if="field.$states.$current === field.$states.READ">
-            {{ field.$value || field._id }}
+            {{ field.toString() }}
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
@@ -107,7 +107,7 @@
                         Select <span class="text-capitalize"><strong>{{ field.$name }}</strong></span>
                     </span>
                     <span ng-if="field.$value">
-                        <span class="text-capitalize"><strong>{{ field.$value }}</strong></span>
+                        <span class="text-capitalize"><strong>{{ field.toString() }}</strong></span>
                     </span>
                     <span ng-if="field._id && !field.$value">
                         <span><strong>{{ field._id }}</strong></span>
@@ -120,7 +120,7 @@
     <script type="text/ng-template" id="field-resource.html">
         <div ng-if="field.$states.$current === field.$states.READ">
             <apy-field ng-if="field.$type !== 'resource'" ng-repeat="component in field.$components track by $index" field="component"></apy-field>
-            <span ng-if="field.$type === 'resource'">{{field.$value}}</span>
+            <span ng-if="field.$type === 'resource'">{{ field.toString() }}</span>
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
@@ -134,7 +134,7 @@
                         Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
                     </span>
                     <span ng-if="field.$value">
-                        <span class="text-capitalize"><strong>{{ field.$value }}</strong></span>
+                        <span class="text-capitalize"><strong>{{ field.toString() }}</strong></span>
                     </span>
                 </span>
             </button>
@@ -142,6 +142,7 @@
     </script>
 
     <script type="text/ng-template" id="field-list.html">
+        <br />
         <div ng-if="field.$states.$current === field.$states.READ">
             <div ng-if="field.$value">
                 <div ng-if="!field.$allowed || !field.$allowed.length">
@@ -149,9 +150,9 @@
                         <apy-field ng-repeat="value in field.$components track by $index" field="value" ></apy-field>
                     </ul>
                 </div>
-                <ul ng-if="field.$allowed && field.$allowed.length">
-                    <li ng-repeat="value in field.$value track by $index" >{{ value }}</li>
-                </ul>
+                <div ng-if="field.$allowed && field.$allowed.length">
+                    {{ field.toString() }}
+                </div>
             </div>
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
@@ -236,7 +237,7 @@
 
     <script type="text/ng-template" id="field-string.html">
         <div ng-if="field.$states.$current === field.$states.READ">
-            {{ field.$value }}
+            <p>{{ field.toString() }}</p>
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
@@ -268,7 +269,7 @@
 
     <script type="text/ng-template" id="field-number.html">
         <div ng-if="field.$states.$current === field.$states.READ">
-            {{ field.$value }}
+            {{ field.toString() }}
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
@@ -329,7 +330,7 @@
 
     <script type="text/ng-template" id="field-datetime.html" >
         <div ng-if="field.$states.$current === field.$states.READ">
-            {{ field.$value.toUTCString() }}
+            {{ field.toString() }}
         </div>
         <div ng-if="field.$states.$current !== field.$states.READ &&
                     field.$states.$current !== field.$states.DELETE">
@@ -536,10 +537,10 @@
     </div>
 
     <!-- FIXME: Link properly concept of isReadOnly to handle Resource permissions (Authentication system ?) -->
-    <table class="table">
-        <thead class="thead-inverse">
+    <table wt-responsive-table >
+        <thead>
         <tr>
-            <th>#</th>
+            <th class="hidden-xs hidden-sm" >#</th>
             <th ng-repeat="header in $collection.$schema.$headers track by $index" >
                 <strong class="text-capitalize text-underlined">{{ header }}</strong>
             </th>
@@ -566,7 +567,7 @@
         </thead>
         <tbody>
         <tr ng-repeat="resource in $collection.$components track by $index">
-            <td scope="row">{{ $index + 1 }}</td>
+            <td class="hidden-xs hidden-sm" scope="row">{{ $index + 1 }}</td>
             <td ng-repeat="field in resource.$components track by $index" >
                 <apy-field field="field"></apy-field>
             </td>
@@ -592,7 +593,7 @@
             </td>
         </tr>
         <tr ng-if="$collection.count() === 0">
-            <td class="text-center" colspan="{{ $collection.$schema.$headers.length + 4 }}">
+            <td class="text-center" colspan="{{ $collection.$schema.$headers.length + 3 }}">
                 <span >No Items Found.</span>
             </td>
         </tr>

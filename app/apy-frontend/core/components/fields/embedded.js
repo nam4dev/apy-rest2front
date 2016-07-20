@@ -83,7 +83,14 @@
          * @returns {string}
          */
         function toString() {
-            return this._id;
+            var strings = [];
+            this.$components.forEach(function (comp) {
+                var toString = comp.toString();
+                if(toString) {
+                    strings.push(toString);
+                }
+            });
+            return '[' + strings.join('; ') + ']';
         }
 
         /**

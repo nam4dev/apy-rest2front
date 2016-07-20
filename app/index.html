@@ -51,19 +51,28 @@
     <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css">
 
     <link rel="stylesheet" href="components/angular-ui-tree/dist/angular-ui-tree.min.css">
+    <link rel="stylesheet" href="components/angular-responsive-tables/release/angular-responsive-tables.min.css">
+
+    <!--[if IE 9]>
+    <style>
+        /* rules for IE9 only */
+        .responsive {
+            overflow: hidden;
+        }
+        .responsive td:nth-child(odd), .responsive td:nth-child(even) {
+            float: left;
+            width: 100%;
+        }
+    </style>
+    <![endif]-->
 
     <link rel="stylesheet" href="apy-frontend/core/core.css">
+    <link rel="stylesheet" href="apy-frontend/core/responsive.css">
 
     <script src="components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
 
     <script src="components/angular/angular.js"></script>
     <script src="components/angular-animate/angular-animate.js"></script>
-
-    <script src="components/jquery/dist/jquery.min.js"></script>
-    <script src="components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <script src="components/angular-bootstrap/ui-bootstrap.min.js"></script>
-    <script src="components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
-
     <script src="components/angular-route/angular-route.js"></script>
 
 </head>
@@ -78,7 +87,7 @@
             <div class="container-fluid">
                 <!-- Brand and toggle get grouped for better mobile display -->
                 <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#apy-navigation" aria-expanded="true">
                         <span class="sr-only">Toggle navigation</span>
                         <span class="icon-bar"></span>
                         <span class="icon-bar"></span>
@@ -88,7 +97,7 @@
                 </div>
 
                 <!-- Collect the nav links, forms, and other content for toggling -->
-                <div class="collapse navbar-collapse">
+                <div id="apy-navigation" class="collapse navbar-collapse">
                     <div apy-navigation></div>
                 </div><!-- /.navbar-collapse -->
             </div><!-- /.container-fluid -->
@@ -112,6 +121,11 @@
 
         <footer>
             <div>Apy Frontend, v<span apy-version></span></div>
+            <!-- JS scripts -->
+            <script src="components/jquery/dist/jquery.min.js"></script>
+            <script src="components/bootstrap/dist/js/bootstrap.min.js"></script>
+            <script src="components/angular-bootstrap/ui-bootstrap.min.js"></script>
+            <script src="components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
             <!-- shim is needed to support non-HTML5 FormData browsers (IE8-9)-->
             <script>
                 //optional need to be loaded before angular-file-upload-shim(.min).js
@@ -129,6 +143,8 @@
             <script src="components/ng-file-upload/ng-file-upload-shim.min.js"></script>
             <script src="components/ng-file-upload/ng-file-upload.min.js"></script>
 
+            <script src="components/angular-responsive-tables/release/angular-responsive-tables.min.js"></script>
+
             <!-- Fields definitions -->
             <script src="apy-frontend/core/helper.js"></script>
             <script src="apy-frontend/core/components/base.js"></script>
@@ -137,23 +153,18 @@
             <script src="apy-frontend/core/components/fields/media.js"></script>
             <script src="apy-frontend/core/components/fields/number.js"></script>
             <script src="apy-frontend/core/components/fields/string.js"></script>
-            <!--<script src="apy-frontend/core/components/fields/hashmap.js"></script>-->
             <script src="apy-frontend/core/components/fields/boolean.js"></script>
             <script src="apy-frontend/core/components/fields/datetime.js"></script>
-
             <script src="apy-frontend/core/components/fields/list.js"></script>
             <script src="apy-frontend/core/components/fields/geo/point.js"></script>
             <script src="apy-frontend/core/components/fields/embedded.js"></script>
             <script src="apy-frontend/core/components/fields/nested.js"></script>
             <script src="apy-frontend/core/components/fields/poly.js"></script>
-
             <script src="apy-frontend/core/components/resource.js"></script>
             <script src="apy-frontend/core/components/collection.js"></script>
-
             <!-- Core definitions -->
             <script src="apy-frontend/core/schemas.js"></script>
             <script src="apy-frontend/core/core.js"></script>
-
             <!-- UI integration (AngularJs) !IMPORTANT! Keep import order -->
             <script src="apy-frontend/integration/angular/view.js"></script>
             <script src="apy-frontend/integration/angular/directives/field.js"></script>

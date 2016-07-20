@@ -120,6 +120,8 @@ select[multiple], select[size] {
     background-color: #428bca;
 }
 
+.table { width: 100%; }
+
 #content {
     position: relative;
     width: 75%;

@@ -80,7 +80,12 @@
             }
         }
 
+        function toString() {
+            return (this.$value && this.$value.toUTCString) ? this.$value.toUTCString() : this.$value;
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+            this.toString = toString;
             this.validate = validate;
             this.hasUpdated = hasUpdated;
             this.cloneValue = cloneValue;

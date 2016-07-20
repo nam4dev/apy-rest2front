@@ -37,7 +37,7 @@
 /* istanbul ignore next */
 (function (angular) {'use strict';
 
-    var endpoint = 'http://localhost:8001/',
+    var endpoint = 'http://localhost:8002/',
         schemaName = 'schemas',
         appTheme = 'bootstrap3',
         application = angular.module('apy-frontend', [
@@ -45,6 +45,7 @@
             'ngAnimate',
             'ngFileUpload',
             'ui.bootstrap',
+            'wt.responsive',
             'apy-frontend.view',
             'apy-frontend.version'
         ]),

@@ -1,0 +1,5 @@
+@media only screen and (max-width: 800px) {
+    .responsive td:nth-child(even), .responsive td:nth-child(odd) {
+        padding-left: 5%;
+    }
+}

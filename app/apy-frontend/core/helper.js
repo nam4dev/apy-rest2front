@@ -471,7 +471,7 @@
      *
      */
     ApyMediaFile.prototype.toString = function toString() {
-        return '(' + [this.$name, this.$type].join(', ') + ')';
+        return "(" + [this.$name, this.$type].join(', ') + ")";
     };
 
     /**
