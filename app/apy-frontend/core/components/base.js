@@ -298,27 +298,6 @@
             return this;
         }
 
-        /* istanbul ignore next */
-        function json (indent) {
-            if(this.$type === this.$types.OBJECTID) {
-                var self = {};
-                for(var own in this) {
-                    if(this.hasOwnProperty(own)) {
-                        var prop = this[own];
-                        if(isObject(prop)) {
-                            prop = '[Object]';
-                        }
-                        if(isFunction(prop)) {
-                            prop = '[Function]';
-                        }
-                        self[own] = prop;
-                    }
-                }
-                self['$id'] = this._id;
-                return JSON.stringify(self, null, indent || 4);
-            }
-        }
-
         /**
          *
          */
@@ -459,7 +438,6 @@
         return function() {
             this.add = add;
             this.$log = log;
-            this.json = json;
             this.data = data;
             this.load = load;
             this.clone = clone;
