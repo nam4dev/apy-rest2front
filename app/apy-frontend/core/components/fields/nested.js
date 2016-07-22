@@ -47,12 +47,9 @@
             return isObject(value) ? Object.assign(value) : value;
         }
 
-        // FIXME
-        function validate() {}
-
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
-            this.validate = validate;
             this.cloneValue = cloneValue;
+            this.$internalType = 'object';
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.RESOURCE, relationName);
             this.$Class = $window.ApyNestedField;
             this.load(value);

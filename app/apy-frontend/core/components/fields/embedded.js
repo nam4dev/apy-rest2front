@@ -80,21 +80,6 @@
 
         /**
          *
-         * @returns {string}
-         */
-        function toString() {
-            var strings = [];
-            this.$components.forEach(function (comp) {
-                var toString = comp.toString();
-                if(toString) {
-                    strings.push(toString);
-                }
-            });
-            return '[' + strings.join('; ') + ']';
-        }
-
-        /**
-         *
          */
         function reset() {
             if (this.hasUpdated()) {
@@ -122,7 +107,6 @@
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.reset = reset;
-            this.toString = toString;
             this.validate = validate;
             this.setValue = setValue;
             this.cloneValue = cloneValue;

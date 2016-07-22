@@ -136,9 +136,6 @@
          */
         function validate() {
             this.parentValidate();
-            if(!this.isArray(this.$value)) {
-                throw new Error("Value shall be an Array !");
-            }
             this.$components.forEach(function (comp) {
                 comp.validate();
             });
@@ -155,21 +152,9 @@
             })
         }
 
-        function toString() {
-            var strings = [];
-            this.$components.forEach(function (comp) {
-                var toString = comp.toString();
-                if(toString) {
-                    strings.push(toString);
-                }
-            });
-            return '[' + strings.join('; ') + ']';
-        }
-
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.load = load;
             this.reset = reset;
-            //this.toString = toString;
             this.parentValidate = this.validate;
             this.validate = validate;
             this.setValue = setValue;

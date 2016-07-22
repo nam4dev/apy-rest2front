@@ -38,20 +38,7 @@
 
     $window.ApyStringField = function () {
 
-        function _computeShortValue() {
-            var currentShortValue = this.$shortValue;
-            var expectedShortValue = this.$value.substring(0, 60) + ' ...';
-            var isText = this.wordCount() > 60;
-            if(isText && (!currentShortValue || currentShortValue !== expectedShortValue)) {
-                this.$shortValue = expectedShortValue;
-            }
-        }
-
         function toString() {
-            if(this.$parent && this.$parent.$type !== $TYPES.RESOURCE) {
-                this._computeShortValue();
-                return this.$shortValue;
-            }
             return this.$value;
         }
 
@@ -62,12 +49,9 @@
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'string';
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.STRING, null);
-            this.$shortValue = undefined;
             this.toString = toString;
             this.wordCount = wordCount;
-            this._computeShortValue = _computeShortValue;
             this.$Class = $window.ApyStringField;
-            this._computeShortValue();
             return this;
         }
 
