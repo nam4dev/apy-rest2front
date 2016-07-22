@@ -48,6 +48,10 @@ describe("Component.Base unit tests", function() {
         };
         this.cleanedData = function () {
             return this.$value;
+        };
+
+        this.toString = function () {
+            return this.$value;
         }
     };
 

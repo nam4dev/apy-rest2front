@@ -85,9 +85,27 @@ describe("Component.Resource unit tests", function() {
     it("[toString] With some $required fields, Only required field's value shall be displayed", function() {
         var expectedValue = "[One, Three]";
         var resource = _createResource(undefined, 'test', DEFAULT_SCHEMAS.tests);
-        resource.add({$required: true, $value: "One"});
-        resource.add({$required: false, $value: "Two"});
-        resource.add({$required: true, $value: "Three"});
+        resource.add({
+            $required: true,
+            $value: "One",
+            toString: function () {
+                return this.$value;
+            }
+        });
+        resource.add({
+            $required: false,
+            $value: "Two",
+            toString: function () {
+                return this.$value;
+            }
+        });
+        resource.add({
+            $required: true,
+            $value: "Three",
+            toString: function () {
+                return this.$value;
+            }
+        });
         expect(resource.toString()).toEqual(expectedValue);
         expect('' + resource).toEqual(expectedValue);
     });
@@ -95,9 +113,25 @@ describe("Component.Resource unit tests", function() {
     it("[toString] With no $required fields, All field's value shall be displayed", function() {
         var expectedValue = "[One, Two, Three]";
         var resource = _createResource(undefined, 'test', DEFAULT_SCHEMAS.tests);
-        resource.add({$required: false, $value: "One"});
-        resource.add({$value: "Two"});
-        resource.add({$value: "Three"});
+        resource.add({
+            $required: false,
+            $value: "One",
+            toString: function () {
+                return this.$value;
+            }
+        });
+        resource.add({
+            $value: "Two",
+            toString: function () {
+                return this.$value;
+            }
+        });
+        resource.add({
+            $value: "Three",
+            toString: function () {
+                return this.$value;
+            }
+        });
         expect(resource.toString()).toEqual(expectedValue);
         expect('' + resource).toEqual(expectedValue);
     });
@@ -233,7 +267,7 @@ describe("Component.Resource unit tests", function() {
         var resource = _createResource(undefined, 'test', DEFAULT_SCHEMAS.tests, resourceObject);
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
-        expect(resource.toString()).toEqual("[One,Ready]");
+        expect(resource.toString()).toEqual("[One, Ready]");
     });
 
     it("[load] Shall load from given Object (Resource) - DICT with schema", function() {
