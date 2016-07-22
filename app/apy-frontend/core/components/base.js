@@ -75,12 +75,7 @@
                     }
                 }
             });
-            if(values) {
-                return '[' + values.join(', ') + ']';
-            }
-            else {
-                return ""
-            }
+            return '[' + values.join(', ') + ']';
         }
 
         /**
