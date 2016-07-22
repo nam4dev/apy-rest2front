@@ -182,7 +182,7 @@
         /**
          *
          * @param resource
-         * @returns {ApyResourceComponent}
+         * @returns {this}
          */
         function load (resource) {
             var self = this;
@@ -197,6 +197,15 @@
                 }
             });
             this._load(resourceObj);
+            this.$components.sort(function (one, two) {
+                if ( one.$name < two.$name ) {
+                    return 1;
+                }
+                if ( one.$name > two.$name ) {
+                    return -1;
+                }
+                return 0;
+            });
             return this;
         }
 

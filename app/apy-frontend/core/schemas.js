@@ -51,11 +51,11 @@
     var ApySchemaComponent = function ApySchemaComponent (schema, name) {
         this.$base = schema;
         this.$name = name;
-        self.$hasMedia = false;
+        this.$hasMedia = false;
         this.$embeddedURI = '';
         this.$headers = Object.keys(schema).filter(function (key) {
             return !key.startsWith('_');
-        });
+        }).sort().reverse();
         this.load();
     };
 
