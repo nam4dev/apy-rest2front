@@ -239,7 +239,7 @@
             var cleaned = {};
             this.$components.forEach(function (comp) {
                 var data = comp.cleanedData();
-                if(data) {
+                if(data || data === false || data === 0) {
                     cleaned[comp.$name] = data;
                 }
             });

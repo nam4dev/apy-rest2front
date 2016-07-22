@@ -41,6 +41,11 @@
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'boolean';
+            this.parentCleanedData = this.cleanedData;
+            this.cleanedData = function () {
+                var data = this.parentCleanedData();
+                return data || false;
+            };
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.BOOLEAN, null);
             this.$Class = $window.ApyBooleanField;
             return this;
