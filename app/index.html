@@ -50,8 +50,8 @@
     <link rel="stylesheet" href="components/bootstrap/dist/fonts/glyphicons-halflings-regular.svg">
     <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css">
 
-    <link rel="stylesheet" href="components/angular-ui-tree/dist/angular-ui-tree.min.css">
-    <link rel="stylesheet" href="components/angular-responsive-tables/release/angular-responsive-tables.min.css">
+    <!--<link rel="stylesheet" href="components/angular-ui-tree/dist/angular-ui-tree.min.css">-->
+    <link rel="stylesheet" href="components/angular-backtop/dist/angular-backtop.css">
 
     <!--[if IE 9]>
     <style>
@@ -119,6 +119,10 @@
 
         <div ng-view></div>
 
+        <back-top>
+            <i class="glyphicon glyphicon-arrow-up"></i>
+        </back-top>
+
         <footer>
             <div>Apy Frontend, v<span apy-version></span></div>
             <!-- JS scripts -->
@@ -142,8 +146,8 @@
             </script>
             <script src="components/ng-file-upload/ng-file-upload-shim.min.js"></script>
             <script src="components/ng-file-upload/ng-file-upload.min.js"></script>
-
-            <script src="components/angular-responsive-tables/release/angular-responsive-tables.min.js"></script>
+            <script src="components/angular-backtop/dist/angular-backtop.min.js"></script>
+            <script src="components/angular-elastic/elastic.js"></script>
 
             <!-- Fields definitions -->
             <script src="apy-frontend/core/helper.js"></script>

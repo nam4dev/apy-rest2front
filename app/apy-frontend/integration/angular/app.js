@@ -45,7 +45,8 @@
             'ngAnimate',
             'ngFileUpload',
             'ui.bootstrap',
-            'wt.responsive',
+            'angular.backtop',
+            'monospaced.elastic',
             'apy-frontend.view',
             'apy-frontend.version'
         ]),
