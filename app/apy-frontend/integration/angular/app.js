@@ -63,7 +63,19 @@
                 return new ApyCompositeService($log, $http, Upload, config);
             };
         })
-        .config(['$routeProvider', function($routeProvider) {
+        .config(['$httpProvider', '$routeProvider', function($httpProvider, $routeProvider) {
+            // Intercept Unauthorized HTTP errors
+            $httpProvider.interceptors.push(function($q) {
+                return {
+                    responseError: function(rejection) {
+                        var defer = $q.defer();
+                        if(rejection.status == 401) {
+                            defer.reject(rejection);
+                        }
+                        return defer.promise;
+                    }
+                };
+            });
             $routeProvider
                 // setting a generic parameter 'resource'
                 .when('/:resource', {
