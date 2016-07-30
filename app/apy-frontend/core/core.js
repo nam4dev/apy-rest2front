@@ -49,10 +49,17 @@
      *  * A configurable CSS theme (default: Bootstrap 3)
      */
     var ApyCompositeService = function ($log, $http, $upload, config) {
+        function logMissingProvider(name) {
+            console.error('No "'+ name + '" Provider available!');
+        }
         this.$log = $log;
-        this.$http = $http;
-        this.$config = config;
-        this.$upload = $upload;
+        this.$http = $http || function () {
+                logMissingProvider('$http');
+            };
+        this.$config = config || {};
+        this.$upload = $upload || {upload: function () {
+                logMissingProvider('Upload');
+            }};
         this.$theme = config.appTheme;
         this.$syncHttp = new XMLHttpRequest();
         this.$schemas = null;
@@ -75,12 +82,38 @@
 
     /**
      *
-     * @returns {ApyCompositeService}
+     * @returns {Promise}
      */
-    ApyCompositeService.prototype.loadSchemas = function () {
-        this.$syncHttp.open('GET', this.$schemasEndpoint, false);
+    ApyCompositeService.prototype.loadSchemas = function (async) {
+        if(async) {
+            return this.asyncLoadSchemas();
+        }
+        this.$syncHttp.open('GET', this.$schemasEndpoint, async);
         this.$syncHttp.send(null);
-        return this.setSchemas(JSON.parse(this.$syncHttp.response));
+        var response = JSON.parse(this.$syncHttp.response);
+        this.setSchemas(response);
+        return response;
+    };
+
+    /**
+     *
+     * @returns {Promise}
+     */
+    ApyCompositeService.prototype.asyncLoadSchemas = function () {
+        var self = this;
+        return new Promise(function (resolve, reject) {
+            self.$http({
+                url: self.$schemasEndpoint,
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                method: 'GET'
+            })
+                .then(function (response) {
+                    self.setSchemas(response.data);
+                    return resolve(response);
+                }, reject);
+        });
     };
 
     /**

@@ -50,7 +50,7 @@ describe("Core.core unit tests", function() {
         return service;
     };
 
-    it("[loadSchemas] Shall load schemas synchronously", function () {
+    it("[loadSchemas] Shall load schemas asynchronously", function () {
         var schemaName = 'test';
         var endpoint = 'https://www.tests.fr/';
         var deps = [
@@ -84,7 +84,7 @@ describe("Core.core unit tests", function() {
             },
             response: JSON.stringify(DEFAULT_SCHEMAS)
         };
-        service.loadSchemas();
+        service.loadSchemas(false);
         expect(service.$instance instanceof ApySchemasComponent).toBe(true);
         expect(service.$schemas).toEqual(service.$instance.$components);
         expect(service.$schemasAsArray).toEqual(service.$instance.$componentArray);
