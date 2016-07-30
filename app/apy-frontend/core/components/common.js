@@ -81,11 +81,7 @@
                     headers: headers,
                     method: method,
                     data: data
-                }).then(function (response) {
-                    return resolve(response);
-                }).catch(function (error) {
-                    return reject(error);
-                });
+                }).then(resolve, reject);
             });
         }
 
@@ -259,7 +255,7 @@
             }
             var updated = false;
             this.$components.forEach(function (comp) {
-                if(comp.hasUpdated && comp.hasUpdated()) {
+                if(comp.hasUpdated()) {
                     updated = true;
                 }
             });

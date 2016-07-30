@@ -86,7 +86,9 @@
         function hasCreated () {
             var created = false;
             this.$components.forEach(function (comp) {
-                if(comp.hasCreated()) created = true;
+                if(comp.hasCreated()) {
+                    created = true;
+                }
             });
             return created;
         }
@@ -253,7 +255,9 @@
         function savedCount () {
             var savedCount = 0;
             this.$components.forEach(function (comp) {
-                if(comp._id) savedCount++;
+                if(comp._id) {
+                    savedCount++;
+                }
             });
             return savedCount;
         }
@@ -293,7 +297,6 @@
             this.setCreateState = setCreateState;
             this.setUpdateState = setUpdateState;
             this.setDeleteState = setDeleteState;
-
 
             return this;
         }

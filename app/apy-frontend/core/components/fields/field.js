@@ -35,7 +35,7 @@
  *  """
  */
 
-(function ($window) {
+(function ($window) {'use strict';
 
 
 
