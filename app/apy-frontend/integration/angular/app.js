@@ -30,90 +30,49 @@
  *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Angular integration starter
+ *  Angular CRUD Panel integration starting point
  *
  *  """
  */
 /* istanbul ignore next */
 (function (angular) {'use strict';
 
-    var endpoint = 'http://localhost:8002/',
-        schemaName = 'schemas',
-        appTheme = 'bootstrap3',
-        application = angular.module('apy-frontend', [
-            'ngRoute',
-            'ngAnimate',
-            'ngFileUpload',
-            'ui.bootstrap',
-            'angular.backtop',
-            'monospaced.elastic',
-            'apy-frontend.view',
-            'apy-frontend.version'
-        ]),
-        schemas;
-
-    application.provider("apy", function apyProvider () {
-        this.$get = function apyFactory () {
-            var $injector = angular.injector(['ng', 'ngFileUpload']),
-                $log = $injector.get('$log'),
-                $http = $injector.get('$http'),
-                Upload = $injector.get('Upload'),
-                config = {
-                    pkName: '_id',
-                    appTheme: appTheme,
-                    excludedEndpointByNames: ['logs'],
-                    schemas: {}
-                };
-            return new ApyCompositeService($log, $http, Upload, config);
-        };
-    });
-
-    application.config(['$routeProvider', 'apyProvider', function($routeProvider, apyProvider) {
-        // Getting an apyProvider instance
-        var provider = apyProvider.$get()
-            .initEndpoints(endpoint, schemaName)
-            .loadSchemas();
-
-        var schemasAsArray = provider.$schemasAsArray;
-        schemas = provider.$schemas;
-        // setting each schema's route
-        angular.forEach(schemasAsArray, function (schema) {
-            $routeProvider.when(schema.route, {
-                templateUrl: 'apy-frontend/integration/angular/view.html',
-                controller: 'ApyViewCtrl',
-                name: schema.name
-            });
-        });
-        // setting index route
-        $routeProvider.when('/index', {
-            controller: 'IndexCtrl',
-            name: 'index'
-        });
-        // default route
-        $routeProvider.otherwise({redirectTo: 'index'});
-    }]);
-
-    application.controller('IndexCtrl', ['$scope', '$log', '$route', 'apy', 'Upload',
-        function ($scope, $log, $route, apyProvider, Upload) {
-            apyProvider.initEndpoints(endpoint, schemaName).setDependencies(
-                {name: "Upload", value: Upload}
-            ).loadSchemas();
-            $scope.$schemas = apyProvider.$schemasAsArray;
-            $scope.$route = $route;
-        }]);
-
-    application.directive('apyNavigation', [function () {
-        return {
-            template: '<ul class="nav navbar-nav">' +
-            '<li ng-repeat="schema in $schemas" ng-if="!schema.hidden">' +
-            '<a href="#/{{ schema.name }}">' +
-            '<span class="text-capitalize">' +
-            '<strong>{{ schema.humanName || schema.name }}</strong>' +
-            '</span>' +
-            '</a>' +
-            '</li>' +
-            '</ul>'
-        };
-    }]);
+    var appTheme = 'bootstrap3';
+    angular.module('apy-frontend', [
+        'ngRoute',
+        'ngAnimate',
+        'ngFileUpload',
+        'ui.bootstrap',
+        'angular.backtop',
+        'monospaced.elastic',
+        'apy-frontend.view',
+        'apy-frontend.version'
+    ])
+        .provider("apy", function apyProvider () {
+            this.$get = function apyFactory () {
+                var $injector = angular.injector(['ng', 'ngFileUpload']),
+                    $log = $injector.get('$log'),
+                    $http = $injector.get('$http'),
+                    Upload = $injector.get('Upload'),
+                    config = {
+                        pkName: '_id',
+                        appTheme: appTheme,
+                        excludedEndpointByNames: ['logs'],
+                        schemas: {}
+                    };
+                return new ApyCompositeService($log, $http, Upload, config);
+            };
+        })
+        .config(['$routeProvider', function($routeProvider) {
+            $routeProvider
+                // setting a generic parameter 'resource'
+                .when('/:resource', {
+                    templateUrl: 'apy-frontend/integration/angular/view.html',
+                    controller: 'ApyViewCtrl'
+                })
+                // default route
+                .otherwise({redirectTo: 'index'});
+        }])
+        .controller('IndexCtrl', ['$scope', function ($scope) {}]);
 
 })(window.angular);

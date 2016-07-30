@@ -30,10 +30,10 @@
 *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
 -->
 <!DOCTYPE html>
-<!--[if lt IE 7]>      <html lang="en" ng-app="apy-frontend" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
-<!--[if IE 7]>         <html lang="en" ng-app="apy-frontend" class="no-js lt-ie9 lt-ie8"> <![endif]-->
-<!--[if IE 8]>         <html lang="en" ng-app="apy-frontend" class="no-js lt-ie9"> <![endif]-->
-<!--[if gt IE 8]><!--> <html lang="en" ng-app="apy-frontend" class="no-js"> <!--<![endif]-->
+<!--[if lt IE 7]>      <html lang="en" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
 <head>
 
     <title>Apy Frontend - Angular</title>
@@ -49,8 +49,6 @@
 
     <link rel="stylesheet" href="components/bootstrap/dist/fonts/glyphicons-halflings-regular.svg">
     <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css">
-
-    <!--<link rel="stylesheet" href="components/angular-ui-tree/dist/angular-ui-tree.min.css">-->
     <link rel="stylesheet" href="components/angular-backtop/dist/angular-backtop.css">
     <link rel="shortcut icon" href="apy-frontend/integration/favicon.ico" />
     <!--[if IE 9]>
@@ -77,52 +75,12 @@
 
 </head>
 <body>
-<div ng-controller="IndexCtrl">
-
+<div ng-app="apy-frontend" ng-controller="IndexCtrl">
     <div class="container">
         <!--[if lt IE 7]>
         <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
-        <nav class="navbar navbar-inverse">
-            <div class="container-fluid">
-                <!-- Brand and toggle get grouped for better mobile display -->
-                <div class="navbar-header">
-                    <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#apy-navigation" aria-expanded="true">
-                        <span class="sr-only">Toggle navigation</span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </button>
-                    <a class="navbar-brand" href="#">Apy Frontend</a>
-                </div>
-
-                <!-- Collect the nav links, forms, and other content for toggling -->
-                <div id="apy-navigation" class="collapse navbar-collapse">
-                    <div apy-navigation></div>
-                </div><!-- /.navbar-collapse -->
-            </div><!-- /.container-fluid -->
-        </nav>
-
-        <div ng-if="$route.current.name == 'index'" class="jumbotron" >
-            <h1>Welcome to Apy Frontend!</h1>
-            <p>Automated CRUD views, based on your REST API endpoint schemas</p>
-            <p class="small-title">(<i>For now, 'Eve' is the only supported REST API backend</i>)</p>
-            <p>
-                <a class="btn btn-primary btn-lg pull-right"
-                   href="#"
-                   ng-click="authenticate()"
-                   role="button">
-                    Authenticate
-                </a>
-            </p>
-        </div>
-
         <div ng-view></div>
-
-        <back-top>
-            <i class="glyphicon glyphicon-arrow-up"></i>
-        </back-top>
-
         <footer>
             <div>Apy Frontend, v<span apy-version></span></div>
             <!-- JS scripts -->

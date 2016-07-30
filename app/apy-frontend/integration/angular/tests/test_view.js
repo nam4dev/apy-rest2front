@@ -79,7 +79,7 @@ describe("ApyViewCtrl", function() {
                 }})
         };
         provider.initEndpoints(endpoint, schemaName)
-            .loadSchemas();
+            .loadSchemas(false);
 
         var $context = {};
         $context.$scope = {};
@@ -91,10 +91,8 @@ describe("ApyViewCtrl", function() {
             $rootScope: $context.$rootScope,
             $scope: $context.$scope,
             $log: $log,
-            $route: {
-                current: {
-                    name: currentRouteName
-                }
+            $routeParams: {
+                resource: currentRouteName
             },
             $uibModal: {
                 open: function (context) {

@@ -29,7 +29,39 @@
 *
 *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
 -->
-<div>
+<nav class="navbar navbar-inverse">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#apy-navigation" aria-expanded="true">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="{{ staticHomePage }}">Apy Frontend</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="apy-navigation" class="collapse navbar-collapse">
+            <div apy-navigation></div>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div ng-if="isIndex" class="jumbotron" >
+    <h1>Welcome to Apy Frontend!</h1>
+    <p>Automated CRUD views, based on your REST API endpoint schemas</p>
+    <p class="small-title">(<i>For now, 'Eve' is the only supported REST API backend</i>)</p>
+    <p>
+        <a class="btn btn-primary btn-lg pull-right"
+           href="#"
+           ng-click="authenticate()"
+           role="button">
+            Authenticate
+        </a>
+    </p>
+</div>
+<div ng-if="!isIndex">
     <!-- All Apy Fields directives -->
     <script type="text/ng-template" id="field-poly.html">
         <div ng-if="field.$states.$current === field.$states.READ">
@@ -219,7 +251,7 @@
                     <div class="form-group form-group-lg col-md-6">
                         <div ngf-drop="setFile(field, $files[0])" class="drop-box" ngf-drag-over-class="'dragover'">
                             <button class="form-control btn btn-warning drop-box" ngf-select="setFile(field, $files[0])">
-                                Select or Drop
+                                <i class="glyphicon glyphicon-upload"></i>
                             </button>
                         </div>
                         <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
@@ -351,6 +383,55 @@
 
     <!-- Apy Modals -->
 
+    <script type="text/ng-template" id="modal-error.html">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                 <span class="text-capitalize" >
+                     Error <strong>{{ error.data._error.code }}</strong> : <i>{{ error.data._error.message }}</i>
+                 </span>
+            </h3>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-danger" role="alert" ng-if="error.data._issues" ng-repeat="(k, v) in error.data._issues track by $index">
+                {{ k }} => <strong>{{ v }}</strong>
+            </div>
+            <div class="alert alert-danger" role="alert" ng-if="!error.data._issues && error.data._error.message" >
+                <strong>{{ error.data._error.message }}</strong>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" type="button" ng-click="ok()">OK</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="modal-warning.html">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                 <span class="text-capitalize" >
+                     Warning - About to <strong>{{ action }}</strong> : <i>{{ count }}</i> <span ng-if="count <= 1">Item</span><span ng-if="count > 1">Items</span>
+                 </span>
+            </h3>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-warning" role="alert" ng-if="message">
+                {{ message }}
+            </div>
+            <div class="alert alert-warning" role="alert" ng-if="components">
+                <ul class="list-group"
+                    ng-repeat="comp in components track by $index">
+                    <li class="list-group-item">
+                        <span class="badge">{{ $index + 1 }}</span>
+                        {{ comp.toString() }}
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-danger" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-info" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+
     <script type="text/ng-template" id="modal-embedded.html">
         <div class="modal-header">
             <h3 class="modal-title">
@@ -480,55 +561,6 @@
         </div>
     </script>
 
-    <script type="text/ng-template" id="modal-error.html">
-        <div class="modal-header">
-            <h3 class="modal-title">
-                 <span class="text-capitalize" >
-                     Error <strong>{{ error.data._error.code }}</strong> : <i>{{ error.data._error.message }}</i>
-                 </span>
-            </h3>
-        </div>
-        <div class="modal-body">
-            <div class="alert alert-danger" role="alert" ng-if="error.data._issues" ng-repeat="(k, v) in error.data._issues track by $index">
-                {{ k }} => <strong>{{ v }}</strong>
-            </div>
-            <div class="alert alert-danger" role="alert" ng-if="!error.data._issues && error.data._error.message" >
-                <strong>{{ error.data._error.message }}</strong>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-danger" type="button" ng-click="ok()">OK</button>
-        </div>
-    </script>
-
-    <script type="text/ng-template" id="modal-warning.html">
-        <div class="modal-header">
-            <h3 class="modal-title">
-                 <span class="text-capitalize" >
-                     Warning - About to <strong>{{ action }}</strong> : <i>{{ count }}</i> <span ng-if="count <= 1">Item</span><span ng-if="count > 1">Items</span>
-                 </span>
-            </h3>
-        </div>
-        <div class="modal-body">
-            <div class="alert alert-warning" role="alert" ng-if="message">
-                {{ message }}
-            </div>
-            <div class="alert alert-warning" role="alert" ng-if="components">
-                <ul class="list-group"
-                    ng-repeat="comp in components track by $index">
-                    <li class="list-group-item">
-                        <span class="badge">{{ $index + 1 }}</span>
-                        {{ comp.toString() }}
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-danger" type="button" ng-click="ok()">OK</button>
-            <button class="btn btn-info" type="button" ng-click="cancel()">Cancel</button>
-        </div>
-    </script>
-
     <!-- End Apy Modals -->
 
     <div class="progress loader" ng-if="counter !== 100">
@@ -539,16 +571,33 @@
     </div>
 
     <!-- FIXME: Link properly concept of isReadOnly to handle Resource permissions (Authentication system ?) -->
-    <table class="apy-table" >
+    <div class="hidden-sm hidden-xs" style="position: fixed; right: 0.5%;">
+        <table class="table" >
+            <tr>
+                <th class="pull-right">
+                    <button class="btn btn-default" ng-click="displayList=true;displayLarge=!displayList" ng-class="{'active': displayList}">
+                        <i class="glyphicon glyphicon-th-list"></i>
+                    </button>
+                </th>
+            </tr>
+            <tr>
+                <th class="pull-right">
+                    <button class="btn btn-default pull-right" ng-click="displayLarge=true;displayList=!displayLarge" ng-class="{'active': displayLarge}">
+                        <i class="glyphicon glyphicon-th-large"></i>
+                    </button>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <table class="table" >
         <tr>
-            <th>
+            <th class="pull-right">
                 <button id="gCreate"
                         type="button"
                         ng-click="createResource()"
                         class="btn btn-default">
                     <i class="glyphicon glyphicon-plus"></i>
                 </button>
-
                 <button id="gUpdate"
                         type="button"
                         ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
@@ -557,9 +606,9 @@
                     <i class="glyphicon glyphicon-pencil"></i>
                 </button>
                 <button type="button"
-                        ng-if="!validateHidden"
+                        ng-if="!validateHidden && $collection.hasUpdated()"
                         ng-click="saveAll()"
-                        class="btn btn-default">
+                        class="btn btn-success">
                     <i class="glyphicon glyphicon-ok"></i>
                 </button>
                 <button id="gCancel"
@@ -586,11 +635,103 @@
                 </button>
         </tr>
     </table>
-    <div ng-if="$collection.count() > 0"
-         ng-repeat="resource in $collection.$components track by $index">
-        <table class="apy-table display" >
+    <div ng-if="displayLarge">
+        <div ng-if="$collection.count() > 0"
+             ng-repeat="resource in $collection.$components track by $index">
+            <table class="apy-table display" >
+                <tr>
+                    <th class="hidden-sm hidden-xs"></th>
+                    <td>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.READ"
+                                ng-click="updateResource(resource)"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                                ng-click="create(resource)"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-ok"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
+                                ng-click="update(resource)"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-ok"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                                ng-click="resource.reset()"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-erase"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
+                                ng-click="resource.reset()"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-erase"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                                ng-click="removeResource(resource)"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() &&
+                            resource.$states.$current !== resource.$states.CREATE &&
+                            resource.$states.$current !== resource.$states.UPDATE"
+                                ng-click="delete(resource)"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr ng-repeat="header in $collection.$schema.$headers track by $index">
+                    <th class="hidden-sm hidden-xs">
+                        <strong class="text-capitalize text-underlined">{{ header }}</strong>
+                    </th>
+                    <td >
+                        <apy-field field="resource.$components[$index]"></apy-field>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div ng-if="$collection.count() === 0">
+            <table class="display table">
+                <thead >
+                <tr >
+                    <th ng-repeat="header in $collection.$schema.$headers track by $index">
+                        <strong class="text-capitalize text-underlined">{{ header }}</strong>
+                    </th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr >
+                    <td class="text-center" colspan="{{ $collection.$schema.$headers.length }}">
+                        <span >No Items Found.</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div ng-if="displayList">
+        <table class="apy-table">
+            <thead>
             <tr>
-                <th class="hidden-sm hidden-xs"></th>
+                <th ng-repeat="header in $collection.$schema.$headers track by $index" >
+                    <strong class="text-capitalize text-underlined">{{ header }}</strong>
+                </th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="resource in $collection.$components track by $index">
+                <td ng-repeat="header in $collection.$schema.$headers track by $index" >
+                    <apy-field field="resource.$components[$index]"></apy-field>
+                </td>
                 <td>
                     <button type="button"
                             ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.READ"
@@ -629,32 +770,23 @@
                         <i class="glyphicon glyphicon-trash"></i>
                     </button>
                     <button type="button"
-                            ng-if="!resource.isReadOnly() &&
-                            resource.$states.$current !== resource.$states.CREATE &&
-                            resource.$states.$current !== resource.$states.UPDATE"
+                            ng-if="!resource.isReadOnly() && resource.$states.$current !== resource.$states.CREATE &&
+                          resource.$states.$current !== resource.$states.UPDATE"
                             ng-click="delete(resource)"
                             class="btn btn-default pull-right">
                         <i class="glyphicon glyphicon-trash"></i>
                     </button>
                 </td>
             </tr>
-            <tr ng-repeat="header in $collection.$schema.$headers track by $index">
-                <th class="hidden-sm hidden-xs">
-                    <strong class="text-capitalize text-underlined">{{ header }}</strong>
-                </th>
-                <td >
-                    <apy-field field="resource.$components[$index]"></apy-field>
-                </td>
-            </tr>
-        </table>
-    </div>
-    <div ng-if="$collection.count() === 0">
-        <table class="display">
-            <tr>
-                <td class="text-center" colspan="{{ $collection.$schema.$headers.length + 4 }}">
+            <tr ng-if="$collection.count() === 0">
+                <td class="text-center" colspan="{{ $collection.$schema.$headers.length + 1 }}">
                     <span >No Items Found.</span>
                 </td>
             </tr>
+            </tbody>
         </table>
     </div>
 </div>
+<back-top>
+    <i class="glyphicon glyphicon-arrow-up"></i>
+</back-top>
