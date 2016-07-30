@@ -39,13 +39,37 @@
 
     $window.ApyBooleanField = (function () {
 
+        /**
+         * @param value
+         * @returns {Boolean}
+         */
+        function cloneValue(value) {
+            return value || false;
+        }
+
+        /**
+         *
+         * @returns {Boolean}
+         */
+        function hasUpdated() {
+            this.$value = this.cleanedData();
+            return this.parentHasUpdated();
+        }
+
+        /**
+         *
+         * @returns {boolean}
+         */
+        function cleanedData() {
+            return this.$value || false;
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'boolean';
-            this.parentCleanedData = this.cleanedData;
-            this.cleanedData = function () {
-                var data = this.parentCleanedData();
-                return data || false;
-            };
+            this.cleanedData = cleanedData;
+            this.parentHasUpdated = this.hasUpdated;
+            this.hasUpdated = hasUpdated;
+            this.cloneValue = cloneValue;
             this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.BOOLEAN, null);
             this.$Class = $window.ApyBooleanField;
             return this;
