@@ -589,52 +589,54 @@
             </tr>
         </table>
     </div>
-    <table class="table" >
-        <tr>
-            <th class="pull-right">
-                <button id="gCreate"
-                        type="button"
-                        ng-click="createResource()"
-                        class="btn btn-default">
-                    <i class="glyphicon glyphicon-plus"></i>
-                </button>
-                <button id="gUpdate"
-                        type="button"
-                        ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
-                        ng-click="updateResources()"
-                        class="btn btn-default">
-                    <i class="glyphicon glyphicon-pencil"></i>
-                </button>
-                <button type="button"
-                        ng-if="!validateHidden && $collection.hasUpdated()"
-                        ng-click="saveAll()"
-                        class="btn btn-success">
-                    <i class="glyphicon glyphicon-ok"></i>
-                </button>
-                <button id="gCancel"
-                        type="button"
-                        ng-if="$collection.savedCount() > 0 && updateHidden"
-                        ng-click="read()"
-                        class="btn btn-default">
-                    <i class="glyphicon glyphicon-arrow-left"></i>
-                </button>
-                <button id="gDelete"
-                        type="button"
-                        ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
-                        ng-click="deleteResources()"
-                        class="btn btn-default">
-                    <i class="glyphicon glyphicon-trash"></i>
-                </button>
-                <button id="gDelete"
-                        type="button"
-                        ng-if="$collection.count() > 0 && !validateHidden"
-                        ng-click="$collection.reset()"
-                        class="btn btn-default">
-                    <i class="glyphicon glyphicon-erase"></i>
-                </button>
-        </tr>
-    </table>
-    <div ng-if="displayLarge">
+    <div id="collection-controls">
+        <table class="table" >
+            <tr>
+                <th class="pull-right">
+                    <button id="gCreate"
+                            type="button"
+                            ng-click="createResource()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-plus"></i>
+                    </button>
+                    <button id="gUpdate"
+                            type="button"
+                            ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
+                            ng-click="updateResources()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                    </button>
+                    <button type="button"
+                            ng-if="!validateHidden && $collection.hasUpdated()"
+                            ng-click="saveAll()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-ok"></i>
+                    </button>
+                    <button id="gCancel"
+                            type="button"
+                            ng-if="$collection.savedCount() > 0 && updateHidden && !$collection.hasUpdated() && !$collection.hasCreated()"
+                            ng-click="read()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-arrow-left"></i>
+                    </button>
+                    <button id="gDelete"
+                            type="button"
+                            ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
+                            ng-click="deleteResources()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </button>
+                    <button id="gWarning"
+                            type="button"
+                            ng-if="$collection.count() > 0 && !validateHidden && $collection.hasUpdated()"
+                            ng-click="$collection.reset()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-erase"></i>
+                    </button>
+            </tr>
+        </table>
+    </div>
+    <div ng-if="displayLarge" id="collection-table-vertical">
         <div ng-if="$collection.count() > 0"
              ng-repeat="resource in $collection.$components track by $index">
             <table class="apy-table display" >
@@ -642,10 +644,10 @@
                     <th class="hidden-sm hidden-xs"></th>
                     <td>
                         <button type="button"
-                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.READ"
-                                ng-click="updateResource(resource)"
+                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                                ng-click="removeResource(resource)"
                                 class="btn btn-default pull-right">
-                            <i class="glyphicon glyphicon-pencil"></i>
+                            <i class="glyphicon glyphicon-trash"></i>
                         </button>
                         <button type="button"
                                 ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
@@ -654,28 +656,22 @@
                             <i class="glyphicon glyphicon-ok"></i>
                         </button>
                         <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                                ng-click="resource.reset()"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-erase"></i>
+                        </button>
+                        <button type="button"
                                 ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
                                 ng-click="update(resource)"
                                 class="btn btn-default pull-right">
                             <i class="glyphicon glyphicon-ok"></i>
                         </button>
                         <button type="button"
-                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
-                                ng-click="resource.reset()"
-                                class="btn btn-default pull-right">
-                            <i class="glyphicon glyphicon-erase"></i>
-                        </button>
-                        <button type="button"
                                 ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
                                 ng-click="resource.reset()"
                                 class="btn btn-default pull-right">
                             <i class="glyphicon glyphicon-erase"></i>
-                        </button>
-                        <button type="button"
-                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
-                                ng-click="removeResource(resource)"
-                                class="btn btn-default pull-right">
-                            <i class="glyphicon glyphicon-trash"></i>
                         </button>
                         <button type="button"
                                 ng-if="!resource.isReadOnly() &&
@@ -684,6 +680,12 @@
                                 ng-click="delete(resource)"
                                 class="btn btn-default pull-right">
                             <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.READ"
+                                ng-click="updateResource(resource)"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-pencil"></i>
                         </button>
                     </td>
                 </tr>
@@ -716,7 +718,7 @@
             </table>
         </div>
     </div>
-    <div ng-if="displayList">
+    <div ng-if="displayList" id="collection-table-horizontal">
         <table class="apy-table">
             <thead>
             <tr>
