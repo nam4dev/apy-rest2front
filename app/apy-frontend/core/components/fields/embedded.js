@@ -65,7 +65,7 @@
 
         function hasUpdated () {
             var updated;
-            if(this.$memo && this.$memo._id) {
+            if(this.$memo && isObject(this.$memo)) {
                 updated = this.$memo._id !== this._id;
             }
             else {
