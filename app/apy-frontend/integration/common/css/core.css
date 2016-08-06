@@ -114,10 +114,24 @@ select[multiple], select[size] {
     border-radius: 10pt;
 }
 
+/* Apy Css rules */
+
 .apy-table {
     width: 100%;
     display: table;
     table-layout: fixed;
+}
+
+.apy-version {
+    width: 10.5%;
+    margin-top: 5%;
+}
+
+/* End Apy Css rules */
+
+.modal-header {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
 }
 
 .fix-issue-1012 {
