@@ -38,46 +38,11 @@
 
     $window.ApyResourceComponent = (function () {
 
-        var STATES = {
-            CREATE: 'CREATE',
-            READ: 'READ',
-            UPDATE: 'UPDATE',
-            DELETE: 'DELETE'
-        };
+
 
         /**
-         *
-         */
-        function setCreateState () {
-            this.$states.set(STATES.CREATE);
-            return this;
-        }
-
-        /**
-         *
-         */
-        function setReadState () {
-            this.$states.set(STATES.READ);
-            return this;
-        }
-
-        /**
-         *
-         */
-        function setUpdateState () {
-            this.$states.set(STATES.UPDATE);
-            return this;
-        }
-
-        /**
-         *
-         */
-        function setDeleteState () {
-            this.$states.set(STATES.DELETE);
-            return this;
-        }
-
-        /**
+         * Allow to know if the Resource is a fresh created Resource or loaded one
+         * (_id ? hasCreated : not)
          *
          * @returns {boolean}
          */
@@ -87,6 +52,19 @@
             return this.hasOwnProperty(pkAttributeName) && !this[pkAttributeName];
         }
 
+        /**
+         * Wraps common `createRequest` method
+         * adding some specific Resource logic.
+         *
+         * On success, the Resource inner (meta-)data
+         * are automatically updated and its state
+         * restored to READ while passing the response as-is.
+         *
+         * On failure, error is logged and passed as-is.
+         *
+         * @param method: The HTTP Method Verb (GET, POST, DELETE, ...)
+         * @returns {Promise}
+         */
         function createResourceRequest(method) {
             var self = this;
             return new Promise(function (resolve, reject) {
@@ -119,34 +97,36 @@
         }
 
         /**
+         * If the Resource is created & updated,
+         * a POST Request is sent to the backend.
          *
-         * @returns {Promise}
+         * @returns {Promise} or {null}
          */
         function create () {
             if(this.hasCreated() && this.hasUpdated()) {
                 return this.createResourceRequest();
             }
-            else {
-                this.setReadState();
-            }
+            return undefined;
         }
 
         /**
+         * If the Resource is not created & updated,
+         * a PATCH Request is sent to the backend.
          *
-         * @returns {Promise}
+         * @returns {Promise} or {null}
          */
         function update () {
-            if(this.hasUpdated()) {
+            if(this.hasUpdated() && !this.hasCreated()) {
                 return this.createResourceRequest('PATCH');
             }
-            else {
-                this.setReadState();
-            }
+            return undefined;
         }
 
         /**
+         * If the Resource is not created,
+         * a DELETE Request is sent to the backend.
          *
-         * @returns {Promise}
+         * @returns {Promise} or {null}
          */
         function del () {
             if(!this.hasCreated()) {
@@ -155,24 +135,15 @@
         }
 
         /**
+         * ApyResourceComponent Constructor
          *
-         * @param states
-         * @param initialState
-         */
-        function createStateHolder (initialState, states) {
-            return new ApyStateHolder(initialState, states);
-        }
-
-        /**
-         * ApyResourceComponent
-         *
-         * @param name
-         * @param type
-         * @param schema
-         * @param $states
-         * @param components
-         * @param endpointBase
-         * @param relationName
+         * @param name: Resource name
+         * @param type: Resource type
+         * @param schema: Resource schema
+         * @param $states: Resource inner state holder instance
+         * @param components: Resource initial components
+         * @param endpointBase: Resource endpoint
+         * @param relationName: (optional) Resource relation name
          * @constructor
          */
         return function (service, name, schema, value, $states, $endpoint, type, relationName, components) {
@@ -182,14 +153,9 @@
             this.create = create;
             this.update = update;
             this.hasCreated = hasCreated;
-            this.setReadState = setReadState;
-            this.setCreateState = setCreateState;
-            this.setUpdateState = setUpdateState;
-            this.setDeleteState = setDeleteState;
-            this.createStateHolder = createStateHolder;
             this.createResourceRequest = createResourceRequest;
 
-            var st = $states || this.createStateHolder(STATES.READ, STATES);
+            var st = $states || this.createStateHolder();
 
             this.initialize(service, name, schema, value, st, $endpoint, type, relationName, components);
             this.$selfUpdated = false;

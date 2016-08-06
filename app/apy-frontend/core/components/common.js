@@ -37,55 +37,64 @@
 
 (function ($window) {
 
+    // Registering mixin globally
     $window.ApyRequestMixin = (function () {
 
-        /**
-         *
-         * @param uri
-         * @param method
-         *
-         * @returns {Promise}
-         */
-        function createRequest (uri, method) {
+        function $access(request) {
             if(!this.$request) {
                 this.$request = (this.$schema && this.$schema.$hasMedia) ?
                     this.$upload.upload : this.$http;
             }
+            request = request || {};
+            return this.$request(request);
+        }
+
+        /**
+         * Common Method for components which need to request on network
+         *
+         * @param uri: The URI to contact
+         * @param method: The HTTP method Verb (GET, POST, PATCH, ...)
+         *
+         * @returns {Promise} Asynchronous
+         */
+        function createRequest (uri, method) {
             var self = this;
+            var setConfig = function () {
+                request.url += '/' + self._id;
+                request.headers['If-Match'] = self._etag;
+            };
+            if(method === 'PATCH' && !self._id) {
+                method = 'POST'
+            }
             method = method || 'POST';
+            var request = {
+                url: uri,
+                method: method,
+                headers: {}
+            };
+            switch (method) {
+                case 'POST':
+                    request.data = this.cleanedData();
+                    break;
+                case 'PATCH':
+                    setConfig();
+                    request.data = this.cleanedData();
+                    break;
+                case 'DELETE':
+                    setConfig();
+                    break;
+                default :
+                    break;
+            }
             return new Promise(function (resolve, reject) {
-                var data = undefined;
-                var headers = {
-                    'Content-Type': 'application/json'
-                };
-                var setConfig = function () {
-                    uri += '/' + self._id;
-                    headers['If-Match'] = self._etag;
-                };
-                switch (method) {
-                    case 'POST':
-                        data = self.cleanedData();
-                        break;
-                    case 'PATCH':
-                        setConfig();
-                        data = self.cleanedData();
-                        break;
-                    case 'DELETE':
-                        setConfig();
-                        break;
-                    default :
-                        break;
-                }
-                return self.$request({
-                    url: uri,
-                    headers: headers,
-                    method: method,
-                    data: data
-                }).then(resolve, reject);
+                return self.$access(request).then(resolve, function (error) {
+                        return reject(new ApyEveHTTPError(error))
+                    });
             });
         }
 
         return function () {
+            this.$access = $access;
             this.createRequest = createRequest;
             return this;
         }
@@ -94,6 +103,18 @@
     // Registering mixin globally
     $window.ApyCompositeMixin =  (function () {
 
+        /**
+         * Common Method for composite container components (Resource, List)
+         *
+         * @param type: The Component type
+         * @param name: The Component name
+         * @param schema: The Component (data-)schema
+         * @param value: (optional) The component value
+         * @param endpoint: The Application global endpoint
+         * @param append: If true, the created component instance is appended to `this`
+         *
+         * @returns {*} A component instance
+         */
         function createField (type, name, schema, value, endpoint, append) {
             var fieldObj;
             // true by default if not specifically set to false
@@ -150,8 +171,10 @@
         }
 
         /**
+         * Private `template method`
+         * Groups Composite (recursive) logic.
          *
-         * @param resource
+         * @param resource: (optional) A Resource Object ({})
          */
         function _load (resource) {
             for (var field in this.$schema) {
@@ -176,8 +199,11 @@
         }
 
         /**
+         * Exposed (public) `template method`
          *
-         * @param resource
+         * Groups Composite (recursive) logic.
+         *
+         * @param resource: (optional) A Resource Object ({})
          * @returns {this}
          */
         function load (resource) {
@@ -206,7 +232,11 @@
         }
 
         /**
+         * Common Method for components `reset` feature
+         * Allow the component to restore its initial state
+         * (based on its `$memo` attribute)
          *
+         * @returns {this}
          */
         function reset () {
             this.$components.forEach(function (comp) {
@@ -219,17 +249,26 @@
             return this;
         }
 
+        /**
+         * Allow to evaluate whether or not an Object instance is empty.
+         * Trick here is to use JS native mechanism to iterate over the object.
+         * If it cannot iterate, the Object is empty, otherwise not.
+         *
+         * @param obj: Object instance to be evaluated
+         * @returns {boolean} Whether the Object is empty or not
+         */
         function isEmpty(obj) {
-            var key;
-            for (key in obj) {
+            for (var key in obj) {
                 return (false);
             }
             return (true);
         }
 
         /**
+         * Common method which is charge to clean the component inner data.
+         * All data-related inner components are collected into an Object instance.
          *
-         * @returns {{}}
+         * @returns {Object} collected data-related inner components
          */
         function cleanedData () {
             var cleaned = {};
@@ -246,8 +285,10 @@
         }
 
         /**
+         * Common method which tells whether the component state is UPDATED or not
+         * In other words, whether one of its inner component is UPDATED or not
          *
-         * @returns {boolean}
+         * @returns {boolean} true if UPDATED state
          */
         function hasUpdated () {
             if(this.$selfUpdated) {
@@ -263,7 +304,11 @@
         }
 
         /**
+         * Common method to definitely set the updated components' values,
+         * after a successful Request to the backend has been acknowledged.
+         * `$memo` attribute is overridden by the current `$value`.hasUpdated
          *
+         * @returns {this}
          */
         function selfCommit () {
             this.$components.forEach(function (comp) {
@@ -276,10 +321,11 @@
         }
 
         /**
+         * Common Method to allow one component to update itself.
          *
-         * @param update
-         * @param commit
-         * @returns {ApyResourceComponent}
+         * @param update: The update payload (Object)
+         * @param commit: If true, `selfCommit` method is invoked
+         * @returns {this}
          */
         function selfUpdate (update, commit) {
             var self = this;
@@ -303,7 +349,8 @@
                     }
                 });
             }
-            // Commit => save the inner state ($value, $memo) of each component recursively
+            // Commit => save the inner state ($value, $memo)
+            // of each component recursively
             this.$selfUpdated = !commit;
             if (commit) {
                 this.selfCommit();

@@ -430,6 +430,122 @@
             return this.$originalValue;
         }
 
+        // StateHolder known states list (CRUD).
+        var STATES = {
+            CREATE: 'CREATE',
+            READ: 'READ',
+            UPDATE: 'UPDATE',
+            DELETE: 'DELETE'
+        };
+
+        /**
+         * Set Component's inner StateHolder instance to the given state
+         *
+         * @param state: The state, must be one of the STATES list
+         * @returns {this}
+         */
+        function setState (state) {
+            this.$states.set(state);
+            return this;
+        }
+
+        /**
+         * Factory method to get a StateHolder instance
+         *
+         * @param states: A list of known states
+         * @param initialState: The initial state (must be one of the `states` list.
+         */
+        function createStateHolder (initialState, states) {
+            return new ApyStateHolder(initialState || STATES.READ, states || STATES);
+        }
+
+        /**
+         * Factorize logic
+         * Return whether or not the Resource's
+         * current state is in the passed state
+         *
+         * @returns {boolean}
+         */
+        function isState(state) {
+            return this.$states.$current === state;
+        }
+
+        /**
+         * Indicate when the Resource inner state is equal to CREATE
+         *
+         * @returns {boolean}
+         */
+        function inCreateState() {
+            return this.isState(STATES.CREATE);
+        }
+
+        /**
+         * Indicate when the Resource inner state is equal to READ
+         *
+         * @returns {boolean}
+         */
+        function inReadState() {
+            return this.isState(STATES.READ);
+        }
+
+        /**
+         * Indicate when the Resource inner state is equal to UPDATE
+         *
+         * @returns {boolean}
+         */
+        function inUpdateState() {
+            return this.isState(STATES.UPDATE);
+        }
+
+        /**
+         * Indicate when the Resource inner state is equal to DELETE
+         *
+         * @returns {boolean}
+         */
+        function inDeleteState() {
+            return this.isState(STATES.DELETE);
+        }
+
+        /**
+         * Set the Resource inner state to CREATE
+         *
+         * @returns {this}
+         */
+        function setCreateState () {
+            this.setState(STATES.CREATE);
+            return this;
+        }
+
+        /**
+         * Set the Resource inner state to READ
+         *
+         * @returns {this}
+         */
+        function setReadState () {
+            this.setState(STATES.READ);
+            return this;
+        }
+
+        /**
+         * Set the Resource inner state to UPDATE
+         *
+         * @returns {this}
+         */
+        function setUpdateState () {
+            this.setState(STATES.UPDATE);
+            return this;
+        }
+
+        /**
+         * Set the Resource inner state to DELETE
+         *
+         * @returns {this}
+         */
+        function setDeleteState () {
+            this.setState(STATES.DELETE);
+            return this;
+        }
+
         return function() {
             this.add = add;
             this.$log = log;
@@ -439,11 +555,13 @@
             this.count = count;
             this.reset = reset;
             this.remove = remove;
+            this.isState = isState;
             this.oneMore = oneMore;
             this.prepend = prepend;
             this.toString = toString;
             this.getChild = getChild;
             this.setValue = setValue;
+            this.setState = setState;
             this.validate = validate;
             this.loadValue = loadValue;
             this.setParent = setParent;
@@ -458,7 +576,16 @@
             this.continue = shallContinue;
             this.cleanedData = cleanedData;
             this.hasChildren = hasChildren;
+            this.inReadState = inReadState;
+            this.setReadState = setReadState;
+            this.inCreateState = inCreateState;
+            this.inUpdateState = inUpdateState;
+            this.inDeleteState = inDeleteState;
+            this.setCreateState = setCreateState;
+            this.setUpdateState = setUpdateState;
+            this.setDeleteState = setDeleteState;
             this.createPolyField = createPolyField;
+            this.createStateHolder = createStateHolder;
             return this;
         };
     })();

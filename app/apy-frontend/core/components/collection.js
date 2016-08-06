@@ -38,12 +38,11 @@
 
     $window.ApyCollectionComponent = (function () {
 
-        var STATES = {
-            CREATE: 'CREATE',
-            READ: 'READ',
-            UPDATE: 'UPDATE',
-            DELETE: 'DELETE'
-        };
+        function deferredAll(promises) {
+            return Promise.all(promises.map(function(promise) {
+                return promise.reflect();
+            }));
+        }
 
         function toString() {
             return '[' + this.$components.join(', ') + ']';
@@ -110,41 +109,26 @@
         /**
          *
          * @param state
-         * @returns {ApyCollectionComponent}
+         * @returns {this}
          */
         function setState (state) {
             this.$components.forEach(function (comp) {
-                comp.$states.set(state);
+                comp.setState(state);
             });
             return this;
         }
 
         /**
+         * Factorize logic
+         * Return whether or not at least one Collection's component's
+         * current state is in the passed state
          *
+         * @returns {boolean}
          */
-        function setCreateState () {
-            return this.setState(STATES.CREATE);
-        }
-
-        /**
-         *
-         */
-        function setReadState () {
-            return this.setState(STATES.READ);
-        }
-
-        /**
-         *
-         */
-        function setUpdateState () {
-            return this.setState(STATES.UPDATE);
-        }
-
-        /**
-         *
-         */
-        function setDeleteState () {
-            return this.setState(STATES.DELETE);
+        function isState(state) {
+            return this.$components.some(function (comp) {
+                return comp.isState(state);
+            });
         }
 
         /**
@@ -164,7 +148,7 @@
          * @returns {Promise}
          */
         function save () {
-            return this.create().update();
+            return deferredAll([this.create(), this.update()])
         }
 
         /**
@@ -180,11 +164,8 @@
             return new Promise(function (resolve, reject) {
                 self.clear();
                 progress(50);
-                return self.$request({
+                return self.$access({
                     url: self.$endpoint,
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
                     method: 'GET'
                 }).then(function (response) {
                         progress(75);
@@ -195,7 +176,7 @@
                     function (error) {
                         self.$log("[ApyFrontendError] => " + error);
                         progress(100);
-                        return reject(error);
+                        return reject(new ApyEveHTTPError(error));
                     },
                     function (evt) {
                         var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
@@ -210,10 +191,15 @@
          * @returns {Promise}
          */
         function create () {
+            // FIXME: Shall be optimized if `bulk_enabled` is true, making a single request to backend
+            var promises = [];
             this.$components.forEach(function (comp) {
-                comp.create();
+                var defer = comp.create();
+                if(defer) {
+                    promises.push(defer);
+                }
             });
-            return this;
+            return deferredAll(promises);
         }
 
         /**
@@ -221,10 +207,15 @@
          * @returns {Promise}
          */
         function update () {
+            // FIXME: Shall be optimized if `bulk_enabled` is true, making a single request to backend
+            var promises = [];
             this.$components.forEach(function (comp) {
-                comp.update();
+                var defer = comp.update();
+                if(defer) {
+                    promises.push(defer);
+                }
             });
-            return this;
+            return deferredAll(promises);
         }
 
         /**
@@ -232,10 +223,16 @@
          * @returns {Promise}
          */
         function del () {
+            // FIXME: Shall be optimized using DELETE on root (/) endpoint without ID
+            var promises = [];
             this.$components.forEach(function (comp) {
-                comp.delete();
+                var defer = comp.delete();
+                if(defer) {
+                    promises.push(defer);
+                }
             });
-            return this.clear();
+            this.clear();
+            return deferredAll(promises);
         }
 
         /**
@@ -286,17 +283,14 @@
             this.fetch = fetch;
             this.create = create;
             this.update = update;
+            this.isState = isState;
             this.setState = setState;
             this.toString = toString;
             this.savedCount = savedCount;
             this.removeResource = remove;
             this.hasCreated = hasCreated;
             this.hasUpdated = hasUpdated;
-            this.setReadState = setReadState;
             this.createResource = createResource;
-            this.setCreateState = setCreateState;
-            this.setUpdateState = setUpdateState;
-            this.setDeleteState = setDeleteState;
 
             return this;
         }
@@ -305,5 +299,6 @@
 
     // Inject Mixin
     $window.ApyComponentMixin.call(ApyCollectionComponent.prototype);
+    $window.ApyRequestMixin.call(ApyCollectionComponent.prototype);
 
 })(window);
