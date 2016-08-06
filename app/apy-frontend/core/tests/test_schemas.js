@@ -70,21 +70,21 @@ describe("Core.schemas unit tests", function() {
         var wrapper = function() {
             component.createResource(name, resource);
         };
-        expect(wrapper).toThrow(new Error('Unknown schema name, undefined'));
+        expect(wrapper).toThrow(new ApyError('Unknown schema name, undefined'));
     });
 
     it("[createResource] No Service object provided - An Error shall be thrown", function () {
         var wrapper = function() {
             new ApySchemasComponent(DEFAULT_ENDPOINT, DEFAULT_SCHEMAS, DEFAULT_CONFIG);
         };
-        expect(wrapper).toThrow(new Error('A Service object must be provided (got type => undefined) !'));
+        expect(wrapper).toThrow(new ApyError('A Service object must be provided (got type => undefined) !'));
     });
 
     it("[createResource] No Schemas object provided - An Error shall be thrown", function () {
         var wrapper = function() {
             new ApySchemasComponent(DEFAULT_ENDPOINT, undefined, DEFAULT_CONFIG, new Service());
         };
-        expect(wrapper).toThrow(new Error('A schemas object must be provided (got type => undefined) !'));
+        expect(wrapper).toThrow(new ApyError('A schemas object must be provided (got type => undefined) !'));
     });
 
     it("[createResource] An `ApyResourceComponent` shall be created", function () {

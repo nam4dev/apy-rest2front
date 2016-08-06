@@ -81,12 +81,35 @@ describe("ApyViewCtrl", function() {
         provider.initEndpoints(endpoint, schemaName)
             .loadSchemas(false);
 
+        var apyModal = function() {
+            return {
+                ok: function () {
+                    var cb = $context.$modalContext.okCallback;
+                    if(isFunction(cb)) cb();
+                },
+                cancel: function () {
+                    var cb = $context.$modalContext.cancelCallback;
+                    if(isFunction(cb)) cb();
+                },
+                warn: function (context) {
+                    $context.$modalContext = context;
+                    $context.$modalCalled = true;
+                    return {
+                        dismiss: function () {
+                        }
+                    }
+                }
+            }
+        };
+
         var $context = {};
-        $context.$scope = {};
+        $context.$scope = {
+            $apply: function () {}
+        };
+        $context.$modal = new apyModal();
         $context.$rootScope = {};
         $context.$modalContext = {};
         $context.$modalCalled = false;
-        $context.$modalDismissCalled = false;
         $context.$controller = $controller(controllerName, {
             $rootScope: $context.$rootScope,
             $scope: $context.$scope,
@@ -94,17 +117,7 @@ describe("ApyViewCtrl", function() {
             $routeParams: {
                 resource: currentRouteName
             },
-            $uibModal: {
-                open: function (context) {
-                    $context.$modalContext = context;
-                    $context.$modalCalled = true;
-                    return {
-                        dismiss: function () {
-                            $context.$modalDismissCalled = true;
-                        }
-                    }
-                }
-            },
+            apyModal: $context.$modal,
             Upload: Upload,
             apy: provider
         });
@@ -119,87 +132,17 @@ describe("ApyViewCtrl", function() {
         return $context;
     };
 
-    describe('$scope.displayError', function() {
-        it("Shall display error in a Modal", function() {
-            var error = "a test error";
-            var $context = createContext('ApyViewCtrl', "tests");
-            $context.$scope.displayError(error);
-            $context.$scope.ok();
-            expect($context.$modalContext).toEqual({
-                animation: true,
-                templateUrl: 'modal-error.html',
-                controllerAs: 'ModalCtrl',
-                scope: $context.$scope
-            });
-            expect($context.$scope.error).toEqual(error);
-            expect($context.$modalCalled).toBe(true);
-            expect($context.$modalDismissCalled).toBe(true);
-        });
-    });
-
-    describe('$scope.createResource', function() {
-        it("Shall append a created Resource instance to the Collection", function() {
-            var $context = createContext('ApyViewCtrl', "tests");
-            expect($context.$scope.$collection.count()).toEqual(0);
-            $context.$scope.createResource();
-            expect($context.$scope.$collection.count()).toEqual(1);
-        });
-    });
-
-    describe('$scope.updateResource', function() {
-        it("Shall update Resource inner state ($STATES.UPDATE)", function() {
-            var $context = createContext('ApyViewCtrl', "tests");
-            expect($context.$scope.$collection.count()).toEqual(0);
-            $context.$scope.createResource();
-            var resource = $context.$scope.$collection.getChild(0);
-            expect(resource.$states.$current).toEqual('CREATE');
-            $context.$scope.updateResource(resource);
-            expect(resource.$states.$current).toEqual('UPDATE');
-        });
-    });
-
-    describe('$scope.removeResource', function() {
-        it("Shall remove Resource from Collection", function() {
-            var $context = createContext('ApyViewCtrl', "tests");
-            $context.$scope.createResource();
-            expect($context.$scope.$collection.count()).toEqual(1);
-            var resource = $context.$scope.$collection.getChild(0);
-            // FIXME: All tests are passed but huge trace follows
-            $context.$scope.removeResource(resource);
-            expect($context.$scope.$collection.count()).toEqual(0);
-        });
-    });
-
-    describe('$scope.updateResources', function() {
-        it("Shall update Resource inner state ($STATES.UPDATE) of the whole Collection", function() {
-            var count = 5;
-            var $context = createContext('ApyViewCtrl', "tests");
-            var components = $context.$scope.$collection.$components;
-            for(var i=0; i<count; i++) {
-                $context.$scope.createResource();
-            }
-            expect($context.$scope.$collection.count()).toEqual(count);
-            components.forEach(function (comp) {
-                expect(comp.$states.$current).toEqual('CREATE');
-            });
-            $context.$scope.updateResources();
-            components.forEach(function (comp) {
-                expect(comp.$states.$current).toEqual('UPDATE');
-            });
-        });
-    });
-
     describe('$scope.deleteResources', function() {
         it("Shall ask not delete all Resources contained in the Collection when cancel is clicked", function() {
             var count = 5;
-            var $context = createContext('ApyViewCtrl', "tests");
+            var $context = createContext('apyViewCtrl', "tests");
             for(var i=0; i<count; i++) {
-                $context.$scope.createResource();
+                $context.$scope.$collection.createResource();
             }
             var collection = $context.$scope.$collection;
             expect(collection.count()).toEqual(count);
             $context.$scope.deleteResources();
-            $context.$scope.cancel();
+            $context.$modal.cancel();
             expect(collection.count()).toEqual(count);
         });
     });
@@ -207,38 +150,15 @@ describe("ApyViewCtrl", function() {
     describe('$scope.deleteResources', function() {
         it("Shall ask delete all Resources contained in the Collection when ok is clicked", function() {
             var count = 5;
-            var $context = createContext('ApyViewCtrl', "tests");
+            var $context = createContext('apyViewCtrl', "tests");
             for(var i=0; i<count; i++) {
-                $context.$scope.createResource();
+                $context.$scope.$collection.createResource();
             }
             var collection = $context.$scope.$collection;
-            var expectedCount = collection.count();
-            var expectedAction = "Delete";
-            var expectedMessage = "Would you really like to delete " + expectedCount + " listed resources ?";
             expect(collection.count()).toEqual(count);
             $context.$scope.deleteResources();
-            $context.$scope.ok();
+            $context.$modal.ok();
             expect(collection.count()).toEqual(0);
-            expect($context.$scope.action).toEqual(expectedAction);
-            expect($context.$scope.message).toEqual(expectedMessage);
         });
     });
-
-    describe('$scope.read', function() {
-        it("Shall set all the collection's items into 'READ' state", function() {
-            var count = 5;
-            var $context = createContext('ApyViewCtrl', "tests");
-            for(var i=0; i<count; i++) {
-                $context.$scope.createResource();
-            }
-            var collection = $context.$scope.$collection;
-            $context.$scope.read();
-            collection.$components.forEach(function (comp) {
-                expect(comp.$states.$current).toEqual('READ');
-            });
-            expect($context.$scope.updateHidden).toBe(false);
-            expect($context.$scope.validateHidden).toBe(true);
-        });
-    });
-
 });

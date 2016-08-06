@@ -177,10 +177,19 @@ describe("Component.Collection unit tests", function() {
         var col = _createCollection(undefined, 'tests');
         col.create = function () {
             createCall = true;
-            return col;
+            return {
+                reflect: function () {
+
+                }
+            };
         };
         col.update = function () {
             updateCall = true;
+            return {
+                reflect: function () {
+
+                }
+            };
         };
         col.save();
         expect(createCall).toBe(true);
