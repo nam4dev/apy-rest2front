@@ -94,7 +94,7 @@
 
     })();
 
-    // Inject Mixin
+    // Inject Mixins
     $window.ApyComponentMixin.call(ApyMediaField.prototype);
     $window.ApyFieldMixin.call(ApyMediaField.prototype);
 

@@ -69,14 +69,14 @@
             }
             // unhandled types case
             else {
-                throw new Error('Unhandled type for datetime field: ' + typeof value);
+                throw new ApyError('Unhandled type for datetime field: ' + typeof value);
             }
             return clonedValue;
         }
 
         function validate() {
             if (!isDate(this.$value)) {
-                throw new Error('Datetime object or string expected');
+                throw new ApyError('Datetime object or string expected');
             }
         }
 
@@ -98,7 +98,7 @@
 
     })();
 
-    // Inject Mixin
+    // Inject Mixins
     $window.ApyComponentMixin.call(ApyDatetimeField.prototype);
     $window.ApyFieldMixin.call(ApyDatetimeField.prototype);
 

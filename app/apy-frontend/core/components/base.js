@@ -268,7 +268,7 @@
                 }
             });
             if(errors.length) {
-                throw new Error('Validation Error: ' + errors.join(', '));
+                throw new ApyError('Validation Error: ' + errors.join(', '));
             }
         }
 
@@ -327,7 +327,7 @@
 
         function clone(parent, value) {
             if(!this.$Class) {
-                throw new Error('No $Class property set !');
+                throw new ApyError('No $Class property set !');
             }
             var instance = new this.$Class(this.$service,
                 this.$name, this.$schema, value, this.$states,

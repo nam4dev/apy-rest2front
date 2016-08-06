@@ -92,7 +92,7 @@
 
     })();
 
-    // Inject Mixin
+    // Inject Mixins
     $window.ApyComponentMixin.call(ApyPointField.prototype);
     $window.ApyFieldMixin.call(ApyPointField.prototype);
 

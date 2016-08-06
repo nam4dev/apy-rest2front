@@ -65,7 +65,7 @@
 
         /**
          *
-         * @returns {this}
+         * @returns {string}
          */
         function toString() {
             this.loadValue();
@@ -99,15 +99,23 @@
             return this.$value;
         }
 
+        /**
+         *
+         * @returns {string}
+         * @private
+         */
         function _errorMsg() {
             var msg = 'Field.' + this.$name + ' did not validate' + '\n';
                msg += 'Type should be ' + this.$internalType + ', got ' + typeof this.$value;
             return msg;
         }
 
+        /**
+         *
+         */
         function validate() {
             if(this.$value && typeof this.$value !== this.$internalType) {
-                throw new Error(this._errorMsg());
+                throw new ApyError(this._errorMsg());
             }
         }
 

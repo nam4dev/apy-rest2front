@@ -44,7 +44,7 @@
         function setType(type, schemaName) {
             var field = fieldClassByType(type);
             if(!field) {
-                throw new Error('Unknown Field type, **' + type + '**');
+                throw new ApyError('Unknown Field type, **' + type + '**');
             }
             var schema = schemaName ? this.$service.$schemas[schemaName]: null;
             var instance = new field(this.$service, null, schema, null,
@@ -101,7 +101,7 @@
 
     }();
 
-    // Inject Mixin
+    // Inject Mixins
     $window.ApyComponentMixin.call(ApyPolyField.prototype);
     $window.ApyFieldMixin.call(ApyPolyField.prototype);
 

@@ -57,7 +57,7 @@
 
     }();
 
-    // Inject Mixin
+    // Inject Mixins
     $window.ApyComponentMixin.call(ApyStringField.prototype);
     $window.ApyFieldMixin.call(ApyStringField.prototype);
 

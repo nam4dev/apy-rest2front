@@ -171,7 +171,7 @@
 
     }();
 
-    // Inject Mixin
+    // Inject Mixins
     $window.ApyComponentMixin.call(ApyListField.prototype);
     $window.ApyFieldMixin.call(ApyListField.prototype);
     $window.ApyRequestMixin.call(ApyListField.prototype);

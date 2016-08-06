@@ -51,7 +51,7 @@
 
     })();
 
-    // Inject Mixin
+    // Inject Mixins
     $window.ApyComponentMixin.call(ApyNumberField.prototype);
     $window.ApyFieldMixin.call(ApyNumberField.prototype);
 

@@ -118,10 +118,10 @@
      */
     var ApySchemasComponent = function ApySchemasComponent (endpoint, schemas, config, service) {
         if(!service || !isObject(service)) {
-            throw new Error('A Service object must be provided (got type => ' + typeof service + ') !');
+            throw new ApyError('A Service object must be provided (got type => ' + typeof service + ') !');
         }
         if(!schemas || !isObject(schemas)) {
-            throw new Error('A schemas object must be provided (got type => ' + typeof schemas + ') !');
+            throw new ApyError('A schemas object must be provided (got type => ' + typeof schemas + ') !');
         }
         this.$names = [];
         this.$humanNames = [];
@@ -158,7 +158,7 @@
     ApySchemasComponent.prototype.createResource = function createResource (name, resource) {
         var schema = this.get(name);
         if(!schema) {
-            throw new Error('No schema provided for name', name);
+            throw new ApyError('No schema provided for name', name);
         }
         var value = resource || this.schema2data(schema);
         return new ApyResourceComponent(this.$service, name, schema, value, null, this.$endpoint, $TYPES.RESOURCE, name);
@@ -171,7 +171,7 @@
      */
     ApySchemasComponent.prototype.get = function get (schemaName) {
         if(!this.$components.hasOwnProperty(schemaName)) {
-            throw new Error('Unknown schema name, ' + schemaName);
+            throw new ApyError('Unknown schema name, ' + schemaName);
         }
         return this.$components[schemaName];
     };

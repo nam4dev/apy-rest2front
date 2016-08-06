@@ -92,7 +92,7 @@
             var id = this._id;
             if(id === undefined || id === null) {
                 var message = 'An Embedded Field should have a non-empty ID[' + typeof id + ']';
-                throw new Error(message);
+                throw new ApyError(message);
             }
         }
 
