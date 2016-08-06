@@ -50,7 +50,7 @@
     <link rel="stylesheet" href="components/bootstrap/dist/fonts/glyphicons-halflings-regular.svg">
     <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="components/angular-backtop/dist/angular-backtop.css">
-    <link rel="shortcut icon" href="apy-frontend/integration/favicon.ico" />
+    <link rel="shortcut icon" href="apy-frontend/integration/common/favicon.ico" />
     <!--[if IE 9]>
     <style>
         /* rules for IE9 only */
@@ -64,10 +64,13 @@
     </style>
     <![endif]-->
 
-    <link rel="stylesheet" href="apy-frontend/core/core.css">
-    <link rel="stylesheet" href="apy-frontend/core/responsive.css">
+    <link rel="stylesheet" href="apy-frontend/integration/common/css/core.css">
+    <link rel="stylesheet" href="apy-frontend/integration/common/css/responsive.css">
+    <link rel="stylesheet" href="apy-frontend/integration/angular/login.css">
 
     <script src="components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
+    <script src="components/babel-polyfill/browser-polyfill.js"></script>
+    <script src="components/bluebird/js/browser/bluebird.min.js"></script>
 
     <script src="components/angular/angular.js"></script>
     <script src="components/angular-animate/angular-animate.js"></script>
@@ -75,14 +78,16 @@
 
 </head>
 <body>
-<div ng-app="apy-frontend" ng-controller="IndexCtrl">
+<div ng-app="apy-frontend" ng-controller="indexCtrl">
     <div class="container">
         <!--[if lt IE 7]>
         <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         <div ng-view></div>
         <footer>
-            <div>Apy Frontend, v<span apy-version></span></div>
+            <div class="center-block" style="width: 10.5%; margin-top: 5%">
+                <p>Apy Frontend, v<span apy-version></span></p>
+            </div>
             <!-- JS scripts -->
             <script src="components/jquery/dist/jquery.min.js"></script>
             <script src="components/bootstrap/dist/js/bootstrap.min.js"></script>
@@ -108,6 +113,7 @@
             <script src="components/angular-elastic/elastic.js"></script>
 
             <!-- Fields definitions -->
+            <script src="apy-frontend/core/errors.js"></script>
             <script src="apy-frontend/core/helper.js"></script>
             <script src="apy-frontend/core/components/base.js"></script>
             <script src="apy-frontend/core/components/common.js"></script>

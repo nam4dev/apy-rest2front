@@ -29,7 +29,7 @@
 *
 *  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
 -->
-<nav class="navbar navbar-inverse">
+<nav class="navbar navbar-default">
     <div class="container-fluid">
         <!-- Brand and toggle get grouped for better mobile display -->
         <div class="navbar-header">
@@ -39,9 +39,15 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="{{ staticHomePage }}">Apy Frontend</a>
+            <a class="navbar-brand" href="#" title="Go to Home page">Apy REST2Front</a>
         </div>
-
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a ng-click="logout()" title="Log Out">
+                    <i class="glyphicon glyphicon-log-out"></i>
+                </a>
+            </li>
+        </ul>
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div id="apy-navigation" class="collapse navbar-collapse">
             <div apy-navigation></div>
@@ -49,22 +55,14 @@
     </div><!-- /.container-fluid -->
 </nav>
 <div ng-if="isIndex" class="jumbotron" >
-    <h1>Welcome to Apy Frontend!</h1>
+    <h1>Welcome to Apy REST2Front!</h1>
     <p>Automated CRUD views, based on your REST API endpoint schemas</p>
     <p class="small-title">(<i>For now, 'Eve' is the only supported REST API backend</i>)</p>
-    <p>
-        <a class="btn btn-primary btn-lg pull-right"
-           href="#"
-           ng-click="authenticate()"
-           role="button">
-            Authenticate
-        </a>
-    </p>
 </div>
 <div ng-if="!isIndex">
     <!-- All Apy Fields directives -->
     <script type="text/ng-template" id="field-poly.html">
-        <div ng-if="field.$states.$current === field.$states.READ">
+        <div ng-if="field.inReadState()">
             <div ng-if="field.$value">
                 {{ field.toString() }}
             </div>
@@ -74,8 +72,7 @@
                 </div>
             </div>
         </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
             <div class="row">
                 <div class="col-lg-12">
                     <div class="input-group">
@@ -124,17 +121,15 @@
     </script>
 
     <script type="text/ng-template" id="field-objectid.html">
-        <div ng-if="field.$states.$current === field.$states.READ">
+        <div ng-if="field.inReadState()">
             {{ field.toString() }}
         </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
             <button id="{{ field.$name }}"
                     class="form-control"
                     ng-click="resourcePicker(field)"
                     ng-model="field.$value">
-                <span ng-if="field.$states.$current === field.$states.CREATE ||
-                             field.$states.$current === field.$states.UPDATE" >
+                <span ng-if="field.inCreateState() || field.inUpdateState()" >
                     <span ng-if="!field._id && !field.$value">
                         Select <span class="text-capitalize"><strong>{{ field.$name }}</strong></span>
                     </span>
@@ -150,18 +145,16 @@
     </script>
 
     <script type="text/ng-template" id="field-resource.html">
-        <div ng-if="field.$states.$current === field.$states.READ">
+        <div ng-if="field.inReadState()">
             <apy-field ng-if="field.$type !== 'resource'" ng-repeat="component in field.$components track by $index" field="component"></apy-field>
             <span ng-if="field.$type === 'resource'">{{ field.toString() }}</span>
         </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
             <button id="{{ field.$name }}"
                     class="form-control"
                     ng-click="expandRecursive(field)"
                     ng-model="field.$value">
-                <span ng-if="field.$states.$current === field.$states.CREATE ||
-                             field.$states.$current === field.$states.UPDATE" >
+                <span ng-if="field.inCreateState() || field.inUpdateState()" >
                     <span ng-if="!field.$value">
                         Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
                     </span>
@@ -175,7 +168,7 @@
 
     <script type="text/ng-template" id="field-list.html">
         <br />
-        <div ng-if="field.$states.$current === field.$states.READ">
+        <div ng-if="field.inReadState()">
             <div ng-if="field.$value">
                 <div ng-if="!field.$allowed || !field.$allowed.length">
                     <ul>
@@ -187,8 +180,7 @@
                 </div>
             </div>
         </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
 
             <select ng-if="field.$allowed && field.$allowed.length" ng-model="field.$value" multiple>
                 <option ng-repeat="allowed in field.$allowed track by $index" >{{ allowed }}</option>
@@ -198,8 +190,7 @@
                     class="form-control"
                     ng-click="expandList(field)"
                     ng-model="field.$value">
-                <span ng-if="field.$states.$current === field.$states.CREATE ||
-                             field.$states.$current === field.$states.UPDATE" >
+                <span ng-if="field.inCreateState() || field.inUpdateState()" >
                     <span ng-if="!field.$components.length">
                         Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
                     </span>
@@ -215,7 +206,7 @@
     </script>
 
     <script type="text/ng-template" id="field-media.html">
-        <div ng-if="field.$states.$current === field.$states.READ">
+        <div ng-if="field.inReadState()">
             <img ng-if="field.$value.$isImage" ng-src="{{ field.$value.$uri  }}"  width="96" height="96" />
             <!--<audio ng-if="field.$value.$isAudio" controls >-->
             <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
@@ -228,8 +219,7 @@
                 <i class="glyphicon glyphicon-link"></i> {{ field.$value.$name || "link" }}
             </a>
         </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
             <form class="form-inline">
                 <div class="row">
                     <div class="form-group  form-group-lg col-md-6" ng-if="field.$value.$uri">
@@ -268,11 +258,10 @@
     </script>
 
     <script type="text/ng-template" id="field-string.html">
-        <div ng-if="field.$states.$current === field.$states.READ">
+        <div ng-if="field.inReadState()">
             <p>{{ field.toString() }}</p>
         </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
             <input ng-model="field.$value"
                    ng-if="field.wordCount() <= 60"
                    class="form-control"
@@ -301,11 +290,10 @@
     </script>
 
     <script type="text/ng-template" id="field-number.html">
-        <div ng-if="field.$states.$current === field.$states.READ">
+        <div ng-if="field.inReadState()">
             {{ field.toString() }}
         </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
             <input ng-model="field.$value"
                    class="form-control"
                    id="{{ field.$name }}"
@@ -317,11 +305,10 @@
     </script>
 
     <script type="text/ng-template" id="field-point.html">
-        <div ng-if="field.$states.$current === field.$states.READ">
+        <div ng-if="field.inReadState()">
             <span>{{ field.$name }} <i class="glyphicon glyphicon-map-marker"></i></span> ({{ field.$value.x }} - {{ field.$value.y }})
         </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
             <div class="row">
                 <div class="col-md-1">
                     <label for="{{ field.$name }}.x">x: </label>
@@ -353,8 +340,7 @@
     <script type="text/ng-template" id="field-boolean.html">
         <input ng-model="field.$value"
                id="{{ field.$name }}"
-               ng-disabled="field.$states.$current === field.$states.READ ||
-                                field.$states.$current === field.$states.DELETE"
+               ng-disabled="field.inReadState() || field.inDeleteState()"
                type="checkbox"
                class="form-control"
                required="{{ field.$required }}"
@@ -362,11 +348,10 @@
     </script>
 
     <script type="text/ng-template" id="field-datetime.html" >
-        <div ng-if="field.$states.$current === field.$states.READ">
+        <div ng-if="field.inReadState()">
             {{ field.toString() }}
         </div>
-        <div ng-if="field.$states.$current !== field.$states.READ &&
-                    field.$states.$current !== field.$states.DELETE">
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
 
             <div class="fix-issue-1012">
                 <input uib-datepicker-popup="{{ format }}"
@@ -382,55 +367,6 @@
     <!-- End Apy Fields -->
 
     <!-- Apy Modals -->
-
-    <script type="text/ng-template" id="modal-error.html">
-        <div class="modal-header">
-            <h3 class="modal-title">
-                 <span class="text-capitalize" >
-                     Error <strong>{{ error.data._error.code }}</strong> : <i>{{ error.data._error.message }}</i>
-                 </span>
-            </h3>
-        </div>
-        <div class="modal-body">
-            <div class="alert alert-danger" role="alert" ng-if="error.data._issues" ng-repeat="(k, v) in error.data._issues track by $index">
-                {{ k }} => <strong>{{ v }}</strong>
-            </div>
-            <div class="alert alert-danger" role="alert" ng-if="!error.data._issues && error.data._error.message" >
-                <strong>{{ error.data._error.message }}</strong>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-danger" type="button" ng-click="ok()">OK</button>
-        </div>
-    </script>
-
-    <script type="text/ng-template" id="modal-warning.html">
-        <div class="modal-header">
-            <h3 class="modal-title">
-                 <span class="text-capitalize" >
-                     Warning - About to <strong>{{ action }}</strong> : <i>{{ count }}</i> <span ng-if="count <= 1">Item</span><span ng-if="count > 1">Items</span>
-                 </span>
-            </h3>
-        </div>
-        <div class="modal-body">
-            <div class="alert alert-warning" role="alert" ng-if="message">
-                {{ message }}
-            </div>
-            <div class="alert alert-warning" role="alert" ng-if="components">
-                <ul class="list-group"
-                    ng-repeat="comp in components track by $index">
-                    <li class="list-group-item">
-                        <span class="badge">{{ $index + 1 }}</span>
-                        {{ comp.toString() }}
-                    </li>
-                </ul>
-            </div>
-        </div>
-        <div class="modal-footer">
-            <button class="btn btn-danger" type="button" ng-click="ok()">OK</button>
-            <button class="btn btn-info" type="button" ng-click="cancel()">Cancel</button>
-        </div>
-    </script>
 
     <script type="text/ng-template" id="modal-embedded.html">
         <div class="modal-header">
@@ -595,43 +531,43 @@
                 <th class="pull-right">
                     <button id="gCreate"
                             type="button"
-                            ng-click="createResource()"
+                            ng-click="$collection.createResource().setCreateState()"
                             class="btn btn-default">
-                        <i class="glyphicon glyphicon-plus"></i>
+                        <i class="glyphicon glyphicon-plus"></i>A
                     </button>
                     <button id="gUpdate"
                             type="button"
-                            ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
-                            ng-click="updateResources()"
+                            ng-if="$collection.savedCount() > 0 && $collection.inReadState()"
+                            ng-click="$collection.setUpdateState()"
                             class="btn btn-default">
-                        <i class="glyphicon glyphicon-pencil"></i>
+                        <i class="glyphicon glyphicon-pencil"></i>B
                     </button>
                     <button type="button"
-                            ng-if="!validateHidden && $collection.hasUpdated()"
-                            ng-click="saveAll()"
+                            ng-if="$collection.hasUpdated()"
+                            ng-click="saveCollection()"
                             class="btn btn-default">
-                        <i class="glyphicon glyphicon-ok"></i>
+                        <i class="glyphicon glyphicon-ok"></i>C
                     </button>
                     <button id="gCancel"
                             type="button"
-                            ng-if="$collection.savedCount() > 0 && updateHidden && !$collection.hasUpdated() && !$collection.hasCreated()"
-                            ng-click="read()"
+                            ng-if="$collection.savedCount() > 0 && !$collection.hasUpdated() && !$collection.hasCreated() && $collection.inUpdateState()"
+                            ng-click="$collection.setReadState()"
                             class="btn btn-default">
-                        <i class="glyphicon glyphicon-arrow-left"></i>
+                        <i class="glyphicon glyphicon-arrow-left"></i>D
                     </button>
                     <button id="gDelete"
                             type="button"
-                            ng-if="$collection.savedCount() > 0 && !$collection.hasCreated() && !updateHidden"
+                            ng-if="$collection.savedCount() > 0 && !$collection.hasUpdated() && !$collection.hasCreated()"
                             ng-click="deleteResources()"
                             class="btn btn-default">
-                        <i class="glyphicon glyphicon-trash"></i>
+                        <i class="glyphicon glyphicon-trash"></i>E
                     </button>
                     <button id="gWarning"
                             type="button"
-                            ng-if="$collection.count() > 0 && !validateHidden && $collection.hasUpdated()"
+                            ng-if="$collection.count() > 0 && $collection.hasUpdated()"
                             ng-click="$collection.reset()"
                             class="btn btn-default">
-                        <i class="glyphicon glyphicon-erase"></i>
+                        <i class="glyphicon glyphicon-erase"></i>F
                     </button>
             </tr>
         </table>
@@ -644,48 +580,47 @@
                     <th class="hidden-sm hidden-xs"></th>
                     <td>
                         <button type="button"
-                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
-                                ng-click="removeResource(resource)"
+                                ng-if="!resource.isReadOnly() && resource.hasCreated()"
+                                ng-click="$collection.removeResource(resource)"
                                 class="btn btn-default pull-right">
-                            <i class="glyphicon glyphicon-trash"></i>
+                            <i class="glyphicon glyphicon-trash"></i>1
                         </button>
                         <button type="button"
-                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                                ng-if="!resource.isReadOnly() && resource.hasUpdated() && resource.inCreateState()"
                                 ng-click="create(resource)"
                                 class="btn btn-default pull-right">
-                            <i class="glyphicon glyphicon-ok"></i>
+                            <i class="glyphicon glyphicon-ok"></i>2
                         </button>
                         <button type="button"
-                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                                ng-if="!resource.isReadOnly() && resource.hasUpdated() && (resource.inCreateState() || resource.inUpdateState())"
                                 ng-click="resource.reset()"
                                 class="btn btn-default pull-right">
-                            <i class="glyphicon glyphicon-erase"></i>
+                            <i class="glyphicon glyphicon-erase"></i>3
                         </button>
                         <button type="button"
-                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
+                                ng-if="!resource.isReadOnly() && resource.hasUpdated() && resource.inUpdateState()"
                                 ng-click="update(resource)"
                                 class="btn btn-default pull-right">
-                            <i class="glyphicon glyphicon-ok"></i>
+                            <i class="glyphicon glyphicon-ok"></i>4
                         </button>
                         <button type="button"
-                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
-                                ng-click="resource.reset()"
-                                class="btn btn-default pull-right">
-                            <i class="glyphicon glyphicon-erase"></i>
-                        </button>
-                        <button type="button"
-                                ng-if="!resource.isReadOnly() &&
-                            resource.$states.$current !== resource.$states.CREATE &&
-                            resource.$states.$current !== resource.$states.UPDATE"
+                                ng-if="!resource.isReadOnly() && !resource.inCreateState() && !resource.inUpdateState()"
                                 ng-click="delete(resource)"
                                 class="btn btn-default pull-right">
-                            <i class="glyphicon glyphicon-trash"></i>
+                            <i class="glyphicon glyphicon-trash"></i>6
                         </button>
                         <button type="button"
-                                ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.READ"
-                                ng-click="updateResource(resource)"
+                                ng-if="!resource.isReadOnly() && resource.inReadState()"
+                                ng-click="resource.setUpdateState()"
                                 class="btn btn-default pull-right">
-                            <i class="glyphicon glyphicon-pencil"></i>
+                            <i class="glyphicon glyphicon-pencil"></i>7
+                        </button>
+                        <button
+                                type="button"
+                                ng-if="!resource.hasUpdated() && resource.inUpdateState() && !resource.hasCreated()"
+                                ng-click="resource.setReadState()"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-arrow-left"></i>8
                         </button>
                     </td>
                 </tr>
@@ -701,13 +636,6 @@
         </div>
         <div ng-if="$collection.count() === 0">
             <table class="display table">
-                <thead >
-                <tr >
-                    <th ng-repeat="header in $collection.$schema.$headers track by $index">
-                        <strong class="text-capitalize text-underlined">{{ header }}</strong>
-                    </th>
-                </tr>
-                </thead>
                 <tbody>
                 <tr >
                     <td class="text-center" colspan="{{ $collection.$schema.$headers.length }}">
@@ -735,47 +663,47 @@
                 </td>
                 <td>
                     <button type="button"
-                            ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.READ"
-                            ng-click="updateResource(resource)"
+                            ng-if="!resource.isReadOnly() && resource.hasCreated()"
+                            ng-click="$collection.removeResource(resource)"
                             class="btn btn-default pull-right">
-                        <i class="glyphicon glyphicon-pencil"></i>
+                        <i class="glyphicon glyphicon-trash"></i>1
                     </button>
                     <button type="button"
-                            ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
+                            ng-if="!resource.isReadOnly() && resource.hasUpdated() && resource.inCreateState()"
                             ng-click="create(resource)"
                             class="btn btn-default pull-right">
-                        <i class="glyphicon glyphicon-ok"></i>
+                        <i class="glyphicon glyphicon-ok"></i>2
                     </button>
                     <button type="button"
-                            ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
+                            ng-if="!resource.isReadOnly() && resource.hasUpdated() && (resource.inCreateState() || resource.inUpdateState())"
+                            ng-click="resource.reset()"
+                            class="btn btn-default pull-right">
+                        <i class="glyphicon glyphicon-erase"></i>3
+                    </button>
+                    <button type="button"
+                            ng-if="!resource.isReadOnly() && resource.hasUpdated() && resource.inUpdateState()"
                             ng-click="update(resource)"
                             class="btn btn-default pull-right">
-                        <i class="glyphicon glyphicon-ok"></i>
+                        <i class="glyphicon glyphicon-ok"></i>4
                     </button>
                     <button type="button"
-                            ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
-                            ng-click="resource.reset()"
-                            class="btn btn-default pull-right">
-                        <i class="glyphicon glyphicon-erase"></i>
-                    </button>
-                    <button type="button"
-                            ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.UPDATE"
-                            ng-click="resource.reset()"
-                            class="btn btn-default pull-right">
-                        <i class="glyphicon glyphicon-erase"></i>
-                    </button>
-                    <button type="button"
-                            ng-if="!resource.isReadOnly() && resource.$states.$current === resource.$states.CREATE"
-                            ng-click="removeResource(resource)"
-                            class="btn btn-default pull-right">
-                        <i class="glyphicon glyphicon-trash"></i>
-                    </button>
-                    <button type="button"
-                            ng-if="!resource.isReadOnly() && resource.$states.$current !== resource.$states.CREATE &&
-                          resource.$states.$current !== resource.$states.UPDATE"
+                            ng-if="!resource.isReadOnly() && !resource.inCreateState() && !resource.inUpdateState()"
                             ng-click="delete(resource)"
                             class="btn btn-default pull-right">
-                        <i class="glyphicon glyphicon-trash"></i>
+                        <i class="glyphicon glyphicon-trash"></i>6
+                    </button>
+                    <button type="button"
+                            ng-if="!resource.isReadOnly() && resource.inReadState()"
+                            ng-click="resource.setUpdateState()"
+                            class="btn btn-default pull-right">
+                        <i class="glyphicon glyphicon-pencil"></i>7
+                    </button>
+                    <button
+                            type="button"
+                            ng-if="!resource.hasUpdated() && resource.inUpdateState() && !resource.hasCreated()"
+                            ng-click="resource.setReadState()"
+                            class="btn btn-default pull-right">
+                        <i class="glyphicon glyphicon-arrow-left"></i>8
                     </button>
                 </td>
             </tr>

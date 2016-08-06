@@ -37,21 +37,15 @@
  */
 (function ($angular) {'use strict';
 
-    var endpoint = 'http://localhost:8002/',
-        schemaName = 'schemas';
-
     function setView($context) {
 
-        var $log = $context.$log;
         var $scope = $context.$scope;
-        var $uibModal = $context.$uibModal;
         var apyProvider = $context.apyProvider;
         var $routeParams = $context.$routeParams;
+        var apyModalProvider = $context.apyModalProvider;
 
         var collection = apyProvider.createCollection($routeParams.resource);
 
-        $scope.updateHidden = false;
-        $scope.validateHidden = true;
         $scope.$collection = collection;
         $scope.$schemas = apyProvider.$schemasAsArray;
 
@@ -63,70 +57,15 @@
             .then(function (_) {
                 $scope.$apply();
             }).catch(function (error) {
-                $log.error(error);
+                apyModalProvider.error(error);
             });
-
-        $scope.displayError = function (error) {
-            var win;
-            $scope.error = error;
-            $scope.ok = function () {
-                win && win.dismiss('cancel');
-            };
-            win = $uibModal.open({
-                animation: true,
-                templateUrl: 'modal-error.html',
-                controllerAs: 'ModalCtrl',
-                scope: $scope
-            });
-        };
-
-        $scope.createResource = function () {
-            collection.createResource()
-                .setCreateState();
-        };
-
-        $scope.updateResource = function (resource) {
-            resource.setUpdateState();
-        };
-
-        $scope.removeResource = function (resource) {
-            collection.removeResource(resource);
-        };
-
-        $scope.updateResources = function () {
-            collection.setUpdateState();
-            $scope.updateHidden = true;
-            $scope.validateHidden = false;
-        };
 
         $scope.deleteResources = function () {
-            $scope.ok = function () {
+            var okCallback = function () {
                 collection.delete();
-                win && win.dismiss('cancel');
+                $scope.$apply();
             };
-            $scope.cancel = function () {
-                win && win.dismiss('cancel');
-            };
-
-            setWarningContext(collection.$components);
-
-            var win = $uibModal.open({
-                animation: true,
-                templateUrl: 'modal-warning.html',
-                controllerAs: 'ModalCtrl',
-                scope: $scope
-            });
-        };
-
-        $scope.saveAll = function () {
-            collection.save();
-            $scope.read();
-        };
-
-        $scope.read = function () {
-            collection.setReadState();
-            $scope.updateHidden = false;
-            $scope.validateHidden = true;
+            apyModalProvider.warn(getWarningModalConfig(collection.$components, okCallback));
         };
 
         /* istanbul ignore next */
@@ -135,14 +74,10 @@
             if(defer) {
                 defer
                     .then(function (_) {
-                        if(resource.$type ===  "collection") {
-                            $scope.updateHidden = false;
-                            $scope.validateHidden = true;
-                        }
                         $scope.$apply();
                     })
                     .catch(function (error) {
-                        $scope.displayError(error);
+                        apyModalProvider.error(error);
                     });
             }
             else {
@@ -156,21 +91,17 @@
             if(defer){
                 defer
                     .then(function (_) {
-                        if(resource.$type ===  "collection") {
-                            $scope.updateHidden = false;
-                            $scope.validateHidden = true;
-                        }
                         $scope.$apply();
                     })
                     .catch(function (error) {
-                        $scope.displayError(error);
+                        apyModalProvider.error(error);
                     });
             }
         };
 
         /* istanbul ignore next */
         $scope.delete = function (resource) {
-            $scope.ok = function () {
+            var okCallback = function () {
                 var defer = resource.delete();
                 if(defer) {
                     defer
@@ -179,61 +110,87 @@
                             $scope.$apply();
                         })
                         .catch(function (error) {
-                            $scope.displayError(error);
+                            apyModalProvider.error(error);
                         });
                 }
                 else {
                     collection.removeResource(resource);
                 }
-                win && win.dismiss('cancel');
             };
-            $scope.cancel = function () {
-                win && win.dismiss('cancel');
-            };
-
-            setWarningContext([resource]);
-
-            var win = $uibModal.open({
-                animation: true,
-                templateUrl: 'modal-warning.html',
-                controllerAs: 'ModalCtrl',
-                scope: $scope
-            });
+            apyModalProvider.warn(getWarningModalConfig([resource], okCallback));
         };
 
-        function setWarningContext(components) {
-            var count;
-            components = components || [];
-            count = components.length;
-            $scope.count = count;
-            $scope.action = "Delete";
-            $scope.message = "Would you really like to delete " + count + " listed resource";
-            if(count > 1) {
-                $scope.message += "s"
+        $scope.saveCollection = function () {
+            collection.create()
+                .filter(function(inspection) {
+                    return !inspection.isFulfilled();
+                })
+                .then(function (errors) {
+                    if(errors && errors.length) {
+                        var reasons = [];
+                        errors.forEach(function (error) {
+                            reasons.push(error.reason());
+                        });
+                        apyModalProvider.errors(reasons);
+                        return false;
+                    }
+                    return true;
+                })
+                .then(function (ok) {
+                    console.log('Returned value from piping', ok);
+                    $scope.$apply();
+                })
+                .catch(function (error) {
+                    console.log('Error', error);
+                    apyModalProvider.error(error);
+                })
+        };
+
+        function getWarningModalConfig(components, okCallback, cancelCallback) {
+            var count = components.length;
+
+            cancelCallback = cancelCallback || function () {
+
+                };
+
+            function title() {
+                var title = 'Warning - About to Delete : ' + count + ' Resource';
+                if(count > 1) {
+                    title += 's'
+                }
+                return title;
             }
-            $scope.message += " ?";
-            $scope.components = components;
+
+            function message() {
+                var message = "Would you really like to delete " + count + " listed resource";
+                if(count > 1) {
+                    message += "s";
+                }
+                message += " ?";
+                return message;
+            }
+
+            function messages() {
+                var messages = [];
+                components.forEach(function (comp) {
+                    messages.push(comp.toString());
+                });
+                return messages;
+            }
+            return {
+                title: title(),
+                message: message(),
+                messages: messages(),
+                okCallback: okCallback,
+                cancelCallback: cancelCallback
+            }
         }
     }
 
     $angular.module('apy-frontend.view', ['ngRoute'])
 
-        .controller('ApyViewCtrl', ['$rootScope', '$scope', '$log', '$routeParams', '$uibModal', 'Upload', 'apy',
-            function($rootScope, $scope, $log, $routeParams, $uibModal, Upload, apyProvider) {
-
-                function displayError(error) {
-                    var win;
-                    $scope.error = error;
-                    $scope.ok = function () {
-                        win && win.dismiss('cancel');
-                    };
-                    win = $uibModal.open({
-                        animation: true,
-                        templateUrl: 'modal-error.html',
-                        controllerAs: 'ModalCtrl',
-                        scope: $scope
-                    });
-                }
+        .controller('apyViewCtrl', ['$location', '$rootScope', '$scope', '$routeParams', 'Upload', 'apy', 'apyModal',
+            function($location, $rootScope, $scope, $routeParams, Upload, apyProvider, apyModalProvider) {
 
                 function success (response) {
                     $scope.$schemas = apyProvider.$schemasAsArray;
@@ -246,20 +203,22 @@
                     $scope.displayList = !$scope.displayLarge;
 
                     setView({
-                        $log: $log,
                         $scope: $scope,
-                        $uibModal: $uibModal,
                         apyProvider: apyProvider,
-                        $routeParams: $routeParams
+                        $routeParams: $routeParams,
+                        apyModalProvider: apyModalProvider
                     });
                 }
+
+                $scope.logout = function () {
+                    apyProvider.invalidate();
+                };
 
                 if(apyProvider.$schemasAsArray) {
                     success();
                 }
                 else {
                     apyProvider
-                        .initEndpoints(endpoint, schemaName)
                         .setDependencies({name: "Upload", value: Upload})
                         .loadSchemas(true)
                         .then(function (response) {
@@ -267,18 +226,8 @@
                             $scope.$apply();
                         })
                         .catch(function (error) {
-                            var url;
-                            try {
-                                url = error.config.url;
-                            } catch(e) {
-                                url = error;
-                            }
-                            displayError({
-                                data: {
-                                    _error: {
-                                        message: "Error " + url
-                                    }
-                                }
+                            apyModalProvider.error(error, function () {
+                                $location.path('/login');
                             });
                         });
                 }
