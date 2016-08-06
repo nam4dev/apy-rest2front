@@ -40,12 +40,27 @@
     // Registering mixin globally
     $window.ApyRequestMixin = (function () {
 
+        function $authHeaders(headers) {
+            var service = this.$service || this;
+            headers = headers || {
+                    'Content-Type': 'application/json'
+                };
+            if(service && service.$tokenInfo && service.$tokenInfo.access_token) {
+                var authToken = '';
+                var type = service.$tokenInfo.token_type;
+                authToken += (type ? type : 'Bearer') + ' ' + service.$tokenInfo.access_token;
+                headers['Authorization'] = authToken;
+            }
+            return headers;
+        }
+
         function $access(request) {
             if(!this.$request) {
                 this.$request = (this.$schema && this.$schema.$hasMedia) ?
                     this.$upload.upload : this.$http;
             }
             request = request || {};
+            request.headers = this.$authHeaders(request.headers);
             return this.$request(request);
         }
 
@@ -95,6 +110,7 @@
 
         return function () {
             this.$access = $access;
+            this.$authHeaders = $authHeaders;
             this.createRequest = createRequest;
             return this;
         }

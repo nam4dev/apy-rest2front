@@ -37,8 +37,30 @@
 /* istanbul ignore next */
 (function (angular) {'use strict';
 
-    var appTheme = 'bootstrap3';
-    angular.module('apy-frontend', [
+    var config = {
+        endpoint: 'http://localhost:8002/',
+        schemasEndpointName: 'schemas',
+        auth: {
+            grant_type: 'password',
+            endpoint: 'http://localhost:8002/oauth2/access',
+            client_id: 'LB9wIXB5as4WCL1SUXyljgkSIR6l8H1kFEAHUQTH'
+        },
+        pkName: '_id',
+        appTheme: 'bootstrap3',
+        excludedEndpointByNames: ['logs'],
+        schemas: {},
+        $auth: function () {
+            return (
+                this.auth &&
+                isObject(this.auth) &&
+                this.auth.client_id &&
+                this.auth.endpoint &&
+                this.auth.grant_type
+            )
+        }
+    };
+
+    var app = angular.module('apy-frontend', [
         'ngRoute',
         'ngAnimate',
         'ngFileUpload',
@@ -53,38 +75,97 @@
                 var $injector = angular.injector(['ng', 'ngFileUpload']),
                     $log = $injector.get('$log'),
                     $http = $injector.get('$http'),
-                    Upload = $injector.get('Upload'),
-                    config = {
-                        pkName: '_id',
-                        appTheme: appTheme,
-                        excludedEndpointByNames: ['logs'],
-                        schemas: {}
-                    };
+                    Upload = $injector.get('Upload');
                 return new ApyCompositeService($log, $http, Upload, config);
             };
         })
-        .config(['$httpProvider', '$routeProvider', function($httpProvider, $routeProvider) {
-            // Intercept Unauthorized HTTP errors
-            $httpProvider.interceptors.push(function($q) {
-                return {
-                    responseError: function(rejection) {
-                        var defer = $q.defer();
-                        if(rejection.status == 401) {
-                            defer.reject(rejection);
-                        }
-                        return defer.promise;
-                    }
-                };
-            });
-            $routeProvider
-                // setting a generic parameter 'resource'
-                .when('/:resource', {
-                    templateUrl: 'apy-frontend/integration/angular/view.html',
-                    controller: 'ApyViewCtrl'
+        .config(['$routeProvider', function($routeProvider) {
+            if(config.$auth()) {
+                // Auth route
+                $routeProvider.when('/login', {
+                    templateUrl: 'apy-frontend/integration/angular/login.html',
+                    controller: 'apyLoginCtrl'
                 })
+            }
+            // setting a generic parameter 'resource'
+            $routeProvider.when('/:resource', {
+                templateUrl: 'apy-frontend/integration/angular/view.html',
+                controller: 'apyViewCtrl'
+            })
                 // default route
                 .otherwise({redirectTo: 'index'});
         }])
-        .controller('IndexCtrl', ['$scope', function ($scope) {}]);
+        .controller('indexCtrl', ['$scope', 'apy', '$location', function ($scope, apyProvider, $location) {
+            if(config.$auth()) {
+                $scope.$watch(apyProvider.isAuthenticated, function (value, oldValue) {
+                    if (!value && oldValue) {
+                        console.log("Disconnect");
+                        $location.path('/login');
+                    }
+
+                    if (value) {
+                        console.log("Connect");
+                        $location.path('/index');
+                    }
+                }, true)
+            }
+        }]);
+
+    if(config.$auth()) {
+        app.controller('apyLoginCtrl', ['$scope', 'apy', function ($scope, apyProvider) {
+            if(!$scope.credentials ||
+                !$scope.credentials.username ||
+                !$scope.credentials.password) {
+                $scope.credentials = {
+                    username: undefined,
+                    password: undefined
+                };
+            }
+
+            $scope.help = function (event) {
+                event.preventDefault();
+                console.log({
+                    title: "Restricted Area",
+                    messages: [
+                        "This area cannot be accessed freely.",
+                        "If you need more info, please contact Administrator.",
+                        "admin.web@apy-consulting.com"
+                    ]
+                });
+            };
+
+            $scope.login = function (event) {
+                event.preventDefault();
+                var errors = [];
+                if(!$scope.credentials.username) {
+                    errors.push('No username provided');
+                }
+                if(!$scope.credentials.password) {
+                    errors.push('No password provided');
+                }
+
+                if(errors.length) {
+                    console.error(new ApyEveError(errors));
+                }
+                else {
+                    apyProvider.authenticate($scope.credentials)
+                        .then(function (response) {
+                            window.location.reload();
+                        })
+                        .catch(function (error) {
+                            console.error(error);
+                        });
+                }
+            };
+        }]);
+
+        app.run(['$rootScope', '$location', 'apy', function ($rootScope, $location, apyProvider) {
+            $rootScope.$on('$routeChangeStart', function (event) {
+                if (!apyProvider.isAuthenticated()) {
+                    $location.path('/login');
+                }
+            });
+        }]);
+    }
 
 })(window.angular);
