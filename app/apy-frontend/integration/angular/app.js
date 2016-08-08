@@ -209,6 +209,7 @@
         endpoint: 'http://localhost:8002/',
         schemasEndpointName: 'schemas',
         auth: {
+            enabled: false,
             grant_type: 'password',
             endpoint: 'http://localhost:8002/oauth2/access',
             client_id: 'LB9wIXB5as4WCL1SUXyljgkSIR6l8H1kFEAHUQTH'
@@ -221,6 +222,7 @@
             return (
                 this.auth &&
                 isObject(this.auth) &&
+                this.auth.enabled &&
                 this.auth.client_id &&
                 this.auth.endpoint &&
                 this.auth.grant_type
