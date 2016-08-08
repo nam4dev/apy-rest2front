@@ -110,8 +110,6 @@ body {
 
 select[multiple], select[size] {
     width: 100%;
-    font-size: 18pt;
-    border-radius: 10pt;
 }
 
 /* Apy Css rules */
