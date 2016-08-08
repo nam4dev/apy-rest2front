@@ -65,15 +65,6 @@
 
         /**
          *
-         * @returns {string}
-         */
-        function toString() {
-            this.loadValue();
-            return '' + this.$value;
-        }
-
-        /**
-         *
          * @returns {this}
          */
         function selfCommit() {
@@ -120,7 +111,6 @@
         }
 
         return function () {
-            this.toString        = toString;
             this.validate        = validate;
             this.setValue        = setValue;
             this._errorMsg       = _errorMsg;

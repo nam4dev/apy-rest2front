@@ -130,14 +130,11 @@
                     ng-click="resourcePicker(field)"
                     ng-model="field.$value">
                 <span ng-if="field.inCreateState() || field.inUpdateState()" >
-                    <span ng-if="!field._id && !field.$value">
+                    <span ng-if="!field.toString()">
                         Select <span class="text-capitalize"><strong>{{ field.$name }}</strong></span>
                     </span>
-                    <span ng-if="field.$value">
+                    <span>
                         <span class="text-capitalize"><strong>{{ field.toString() }}</strong></span>
-                    </span>
-                    <span ng-if="field._id && !field.$value">
-                        <span><strong>{{ field._id }}</strong></span>
                     </span>
                 </span>
             </button>
@@ -155,10 +152,10 @@
                     ng-click="expandRecursive(field)"
                     ng-model="field.$value">
                 <span ng-if="field.inCreateState() || field.inUpdateState()" >
-                    <span ng-if="!field.$value">
+                    <span ng-if="!field.toString()">
                         Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
                     </span>
-                    <span ng-if="field.$value">
+                    <span>
                         <span class="text-capitalize"><strong>{{ field.toString() }}</strong></span>
                     </span>
                 </span>

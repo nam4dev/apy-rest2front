@@ -79,9 +79,15 @@
 
         function validate() {}
 
+        function toString() {
+            this.$value.clean();
+            return this.$name + ' coordinates(' + this.$value.coordinates + ')';
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.validate = validate;
             this.setValue = setValue;
+            this.toString = toString;
             this.cloneValue = cloneValue;
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;

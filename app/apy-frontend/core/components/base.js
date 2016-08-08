@@ -51,31 +51,7 @@
          * @returns {string}
          */
         function toString() {
-            var self = this;
-            var values = [];
-            var excludedTypes = [
-                $TYPES.BOOLEAN,
-                $TYPES.DATETIME
-            ];
-
-            var filtered = this.$components.filter(function (c) {
-                return c.$required && excludedTypes.indexOf(c.$type) === -1;
-            });
-
-            if(!filtered.length) {
-                filtered = this.$components.filter(function (c) {
-                    return excludedTypes.indexOf(c.$type) === -1;
-                });
-            }
-            filtered.forEach(function (c) {
-                if(c.$value) {
-                    var toString = c.toString() || c.$value.toString();
-                    if(toString) {
-                        values.push(toString);
-                    }
-                }
-            });
-            return '[' + values.join(', ') + ']';
+            return '' + this.$value;
         }
 
         /**
@@ -168,6 +144,7 @@
          * @returns {Object}
          */
         function createTypesFactory() {
+            var self = this;
             var $TYPES = $window.$TYPES;
             var $typesFactory = {};
             $typesFactory[$TYPES.LIST] = function () {
@@ -255,6 +232,7 @@
         }
 
         function setValue(value) {
+            this.$value = value;
             return this;
         }
 
@@ -291,38 +269,6 @@
         /* istanbul ignore next */
         function load (args) {
             return this;
-        }
-
-        /**
-         *
-         */
-        function loadValue () {
-            var all = [];
-            var required = [];
-            if(this.$value !== '') {
-                this.$value = '';
-            }
-            this.$components.forEach(function (component) {
-                var v = component.$value;
-                if(v && !isDate(v) && !isBoolean(v)) {
-                    if(v instanceof ApyPoint) {
-                        v.clean();
-                        v = component.$name + ' coordinates(' + v.coordinates + ')';
-                    }
-                    if(v) {
-                        all.push(v);
-                        if(component.$required) {
-                            required.push(v);
-                        }
-                    }
-                }
-            });
-            if(required.length) {
-                this.$value = required.join(', ');
-            }
-            else if(!required.length && all.length) {
-                this.$value = all.join(', ');
-            }
         }
 
         function clone(parent, value) {
@@ -563,7 +509,6 @@
             this.setValue = setValue;
             this.setState = setState;
             this.validate = validate;
-            this.loadValue = loadValue;
             this.setParent = setParent;
             this.isReadOnly = isReadOnly;
             this.hasUpdated = hasUpdated;

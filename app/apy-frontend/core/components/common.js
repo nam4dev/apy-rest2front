@@ -210,7 +210,6 @@
                 var value = resource[field] || this.$service.$instance.schema2data(schema, field);
                 this.$$createField(type, field, schema, value, endpoint, true);
             }
-            this.loadValue();
             return this;
         }
 
@@ -261,7 +260,6 @@
             if(this.$selfUpdated) {
                 this.$selfUpdated = false;
             }
-            this.loadValue();
             return this;
         }
 
@@ -374,7 +372,38 @@
             return this;
         }
 
+        function toString() {
+            var values = [];
+            var excludedTypes = [
+                $TYPES.BOOLEAN,
+                $TYPES.DATETIME
+            ];
+
+            var filtered = this.$components.filter(function (c) {
+                return c.$required && excludedTypes.indexOf(c.$type) === -1;
+            });
+
+            if(!filtered.length) {
+                filtered = this.$components.filter(function (c) {
+                    return excludedTypes.indexOf(c.$type) === -1;
+                });
+            }
+            filtered.forEach(function (c) {
+                if(c.$value) {
+                    var toString = c.toString() || c.$value.toString();
+                    if(toString) {
+                        values.push(toString);
+                    }
+                }
+            });
+            if(values.length) {
+                return values.join(', ');
+            }
+            return "";
+        }
+
         return function () {
+            this.toString = toString;
             this.load = load;
             this._load = _load;
             this.reset = reset;

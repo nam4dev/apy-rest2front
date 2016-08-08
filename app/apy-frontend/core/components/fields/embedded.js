@@ -59,7 +59,6 @@
             this._created = update._created;
             this._updated = update._updated;
             this.$components = update.$components || [];
-            this.loadValue();
             return this;
         }
 
@@ -105,8 +104,18 @@
             return this;
         }
 
+        function toString() {
+            var str = this.parentToString();
+            if(!str && this._id) {
+                str = this._id;
+            }
+            return str;
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.reset = reset;
+            this.parentToString = this.toString;
+            this.toString = toString;
             this.validate = validate;
             this.setValue = setValue;
             this.cloneValue = cloneValue;
