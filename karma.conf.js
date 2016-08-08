@@ -72,10 +72,10 @@ module.exports = function(config){
         // Coverage minimal thresholds
         // FIXME: raise up to 90%
         thresholdReporter: {
-            statements: 82.5,
-            branches: 69.5,
+            statements: 82,
+            branches: 69,
             functions: 77.5,
-            lines: 82.5
+            lines: 82.25
         },
         // Configure the reporter
         coverageReporter: {

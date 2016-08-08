@@ -198,19 +198,32 @@ describe("Component.Collection unit tests", function() {
 
     it("[create] Create method of all inner components shall be called", function() {
         var callCount = 0;
+        var hcCallCount = 0;
         var col = _createCollection(undefined, 'tests');
         var children = [
             {
+                hasCreated: function () {
+                    hcCallCount++;
+                    return true;
+                },
                 create: function () {
                     callCount++;
                 }
             },
             {
+                hasCreated: function () {
+                    hcCallCount++;
+                    return true;
+                },
                 create: function () {
                     callCount++;
                 }
             },
             {
+                hasCreated: function () {
+                    hcCallCount++;
+                    return true;
+                },
                 create: function () {
                     callCount++;
                 }
@@ -222,23 +235,37 @@ describe("Component.Collection unit tests", function() {
         expect(col.count()).toEqual(children.length);
         col.create();
         expect(callCount).toEqual(children.length);
+        expect(hcCallCount).toEqual(children.length);
     });
 
     it("[update] Update method of all inner components shall be called", function() {
         var callCount = 0;
+        var hcCallCount = 0;
         var col = _createCollection(undefined, 'tests');
         var children = [
             {
+                 hasCreated: function () {
+                    hcCallCount++;
+                    return false;
+                },
                 update: function () {
                     callCount++;
                 }
             },
             {
+                 hasCreated: function () {
+                    hcCallCount++;
+                    return false;
+                },
                 update: function () {
                     callCount++;
                 }
             },
             {
+                 hasCreated: function () {
+                    hcCallCount++;
+                    return false;
+                },
                 update: function () {
                     callCount++;
                 }
@@ -250,23 +277,37 @@ describe("Component.Collection unit tests", function() {
         expect(col.count()).toEqual(children.length);
         col.update();
         expect(callCount).toEqual(children.length);
+        expect(hcCallCount).toEqual(children.length);
     });
 
     it("[delete] Delete method of all inner components shall be called", function() {
         var callCount = 0;
+        var hcCallCount = 0;
         var col = _createCollection(undefined, 'tests');
         var children = [
             {
+                hasCreated: function () {
+                    hcCallCount++;
+                    return false;
+                },
                 delete: function () {
                     callCount++;
                 }
             },
             {
+                hasCreated: function () {
+                    hcCallCount++;
+                    return false;
+                },
                 delete: function () {
                     callCount++;
                 }
             },
             {
+                hasCreated: function () {
+                    hcCallCount++;
+                    return false;
+                },
                 delete: function () {
                     callCount++;
                 }
@@ -279,6 +320,7 @@ describe("Component.Collection unit tests", function() {
         col.delete();
         expect(callCount).toEqual(children.length);
         expect(col.count()).toEqual(0);
+        expect(hcCallCount).toEqual(children.length);
     });
 
     it("[hasCreated] Shall return true (some components are true)", function() {
@@ -384,12 +426,21 @@ describe("Component.Collection unit tests", function() {
     it("[savedCount] Shall return the amount of Saved resource (_id != empty)", function() {
         var col = _createCollection(undefined, 'tests');
         col.add({
+            hasCreated: function () {
+                return !this._id;
+            },
             _id: "0123456789"
         });
         col.add({
+            hasCreated: function () {
+                return !this._id;
+            },
             _id: undefined
         });
         col.add({
+            hasCreated: function () {
+                return !this._id;
+            },
             _id: undefined
         });
         expect(col.savedCount()).toEqual(1);
