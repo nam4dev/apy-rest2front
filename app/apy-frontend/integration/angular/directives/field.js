@@ -90,7 +90,6 @@
 
             $scope.expandRecursive = function (field) {
                 $scope.ok = function () {
-                    field.loadValue();
                     win && win.dismiss('cancel');
                 };
 
