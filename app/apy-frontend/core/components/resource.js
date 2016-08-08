@@ -106,7 +106,7 @@
             if(this.hasCreated() && this.hasUpdated()) {
                 return this.createResourceRequest();
             }
-            return undefined;
+            return null;
         }
 
         /**
@@ -119,7 +119,7 @@
             if(this.hasUpdated() && !this.hasCreated()) {
                 return this.createResourceRequest('PATCH');
             }
-            return undefined;
+            return null;
         }
 
         /**
