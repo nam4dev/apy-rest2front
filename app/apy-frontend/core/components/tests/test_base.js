@@ -175,47 +175,22 @@ describe("Component.Base unit tests", function() {
         expect(component.$contentUrl).toEqual('field-' + type + '.html');
     });
 
-    it("[loadValue] '$value' property shall not be set", function () {
-        var component = _createBaseComponent();
-        component.loadValue();
-        expect(component.$value).toEqual('');
-    });
-
-    it("[loadValue] '$value' property shall be set with only 'required' inner component(s)", function () {
+    it("[toString] '$value' property shall be set with only 'required' inner component(s)", function () {
         var components = [];
         var expectedValue = '1: A child, 2: A child';
-        for (var i=0; i<5; i++) {
-            var child = new Child(i);
-            components.push(child);
-            if(2 % i === 0) {
-                child.$required = true;
-            }
-        }
-        var component = _createBaseComponent('base', null, components);
-        component.loadValue();
-        expect(component.$value).toEqual(expectedValue);
+        expect(_createBaseComponent('base', expectedValue, components) + '').toEqual(expectedValue);
     });
 
-    it("[loadValue] '$value' property shall be set with only all inner components as none are required", function () {
+    it("[toString] '$value' property shall be set with only all inner components as none are required", function () {
         var components = [];
         var expectedValue = '0: A child, 1: A child, 2: A child, 3: A child, 4: A child';
-        for (var i=0; i<5; i++) {
-            var child = new Child(i);
-            components.push(child);
-        }
-        var component = _createBaseComponent('base', null, components);
-        component.loadValue();
-        expect(component.$value).toEqual(expectedValue);
+        expect(_createBaseComponent('base', expectedValue, components) + '').toEqual(expectedValue);
     });
 
     it("[toString] '$value' property shall be set with only all inner components as none are required", function () {
         var components = [];
         var expectedValue = '[0: A child, 1: A child, 2: A child, 3: A child, 4: A child]';
-        for (var i=0; i<5; i++) {
-            var child = new Child(i);
-            components.push(child);
-        }
-        var component = _createBaseComponent('base', null, components);
+        var component = _createBaseComponent('base', expectedValue, components);
         expect(component.toString()).toEqual(expectedValue);
         expect(component + '').toEqual(expectedValue);
     });

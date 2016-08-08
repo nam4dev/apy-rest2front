@@ -97,6 +97,7 @@ describe("ApyFieldCtrl", function() {
         $context.$modalContext = {};
         $context.$modalCalled = false;
         $context.$modalDismissCalled = false;
+        $context.$modal = new apyModal($context);
         $context.$controller = $controller(controllerName, {
             $scope: $context.$scope,
             $log: $log,
@@ -111,7 +112,8 @@ describe("ApyFieldCtrl", function() {
                     }
                 }
             },
-            apy: provider
+            apy: provider,
+            apyModal: $context.$modal
         });
 
         return $context;
@@ -176,20 +178,15 @@ describe("ApyFieldCtrl", function() {
             expect(context.$scope).toBeDefined();
             // Mocking Field instance
             var resetCalled = false;
-            var loadValueCalled = false;
             var field = {
                 reset: function () {
                     resetCalled = true;
-                },
-                loadValue: function () {
-                    loadValueCalled = true;
                 }
             };
             context.$scope.expandRecursive(field);
 
             expect(context.$modalCalled).toBe(true);
             context.$scope.ok();
-            expect(loadValueCalled).toBe(true);
             expect(context.$modalDismissCalled).toBe(true);
 
             context.$modalDismissCalled = false;

@@ -81,35 +81,14 @@ describe("ApyViewCtrl", function() {
         provider.initEndpoints(endpoint, schemaName)
             .loadSchemas(false);
 
-        var apyModal = function() {
-            return {
-                ok: function () {
-                    var cb = $context.$modalContext.okCallback;
-                    if(isFunction(cb)) cb();
-                },
-                cancel: function () {
-                    var cb = $context.$modalContext.cancelCallback;
-                    if(isFunction(cb)) cb();
-                },
-                warn: function (context) {
-                    $context.$modalContext = context;
-                    $context.$modalCalled = true;
-                    return {
-                        dismiss: function () {
-                        }
-                    }
-                }
-            }
-        };
-
         var $context = {};
         $context.$scope = {
             $apply: function () {}
         };
-        $context.$modal = new apyModal();
         $context.$rootScope = {};
         $context.$modalContext = {};
         $context.$modalCalled = false;
+        $context.$modal = new apyModal($context);
         $context.$controller = $controller(controllerName, {
             $rootScope: $context.$rootScope,
             $scope: $context.$scope,
