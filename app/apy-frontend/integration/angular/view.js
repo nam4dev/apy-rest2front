@@ -44,7 +44,9 @@
         var $routeParams = $context.$routeParams;
         var apyModalProvider = $context.apyModalProvider;
 
-        var collection = apyProvider.createCollection($routeParams.resource);
+        var $currentResource = $routeParams.resource;
+
+        var collection = apyProvider.createCollection($currentResource);
 
         $scope.$collection = collection;
         $scope.$schemas = apyProvider.$schemasAsArray;
@@ -157,7 +159,7 @@
                 };
 
             function title() {
-                var title = 'Warning - About to Delete : ' + count + ' Resource';
+                var title = 'Warning - About to Delete : ' + count + ' `' + $currentResource + '` resource';
                 if(count > 1) {
                     title += 's'
                 }
@@ -165,7 +167,7 @@
             }
 
             function message() {
-                var message = "Would you really like to delete " + count + " listed resource";
+                var message = "Would you really like to delete " + count + " listed `" + $currentResource + '` resource';
                 if(count > 1) {
                     message += "s";
                 }
