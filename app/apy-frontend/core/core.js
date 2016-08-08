@@ -189,7 +189,7 @@
          *
          * @param name
          * @param components
-         * @returns {this}
+         * @returns {ApyCollectionComponent}
          */
         function createCollection(name, components) {
             return new ApyCollectionComponent(this, name, this.$endpoint, components);
@@ -200,10 +200,12 @@
             this.$tokenInfo = undefined;
             this.$http = $http || function () {
                     logMissingProvider('$http');
+                    return Promise.resolve(arguments)
                 };
             this.$config = config || {};
             this.$upload = $upload || {upload: function () {
                     logMissingProvider('Upload');
+                    return Promise.resolve(arguments)
                 }};
             this.$auth = config.auth || {};
             this.$theme = config.appTheme;
