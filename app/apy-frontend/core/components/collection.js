@@ -83,13 +83,7 @@
          * @returns {boolean}
          */
         function hasCreated () {
-            var created = false;
-            this.$components.forEach(function (comp) {
-                if(comp.hasCreated()) {
-                    created = true;
-                }
-            });
-            return created;
+            return this.unsavedComponents().length > 0;
         }
 
         /**
@@ -112,7 +106,7 @@
          * @returns {this}
          */
         function setState (state) {
-            this.$components.forEach(function (comp) {
+            this.savedComponents().forEach(function (comp) {
                 comp.setState(state);
             });
             return this;
@@ -193,7 +187,7 @@
         function create () {
             // FIXME: Shall be optimized if `bulk_enabled` is true, making a single request to backend
             var promises = [];
-            this.$components.forEach(function (comp) {
+            this.unsavedComponents().forEach(function (comp) {
                 var defer = comp.create();
                 if(defer) {
                     promises.push(defer);
@@ -209,7 +203,7 @@
         function update () {
             // FIXME: Shall be optimized if `bulk_enabled` is true, making a single request to backend
             var promises = [];
-            this.$components.forEach(function (comp) {
+            this.savedComponents().forEach(function (comp) {
                 var defer = comp.update();
                 if(defer) {
                     promises.push(defer);
@@ -225,7 +219,7 @@
         function del () {
             // FIXME: Shall be optimized using DELETE on root (/) endpoint without ID
             var promises = [];
-            this.$components.forEach(function (comp) {
+            this.savedComponents().forEach(function (comp) {
                 var defer = comp.delete();
                 if(defer) {
                     promises.push(defer);
@@ -250,13 +244,29 @@
          * *
          */
         function savedCount () {
-            var savedCount = 0;
-            this.$components.forEach(function (comp) {
-                if(comp._id) {
-                    savedCount++;
-                }
+            return this.savedComponents().length;
+        }
+
+        /**
+         *
+         * @returns {Array}
+         * *
+         */
+        function savedComponents () {
+            return this.$components.filter(function(comp) {
+                return !comp.hasCreated();
             });
-            return savedCount;
+        }
+
+        /**
+         *
+         * @returns {Array}
+         * *
+         */
+        function unsavedComponents () {
+            return this.$components.filter(function(comp) {
+                return comp.hasCreated();
+            });
         }
 
         /**
@@ -291,6 +301,8 @@
             this.hasCreated = hasCreated;
             this.hasUpdated = hasUpdated;
             this.createResource = createResource;
+            this.savedComponents = savedComponents;
+            this.unsavedComponents = unsavedComponents;
 
             return this;
         }

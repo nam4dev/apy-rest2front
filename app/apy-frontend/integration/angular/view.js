@@ -65,7 +65,7 @@
                 collection.delete();
                 $scope.$apply();
             };
-            apyModalProvider.warn(getWarningModalConfig(collection.$components, okCallback));
+            apyModalProvider.warn(getWarningModalConfig(collection.savedComponents(), okCallback));
         };
 
         /* istanbul ignore next */
@@ -121,29 +121,32 @@
         };
 
         $scope.saveCollection = function () {
-            collection.create()
-                .filter(function(inspection) {
-                    return !inspection.isFulfilled();
-                })
-                .then(function (errors) {
+            collection.save()
+                .then(function(inspections) {
+                    var create;
+                    var update;
+                    var errors;
+                    try { create = inspections[0]._settledValueField; }
+                    catch (e) { create = [] }
+                    try { update = inspections[1]._settledValueField; }
+                    catch (e) { update = [] }
+                    errors = create.concat(update).filter(function(inspection) {
+                        return !inspection.isFulfilled();
+                    });
                     if(errors && errors.length) {
                         var reasons = [];
                         errors.forEach(function (error) {
                             reasons.push(error.reason());
                         });
                         apyModalProvider.errors(reasons);
-                        return false;
                     }
-                    return true;
                 })
-                .then(function (ok) {
-                    console.log('Returned value from piping', ok);
+                .then(function () {
                     $scope.$apply();
                 })
                 .catch(function (error) {
-                    console.log('Error', error);
                     apyModalProvider.error(error);
-                })
+                });
         };
 
         function getWarningModalConfig(components, okCallback, cancelCallback) {
