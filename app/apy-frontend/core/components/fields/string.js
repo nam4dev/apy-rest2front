@@ -46,11 +46,22 @@
             return this.$value ? this.$value.length : 0;
         }
 
+        /**
+         *
+         * @returns {Boolean}
+         */
+        function hasUpdated() {
+            this.$value = this.$value || "";
+            return this.parentHasUpdated();
+        }
+
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'string';
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.STRING, null);
+            this.parentHasUpdated = this.hasUpdated;
             this.toString = toString;
             this.wordCount = wordCount;
+            this.hasUpdated = hasUpdated;
+            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.STRING, null);
             this.$Class = $window.ApyStringField;
             return this;
         }
