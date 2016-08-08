@@ -276,7 +276,6 @@ toString()
 validate()
 load(args)
 add(child)
-loadValue()
 getChild(i)
 cloneChild()
 hasUpdated()
@@ -405,14 +404,14 @@ createField(type, name, schema, value, endpoint, append)</y:MethodLabel>
                     <y:ProxyAutoBoundsNode>
                       <y:Realizers active="0">
                         <y:GroupNode>
-                          <y:Geometry height="475.04091634859645" width="583.3749999999998" x="1806.1448756760803" y="-193.23042582417577"/>
+                          <y:Geometry height="440.480476788157" width="583.3749999999998" x="1806.1448756760803" y="-193.23042582417577"/>
                           <y:Fill color="#99CCFF" transparent="false"/>
                           <y:BorderStyle color="#000000" type="dashed" width="1.0"/>
                           <y:NodeLabel alignment="right" autoSizePolicy="node_width" backgroundColor="#EBEBEB" borderDistance="0.0" fontFamily="Dialog" fontSize="15" fontStyle="bold" hasLineColor="false" height="21.4609375" modelName="internal" modelPosition="t" textColor="#000000" visible="true" width="583.3749999999998" x="0.0" y="0.0">Fields Module</y:NodeLabel>
                           <y:Shape type="rectangle"/>
                           <y:State closed="false" closedHeight="50.0" closedWidth="50.0" innerGraphDisplayEnabled="false"/>
                           <y:Insets bottom="15" bottomF="15.0" left="15" leftF="15.0" right="15" rightF="15.0" top="15" topF="15.0"/>
-                          <y:BorderInsets bottom="7" bottomF="7.4609375" left="30" leftF="29.58445054944991" right="0" rightF="0.0" top="15" topF="15.394658310439524"/>
+                          <y:BorderInsets bottom="9" bottomF="9.361435439560523" left="30" leftF="29.58445054944991" right="0" rightF="0.0" top="15" topF="15.394658310439524"/>
                         </y:GroupNode>
                         <y:GroupNode>
                           <y:Geometry height="82.0" width="365.46497252747236" x="1806.1448756760803" y="-193.23042582417577"/>
@@ -621,7 +620,7 @@ createField(type, name, schema, value, endpoint, append)</y:MethodLabel>
                       <data key="d4"/>
                       <data key="d6">
                         <y:UMLClassNode>
-                          <y:Geometry height="235.0" width="299.0" x="2075.51987567608" y="24.349553024420686"/>
+                          <y:Geometry height="148.6923720810439" width="299.0" x="2075.51987567608" y="74.19624344337677"/>
                           <y:Fill color="#FFFFFF" transparent="false"/>
                           <y:BorderStyle color="#000000" type="line" width="1.0"/>
                           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="13" fontStyle="bold" hasBackgroundColor="false" hasLineColor="false" height="19.1328125" modelName="custom" textColor="#000000" underlinedText="true" visible="true" width="107.24462890625" x="95.877685546875" y="3.0">ApyFieldMixin<y:LabelModel>
@@ -632,19 +631,14 @@ createField(type, name, schema, value, endpoint, append)</y:MethodLabel>
                             </y:ModelParameter>
                           </y:NodeLabel>
                           <y:UML clipContent="true" constraint="" omitDetails="false" stereotype="" use3DEffect="true">
-                            <y:AttributeLabel>shortValue
-embeddedSchema
-embeddedResource
-name
-value
-validator
-type</y:AttributeLabel>
-                            <y:MethodLabel>constructor(name, value, validator, schemas)
-load()
-validate()
-isValid()
-isHidden()
-valueFromType(value)</y:MethodLabel>
+                            <y:AttributeLabel/>
+                            <y:MethodLabel>validate()  
+_errorMsg()
+selfCommit()
+cleanedData()
+setValue(value) 
+selfUpdate(update)
+setOptions(schema)</y:MethodLabel>
                           </y:UML>
                         </y:UMLClassNode>
                       </data>
@@ -953,7 +947,7 @@ valueFromType(value)</y:MethodLabel>
       <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="291.7146028795903" sy="258.7937586832703" tx="-4.547473508864641E-13" ty="-19.93263109670886">
+          <y:Path sx="291.7146028795903" sy="258.7937586832703" tx="-4.547473508864641E-13" ty="-12.612043402493697">
             <y:Point x="1911.914399750808" y="370.4383328590945"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
@@ -1021,10 +1015,7 @@ valueFromType(value)</y:MethodLabel>
       <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
-          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
-            <y:Point x="2090.374600950805" y="141.8495530244207"/>
-            <y:Point x="2090.374600950805" y="141.8495530244207"/>
-          </y:Path>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="white_delta" target="none"/>
           <y:BendStyle smoothed="false"/>
