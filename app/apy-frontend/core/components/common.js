@@ -390,7 +390,7 @@
             }
             filtered.forEach(function (c) {
                 if(c.$value) {
-                    var toString = c.toString() || c.$value.toString();
+                    var toString = c.toString();
                     if(toString) {
                         values.push(toString);
                     }
