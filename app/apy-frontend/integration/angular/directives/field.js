@@ -39,7 +39,7 @@
 
     $angular.module('apy-frontend.view')
 
-        .controller('ApyFieldCtrl', ['$scope', '$log', '$uibModal', 'apy', function ($scope, $log, $uibModal, apyProvider) {
+        .controller('ApyFieldCtrl', ['$scope', '$log', '$uibModal', 'apy', 'apyModal', function ($scope, $log, $uibModal, apyProvider, apyModalProvider) {
             var win;
             $scope.opened = false;
             $scope.displaySchemaNames = false;
@@ -48,20 +48,6 @@
             $scope.altInputFormats = ['M!/d!/yyyy'];
             $scope.formats = ['yyyy-MMM-dd HH:mm:ss', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
             $scope.format = $scope.formats[0];
-
-            $scope.displayError = function (error) {
-                var win;
-                $scope.error = error;
-                $scope.ok = function () {
-                    win && win.dismiss('cancel');
-                };
-                win = $uibModal.open({
-                    animation: true,
-                    templateUrl: 'modal-error.html',
-                    controllerAs: 'ModalCtrl',
-                    scope: $scope
-                });
-            };
 
             $scope.displayChoices = function () {
                 $scope.displaySchemaNames = true;
@@ -79,6 +65,7 @@
                     })
                     .catch(function (error) {
                         $log.error(error);
+                        apyModalProvider.error(new ApyError(error));
                     })
             };
 
@@ -138,20 +125,17 @@
                         });
                     });
                 } catch(error) {
-                    $scope.displayError({
+                    apyModalProvider.error(new ApyEveHTTPError({
                         data: {
                             _error: {
                                 code: "UNEXPECTED",
                                 message: '' + error
                             }
                         }
-                    });
+                    }));
                 }
             };
-        }
-
-        ])
-
+        }])
         .directive('apyField', /* istanbul ignore next */ function() {
             return {
                 restrict: 'E',
