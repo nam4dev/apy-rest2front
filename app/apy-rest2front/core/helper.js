@@ -460,11 +460,9 @@
         if($endpoint && $endpoint.endsWith && $endpoint.endsWith('/')) {
             $endpoint = $endpoint.slice(0, -1);
         }
-
         this.$uri = null;
         this.$endpoint = $endpoint;
-
-        this.load(value);
+        this.setFile(value);
     };
 
     /**
@@ -481,6 +479,7 @@
     ApyMediaFile.prototype.setFile = function ($file) {
         if(isFile($file) || isObject($file)) {
             this.$file = $file.file || $file;
+            this.$uri = this.$endpoint + this.$file;
             this.$name = $file.name || this.$name;
             this.$type = $file.type || $file.content_type || this.$type;
             this.$isImage = this.$type ? this.$type.indexOf('image') !== -1 : false;
@@ -489,16 +488,10 @@
             this.$lastModified = $file.lastModified || this.$lastModified;
             this.$lastModifiedDate = $file.lastModifiedDate || this.$lastModifiedDate;
         }
-        var self = this;
-
-        return new Promise(function (resolve, reject) {
-            self.loadURI().then(function (uri) {
-                if(uri) self.$uri = uri;
-                return resolve(uri);
-            }).catch(function (e) {
-                return reject(e);
-            });
-        });
+        else if(isString($file)) {
+            this.$file = $file;
+        }
+        return this;
     };
 
     /**
@@ -519,16 +512,10 @@
      *
      *
      * @param value
-     * @returns {ApyMediaFile}
+     * @returns {Promise}
      */
     ApyMediaFile.prototype.load = function load (value) {
-        if(isString(value)) {
-            this.$file = value;
-        }
-        else {
-            this.setFile(value);
-        }
-        return this;
+        return this.setFile(value).loadURI();
     };
 
     /**
@@ -562,11 +549,13 @@
             if(self.$isImage && isBlob(self.$file) || isFile(self.$file)) {
                 $reader.onload = function (evt) {
                     self.$file.isLoaded = true;
-                    self.$file.$result = evt.target.result;
+                    self.$uri = self.$file.$result = evt.target.result;
                     return resolve(evt.target.result);
                 };
 
-                if(self.$file.isLoaded) return resolve(self.$file.$result);
+                if(self.$file.isLoaded) {
+                    return resolve(self.$file.$result);
+                }
 
                 try {
                     $reader.readAsDataURL(self.$file);

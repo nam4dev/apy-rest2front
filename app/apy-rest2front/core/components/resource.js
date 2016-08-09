@@ -106,7 +106,7 @@
             if(this.hasCreated() && this.hasUpdated()) {
                 return this.createResourceRequest();
             }
-            return null;
+            return Promise.resolve(null);
         }
 
         /**
@@ -119,7 +119,7 @@
             if(this.hasUpdated() && !this.hasCreated()) {
                 return this.createResourceRequest('PATCH');
             }
-            return null;
+            return Promise.resolve(null);
         }
 
         /**
@@ -132,6 +132,7 @@
             if(!this.hasCreated()) {
                 return this.setDeleteState().createResourceRequest('DELETE');
             }
+            return Promise.resolve(null);
         }
 
         /**

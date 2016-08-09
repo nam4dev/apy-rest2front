@@ -157,7 +157,7 @@
                 return undefined;
             };
             $typesFactory[$TYPES.MEDIA] = function () {
-                return new ApyMediaFile(self.$endpoint, {});
+                return new ApyMediaFile(self.$endpoint);
             };
             $typesFactory[$TYPES.FLOAT] = function () {
                 return 0.0;

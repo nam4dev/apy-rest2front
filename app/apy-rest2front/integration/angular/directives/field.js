@@ -59,7 +59,7 @@
 
             /* istanbul ignore next */
             $scope.setFile = function (field, file) {
-                field.$value.setFile(file)
+                field.$value.load(file)
                     .then(function (_) {
                         $scope.$apply();
                     })
