@@ -1,0 +1,148 @@
+<!--
+*  MIT License
+*
+*  This project is a small automated frontend application based on a REST API schema.
+*  It tries to implement a generic data binding upon a REST API system.
+*  For now, python-eve REST API framework has been integrated to Apy REST2Front.
+*  For UI components (data representation & bindings), AngularJs is used.
+*  Anyhow, the framework is intended to be plugged to any UI or Backend framework...
+*
+*  Copyright (C) 2016 Namgyal Brisson
+*
+*  Permission is hereby granted, free of charge, to any person obtaining a copy
+*  of this software and associated documentation files (the "Software"), to deal
+*  in the Software without restriction, including without limitation the rights
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*  copies of the Software, and to permit persons to whom the Software is
+*  furnished to do so, subject to the following conditions:
+
+*  The above copyright notice and this permission notice shall be included in all
+*  copies or substantial portions of the Software.
+
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*  SOFTWARE.
+*
+*  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
+-->
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html lang="en" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html lang="en" class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html lang="en" class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
+<head>
+
+    <title>Apy REST2Front - AngularJS</title>
+
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1"/>
+
+    <link rel="stylesheet" href="components/html5-boilerplate/dist/css/normalize.css">
+    <link rel="stylesheet" href="components/html5-boilerplate/dist/css/main.css">
+
+    <link rel="stylesheet" href="components/bootstrap/dist/fonts/glyphicons-halflings-regular.svg">
+    <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="components/angular-backtop/dist/angular-backtop.css">
+    <link rel="shortcut icon" href="apy-rest2front/integration/common/favicon.ico" />
+    <!--[if IE 9]>
+    <style>
+        /* rules for IE9 only */
+        .responsive {
+            overflow: hidden;
+        }
+        .responsive td:nth-child(odd), .responsive td:nth-child(even) {
+            float: left;
+            width: 100%;
+        }
+    </style>
+    <![endif]-->
+
+    <link rel="stylesheet" href="apy-rest2front/integration/common/css/core.css">
+    <link rel="stylesheet" href="apy-rest2front/integration/common/css/responsive.css">
+    <link rel="stylesheet" href="apy-rest2front/integration/angular/login.css">
+
+    <script src="components/babel-polyfill/browser-polyfill.js"></script>
+    <script src="components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
+    <script src="components/bluebird/js/browser/bluebird.min.js"></script>
+    <script src="components/angular/angular.min.js"></script>
+</head>
+<body>
+<div ng-app="apy-rest2front" ng-controller="indexCtrl">
+    <div class="container">
+        <!--[if lt IE 7]>
+        <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+        <div ng-view></div>
+        <footer>
+            <div class="center-block apy-version">
+                <p>Apy REST2Front, v<span apy-version></span></p>
+            </div>
+            <!-- JS scripts -->
+            <script src="components/angular-animate/angular-animate.min.js"></script>
+            <script src="components/angular-route/angular-route.min.js"></script>
+            <script src="components/angular-elastic/elastic.js"></script>
+            <script src="components/jquery/dist/jquery.min.js"></script>
+            <script src="components/bootstrap/dist/js/bootstrap.min.js"></script>
+            <script src="components/angular-bootstrap/ui-bootstrap.min.js"></script>
+            <script src="components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
+            <script src="components/angular-backtop/dist/angular-backtop.min.js"></script>
+
+            <!-- shim is needed to support non-HTML5 FormData browsers (IE8-9)-->
+            <script>
+                //optional need to be loaded before angular-file-upload-shim(.min).js
+                FileAPI = {
+                    //only one of jsPath or jsUrl.
+                    jsPath: 'components/ng-file-upload/FileAPI.min.js',
+//                    jsUrl: 'yourcdn.com/js/FileAPI.min.js',
+                    //only one of staticPath or flashUrl.
+                    staticPath: 'components/ng-file-upload//FileAPI.flash.swf'
+//                    flashUrl: 'yourcdn.com/js/FileAPI.flash.swf'
+                    //forceLoad: true, html5: false //to debug flash in HTML5 browsers
+                    //noContentTimeout: 10000 (see #528)
+                }
+            </script>
+            <script src="components/ng-file-upload/ng-file-upload-shim.min.js"></script>
+            <script src="components/ng-file-upload/ng-file-upload.min.js"></script>
+
+
+            <!-- Apy REST2Front imports -->
+            <script src="apy-rest2front/core/errors.js"></script>
+            <script src="apy-rest2front/core/helper.js"></script>
+            <script src="apy-rest2front/core/components/base.js"></script>
+            <script src="apy-rest2front/core/components/common.js"></script>
+            <script src="apy-rest2front/core/components/fields/field.js"></script>
+            <script src="apy-rest2front/core/components/fields/media.js"></script>
+            <script src="apy-rest2front/core/components/fields/number.js"></script>
+            <script src="apy-rest2front/core/components/fields/string.js"></script>
+            <script src="apy-rest2front/core/components/fields/boolean.js"></script>
+            <script src="apy-rest2front/core/components/fields/datetime.js"></script>
+            <script src="apy-rest2front/core/components/fields/list.js"></script>
+            <script src="apy-rest2front/core/components/fields/geo/point.js"></script>
+            <script src="apy-rest2front/core/components/fields/embedded.js"></script>
+            <script src="apy-rest2front/core/components/fields/nested.js"></script>
+            <script src="apy-rest2front/core/components/fields/poly.js"></script>
+            <script src="apy-rest2front/core/components/resource.js"></script>
+            <script src="apy-rest2front/core/components/collection.js"></script>
+            <!-- Core definitions -->
+            <script src="apy-rest2front/core/schemas.js"></script>
+            <script src="apy-rest2front/core/core.js"></script>
+            <!-- UI integration (AngularJs) !IMPORTANT! Keep import order -->
+            <script src="apy-rest2front/integration/angular/view.js"></script>
+            <script src="apy-rest2front/integration/angular/directives/field.js"></script>
+            <script src="apy-rest2front/integration/angular/directives/version/version.js"></script>
+            <script src="apy-rest2front/integration/angular/directives/version/version-directive.js"></script>
+            <script src="apy-rest2front/integration/angular/directives/version/interpolate-filter.js"></script>
+            <script src="apy-rest2front/integration/angular/services.js"></script>
+            <script src="apy-rest2front/integration/angular/app.js"></script>
+        </footer>
+    </div>
+</div>
+</body>
+</html>

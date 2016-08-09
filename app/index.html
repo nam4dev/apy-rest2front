@@ -36,7 +36,7 @@
 <!--[if gt IE 8]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
 <head>
 
-    <title>Apy REST2Front - Angular</title>
+    <title>Apy REST2Front - AngularJS</title>
 
     <meta charset="utf-8">
     <meta name="description" content="">
@@ -44,13 +44,7 @@
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1"/>
 
-    <link rel="stylesheet" href="components/html5-boilerplate/dist/css/normalize.css">
-    <link rel="stylesheet" href="components/html5-boilerplate/dist/css/main.css">
-
-    <link rel="stylesheet" href="components/bootstrap/dist/fonts/glyphicons-halflings-regular.svg">
-    <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css">
-    <link rel="stylesheet" href="components/angular-backtop/dist/angular-backtop.css">
-    <link rel="shortcut icon" href="apy-rest2front/integration/common/favicon.ico" />
+    <link rel="shortcut icon" href="favicon.ico" />
     <!--[if IE 9]>
     <style>
         /* rules for IE9 only */
@@ -63,19 +57,7 @@
         }
     </style>
     <![endif]-->
-
-    <link rel="stylesheet" href="apy-rest2front/integration/common/css/core.css">
-    <link rel="stylesheet" href="apy-rest2front/integration/common/css/responsive.css">
-    <link rel="stylesheet" href="apy-rest2front/integration/angular/login.css">
-
-    <script src="components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
-    <script src="components/babel-polyfill/browser-polyfill.js"></script>
-    <script src="components/bluebird/js/browser/bluebird.min.js"></script>
-
-    <script src="components/angular/angular.js"></script>
-    <script src="components/angular-animate/angular-animate.js"></script>
-    <script src="components/angular-route/angular-route.js"></script>
-
+    <link rel="stylesheet" href="apy-rest2front.min.css">
 </head>
 <body>
 <div ng-app="apy-rest2front" ng-controller="indexCtrl">
@@ -88,11 +70,6 @@
             <div class="center-block apy-version">
                 <p>Apy REST2Front, v<span apy-version></span></p>
             </div>
-            <!-- JS scripts -->
-            <script src="components/jquery/dist/jquery.min.js"></script>
-            <script src="components/bootstrap/dist/js/bootstrap.min.js"></script>
-            <script src="components/angular-bootstrap/ui-bootstrap.min.js"></script>
-            <script src="components/angular-bootstrap/ui-bootstrap-tpls.min.js"></script>
             <!-- shim is needed to support non-HTML5 FormData browsers (IE8-9)-->
             <script>
                 //optional need to be loaded before angular-file-upload-shim(.min).js
@@ -107,39 +84,8 @@
                     //noContentTimeout: 10000 (see #528)
                 }
             </script>
-            <script src="components/ng-file-upload/ng-file-upload-shim.min.js"></script>
-            <script src="components/ng-file-upload/ng-file-upload.min.js"></script>
-            <script src="components/angular-backtop/dist/angular-backtop.min.js"></script>
-            <script src="components/angular-elastic/elastic.js"></script>
-
-            <!-- Fields definitions -->
-            <script src="apy-rest2front/core/errors.js"></script>
-            <script src="apy-rest2front/core/helper.js"></script>
-            <script src="apy-rest2front/core/components/base.js"></script>
-            <script src="apy-rest2front/core/components/common.js"></script>
-            <script src="apy-rest2front/core/components/fields/field.js"></script>
-            <script src="apy-rest2front/core/components/fields/media.js"></script>
-            <script src="apy-rest2front/core/components/fields/number.js"></script>
-            <script src="apy-rest2front/core/components/fields/string.js"></script>
-            <script src="apy-rest2front/core/components/fields/boolean.js"></script>
-            <script src="apy-rest2front/core/components/fields/datetime.js"></script>
-            <script src="apy-rest2front/core/components/fields/list.js"></script>
-            <script src="apy-rest2front/core/components/fields/geo/point.js"></script>
-            <script src="apy-rest2front/core/components/fields/embedded.js"></script>
-            <script src="apy-rest2front/core/components/fields/nested.js"></script>
-            <script src="apy-rest2front/core/components/fields/poly.js"></script>
-            <script src="apy-rest2front/core/components/resource.js"></script>
-            <script src="apy-rest2front/core/components/collection.js"></script>
-            <!-- Core definitions -->
-            <script src="apy-rest2front/core/schemas.js"></script>
-            <script src="apy-rest2front/core/core.js"></script>
-            <!-- UI integration (AngularJs) !IMPORTANT! Keep import order -->
-            <script src="apy-rest2front/integration/angular/view.js"></script>
-            <script src="apy-rest2front/integration/angular/directives/field.js"></script>
-            <script src="apy-rest2front/integration/angular/directives/version/version.js"></script>
-            <script src="apy-rest2front/integration/angular/directives/version/version-directive.js"></script>
-            <script src="apy-rest2front/integration/angular/directives/version/interpolate-filter.js"></script>
-            <script src="apy-rest2front/integration/angular/app.js"></script>
+            <!-- Apy REST2Front minified import -->
+            <script src="apy-rest2front.min.js"></script>
         </footer>
     </div>
 </div>
