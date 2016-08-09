@@ -5,11 +5,11 @@ module.exports = function(config){
             'app/components/babel-polyfill/browser-polyfill.js',
             'app/components/bluebird/js/browser/bluebird.min.js',
 
-            'app/apy-rest2front/integration/common/unittest.js',
+            'tests/apy-rest2front/integration/common/unittest.js',
 
-            'app/components/angular/angular.js',
+            'app/components/angular/angular.min.js',
             'app/components/jquery/dist/jquery.min.js',
-            'app/components/angular-route/angular-route.js',
+            'app/components/angular-route/angular-route.min.js',
             'app/components/angular-mocks/angular-mocks.js',
 
             'app/apy-rest2front/core/errors.js',
@@ -43,7 +43,7 @@ module.exports = function(config){
             'app/apy-rest2front/integration/angular/directives/version/version.js',
             'app/apy-rest2front/integration/angular/directives/version/version-directive.js',
             'app/apy-rest2front/integration/angular/directives/version/interpolate-filter.js',
-            'app/apy-rest2front/**/tests/**/*.js'
+            'tests/**/*.js'
         ],
 
         autoWatch : true,
@@ -72,10 +72,10 @@ module.exports = function(config){
         // Coverage minimal thresholds
         // FIXME: raise up to 90%
         thresholdReporter: {
-            statements: 82,
-            branches: 69,
-            functions: 77.5,
-            lines: 82.25
+            statements: 80,
+            branches: 68,
+            functions: 75,
+            lines: 80
         },
         // Configure the reporter
         coverageReporter: {
