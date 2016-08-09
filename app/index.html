@@ -3,7 +3,7 @@
 *
 *  This project is a small automated frontend application based on a REST API schema.
 *  It tries to implement a generic data binding upon a REST API system.
-*  For now, python-eve REST API framework has been integrated to Apy Frontend.
+*  For now, python-eve REST API framework has been integrated to Apy REST2Front.
 *  For UI components (data representation & bindings), AngularJs is used.
 *  Anyhow, the framework is intended to be plugged to any UI or Backend framework...
 *
@@ -27,7 +27,7 @@
 *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 *  SOFTWARE.
 *
-*  `apy-frontend`  Copyright (C) 2016 Namgyal Brisson.
+*  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
 -->
 <!DOCTYPE html>
 <!--[if lt IE 7]>      <html lang="en" class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
@@ -36,7 +36,7 @@
 <!--[if gt IE 8]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
 <head>
 
-    <title>Apy Frontend - Angular</title>
+    <title>Apy REST2Front - Angular</title>
 
     <meta charset="utf-8">
     <meta name="description" content="">
@@ -50,7 +50,7 @@
     <link rel="stylesheet" href="components/bootstrap/dist/fonts/glyphicons-halflings-regular.svg">
     <link rel="stylesheet" href="components/bootstrap/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="components/angular-backtop/dist/angular-backtop.css">
-    <link rel="shortcut icon" href="apy-frontend/integration/common/favicon.ico" />
+    <link rel="shortcut icon" href="apy-rest2front/integration/common/favicon.ico" />
     <!--[if IE 9]>
     <style>
         /* rules for IE9 only */
@@ -64,9 +64,9 @@
     </style>
     <![endif]-->
 
-    <link rel="stylesheet" href="apy-frontend/integration/common/css/core.css">
-    <link rel="stylesheet" href="apy-frontend/integration/common/css/responsive.css">
-    <link rel="stylesheet" href="apy-frontend/integration/angular/login.css">
+    <link rel="stylesheet" href="apy-rest2front/integration/common/css/core.css">
+    <link rel="stylesheet" href="apy-rest2front/integration/common/css/responsive.css">
+    <link rel="stylesheet" href="apy-rest2front/integration/angular/login.css">
 
     <script src="components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js"></script>
     <script src="components/babel-polyfill/browser-polyfill.js"></script>
@@ -78,7 +78,7 @@
 
 </head>
 <body>
-<div ng-app="apy-frontend" ng-controller="indexCtrl">
+<div ng-app="apy-rest2front" ng-controller="indexCtrl">
     <div class="container">
         <!--[if lt IE 7]>
         <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
@@ -113,33 +113,33 @@
             <script src="components/angular-elastic/elastic.js"></script>
 
             <!-- Fields definitions -->
-            <script src="apy-frontend/core/errors.js"></script>
-            <script src="apy-frontend/core/helper.js"></script>
-            <script src="apy-frontend/core/components/base.js"></script>
-            <script src="apy-frontend/core/components/common.js"></script>
-            <script src="apy-frontend/core/components/fields/field.js"></script>
-            <script src="apy-frontend/core/components/fields/media.js"></script>
-            <script src="apy-frontend/core/components/fields/number.js"></script>
-            <script src="apy-frontend/core/components/fields/string.js"></script>
-            <script src="apy-frontend/core/components/fields/boolean.js"></script>
-            <script src="apy-frontend/core/components/fields/datetime.js"></script>
-            <script src="apy-frontend/core/components/fields/list.js"></script>
-            <script src="apy-frontend/core/components/fields/geo/point.js"></script>
-            <script src="apy-frontend/core/components/fields/embedded.js"></script>
-            <script src="apy-frontend/core/components/fields/nested.js"></script>
-            <script src="apy-frontend/core/components/fields/poly.js"></script>
-            <script src="apy-frontend/core/components/resource.js"></script>
-            <script src="apy-frontend/core/components/collection.js"></script>
+            <script src="apy-rest2front/core/errors.js"></script>
+            <script src="apy-rest2front/core/helper.js"></script>
+            <script src="apy-rest2front/core/components/base.js"></script>
+            <script src="apy-rest2front/core/components/common.js"></script>
+            <script src="apy-rest2front/core/components/fields/field.js"></script>
+            <script src="apy-rest2front/core/components/fields/media.js"></script>
+            <script src="apy-rest2front/core/components/fields/number.js"></script>
+            <script src="apy-rest2front/core/components/fields/string.js"></script>
+            <script src="apy-rest2front/core/components/fields/boolean.js"></script>
+            <script src="apy-rest2front/core/components/fields/datetime.js"></script>
+            <script src="apy-rest2front/core/components/fields/list.js"></script>
+            <script src="apy-rest2front/core/components/fields/geo/point.js"></script>
+            <script src="apy-rest2front/core/components/fields/embedded.js"></script>
+            <script src="apy-rest2front/core/components/fields/nested.js"></script>
+            <script src="apy-rest2front/core/components/fields/poly.js"></script>
+            <script src="apy-rest2front/core/components/resource.js"></script>
+            <script src="apy-rest2front/core/components/collection.js"></script>
             <!-- Core definitions -->
-            <script src="apy-frontend/core/schemas.js"></script>
-            <script src="apy-frontend/core/core.js"></script>
+            <script src="apy-rest2front/core/schemas.js"></script>
+            <script src="apy-rest2front/core/core.js"></script>
             <!-- UI integration (AngularJs) !IMPORTANT! Keep import order -->
-            <script src="apy-frontend/integration/angular/view.js"></script>
-            <script src="apy-frontend/integration/angular/directives/field.js"></script>
-            <script src="apy-frontend/integration/angular/directives/version/version.js"></script>
-            <script src="apy-frontend/integration/angular/directives/version/version-directive.js"></script>
-            <script src="apy-frontend/integration/angular/directives/version/interpolate-filter.js"></script>
-            <script src="apy-frontend/integration/angular/app.js"></script>
+            <script src="apy-rest2front/integration/angular/view.js"></script>
+            <script src="apy-rest2front/integration/angular/directives/field.js"></script>
+            <script src="apy-rest2front/integration/angular/directives/version/version.js"></script>
+            <script src="apy-rest2front/integration/angular/directives/version/version-directive.js"></script>
+            <script src="apy-rest2front/integration/angular/directives/version/interpolate-filter.js"></script>
+            <script src="apy-rest2front/integration/angular/app.js"></script>
         </footer>
     </div>
 </div>

@@ -5,45 +5,45 @@ module.exports = function(config){
             'app/components/babel-polyfill/browser-polyfill.js',
             'app/components/bluebird/js/browser/bluebird.min.js',
 
-            'app/apy-frontend/integration/common/unittest.js',
+            'app/apy-rest2front/integration/common/unittest.js',
 
             'app/components/angular/angular.js',
             'app/components/jquery/dist/jquery.min.js',
             'app/components/angular-route/angular-route.js',
             'app/components/angular-mocks/angular-mocks.js',
 
-            'app/apy-frontend/core/errors.js',
-            'app/apy-frontend/core/helper.js',
-            'app/apy-frontend/core/components/base.js',
-            'app/apy-frontend/core/components/common.js',
-            'app/apy-frontend/core/components/fields/field.js',
+            'app/apy-rest2front/core/errors.js',
+            'app/apy-rest2front/core/helper.js',
+            'app/apy-rest2front/core/components/base.js',
+            'app/apy-rest2front/core/components/common.js',
+            'app/apy-rest2front/core/components/fields/field.js',
 
-            'app/apy-frontend/core/components/fields/media.js',
-            'app/apy-frontend/core/components/fields/number.js',
-            'app/apy-frontend/core/components/fields/string.js',
-            'app/apy-frontend/core/components/fields/boolean.js',
-            'app/apy-frontend/core/components/fields/datetime.js',
-            'app/apy-frontend/core/components/fields/list.js',
-            'app/apy-frontend/core/components/fields/embedded.js',
-            'app/apy-frontend/core/components/fields/nested.js',
-            'app/apy-frontend/core/components/fields/field.js',
-            'app/apy-frontend/core/components/fields/geo/point.js',
-            'app/apy-frontend/core/components/fields/poly.js',
+            'app/apy-rest2front/core/components/fields/media.js',
+            'app/apy-rest2front/core/components/fields/number.js',
+            'app/apy-rest2front/core/components/fields/string.js',
+            'app/apy-rest2front/core/components/fields/boolean.js',
+            'app/apy-rest2front/core/components/fields/datetime.js',
+            'app/apy-rest2front/core/components/fields/list.js',
+            'app/apy-rest2front/core/components/fields/embedded.js',
+            'app/apy-rest2front/core/components/fields/nested.js',
+            'app/apy-rest2front/core/components/fields/field.js',
+            'app/apy-rest2front/core/components/fields/geo/point.js',
+            'app/apy-rest2front/core/components/fields/poly.js',
 
-            'app/apy-frontend/core/components/resource.js',
-            'app/apy-frontend/core/components/collection.js',
+            'app/apy-rest2front/core/components/resource.js',
+            'app/apy-rest2front/core/components/collection.js',
 
-            'app/apy-frontend/core/schemas.js',
-            'app/apy-frontend/core/core.js',
+            'app/apy-rest2front/core/schemas.js',
+            'app/apy-rest2front/core/core.js',
 
-            'app/apy-frontend/integration/angular/view.js',
-            'app/apy-frontend/integration/angular/directives/field.js',
-            'app/apy-frontend/integration/angular/app.js',
+            'app/apy-rest2front/integration/angular/view.js',
+            'app/apy-rest2front/integration/angular/directives/field.js',
+            'app/apy-rest2front/integration/angular/app.js',
 
-            'app/apy-frontend/integration/angular/directives/version/version.js',
-            'app/apy-frontend/integration/angular/directives/version/version-directive.js',
-            'app/apy-frontend/integration/angular/directives/version/interpolate-filter.js',
-            'app/apy-frontend/**/tests/**/*.js'
+            'app/apy-rest2front/integration/angular/directives/version/version.js',
+            'app/apy-rest2front/integration/angular/directives/version/version-directive.js',
+            'app/apy-rest2front/integration/angular/directives/version/interpolate-filter.js',
+            'app/apy-rest2front/**/tests/**/*.js'
         ],
 
         autoWatch : true,
@@ -67,7 +67,7 @@ module.exports = function(config){
             // source files, that you wanna generate coverage for
             // do not include tests or libraries
             // (these files will be instrumented by Istanbul)
-            '**/app/apy-frontend/**/!(test_)*.js': ['coverage']
+            '**/app/apy-rest2front/**/!(test_)*.js': ['coverage']
         },
         // Coverage minimal thresholds
         // FIXME: raise up to 90%

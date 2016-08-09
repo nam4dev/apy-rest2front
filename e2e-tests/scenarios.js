@@ -2,7 +2,7 @@
 
 /* https://github.com/angular/protractor/blob/master/docs/toc.md */
 
-describe('[Apy Frontend]', function() {
+describe('[Apy REST2Front]', function() {
 
     it('should automatically redirect to /index when location hash/fragment is empty', function() {
         browser.get('app/');

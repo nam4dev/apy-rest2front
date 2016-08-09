@@ -1,0 +1,714 @@
+<!--
+*  MIT License
+*
+*  This project is a small automated frontend application based on a REST API schema.
+*  It tries to implement a generic data binding upon a REST API system.
+*  For now, python-eve REST API framework has been integrated to Apy REST2Front.
+*  For UI components (data representation & bindings), AngularJs is used.
+*  Anyhow, the framework is intended to be plugged to any UI or Backend framework...
+*
+*  Copyright (C) 2016 Namgyal Brisson
+*
+*  Permission is hereby granted, free of charge, to any person obtaining a copy
+*  of this software and associated documentation files (the "Software"), to deal
+*  in the Software without restriction, including without limitation the rights
+*  to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+*  copies of the Software, and to permit persons to whom the Software is
+*  furnished to do so, subject to the following conditions:
+
+*  The above copyright notice and this permission notice shall be included in all
+*  copies or substantial portions of the Software.
+
+*  THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+*  IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+*  FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+*  AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+*  LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+*  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+*  SOFTWARE.
+*
+*  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
+-->
+<nav class="navbar navbar-default">
+    <div class="container-fluid">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#apy-navigation" aria-expanded="true">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="#" title="Go to Home page">Apy REST2Front</a>
+        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <li>
+                <a ng-click="logout()" title="Log Out">
+                    <i class="glyphicon glyphicon-log-out"></i>
+                </a>
+            </li>
+        </ul>
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div id="apy-navigation" class="collapse navbar-collapse">
+            <div apy-navigation></div>
+        </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+</nav>
+<div ng-if="isIndex" class="jumbotron" >
+    <h1>Welcome to Apy REST2Front!</h1>
+    <p>Automated CRUD views, based on your REST API endpoint schemas</p>
+    <p class="small-title">(<i>For now, 'Eve' is the only supported REST API backend</i>)</p>
+</div>
+<div ng-if="!isIndex">
+    <!-- All Apy Fields directives -->
+    <script type="text/ng-template" id="field-poly.html">
+        <div ng-if="field.inReadState()">
+            <div ng-if="field.$value">
+                {{ field.toString() }}
+            </div>
+            <div ng-if="field.$components">
+                <div ng-repeat="comp in field.$components track by $index">
+                    <apy-field field="comp"></apy-field>
+                </div>
+            </div>
+        </div>
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="input-group">
+                        <input type="text" class="form-control" aria-label="..." value="{{ field.$value }}"/>
+                        <div class="input-group-btn">
+                            <button ng-if="field.$type && field.$type !== field.$types.POLY"
+                                    type="button"
+                                    class="btn btn-default dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">{{ field.$type }} <span class="caret"></span></button>
+
+                            <button ng-if="!field.$type || field.$type === field.$types.POLY"
+                                    type="button"
+                                    class="btn btn-default dropdown-toggle"
+                                    data-toggle="dropdown"
+                                    aria-haspopup="true"
+                                    aria-expanded="false">{{ "Type selection" }} <span class="caret"></span></button>
+
+                            <ul ng-if="!displaySchemaNames" class="dropdown-menu dropdown-menu-right">
+                                <li ng-repeat="type in field.$typesForPoly track by $index" >
+                                    <a ng-if="type === 'resource'"
+                                       ng-click="field.setType(type)"
+                                       style="cursor: pointer;">{{ type.capitalize() }} (nested)</a>
+                                    <a ng-if="type === 'objectid'"
+                                       ng-click="displayChoices()"
+                                       style="cursor: pointer;">Resource (embedded)</a>
+                                    <a ng-if="type !== 'objectid' && type !== 'resource'"
+                                       ng-click="field.setType(type)"
+                                       style="cursor: pointer;">{{ type.capitalize() }}</a>
+                                </li>
+                            </ul>
+
+                            <ul ng-if="displaySchemaNames" class="dropdown-menu">
+                                <li ng-repeat="name in field.$service.$instance.$humanNames track by $index" >
+                                    <a ng-click="hideChoices();field.setType(type, field.$service.$instance.$names[$index])"
+                                       style="cursor: pointer;">{{ name.capitalize() }}</a>
+                                </li>
+                            </ul>
+
+                        </div><!-- /btn-group -->
+                    </div><!-- /input-group -->
+                </div><!-- /.col-lg-6 -->
+            </div><!-- /.row -->
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-objectid.html">
+        <div ng-if="field.inReadState()">
+            {{ field.toString() }}
+        </div>
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
+            <button id="{{ field.$name }}"
+                    class="form-control"
+                    ng-click="resourcePicker(field)"
+                    ng-model="field.$value">
+                <span ng-if="field.inCreateState() || field.inUpdateState()" >
+                    <span ng-if="!field.toString()">
+                        Select <span class="text-capitalize"><strong>{{ field.$name }}</strong></span>
+                    </span>
+                    <span>
+                        <span class="text-capitalize"><strong>{{ field.toString() }}</strong></span>
+                    </span>
+                </span>
+            </button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-resource.html">
+        <div ng-if="field.inReadState()">
+            <apy-field ng-if="field.$type !== 'resource'" ng-repeat="component in field.$components track by $index" field="component"></apy-field>
+            <span ng-if="field.$type === 'resource'">{{ field.toString() }}</span>
+        </div>
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
+            <button id="{{ field.$name }}"
+                    class="form-control"
+                    ng-click="expandRecursive(field)"
+                    ng-model="field.$value">
+                <span ng-if="field.inCreateState() || field.inUpdateState()" >
+                    <span ng-if="!field.toString()">
+                        Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
+                    </span>
+                    <span>
+                        <span class="text-capitalize"><strong>{{ field.toString() }}</strong></span>
+                    </span>
+                </span>
+            </button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-list.html">
+        <br />
+        <div ng-if="field.inReadState()">
+            <div ng-if="field.$value">
+                <div ng-if="!field.$allowed || !field.$allowed.length">
+                    <ul>
+                        <apy-field ng-repeat="value in field.$components track by $index" field="value" ></apy-field>
+                    </ul>
+                </div>
+                <div ng-if="field.$allowed && field.$allowed.length">
+                    {{ field.toString() }}
+                </div>
+            </div>
+        </div>
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
+
+            <select ng-if="field.$allowed && field.$allowed.length" ng-model="field.$value" multiple>
+                <option ng-repeat="allowed in field.$allowed track by $index" >{{ allowed }}</option>
+            </select>
+            <button id="{{ field.$name }}"
+                    ng-if="!field.$allowed || !field.$allowed.length"
+                    class="form-control"
+                    ng-click="expandList(field)"
+                    ng-model="field.$value">
+                <span ng-if="field.inCreateState() || field.inUpdateState()" >
+                    <span ng-if="!field.$components.length">
+                        Add <span class="text-capitalize"><strong>{{ field.$name || field.$type }}</strong> document</span>
+                    </span>
+                    <span ng-if="field.$components.length">
+                        <span class="text-capitalize"><strong>{{ field.$components.length }}</strong>
+                            <i ng-if="field.$components.length === 1">item</i>
+                            <i ng-if="field.$components.length > 1">items</i>
+                        </span>
+                    </span>
+                </span>
+            </button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-media.html">
+        <div ng-if="field.inReadState()">
+            <img ng-if="field.$value.$isImage" ng-src="{{ field.$value.$uri  }}"  width="96" height="96" />
+            <!--<audio ng-if="field.$value.$isAudio" controls >-->
+            <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
+            <!--</audio>-->
+            <!--<video ng-if="field.$value.$isVideo" controls >-->
+            <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
+            <!--</video>-->
+            <a target="_blank"
+               ng-href="{{ field.$value.$uri }}" class="media media-object">
+                <i class="glyphicon glyphicon-link"></i> {{ field.$value.$name || "link" }}
+            </a>
+        </div>
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
+            <form class="form-inline">
+                <div class="row">
+                    <div class="form-group  form-group-lg col-md-6" ng-if="field.$value.$uri">
+                        <div class="thumbnail">
+                            <div class="caption text-centered">
+                                <a target="_blank"  ng-href="{{ field.$value.$uri }}" >
+                                    <i class="glyphicon glyphicon-link"></i> {{ field.$value.$name || "link" }}
+                                </a>
+                                <img ng-if="field.$value.$isImage" ng-src="{{ field.$value.$uri }}" width="96" height="96" />
+                                <!--<audio ng-if="field.$value.$isAudio" controls >-->
+                                <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
+                                <!--</audio>-->
+                                <!--<video ng-if="field.$value.$isVideo" controls >-->
+                                <!--<source ng-src="{{ field.$value.$uri  }}" src="" >-->
+                                <!--</video>-->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="form-group form-group-lg col-md-6">
+                        <div ngf-drop="setFile(field, $files[0])" class="drop-box" ngf-drag-over-class="'dragover'">
+                            <button class="form-control btn btn-warning drop-box" ngf-select="setFile(field, $files[0])">
+                                <i class="glyphicon glyphicon-upload"></i>
+                            </button>
+                        </div>
+                        <div ngf-no-file-drop>File Drag/Drop is not supported for this browser</div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="form-group form-group-lg col-md-12">
+                        <div class="center-block center centered">
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-string.html">
+        <div ng-if="field.inReadState()">
+            <p>{{ field.toString() }}</p>
+        </div>
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
+            <input ng-model="field.$value"
+                   ng-if="field.wordCount() <= 60"
+                   class="form-control"
+                   id="{{ field.$name }}"
+                   type="{{ field.$type }}"
+                   minlength="{{ field.$minlength }}"
+                   maxlength="{{ field.$maxlength }}"
+                   required="{{ field.$required }}"
+                   value="{{ field.$value }}"
+                    />
+
+            <textarea msd-elastic="\n"
+                      ng-model="field.$value"
+                      ng-if="field.wordCount() > 60"
+                      placeholder="{{ field.$name }}"
+                      class="form-control"
+                      id="{{ field.$name }}"
+                      minlength="{{ field.$minlength }}"
+                      maxlength="{{ field.$maxlength }}"
+                      required="{{ field.$required }}"
+                    >
+                {{ field.$value }}
+            </textarea>
+
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-number.html">
+        <div ng-if="field.inReadState()">
+            {{ field.toString() }}
+        </div>
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
+            <input ng-model="field.$value"
+                   class="form-control"
+                   id="{{ field.$name }}"
+                   type="{{ field.$type }}"
+                   required="{{ field.$required }}"
+                   value="{{ field.$value }}"
+                   placeholder="{{ field.$name }}" />
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-point.html">
+        <div ng-if="field.inReadState()">
+            <span>{{ field.$name }} <i class="glyphicon glyphicon-map-marker"></i></span> ({{ field.$value.x }} - {{ field.$value.y }})
+        </div>
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
+            <div class="row">
+                <div class="col-md-1">
+                    <label for="{{ field.$name }}.x">x: </label>
+                </div>
+                <div class="col-md-5">
+                    <input ng-model="field.$value.x"
+                           class="form-control"
+                           id="{{ field.$name }}.x"
+                           required="{{ field.$required }}"
+                           value="{{ field.$value.x }}"
+                           placeholder="{{ field.$name }}" />
+
+                </div>
+                <div class="col-md-1">
+                    <label for="{{ field.$name }}.y">y: </label>
+                </div>
+                <div class="col-md-5">
+                    <input ng-model="field.$value.y"
+                           class="form-control"
+                           id="{{ field.$name }}.y"
+                           required="{{ field.$required }}"
+                           value="{{ field.$value.y }}"
+                           placeholder="{{ field.$name }}" />
+                </div>
+            </div>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="field-boolean.html">
+        <input ng-model="field.$value"
+               id="{{ field.$name }}"
+               ng-disabled="field.inReadState() || field.inDeleteState()"
+               type="checkbox"
+               class="form-control"
+               required="{{ field.$required }}"
+               value="{{ field.$value }}" />
+    </script>
+
+    <script type="text/ng-template" id="field-datetime.html" >
+        <div ng-if="field.inReadState()">
+            {{ field.toString() }}
+        </div>
+        <div ng-if="!field.inReadState() && !field.inDeleteState()">
+
+            <div class="fix-issue-1012">
+                <input uib-datepicker-popup="{{ format }}"
+                       type="text"
+                       ng-model="field.$value"
+                       class="form-control"
+                       show-weeks="true"
+                       is-open="opened"
+                       alt-input-formats="altInputFormats" ng-click="opened=true" />
+            </div>
+        </div>
+    </script>
+    <!-- End Apy Fields -->
+
+    <!-- Apy Modals -->
+
+    <script type="text/ng-template" id="modal-embedded.html">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                 <span class="text-capitalize" >
+                     <strong>{{ $collection.$name }}</strong> Collection</span>
+            </h3>
+            (<i>Select a resource of your choice amongst the collection</i>)
+        </div>
+        <div class="modal-body">
+            <!-- Embedded Resources display control -->
+            <div class="scrolling-table">
+                <div>
+                    <div>
+                        <table class="table">
+                            <thead class="thead-inverse">
+                            <tr>
+                                <th ng-repeat="header in $collection.$schema.$headers track by $index" >
+                                    <strong class="text-capitalize text-underlined">{{ header }}</strong>
+                                </th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr class="pointer"
+                                ng-class="{'current-resource': resource._id === field._id}"
+                                ng-repeat="resource in $collection.$components track by $index"
+                                ng-click="field.selfUpdate(resource);cancel();" >
+                                <td ng-repeat="field in resource.$components track by $index" >
+                                    <apy-field ng-if="field.$type !== 'resource'" field="field"></apy-field>
+                                    <span ng-if="field.$type === 'resource'" >{{ field.$value }}</span>
+                                </td>
+                            </tr>
+                            <tr ng-if="$collection.count() === 0">
+                                <td class="text-center"
+                                    colspan="{{ $collection.$schema.$headers.length + 1 }}">
+                                    <span >No Items Found.</span>
+                                </td>
+                            </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <!-- End Embedded Resource display control -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-warning" type="button" ng-click="cancel()">Cancel</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="modal-list.html">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                 <span class="text-capitalize" >
+                     <strong>{{ field.$name }}</strong> Document</span>
+                <button class="btn btn-info pull-right"
+                        ng-click="field.oneMore()">
+                    <i class="glyphicon glyphicon-plus"></i> Add
+                </button>
+            </h3>
+        </div>
+        <div class="modal-body">
+            <!-- CREATE & UPDATE Form -->
+            <div>
+                <form name="initial" novalidate>
+                    <div class="form-group" ng-repeat="comp in field.$components track by $index" >
+
+                        <button class="btn btn-danger pull-right"
+                                ng-if="field.count()"
+                                ng-click="field.remove(comp)">
+                            <i class="glyphicon glyphicon-minus"></i> Remove
+                        </button>
+                        <div class="list-field">
+                            <apy-field field="comp"></apy-field>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <!-- End CREATE & UPDATE Form -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="ok()">OK</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel(field)">Cancel</button>
+        </div>
+    </script>
+
+    <script type="text/ng-template" id="modal-recursive.html">
+        <div class="modal-header">
+            <h3 class="modal-title">
+                 <span class="text-capitalize" >
+                     <strong>{{ field.$name }}</strong> Document</span>
+                <button class="btn btn-info pull-right"
+                        ng-if="!field.$schema"
+                        ng-click="field.oneMore()">
+                    <i class="glyphicon glyphicon-plus"></i> Add
+                </button>
+            </h3>
+        </div>
+        <div class="modal-body">
+            <!-- CREATE & UPDATE Form -->
+            <div>
+                <form name="initial" novalidate>
+                    <div class="form-group" ng-repeat="comp in field.$components track by $index" >
+                        <label ng-if="comp.$isPolyMorph && comp.$type !== 'poly'" for="input-{{ comp.$type }}" >Key</label>
+                        <input ng-if="comp.$isPolyMorph && comp.$type !== 'poly'" class="form-control" id="input-{{ comp.$type }}" ng-model="comp.$name" placeholder="Key for your field..." />
+
+                        <label ng-if="comp.$type !== 'point' && comp.$name" for="{{ comp.$name }}">{{ comp.$name }}</label>
+                        <label ng-if="comp.$type === 'point' && comp.$name" for="{{ comp.$name }}">{{ comp.$name }} (coordinates <i class="glyphicon glyphicon-map-marker"></i>)</label>
+
+                        <button ng-if="comp.$isPolyMorph && field.count()"
+                                class="btn btn-danger pull-right"
+                                ng-click="field.remove(comp)">
+                            <i class="glyphicon glyphicon-minus"></i> Remove
+                        </button>
+                        <div ng-if="comp.$isPolyMorph && field.count()"
+                             class="list-field">
+                            <apy-field id="{{ comp.$name }}" field="comp"></apy-field>
+                        </div>
+                        <apy-field ng-if="!comp.$isPolyMorph" id="{{ comp.$name }}" field="comp"></apy-field>
+                    </div>
+                </form>
+            </div>
+            <!-- End CREATE & UPDATE Form -->
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-primary" type="button" ng-click="ok(field)">OK</button>
+            <button class="btn btn-warning" type="button" ng-click="cancel(field)">Cancel</button>
+        </div>
+    </script>
+
+    <!-- End Apy Modals -->
+
+    <div class="progress loader" ng-if="counter !== 100">
+        <div class="progress-bar progress-bar-info progress-bar-striped active"
+             role="progressbar" aria-valuenow="counter" aria-valuemin="0" aria-valuemax="100" style="width: {{counter}}%">
+            <span class="sr-only">{{counter}}% Complete</span>
+        </div>
+    </div>
+    <div class="hidden-sm hidden-xs apy-tables-controls">
+        <table class="table" >
+            <tr>
+                <th class="pull-right">
+                    <button class="btn btn-default" ng-click="displayList=true;displayLarge=!displayList" ng-class="{'active': displayList}">
+                        <i class="glyphicon glyphicon-th-list"></i>
+                    </button>
+                </th>
+            </tr>
+            <tr>
+                <th class="pull-right">
+                    <button class="btn btn-default pull-right" ng-click="displayLarge=true;displayList=!displayLarge" ng-class="{'active': displayLarge}">
+                        <i class="glyphicon glyphicon-th-large"></i>
+                    </button>
+                </th>
+            </tr>
+        </table>
+    </div>
+    <div id="collection-controls">
+        <table class="table" >
+            <tr>
+                <th class="pull-right">
+                    <button id="gCreate"
+                            type="button"
+                            ng-click="$collection.createResource().setCreateState()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-plus"></i>
+                    </button>
+                    <button id="gUpdate"
+                            type="button"
+                            ng-if="$collection.savedCount() > 0 && $collection.inReadState()"
+                            ng-click="$collection.setUpdateState()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                    </button>
+                    <button id="gCancel"
+                            type="button"
+                            ng-if="$collection.savedCount() > 0 && $collection.inUpdateState()"
+                            ng-click="$collection.setReadState()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-arrow-left"></i>
+                    </button>
+                    <button id="gWarning"
+                            type="button"
+                            ng-if="$collection.count() > 0 && $collection.hasUpdated()"
+                            ng-click="$collection.reset()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-erase"></i>
+                    </button>
+                    <button type="button"
+                            ng-if="$collection.hasUpdated()"
+                            ng-click="saveCollection()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-ok"></i>
+                    </button>
+                    <button id="gDelete"
+                            type="button"
+                            ng-if="$collection.savedCount() > 0"
+                            ng-click="deleteResources()"
+                            class="btn btn-default">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </button>
+            </tr>
+        </table>
+    </div>
+    <div ng-if="displayLarge" id="collection-table-vertical">
+        <div ng-if="$collection.count() > 0"
+             ng-repeat="resource in $collection.$components track by $index">
+            <table class="apy-table display" >
+                <tr>
+                    <th class="hidden-sm hidden-xs"></th>
+                    <td>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.hasCreated()"
+                                ng-click="$collection.removeResource(resource)"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.hasUpdated() && resource.inCreateState()"
+                                ng-click="create(resource)"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-ok"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.hasUpdated() && (resource.inCreateState() || resource.inUpdateState())"
+                                ng-click="resource.reset()"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-erase"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.hasUpdated() && resource.inUpdateState()"
+                                ng-click="update(resource)"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-ok"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && !resource.inCreateState() && !resource.inUpdateState()"
+                                ng-click="delete(resource)"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-trash"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.isReadOnly() && resource.inReadState()"
+                                ng-click="resource.setUpdateState()"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-pencil"></i>
+                        </button>
+                        <button type="button"
+                                ng-if="!resource.hasUpdated() && resource.inUpdateState() && !resource.hasCreated()"
+                                ng-click="resource.setReadState()"
+                                class="btn btn-default pull-right">
+                            <i class="glyphicon glyphicon-arrow-left"></i>
+                        </button>
+                    </td>
+                </tr>
+                <tr ng-repeat="header in $collection.$schema.$headers track by $index">
+                    <th class="hidden-sm hidden-xs">
+                        <strong class="text-capitalize text-underlined">{{ header }}</strong>
+                    </th>
+                    <td >
+                        <apy-field field="resource.$components[$index]"></apy-field>
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div ng-if="$collection.count() === 0">
+            <table class="display table">
+                <tbody>
+                <tr >
+                    <td class="text-center" colspan="{{ $collection.$schema.$headers.length }}">
+                        <span >No Items Found.</span>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div ng-if="displayList" id="collection-table-horizontal">
+        <table class="apy-table">
+            <thead>
+            <tr>
+                <th ng-repeat="header in $collection.$schema.$headers track by $index" >
+                    <strong class="text-capitalize text-underlined">{{ header }}</strong>
+                </th>
+                <th></th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr ng-repeat="resource in $collection.$components track by $index">
+                <td ng-repeat="header in $collection.$schema.$headers track by $index" >
+                    <apy-field field="resource.$components[$index]"></apy-field>
+                </td>
+                <td>
+                    <button type="button"
+                            ng-if="!resource.isReadOnly() && resource.hasCreated()"
+                            ng-click="$collection.removeResource(resource)"
+                            class="btn btn-default pull-right">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </button>
+                    <button type="button"
+                            ng-if="!resource.isReadOnly() && resource.hasUpdated() && resource.inCreateState()"
+                            ng-click="create(resource)"
+                            class="btn btn-default pull-right">
+                        <i class="glyphicon glyphicon-ok"></i>
+                    </button>
+                    <button type="button"
+                            ng-if="!resource.isReadOnly() && resource.hasUpdated() && (resource.inCreateState() || resource.inUpdateState())"
+                            ng-click="resource.reset()"
+                            class="btn btn-default pull-right">
+                        <i class="glyphicon glyphicon-erase"></i>
+                    </button>
+                    <button type="button"
+                            ng-if="!resource.isReadOnly() && resource.hasUpdated() && resource.inUpdateState()"
+                            ng-click="update(resource)"
+                            class="btn btn-default pull-right">
+                        <i class="glyphicon glyphicon-ok"></i>
+                    </button>
+                    <button type="button"
+                            ng-if="!resource.isReadOnly() && !resource.inCreateState() && !resource.inUpdateState()"
+                            ng-click="delete(resource)"
+                            class="btn btn-default pull-right">
+                        <i class="glyphicon glyphicon-trash"></i>
+                    </button>
+                    <button type="button"
+                            ng-if="!resource.isReadOnly() && resource.inReadState()"
+                            ng-click="resource.setUpdateState()"
+                            class="btn btn-default pull-right">
+                        <i class="glyphicon glyphicon-pencil"></i>
+                    </button>
+                    <button type="button"
+                            ng-if="!resource.hasUpdated() && resource.inUpdateState() && !resource.hasCreated()"
+                            ng-click="resource.setReadState()"
+                            class="btn btn-default pull-right">
+                        <i class="glyphicon glyphicon-arrow-left"></i>
+                    </button>
+                </td>
+            </tr>
+            <tr ng-if="$collection.count() === 0">
+                <td class="text-center" colspan="{{ $collection.$schema.$headers.length + 1 }}">
+                    <span >No Items Found.</span>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+<back-top>
+    <i class="glyphicon glyphicon-arrow-up"></i>
+</back-top>
