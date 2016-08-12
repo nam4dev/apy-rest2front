@@ -36,16 +36,16 @@
  *  """
  */
 
-(function ($window) {
+(function ($globals) {
 
     // Registering mixin globally
-    $window.ApyRequestMixin = (function () {
+    $globals.ApyRequestMixin = (function () {
 
         function $authHeaders(headers) {
             var service = this.$service || this;
             headers = headers || {
-                    'Content-Type': 'application/json'
-                };
+                'Content-Type': 'application/json'
+            };
             if(service && service.$tokenInfo && service.$tokenInfo.access_token) {
                 var authToken = '';
                 var type = service.$tokenInfo.token_type;
@@ -80,7 +80,7 @@
                 request.headers['If-Match'] = self._etag;
             };
             if(method === 'PATCH' && !self._id) {
-                method = 'POST'
+                method = 'POST';
             }
             method = method || 'POST';
             var request = {
@@ -89,23 +89,23 @@
                 headers: {}
             };
             switch (method) {
-                case 'POST':
-                    request.data = this.cleanedData();
-                    break;
-                case 'PATCH':
-                    setConfig();
-                    request.data = this.cleanedData();
-                    break;
-                case 'DELETE':
-                    setConfig();
-                    break;
-                default :
-                    break;
+            case 'POST':
+                request.data = this.cleanedData();
+                break;
+            case 'PATCH':
+                setConfig();
+                request.data = this.cleanedData();
+                break;
+            case 'DELETE':
+                setConfig();
+                break;
+            default :
+                break;
             }
             return new Promise(function (resolve, reject) {
                 return self.$access(request).then(resolve, function (error) {
-                        return reject(new ApyEveHTTPError(error))
-                    });
+                    return reject(new ApyEveHTTPError(error));
+                });
             });
         }
 
@@ -114,11 +114,11 @@
             this.$authHeaders = $authHeaders;
             this.createRequest = createRequest;
             return this;
-        }
+        };
     })();
 
     // Registering mixin globally
-    $window.ApyCompositeMixin =  (function () {
+    $globals.ApyCompositeMixin =  (function () {
 
         /**
          * Common Method for composite container components (Resource, List)
@@ -138,47 +138,47 @@
             append = append === false ? append : true;
             endpoint = endpoint || this.$endpoint;
             switch(type) {
-                case this.$types.LIST:
-                    fieldObj = new ApyListField(this.$service, name, schema, value, this.$states, endpoint);
-                    break;
-                case this.$types.DICT:
-                    fieldObj = new ApyNestedField(this.$service, name, schema.schema, value, this.$states, null, this.$types.RESOURCE);
-                    if(!schema.schema) {
-                        fieldObj.add(fieldObj.createPolyField(undefined, value, name));
-                    }
-                    break;
-                case $TYPES.POINT:
-                    fieldObj = new ApyPointField(this.$service, name, schema, value, this.$states, endpoint);
-                    break;
-                case this.$types.MEDIA:
-                    fieldObj = new ApyMediaField(this.$service, name, schema, value, this.$states, endpoint);
-                    break;
-                case this.$types.FLOAT:
-                case this.$types.NUMBER:
-                case this.$types.INTEGER:
-                    fieldObj = new ApyNumberField(this.$service, name, schema, value, this.$states, endpoint);
-                    break;
-                case this.$types.STRING:
-                    fieldObj = new ApyStringField(this.$service, name, schema, value, this.$states, endpoint);
-                    break;
-                case this.$types.BOOLEAN:
-                    fieldObj = new ApyBooleanField(this.$service, name, schema, value, this.$states, endpoint);
-                    break;
+            case this.$types.LIST:
+                fieldObj = new ApyListField(this.$service, name, schema, value, this.$states, endpoint);
+                break;
+            case this.$types.DICT:
+                fieldObj = new ApyNestedField(this.$service, name, schema.schema, value, this.$states, null, this.$types.RESOURCE);
+                if(!schema.schema) {
+                    fieldObj.add(fieldObj.createPolyField(undefined, value, name));
+                }
+                break;
+            case this.$types.POINT:
+                fieldObj = new ApyPointField(this.$service, name, schema, value, this.$states, endpoint);
+                break;
+            case this.$types.MEDIA:
+                fieldObj = new ApyMediaField(this.$service, name, schema, value, this.$states, endpoint);
+                break;
+            case this.$types.FLOAT:
+            case this.$types.NUMBER:
+            case this.$types.INTEGER:
+                fieldObj = new ApyNumberField(this.$service, name, schema, value, this.$states, endpoint);
+                break;
+            case this.$types.STRING:
+                fieldObj = new ApyStringField(this.$service, name, schema, value, this.$states, endpoint);
+                break;
+            case this.$types.BOOLEAN:
+                fieldObj = new ApyBooleanField(this.$service, name, schema, value, this.$states, endpoint);
+                break;
 
-                case this.$types.DATETIME:
-                    fieldObj = new ApyDatetimeField(this.$service, name, schema, value, this.$states, endpoint);
-                    break;
-                case this.$types.OBJECTID:
-                    var relationName = schema.data_relation.resource;
-                    var schemaObject = this.$service.$schemas[relationName];
-                    fieldObj = new ApyEmbeddedField(this.$service, name, schemaObject, value,
+            case this.$types.DATETIME:
+                fieldObj = new ApyDatetimeField(this.$service, name, schema, value, this.$states, endpoint);
+                break;
+            case this.$types.OBJECTID:
+                var relationName = schema.data_relation.resource;
+                var schemaObject = this.$service.$schemas[relationName];
+                fieldObj = new ApyEmbeddedField(this.$service, name, schemaObject, value,
                         this.$states, endpoint, this.$types.OBJECTID, relationName);
-                    break;
-                default:
-                    fieldObj = this.createPolyField(undefined, value, name);
+                break;
+            default:
+                fieldObj = this.createPolyField(undefined, value, name);
                     // FIXME: known to be used for Resource, Embedded Field, check no side-effect on List Field
-                    fieldObj.readOnly = true;
-                    break;
+                fieldObj.readOnly = true;
+                break;
             }
             fieldObj.setParent(this);
             if(append) {
@@ -347,9 +347,9 @@
             update = update || {};
             commit = commit || false;
             // Copy private properties such as _id, _etag, ...
-            forEach(update, function (value, name) {
+            $globals.forEach(update, function (value, name) {
                 if(self.continue(name)) {
-                    self[name] = value
+                    self[name] = value;
                 }
             });
             // Copy $value in case of embedded resource
@@ -376,8 +376,8 @@
         function toString() {
             var values = [];
             var excludedTypes = [
-                $TYPES.BOOLEAN,
-                $TYPES.DATETIME
+                $globals.$TYPES.BOOLEAN,
+                $globals.$TYPES.DATETIME
             ];
 
             var filtered = this.$components.filter(function (c) {
@@ -400,7 +400,7 @@
             if(values.length) {
                 return values.join(', ');
             }
-            return "";
+            return '';
         }
 
         return function () {
@@ -414,8 +414,8 @@
             this.cleanedData = cleanedData;
             this.$$createField = createField;
             return this;
-        }
+        };
 
     })();
 
-})(window);
+})( this );

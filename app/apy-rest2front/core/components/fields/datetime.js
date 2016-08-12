@@ -35,9 +35,9 @@
  *
  *  """
  */
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyDatetimeField = (function () {
+    $globals.ApyDatetimeField = (function () {
 
         /**
          *
@@ -53,7 +53,7 @@
          * @returns {boolean}
          */
         function hasUpdated() {
-            if (!isDate(this.$memo)) {
+            if (!$globals.isDate(this.$memo)) {
                 this.$memo = new Date(this.$memo);
             }
             return this.$value.getTime() !== this.$memo.getTime();
@@ -67,9 +67,9 @@
         function cloneValue(value) {
             var clonedValue = value;
             // Non value & String values cases
-            if (!value || isString(value)) {
+            if (!value || $globals.isString(value)) {
                 // String case
-                if (isString(value)) {
+                if ($globals.isString(value)) {
                     clonedValue = new Date(value);
                 }
                 // Non value case
@@ -78,7 +78,7 @@
                 }
             }
             // Non value & String values cases
-            else if(isDate(value)) {
+            else if($globals.isDate(value)) {
                 clonedValue = new Date(value.toUTCString());
             }
             // unhandled types case
@@ -92,7 +92,7 @@
          *
          */
         function validate() {
-            if (!isDate(this.$value)) {
+            if (!$globals.isDate(this.$value)) {
                 throw new ApyError('Datetime object or string expected');
             }
         }
@@ -112,15 +112,15 @@
             this.cloneValue = cloneValue;
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.DATETIME, null);
-            this.$Class = $window.ApyDatetimeField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.DATETIME, relationName);
+            this.$Class = $globals.ApyDatetimeField;
             return this;
-        }
+        };
 
     })();
 
     // Inject Mixins
-    $window.ApyComponentMixin.call(ApyDatetimeField.prototype);
-    $window.ApyFieldMixin.call(ApyDatetimeField.prototype);
+    $globals.ApyComponentMixin.call(ApyDatetimeField.prototype);
+    $globals.ApyFieldMixin.call(ApyDatetimeField.prototype);
 
 })(window);

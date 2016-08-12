@@ -35,9 +35,9 @@
  *
  *  """
  */
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyCollectionComponent = (function () {
+    $globals.ApyCollectionComponent = (function () {
 
         function deferredAll(promises) {
             return Promise.all(promises.map(function(promise) {
@@ -143,7 +143,7 @@
          * @returns {Promise}
          */
         function save () {
-            return deferredAll([this.create(), this.update()])
+            return deferredAll([this.create(), this.update()]);
         }
 
         /**
@@ -153,8 +153,8 @@
         function fetch (progressHandler) {
             var self = this;
             var progress = progressHandler || function (counter) {
-                    self.$log('Progress handler', counter);
-                };
+                self.$log('Progress handler', counter);
+            };
             progress(25);
             return new Promise(function (resolve, reject) {
                 self.clear();
@@ -163,13 +163,13 @@
                     url: self.$endpoint,
                     method: 'GET'
                 }).then(function (response) {
-                        progress(75);
-                        self.load(response.data._items);
-                        progress(100);
-                        return resolve(response);
-                    },
+                    progress(75);
+                    self.load(response.data._items);
+                    progress(100);
+                    return resolve(response);
+                },
                     function (error) {
-                        self.$log("[ApyFrontendError] => " + error);
+                        self.$log('[ApyFrontendError] => ' + error);
                         progress(100);
                         return reject(new ApyEveHTTPError(error));
                     },
@@ -280,9 +280,9 @@
          * @constructor
          */
         return function (service, name, endpoint, components) {
-            this.initialize(service, name, service.$instance.get(name), null, null, endpoint + name, $TYPES.COLLECTION, null, components);
+            this.initialize(service, name, service.$instance.get(name), null, null, endpoint + name, $globals.$TYPES.COLLECTION, null, components);
             this.$endpointBase = endpoint;
-            this.$Class = $window.ApyCollectionComponent;
+            this.$Class = $globals.ApyCollectionComponent;
             if(this.$schema.$embeddedURI)
                 this.$endpoint += '?' + this.$schema.$embeddedURI;
 
@@ -306,12 +306,12 @@
             this.unsavedComponents = unsavedComponents;
 
             return this;
-        }
+        };
 
     })();
 
     // Inject Mixin
-    $window.ApyComponentMixin.call(ApyCollectionComponent.prototype);
-    $window.ApyRequestMixin.call(ApyCollectionComponent.prototype);
+    $globals.ApyComponentMixin.call(ApyCollectionComponent.prototype);
+    $globals.ApyRequestMixin.call(ApyCollectionComponent.prototype);
 
-})(window);
+})( this );

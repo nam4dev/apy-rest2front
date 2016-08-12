@@ -36,7 +36,7 @@
  *  """
  */
 
-(function ($window) {
+(function ($globals) {
 
     /**
      * Component Interface for the "tree" pattern implementation.constructor.
@@ -45,7 +45,7 @@
      * @type function
      */
         // Registering mixin globally
-    $window.ApyComponentMixin = (function() {
+    $globals.ApyComponentMixin = (function() {
 
         /**
          *
@@ -146,7 +146,7 @@
          */
         function createTypesFactory() {
             var self = this;
-            var $TYPES = $window.$TYPES;
+            var $TYPES = $globals.$TYPES;
             var $typesFactory = {};
             $typesFactory[$TYPES.LIST] = function () {
                 return [];
@@ -167,7 +167,7 @@
                 return 0;
             };
             $typesFactory[$TYPES.STRING] = function () {
-                return "";
+                return '';
             };
             $typesFactory[$TYPES.BOOLEAN] = function () {
                 return false;
@@ -189,6 +189,7 @@
 
         function createTypesForPolyField ($types) {
             var $typesForPoly = [];
+            var $TYPES = $globals.$TYPES;
             Object.keys($types).forEach(function (k) {
                 var type = $types[k];
                 if([$TYPES.COLLECTION, $TYPES.RESOURCE, $TYPES.POLY, $TYPES.INTEGER, $TYPES.FLOAT].indexOf(type) === -1) {
@@ -200,7 +201,7 @@
         }
 
         function initialize(service, name, schema, value, $states, $endpoint, type, relationName, components) {
-            var $TYPES = $window.$TYPES;
+            var $TYPES = $globals.$TYPES;
             this.__logger = undefined;
             this.$originalValue = this.cloneValue(value);
             this.$types = $TYPES;
@@ -222,7 +223,7 @@
             this.setOptions(schema)
                 .setValue(value);
 
-            this.$Class = $window.ApyComponentMixin;
+            this.$Class = $globals.ApyComponentMixin;
             return this;
         }
 
@@ -241,7 +242,7 @@
             var errors = [];
             this.$components.forEach(function (component) {
                 try {
-                    component.validate()
+                    component.validate();
                 } catch (error) {
                     errors.push(error);
                 }
@@ -268,7 +269,7 @@
         }
 
         /* istanbul ignore next */
-        function load (args) {
+        function load () {
             return this;
         }
 
@@ -286,17 +287,17 @@
         function cloneChild() {
             var clone = null;
             var self = this;
-            var fieldClassByType = $window.apy.common.fieldClassByType;
+            var fieldClassByType = $globals.apy.common.fieldClassByType;
             function iterOverSchema(schema, name) {
                 var cl;
                 var relationName;
                 switch (schema.type) {
-                    case $TYPES.OBJECTID:
-                        relationName = schema.data_relation.resource || self.$relationName || name;
-                        break;
-                    default :
-                        relationName = self.$relationName;
-                        break;
+                case $globals.$TYPES.OBJECTID:
+                    relationName = schema.data_relation.resource || self.$relationName || name;
+                    break;
+                default :
+                    relationName = self.$relationName;
+                    break;
                 }
                 var Class = fieldClassByType(schema.type);
                 cl = new Class(self.$service, relationName || name, schema.schema, null,
@@ -518,7 +519,7 @@
             this.initialize = initialize;
             this.cloneChild = cloneChild;
             this.isArray = Array.isArray;
-            this.isFunction = isFunction;
+            this.isFunction = $globals.isFunction;
             this.continue = shallContinue;
             this.cleanedData = cleanedData;
             this.hasChildren = hasChildren;
@@ -536,4 +537,4 @@
         };
     })();
 
-})(window);
+})( this );

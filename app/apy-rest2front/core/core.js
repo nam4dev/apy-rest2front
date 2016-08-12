@@ -38,7 +38,7 @@
  *
  * @module core.core
  */
-(function ($window) {
+(function ($globals) {
 
     /**
      *  The ApyService provides an Object which will load,
@@ -50,7 +50,7 @@
      *
      *  @class ApyCompositeService
      */
-    $window.ApyCompositeService = (function () {
+    $globals.ApyCompositeService = (function () {
 
         function logMissingProvider(name) {
             console.error('No "'+ name + '" Provider available!');
@@ -58,8 +58,8 @@
 
         function invalidate() {
             this.$tokenInfo = undefined;
-            $window.localStorage.setItem('tokenInfo', this.$tokenInfo);
-            $window.location.reload();
+            $globals.localStorage.setItem('tokenInfo', this.$tokenInfo);
+            $globals.location.reload();
             return this;
         }
 
@@ -71,14 +71,16 @@
          *  @returns Boolean
          */
         function isAuthenticated() {
-            var tokenInfo = this.$tokenInfo || $window.localStorage.getItem('tokenInfo');
-            if(tokenInfo && !isObject(tokenInfo)) {
+            var tokenInfo = this.$tokenInfo||$globals.localStorage.getItem('tokenInfo');
+            if(tokenInfo && !$globals.isObject(tokenInfo)) {
                 try {
                     tokenInfo = JSON.parse(tokenInfo);
-                } catch(JSONError) {}
+                } catch(JSONError) {
+                    return false;
+                }
             }
             this.$tokenInfo = tokenInfo;
-            return (isObject(this.$tokenInfo)) ? true : false;
+            return ($globals.isObject(this.$tokenInfo)) ? true : false;
         }
 
         function authenticate(credentials, method, headers) {
@@ -88,7 +90,7 @@
             };
             var transform = function(obj) {
                 function pairEncoding(key) {
-                    return encodeURIComponent(key) + "=" + encodeURIComponent(obj[key]);
+                    return encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]);
                 }
                 var str = [];
                 for(var p in obj) {
@@ -96,7 +98,7 @@
                         str.push(pairEncoding(p));
                     }
                 }
-                return str.join("&");
+                return str.join('&');
             };
             var requestHeaders = headers || defaultHeaders;
             if(!credentials.client_id) {
@@ -115,11 +117,11 @@
 
                 })
                     .then(function (response) {
-                        $window.localStorage.setItem('tokenInfo', JSON.stringify(response.data));
+                        $globals.localStorage.setItem('tokenInfo', JSON.stringify(response.data));
                         return resolve(response);
                     },
                     function (error) {
-                        return reject(new ApyEveHTTPError(error))
+                        return reject(new ApyEveHTTPError(error));
                     });
             });
         }
@@ -165,7 +167,7 @@
                         self.setSchemas(response.data);
                         return resolve(response);
                     }, function (error) {
-                        return reject(new ApyEveHTTPError(error))
+                        return reject(new ApyEveHTTPError(error));
                     });
             });
         }
@@ -220,14 +222,14 @@
             this.$log = $log;
             this.$tokenInfo = undefined;
             this.$http = $http || function () {
-                    logMissingProvider('$http');
-                    return Promise.resolve(arguments)
-                };
+                logMissingProvider('$http');
+                return Promise.resolve(arguments);
+            };
             this.$config = config || {};
             this.$upload = $upload || {upload: function () {
-                    logMissingProvider('Upload');
-                    return Promise.resolve(arguments)
-                }};
+                logMissingProvider('Upload');
+                return Promise.resolve(arguments);
+            }};
             this.$auth = config.auth || {};
             this.$theme = config.appTheme;
             this.$syncHttp = new XMLHttpRequest();
@@ -250,9 +252,9 @@
             this.initEndpoints(config.endpoint, config.schemasEndpointName);
 
             return this;
-        }
+        };
     })();
 
-    $window.ApyRequestMixin.call(ApyCompositeService.prototype);
+    $globals.ApyRequestMixin.call(ApyCompositeService.prototype);
 
-})(window);
+})( this );

@@ -39,21 +39,21 @@
  *
  *  """
  */
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyNumberField = (function () {
+    $globals.ApyNumberField = (function () {
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'number';
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.NUMBER, null);
-            this.$Class = $window.ApyNumberField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.NUMBER, relationName);
+            this.$Class = $globals.ApyNumberField;
             return this;
-        }
+        };
 
     })();
 
     // Inject Mixins
-    $window.ApyComponentMixin.call(ApyNumberField.prototype);
-    $window.ApyFieldMixin.call(ApyNumberField.prototype);
+    $globals.ApyComponentMixin.call(ApyNumberField.prototype);
+    $globals.ApyFieldMixin.call(ApyNumberField.prototype);
 
-})(window);
+})( this );

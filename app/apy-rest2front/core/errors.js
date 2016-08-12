@@ -41,105 +41,107 @@
  */
 
 
-/**
- * Define a base class exposing 2 methods, `title` & `messages`
- *
- * @param message
- * @constructor
- */
-function ApyError(message) {
-    this.title = 'ApyError';
-    var error = Error.call(this, message);
-    this.name = this.title;
-    this.message = error.message;
-    this.stack = error.stack;
-    this.messages = [error.message, error.stack];
-}
+(function ($globals) {
+    /**
+     * Define a base class exposing 2 methods, `title` & `messages`
+     *
+     * @param message
+     * @constructor
+     */
+    function ApyError(message) {
+        this.title = 'ApyError';
+        var error = Error.call(this, message);
+        this.name = this.title;
+        this.message = error.message;
+        this.stack = error.stack;
+        this.messages = [error.message, error.stack];
+    }
 
-ApyError.prototype = Object.create(Error.prototype);
-ApyError.prototype.constructor = ApyError;
+    ApyError.prototype = Object.create(Error.prototype);
+    ApyError.prototype.constructor = ApyError;
+    $globals.ApyError = ApyError;
 
-// Common Eve-based backend methods
-
-function title(eveError) {
-    var code;
-    var title;
-    var both;
-    try {
-        code = eveError.status || eveError.data._error.code;
-    }
-    catch (e) {code = 'Error';}
-    try {
-        title = eveError.statusText || eveError.data._error.message;
-    }
-    catch (e) {title = '';}
-
-    if(code && title) {
-        both = code + ': ' + title;
-    }
-    else if(title) {
-        both = title;
-    }
-    else {
-        both = code;
-    }
-    return both;
-}
-
-function messages(eveError) {
-    var messages = [];
-    if(Array.isArray(eveError)) {
-        messages = eveError;
-    }
-    else if(isObject(eveError) && eveError.data && eveError.data._issues) {
-        messages = eveError.data._issues;
-    }
-    else {
-        if(eveError.data && eveError.data.error_description) {
-            messages.push(eveError.data.error_description);
+    // Common Eve-based backend methods
+    function title(eveError) {
+        var code;
+        var title;
+        var both;
+        try {
+            code = eveError.status || eveError.data._error.code;
         }
-        if(eveError.data && eveError.data._error && eveError.data._error.message) {
-            messages.push(eveError.data._error.message);
+        catch (e) {code = 'Error';}
+        try {
+            title = eveError.statusText || eveError.data._error.message;
         }
+        catch (e) {title = '';}
+
+        if(code && title) {
+            both = code + ': ' + title;
+        }
+        else if(title) {
+            both = title;
+        }
+        else {
+            both = code;
+        }
+        return both;
     }
-    if(Array.isArray(messages) && !messages.length) {
-        messages.push('No details found!')
+    function messages(eveError) {
+        var messages = [];
+        if(Array.isArray(eveError)) {
+            messages = eveError;
+        }
+        else if($globals.isObject(eveError) && eveError.data && eveError.data._issues) {
+            messages = eveError.data._issues;
+        }
+        else {
+            if(eveError.data && eveError.data.error_description) {
+                messages.push(eveError.data.error_description);
+            }
+            if(eveError.data && eveError.data._error && eveError.data._error.message) {
+                messages.push(eveError.data._error.message);
+            }
+        }
+        if(Array.isArray(messages) && !messages.length) {
+            messages.push('No details found!');
+        }
+        return messages;
     }
-    return messages;
-}
 
+    /**
+     * Define a specific Eve Error base class
+     *
+     * @param eveError: Any Eve Error
+     * @constructor
+     */
+    function ApyEveError(eveError) {
+        var error = Error.call(this, title(eveError));
+        this.name = 'ApyEveError';
+        this.title = this.message = error.message;
+        this.stack = error.stack;
+        this.messages = messages(eveError);
+    }
 
-/**
- * Define a specific Eve Error base class
- *
- * @param eveError: Any Eve Error
- * @constructor
- */
-function ApyEveError(eveError) {
-    var error = Error.call(this, title(eveError));
-    this.name = 'ApyEveError';
-    this.title = this.message = error.message;
-    this.stack = error.stack;
-    this.messages = messages(eveError);
-}
+    ApyEveError.prototype = Object.create(Error.prototype);
+    ApyEveError.prototype.constructor = ApyEveError;
+    $globals.ApyEveError = ApyEveError;
 
-ApyEveError.prototype = Object.create(Error.prototype);
-ApyEveError.prototype.constructor = ApyEveError;
+    /**
+     * Define a specific Eve Error class to handle HTTP Error
+     *
+     * @param eveError: The HTTP Error
+     * @constructor
+     */
+    function ApyEveHTTPError(eveError) {
+        var error = Error.call(this, title(eveError));
+        this.name = 'ApyEveHTTPError';
+        this.title = this.message = error.message;
+        this.stack = error.stack;
+        this.messages = messages(eveError);
+    }
 
+    ApyEveHTTPError.prototype = Object.create(Error.prototype);
+    ApyEveHTTPError.prototype.constructor = ApyEveHTTPError;
+    $globals.ApyEveHTTPError = ApyEveHTTPError;
 
-/**
- * Define a specific Eve Error class to handle HTTP Error
- *
- * @param eveError: The HTTP Error
- * @constructor
- */
-function ApyEveHTTPError(eveError) {
-    var error = Error.call(this, title(eveError));
-    this.name = 'ApyEveHTTPError';
-    this.title = this.message = error.message;
-    this.stack = error.stack;
-    this.messages = messages(eveError);
-}
-
-ApyEveHTTPError.prototype = Object.create(Error.prototype);
-ApyEveHTTPError.prototype.constructor = ApyEveHTTPError;
+})( this );

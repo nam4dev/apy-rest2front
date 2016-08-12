@@ -36,7 +36,7 @@
  *  """
  */
 
-(function ($window) {'use strict';
+(function ($globals) {'use strict';
 
     /**
      *
@@ -421,7 +421,7 @@
 
         // Support: iOS 8.2 (not reproducible in simulator)
         // "length" in obj used to prevent JIT error (gh-11508)
-        var length = "length" in Object(obj) && obj.length;
+        var length = 'length' in Object(obj) && obj.length;
 
         if (obj.nodeType === NODE_TYPE_ELEMENT && length) {
             /* istanbul ignore next */
@@ -434,20 +434,20 @@
 
     // Enum of known types
     var $TYPES = {
-        LIST: "list",
-        DICT: "dict",
-        POLY: "poly",
-        MEDIA: "media",
-        POINT: "point",
-        FLOAT: "float",
-        NUMBER: "number",
-        STRING: "string",
-        BOOLEAN: "boolean",
-        INTEGER: "integer",
-        OBJECTID: "objectid",
-        DATETIME: "datetime",
-        RESOURCE: "resource",
-        COLLECTION: "collection"
+        LIST: 'list',
+        DICT: 'dict',
+        POLY: 'poly',
+        MEDIA: 'media',
+        POINT: 'point',
+        FLOAT: 'float',
+        NUMBER: 'number',
+        STRING: 'string',
+        BOOLEAN: 'boolean',
+        INTEGER: 'integer',
+        OBJECTID: 'objectid',
+        DATETIME: 'datetime',
+        RESOURCE: 'resource',
+        COLLECTION: 'collection'
     };
 
     /**
@@ -457,7 +457,7 @@
      * @constructor
      */
     var ApyMediaFile = function ApyMediaFile($endpoint, value) {
-        $endpoint = $endpoint || "";
+        $endpoint = $endpoint || '';
         if($endpoint && $endpoint.endsWith && $endpoint.endsWith('/')) {
             $endpoint = $endpoint.slice(0, -1);
         }
@@ -470,7 +470,7 @@
      *
      */
     ApyMediaFile.prototype.toString = function toString() {
-        return "(" + [this.$name, this.$type].join(', ') + ")";
+        return '(' + [this.$name, this.$type].join(', ') + ')';
     };
 
     /**
@@ -506,7 +506,7 @@
             type: this.$type,
             lastModified: this.$lastModified,
             lastModifiedDate: this.$lastModifiedDate
-        }
+        };
     };
 
     /**
@@ -539,13 +539,13 @@
                 self: error,
                 message: '' + error,
                 origin: origin
-            }
+            };
         }
 
         return new Promise(function (resolve, reject) {
             var $reader = new FileReader();
             $reader.onerror = function (e) {
-                return reject(new ErrorProxy(e, "$reader.onerror"));
+                return reject(new ErrorProxy(e, '$reader.onerror'));
             };
             if(self.$isImage && isBlob(self.$file) || isFile(self.$file)) {
                 $reader.onload = function (evt) {
@@ -562,7 +562,7 @@
                     $reader.readAsDataURL(self.$file);
                 }
                 catch (e) {
-                    return reject(new ErrorProxy(e, "$reader.readAsDataURL"));
+                    return reject(new ErrorProxy(e, '$reader.readAsDataURL'));
                 }
 
             }
@@ -584,9 +584,9 @@
      * @param states
      * @constructor
      */
-    var ApyStateHolder = function (initialState, states) {
-        this.$states = states;
-        this.$current = initialState;
+    var ApyStateHolder = function ApyStateHolder(initialState, states) {
+        this.$states=states;
+        this.$current=initialState;
         this.load();
     };
 
@@ -596,7 +596,7 @@
      * @returns {ApyStateHolder}
      */
     ApyStateHolder.prototype.set = function (state) {
-        this.$current = state;
+        this.$current=state;
         return this;
     };
 
@@ -629,7 +629,7 @@
             value = {};
         }
         if(!value.hasOwnProperty('type')) {
-            value.type = "Point";
+            value.type = 'Point';
         }
         if(!value.hasOwnProperty('coordinates')) {
             value.coordinates = [-1, -1];
@@ -661,7 +661,7 @@
     ApyPoint.prototype.cleanedData = function cleanedData() {
         this.clean();
         return {
-            "type": "Point",
+            'type': 'Point',
             coordinates: this.coordinates
         };
     };
@@ -670,33 +670,33 @@
     patchObject();
     patchString();
 
-    $window.apy = $window.apy || {};
-    $window.apy.common = $window.apy.common || {};
+    $globals.apy = $globals.apy || {};
+    $globals.apy.common = $globals.apy.common || {};
 
-    $window.$TYPES = $TYPES;
-    $window.forEach = forEach;
-    $window.isUndefined = isUndefined;
-    $window.isDefined = isDefined;
-    $window.isObject = isObject;
-    $window.isBlankObject = isBlankObject;
-    $window.isString = isString;
-    $window.isNumber = isNumber;
-    $window.isDate = isDate;
-    $window.isFunction = isFunction;
-    $window.isRegExp = isRegExp;
-    $window.isWindow = isWindow;
-    $window.isEmpty = isEmpty;
-    $window.isFile = isFile;
-    $window.isFormData = isFormData;
-    $window.isBlob = isBlob;
-    $window.isBoolean = isBoolean;
-    $window.isPromiseLike = isPromiseLike;
-    $window.isArrayLike = isArrayLike;
+    $globals.$TYPES = $TYPES;
+    $globals.forEach = forEach;
+    $globals.isUndefined = isUndefined;
+    $globals.isDefined = isDefined;
+    $globals.isObject = isObject;
+    $globals.isBlankObject = isBlankObject;
+    $globals.isString = isString;
+    $globals.isNumber = isNumber;
+    $globals.isDate = isDate;
+    $globals.isFunction = isFunction;
+    $globals.isRegExp = isRegExp;
+    $globals.isWindow = isWindow;
+    $globals.isEmpty = isEmpty;
+    $globals.isFile = isFile;
+    $globals.isFormData = isFormData;
+    $globals.isBlob = isBlob;
+    $globals.isBoolean = isBoolean;
+    $globals.isPromiseLike = isPromiseLike;
+    $globals.isArrayLike = isArrayLike;
 
-    $window.ApyPoint = ApyPoint;
-    $window.ApyMediaFile = ApyMediaFile;
-    $window.ApyStateHolder = ApyStateHolder;
-    $window.ApyStackComponent = ApyStateHolder;
+    $globals.ApyPoint = ApyPoint;
+    $globals.ApyMediaFile = ApyMediaFile;
+    $globals.ApyStateHolder = ApyStateHolder;
+    $globals.ApyStackComponent = ApyStateHolder;
 
     /**
      * Common behaviour
@@ -707,13 +707,13 @@
         // following naming convention
         type = type.capitalize();
         var fieldClassName = 'Apy' + type + 'Field';
-        if(!$window.hasOwnProperty(fieldClassName)) {
+        if(!$globals.hasOwnProperty(fieldClassName)) {
             return null;
         }
-        return $window[fieldClassName];
+        return $globals[fieldClassName];
     }
 
-    $window.apy.common.fieldClassByType = function fieldClassByType(type) {
+    $globals.apy.common.fieldClassByType = function fieldClassByType(type) {
         type = type || 'poly';
         if(type !== 'collection') {
             if(type === 'dict') {
@@ -727,4 +727,4 @@
         return null;
     };
 
-})(window);
+})( this );

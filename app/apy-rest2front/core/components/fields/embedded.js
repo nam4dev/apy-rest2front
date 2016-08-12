@@ -35,12 +35,12 @@
  *
  *  """
  */
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyEmbeddedField = (function () {
+    $globals.ApyEmbeddedField = (function () {
 
         function cloneValue(value) {
-            return isObject(value) ? Object.assign(value) : value;
+            return $globals.isObject(value) ? Object.assign(value) : value;
         }
 
         function selfCommit() {
@@ -53,7 +53,7 @@
             this.$memo = cleaned;
         }
 
-        function selfUpdate(update, commit) {
+        function selfUpdate(update) {
             this._id = update._id;
             this._etag = update._etag;
             this._links = update._links;
@@ -65,7 +65,7 @@
 
         function hasUpdated () {
             var updated;
-            if(this.$memo && isObject(this.$memo)) {
+            if(this.$memo && $globals.isObject(this.$memo)) {
                 updated = this.$memo._id !== this._id;
             }
             else {
@@ -92,12 +92,12 @@
             var id = this._id;
             if(id === undefined || id === null) {
                 var message = 'An Embedded Field should have a non-empty ID[' + typeof id + ']';
-                throw new ApyError(message);
+                throw new $globals.ApyError(message);
             }
         }
 
         function setValue(value) {
-            if(isString(value)) {
+            if($globals.isString(value)) {
                 value = {_id: value};
             }
             this.load(value);
@@ -125,16 +125,16 @@
             this.selfCommit = selfCommit;
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.OBJECTID, relationName);
-            this.$Class = $window.ApyEmbeddedField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.OBJECTID, relationName);
+            this.$Class = $globals.ApyEmbeddedField;
             return this;
-        }
+        };
 
     })();
 
     // Inject Mixins
-    $window.ApyComponentMixin.call(ApyEmbeddedField.prototype);
-    $window.ApyFieldMixin.call(ApyEmbeddedField.prototype);
-    $window.ApyCompositeMixin.call(ApyEmbeddedField.prototype);
+    $globals.ApyComponentMixin.call(ApyEmbeddedField.prototype);
+    $globals.ApyFieldMixin.call(ApyEmbeddedField.prototype);
+    $globals.ApyCompositeMixin.call(ApyEmbeddedField.prototype);
 
-})(window);
+})( this );

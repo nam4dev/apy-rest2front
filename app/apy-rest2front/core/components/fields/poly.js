@@ -37,15 +37,15 @@
  *
  *  """
  */
-(function ($window, $) {
+(function ($globals, $) {
 
-    $window.ApyPolyField = function () {
-        var fieldClassByType = $window.apy.common.fieldClassByType;
+    $globals.ApyPolyField = function () {
+        var fieldClassByType = $globals.apy.common.fieldClassByType;
 
         function setType(type, schemaName) {
             var field = fieldClassByType(type);
             if(!field) {
-                throw new ApyError('Unknown Field type, **' + type + '**');
+                throw new $globals.ApyError('Unknown Field type, **' + type + '**');
             }
             var schema = schemaName ? this.$service.$schemas[schemaName]: null;
             var instance = new field(this.$service, null, schema, null,
@@ -66,16 +66,18 @@
                     type, ', schemaName=', schemaName);
             }
             switch (type) {
-                case $TYPES.RESOURCE:
-                    this.add(this.createPolyField({}, null));
-                    break;
-                default:
-                    break;
+            case $globals.$TYPES.RESOURCE:
+                this.add(this.createPolyField({}, null));
+                break;
+            default:
+                break;
             }
         }
 
         // FIXME
-        function validate() {}
+        function validate() {
+
+        }
 
         /**
          *
@@ -95,15 +97,15 @@
             // Allow to know, this field is a PolyMorph type as it is the only one to have this property,
             // as when setType is invoked, its type is entirely overridden with all similar properties.
             this.$isPolyMorph = true;
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.POLY, relationName);
-            this.$Class = $window.ApyPolyField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.POLY, relationName);
+            this.$Class = $globals.ApyPolyField;
             return this;
-        }
+        };
 
     }();
 
     // Inject Mixins
-    $window.ApyComponentMixin.call(ApyPolyField.prototype);
-    $window.ApyFieldMixin.call(ApyPolyField.prototype);
+    $globals.ApyComponentMixin.call(ApyPolyField.prototype);
+    $globals.ApyFieldMixin.call(ApyPolyField.prototype);
 
 })(window, window.jQuery);

@@ -41,7 +41,7 @@ angular.module('apy-rest2front.version.version-directive', [])
     .directive('apyVersion', ['version',
         /* istanbul ignore next */
         function(version) {
-            return function(scope, elm, attrs) {
+            return function(scope, elm) {
 
                 elm.text(version);
             };

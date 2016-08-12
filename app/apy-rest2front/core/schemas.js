@@ -39,7 +39,7 @@
  *
  * @module core.schemas
  */
-(function ($window) { 'use strict';
+(function ($globals) { 'use strict';
 
     /**
      * Represents a Schema instance.
@@ -70,7 +70,7 @@
     function recursiveLoad(self, schema, embedded, level) {
         level = level || 0;
         embedded = embedded || {};
-        forEach(schema, function (validator, fieldName) {
+        $globals.forEach(schema, function (validator, fieldName) {
             if(level === 0) {
                 self[fieldName] = validator;
             }
@@ -79,20 +79,20 @@
                 wrappedSchema[fieldName] = validator.schema;
                 recursiveLoad(self, wrappedSchema, embedded, level + 1);
             }
-            if(isObject(validator) && validator.type) {
+            if($globals.isObject(validator) && validator.type) {
                 switch (validator.type) {
-                    case $TYPES.MEDIA:
-                        self.$hasMedia = true;
-                        break;
-                    case $TYPES.OBJECTID:
-                        if (fieldName !== '_id') {
-                            if(validator.data_relation.embeddable) {
-                                embedded[fieldName] = 1;
-                            }
+                case $globals.$TYPES.MEDIA:
+                    self.$hasMedia = true;
+                    break;
+                case $globals.$TYPES.OBJECTID:
+                    if (fieldName !== '_id') {
+                        if(validator.data_relation.embeddable) {
+                            embedded[fieldName] = 1;
                         }
-                        break;
-                    default :
-                        break;
+                    }
+                    break;
+                default :
+                    break;
                 }
             }
         });
@@ -125,11 +125,11 @@
      * @constructor
      */
     var ApySchemasComponent = function ApySchemasComponent (endpoint, schemas, config, service) {
-        if(!service || !isObject(service)) {
-            throw new ApyError('A Service object must be provided (got type => ' + typeof service + ') !');
+        if(!service || !$globals.isObject(service)) {
+            throw new $globals.ApyError('A Service object must be provided (got type => ' + typeof service + ') !');
         }
-        if(!schemas || !isObject(schemas)) {
-            throw new ApyError('A schemas object must be provided (got type => ' + typeof schemas + ') !');
+        if(!schemas || !$globals.isObject(schemas)) {
+            throw new $globals.ApyError('A schemas object must be provided (got type => ' + typeof schemas + ') !');
         }
         this.$names = [];
         this.$humanNames = [];
@@ -142,17 +142,17 @@
         $.extend(true, this.$schemas, this.$config.schemas || {});
         this.$excluded = this.$config.excludedEndpointByNames || [];
         this.$template = {
-            _id: "",
-            _etag: "",
+            _id: '',
+            _etag: '',
             _links: {
                 self: {
-                    href: "",
-                    title: ""
+                    href: '',
+                    title: ''
                 }
             },
-            _created: "",
-            _updated: "",
-            _deleted: ""
+            _created: '',
+            _updated: '',
+            _deleted: ''
         };
         this.load();
     };
@@ -166,10 +166,11 @@
     ApySchemasComponent.prototype.createResource = function createResource (name, resource) {
         var schema = this.get(name);
         if(!schema) {
-            throw new ApyError('No schema provided for name', name);
+            throw new $globals.ApyError('No schema provided for name', name);
         }
         var value = resource || this.schema2data(schema);
-        return new ApyResourceComponent(this.$service, name, schema, value, null, this.$endpoint, $TYPES.RESOURCE, name);
+        return new $globals.ApyResourceComponent(this.$service, name, schema, value,
+            null, this.$endpoint, $globals.$TYPES.RESOURCE, name);
     };
 
     /**
@@ -179,7 +180,7 @@
      */
     ApySchemasComponent.prototype.get = function get (schemaName) {
         if(!this.$components.hasOwnProperty(schemaName)) {
-            throw new ApyError('Unknown schema name, ' + schemaName);
+            throw new $globals.ApyError('Unknown schema name, ' + schemaName);
         }
         return this.$components[schemaName];
     };
@@ -215,63 +216,63 @@
     ApySchemasComponent.prototype.transformData = function transformData(key, value) {
         var val;
         switch (value.type) {
-            case $TYPES.LIST:
-                if (value.schema) {
-                    switch(value.schema.type) {
-                        case $TYPES.OBJECTID:
-                            val = [];
-                            break;
-                        default :
-                            val = [this.transformData(undefined, value.schema)];
-                            break;
-                    }
-                }
-                else {
+        case $globals.$TYPES.LIST:
+            if (value.schema) {
+                switch(value.schema.type) {
+                case $globals.$TYPES.OBJECTID:
                     val = [];
+                    break;
+                default :
+                    val = [this.transformData(undefined, value.schema)];
+                    break;
                 }
-                break;
-            case $TYPES.DICT:
-                val = this.schema2data(value.schema);
-                break;
+            }
+            else {
+                val = [];
+            }
+            break;
+        case $globals.$TYPES.DICT:
+            val = this.schema2data(value.schema);
+            break;
             /* istanbul ignore next */
-            case $TYPES.MEDIA:
+        case $globals.$TYPES.MEDIA:
                 //val = new ApyMediaFile(this.$endpoint);
-                break;
-            case $TYPES.FLOAT:
-            case $TYPES.NUMBER:
-                val = value.default || 0.0;
-                break;
-            case $TYPES.STRING:
-                val = value.default || "";
-                break;
-            case $TYPES.INTEGER:
-                val = value.default || 0;
-                break;
-            case $TYPES.BOOLEAN:
-                val = value.default || false;
-                break;
-            case $TYPES.OBJECTID:
-                if(key && key.startsWith && key.startsWith('_')) {
-                    val = "";
+            break;
+        case $globals.$TYPES.FLOAT:
+        case $globals.$TYPES.NUMBER:
+            val = value.default || 0.0;
+            break;
+        case $globals.$TYPES.STRING:
+            val = value.default || '';
+            break;
+        case $globals.$TYPES.INTEGER:
+            val = value.default || 0;
+            break;
+        case $globals.$TYPES.BOOLEAN:
+            val = value.default || false;
+            break;
+        case $globals.$TYPES.OBJECTID:
+            if(key && key.startsWith && key.startsWith('_')) {
+                val = '';
+            }
+            else {
+                var keyResource = value.data_relation.resource;
+                if(this.$service.$schemas &&
+                        this.$service.$schemas.hasOwnProperty(keyResource)) {
+                    var $base = this.$service.$schemas[keyResource].$base;
+                    val = this.schema2data($base);
                 }
                 else {
-                    var keyResource = value.data_relation.resource;
-                    if(this.$service.$schemas &&
-                        this.$service.$schemas.hasOwnProperty(keyResource)) {
-                        var $base = this.$service.$schemas[keyResource].$base;
-                        val = this.schema2data($base);
-                    }
-                    else {
-                        val = {}
-                    }
+                    val = {};
                 }
-                break;
-            case $TYPES.DATETIME:
-                val = value.default ? new Date(value.default) : new Date();
-                break;
-            default :
-                val = null;
-                break;
+            }
+            break;
+        case $globals.$TYPES.DATETIME:
+            val = value.default ? new Date(value.default) : new Date();
+            break;
+        default :
+            val = null;
+            break;
         }
         return val;
     };
@@ -290,13 +291,13 @@
         }
         else {
             data = schema ? {} : this.$template;
-            forEach(schema, function (value, key) {
+            $globals.forEach(schema, function (value, key) {
                 data[key] = self.transformData(key, value);
             });
         }
         return data;
     };
 
-    $window.ApySchemasComponent = ApySchemasComponent;
+    $globals.ApySchemasComponent = ApySchemasComponent;
 
-})(window);
+})( this );

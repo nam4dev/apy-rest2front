@@ -60,13 +60,13 @@
             /* istanbul ignore next */
             $scope.setFile = function (field, file) {
                 field.$value.load(file)
-                    .then(function (_) {
+                    .then(function () {
                         $scope.$apply();
                     })
                     .catch(function (error) {
                         $log.error(error);
                         apyModalProvider.error(new ApyError(error));
-                    })
+                    });
             };
 
             $scope.expandList = function (field) {
@@ -114,7 +114,7 @@
                 // Data Layer
                 try {
                     var collection = apyProvider.createCollection(field.$relationName);
-                    collection.fetch().then(function (_) {
+                    collection.fetch().then(function () {
                         $scope.$collection = collection;
                         win = $uibModal.open({
                             animation: false,
@@ -127,7 +127,7 @@
                     apyModalProvider.error(new ApyEveHTTPError({
                         data: {
                             _error: {
-                                code: "UNEXPECTED",
+                                code: 'UNEXPECTED',
                                 message: '' + error
                             }
                         }
@@ -143,8 +143,8 @@
                     field: '='
                 },
                 template: '<div ng-include="field.$contentUrl"></div>',
-                controller: "ApyFieldCtrl"
+                controller: 'ApyFieldCtrl'
             };
-        })
+        });
 
 })(window.angular);

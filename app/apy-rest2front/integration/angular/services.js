@@ -35,7 +35,7 @@
  *  """
  */
 
-(function ($window) {
+(function ($globals) {
 
     var messagesBasedTemplate = ' \
         <div class="modal-header btn-{{ widgetClass || \'info\' }}"> \
@@ -72,7 +72,7 @@
         </div> \
     ';
 
-    $window.ApyModalProxy = function ($rootScope, $modal) {
+    $globals.ApyModalProxy = function ($rootScope, $modal) {
         var instances = [];
         var currentInstance;
 
@@ -88,7 +88,7 @@
             base: function base(config) {
 
                 function isFunc(callback) {
-                    return callback && isFunction(callback);
+                    return callback && $globals.isFunction(callback);
                 }
 
                 function executeIfPossible(callback) {
@@ -154,7 +154,7 @@
                     messages: config.messages,
                     okCallback: config.okCallback,
                     cancelCallback: config.cancelCallback
-                })
+                });
             },
             error: function error(e, okCallback) {
                 var cls = 'danger';
@@ -164,14 +164,14 @@
                     okCallback: okCallback,
                     widgetClass: cls,
                     okWidgetClass: cls
-                })
+                });
             },
             errors: function errors(errorList) {
                 var cls = 'danger';
                 var messages = [];
                 errorList.forEach(function (error) {
                     var iter;
-                    if(isObject(error.messages)) {
+                    if($globals.isObject(error.messages)) {
                         iter = [];
                         Object.keys(error.messages).forEach(function (k) {
                             iter.push(k + ' => ' + error.messages[k]);
@@ -183,14 +183,14 @@
                     messages.push(error.title);
                     iter.forEach(function (value) {
                         messages.push(value);
-                    })
+                    });
                 });
                 this.base({
-                    title: "Errors",
+                    title: 'Errors',
                     messages: messages,
                     widgetClass: cls,
                     okWidgetClass: cls
-                })
+                });
             },
             success: function success(config) {
                 var cls = 'success';
@@ -198,7 +198,7 @@
                 config.okWidgetClass = cls;
                 this.base(config);
             }
-        }
+        };
     };
 
-})(window);
+})( this );

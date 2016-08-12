@@ -35,9 +35,9 @@
  *
  *  """
  */
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyListField = function () {
+    $globals.ApyListField = function () {
 
         function setValue(value) {
             var self = this;
@@ -46,7 +46,7 @@
             this.$value = this.cloneValue(value);
             // Reset components
             this.$components = [];
-            if(this.isArray(value)) {
+            if(Array.isArray(value)) {
                 value.forEach(function (el) {
                     self.load(el);
                 });
@@ -87,7 +87,7 @@
          */
         function cloneValue(value) {
             value = value ? value : [];
-            if(!this.isArray(value)) {
+            if(!Array.isArray(value)) {
                 value = new Array(value);
             }
             return value;
@@ -150,7 +150,7 @@
             this.$memo = this.$components.length;
             this.$components.forEach(function (comp) {
                 comp.selfCommit();
-            })
+            });
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
@@ -165,17 +165,17 @@
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
             this.$memoValue = [];
-            this.initialize(service, name, schema, value, $states, $endpoint, $TYPES.LIST, relationName);
-            this.$Class = $window.ApyListField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.LIST, relationName);
+            this.$Class = $globals.ApyListField;
             return this;
-        }
+        };
 
     }();
 
     // Inject Mixins
-    $window.ApyComponentMixin.call(ApyListField.prototype);
-    $window.ApyFieldMixin.call(ApyListField.prototype);
-    $window.ApyRequestMixin.call(ApyListField.prototype);
-    $window.ApyCompositeMixin.call(ApyListField.prototype);
+    $globals.ApyComponentMixin.call(ApyListField.prototype);
+    $globals.ApyFieldMixin.call(ApyListField.prototype);
+    $globals.ApyRequestMixin.call(ApyListField.prototype);
+    $globals.ApyCompositeMixin.call(ApyListField.prototype);
 
-})(window);
+})( this );

@@ -129,9 +129,9 @@
                     var update;
                     var errors;
                     try { create = inspections[0]._settledValueField; }
-                    catch (e) { create = [] }
+                    catch (e) { create = []; }
                     try { update = inspections[1]._settledValueField; }
-                    catch (e) { update = [] }
+                    catch (e) { update = []; }
                     errors = create.concat(update).filter(function(inspection) {
                         return !inspection.isFulfilled();
                     });
@@ -156,13 +156,13 @@
 
             cancelCallback = cancelCallback || function () {
 
-                };
+            };
 
             function appendS() {
                 if(count > 1) {
-                    return "s";
+                    return 's';
                 }
-                return "";
+                return '';
             }
 
             function title() {
@@ -171,8 +171,8 @@
             }
 
             function message() {
-                return "Would you really like to delete " +
-                    count + " listed `" + $currentResource + '` resource' + appendS() + " ?";
+                return 'Would you really like to delete ' +
+                    count + ' listed `' + $currentResource + '` resource' + appendS() + ' ?';
             }
 
             function messages() {
@@ -188,7 +188,7 @@
                 messages: messages(),
                 okCallback: okCallback,
                 cancelCallback: cancelCallback
-            }
+            };
         }
     }
 
@@ -201,7 +201,7 @@
                     $scope.$schemas = apyProvider.$schemasAsArray;
                     if($routeParams.resource === 'index') {
                         $scope.isIndex = true;
-                        return
+                        return;
                     }
                     $scope.listDisplay = window.localStorage.getItem('listDisplay') || 'vertical';
                     setView({
@@ -235,7 +235,7 @@
                 }
                 else {
                     apyProvider
-                        .setDependencies({name: "Upload", value: Upload})
+                        .setDependencies({name: 'Upload', value: Upload})
                         .loadSchemas(true)
                         .then(function () {
                             success();

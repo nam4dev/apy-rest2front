@@ -35,9 +35,9 @@
  *
  *  """
  */
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyPointField = (function () {
+    $globals.ApyPointField = (function () {
 
         /**
          * Set a given value to attributes
@@ -63,7 +63,7 @@
          * @returns {ApyPoint}
          */
         function cloneValue(value) {
-            return new ApyPoint(value);
+            return new $globals.ApyPoint(value);
         }
 
         /**
@@ -133,15 +133,15 @@
             this.cloneValue = cloneValue;
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
-            this.$Class = $window.ApyPointField;
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.POINT, null);
+            this.$Class = $globals.ApyPointField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.POINT, relationName);
             return this;
-        }
+        };
 
     })();
 
     // Inject Mixins
-    $window.ApyComponentMixin.call(ApyPointField.prototype);
-    $window.ApyFieldMixin.call(ApyPointField.prototype);
+    $globals.ApyComponentMixin.call(ApyPointField.prototype);
+    $globals.ApyFieldMixin.call(ApyPointField.prototype);
 
-})(window);
+})( this );

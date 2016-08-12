@@ -36,9 +36,9 @@
  *
  *  """
  */
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyMediaField = (function () {
+    $globals.ApyMediaField = (function () {
 
         function toString() {
             return this.$value.toString();
@@ -50,10 +50,10 @@
         }
 
         function cloneValue(value) {
-            if(value instanceof ApyMediaFile) {
+            if(value instanceof $globals.ApyMediaFile) {
                 value = value.getInfo();
             }
-            return new ApyMediaFile(this.$endpoint, value);
+            return new $globals.ApyMediaFile(this.$endpoint, value);
         }
 
         // FIXME
@@ -88,15 +88,15 @@
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.MEDIA, relationName);
-            this.$Class = $window.ApyMediaField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.MEDIA, relationName);
+            this.$Class = $globals.ApyMediaField;
             return this;
-        }
+        };
 
     })();
 
     // Inject Mixins
-    $window.ApyComponentMixin.call(ApyMediaField.prototype);
-    $window.ApyFieldMixin.call(ApyMediaField.prototype);
+    $globals.ApyComponentMixin.call(ApyMediaField.prototype);
+    $globals.ApyFieldMixin.call(ApyMediaField.prototype);
 
-})(window);
+})( this );

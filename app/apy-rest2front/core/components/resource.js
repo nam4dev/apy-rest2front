@@ -35,9 +35,9 @@
  *
  *  """
  */
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyResourceComponent = (function () {
+    $globals.ApyResourceComponent = (function () {
 
 
 
@@ -88,9 +88,9 @@
                 return reject({
                     data: {
                         _error: {
-                            message: "Resource does not have valid " +
-                            "'$endpoint' or '$name' (" + self.$endpoint + ", "
-                            + self.$name + ")"
+                            message: 'Resource does not have valid ' +
+                            '\'$endpoint\' or \'$name\' (' + self.$endpoint + ', '
+                            + self.$name + ')'
                         }
                     }
                 });
@@ -149,7 +149,7 @@
          * @constructor
          */
         return function (service, name, schema, value, $states, $endpoint, type, relationName, components) {
-            type = type || $TYPES.RESOURCE;
+            type = type || $globals.$TYPES.RESOURCE;
 
             this.delete = del;
             this.create = create;
@@ -162,7 +162,7 @@
             this.initialize(service, name, schema, value, st, $endpoint, type, relationName, components);
             this.$selfUpdated = false;
             this.$endpointBase = $endpoint;
-            this.$Class = $window.ApyResourceComponent;
+            this.$Class = $globals.ApyResourceComponent;
 
             if(relationName)
                 this.$endpoint += relationName;
@@ -172,13 +172,13 @@
             this.load(value);
 
             return this;
-        }
+        };
 
     })();
 
     // Inject Mixin
-    $window.ApyComponentMixin.call(ApyResourceComponent.prototype);
-    $window.ApyRequestMixin.call(ApyResourceComponent.prototype);
-    $window.ApyCompositeMixin.call(ApyResourceComponent.prototype);
+    $globals.ApyComponentMixin.call(ApyResourceComponent.prototype);
+    $globals.ApyRequestMixin.call(ApyResourceComponent.prototype);
+    $globals.ApyCompositeMixin.call(ApyResourceComponent.prototype);
 
-})(window);
+})( this );

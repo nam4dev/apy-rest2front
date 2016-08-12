@@ -36,12 +36,12 @@
  *  """
  */
 
-(function ($window) {'use strict';
+(function ($globals) {'use strict';
 
 
 
     // Registering mixin globally
-    $window.ApyFieldMixin =  (function () {
+    $globals.ApyFieldMixin =  (function () {
 
         function setOptions(schema) {
             schema = schema || {};
@@ -98,7 +98,7 @@
          */
         function _errorMsg() {
             var msg = 'Field.' + this.$name + ' did not validate' + '\n';
-               msg += 'Type should be ' + this.$internalType + ', got ' + typeof this.$value;
+            msg += 'Type should be ' + this.$internalType + ', got ' + typeof this.$value;
             return msg;
         }
 
@@ -120,11 +120,11 @@
             this.selfCommit      = selfCommit;
             this.cleanedData     = cleanedData;
             return this;
-        }
+        };
 
     })();
 
     // Inject Mixin
-    $window.ApyComponentMixin.call(ApyFieldMixin.prototype);
+    $globals.ApyComponentMixin.call(ApyFieldMixin.prototype);
 
-})(window);
+})( this );

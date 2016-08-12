@@ -35,9 +35,9 @@
  *
  *  """
  */
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyNestedField = (function () {
+    $globals.ApyNestedField = (function () {
 
         /**
          *
@@ -45,23 +45,23 @@
          * @returns {*}
          */
         function cloneValue(value) {
-            return isObject(value) ? Object.assign(value) : value;
+            return $globals.isObject(value) ? Object.assign(value) : value;
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.cloneValue = cloneValue;
             this.$internalType = 'object';
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.RESOURCE, relationName);
-            this.$Class = $window.ApyNestedField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.RESOURCE, relationName);
+            this.$Class = $globals.ApyNestedField;
             this.load(value);
             return this;
-        }
+        };
 
     })();
 
     // Inject Mixins
-    $window.ApyComponentMixin.call(ApyNestedField.prototype);
-    $window.ApyFieldMixin.call(ApyNestedField.prototype);
-    $window.ApyCompositeMixin.call(ApyNestedField.prototype);
+    $globals.ApyComponentMixin.call(ApyNestedField.prototype);
+    $globals.ApyFieldMixin.call(ApyNestedField.prototype);
+    $globals.ApyCompositeMixin.call(ApyNestedField.prototype);
 
-})(window);
+})( this );

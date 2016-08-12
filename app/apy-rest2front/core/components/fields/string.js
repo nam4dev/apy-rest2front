@@ -35,9 +35,9 @@
  *
  *  """
  */
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyStringField = function () {
+    $globals.ApyStringField = function () {
 
         function toString() {
             return this.$value;
@@ -52,7 +52,7 @@
          * @returns {Boolean}
          */
         function hasUpdated() {
-            this.$value = this.$value || "";
+            this.$value = this.$value || '';
             return this.parentHasUpdated();
         }
 
@@ -62,15 +62,15 @@
             this.toString = toString;
             this.wordCount = wordCount;
             this.hasUpdated = hasUpdated;
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.STRING, null);
-            this.$Class = $window.ApyStringField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.STRING, relationName);
+            this.$Class = $globals.ApyStringField;
             return this;
-        }
+        };
 
     }();
 
     // Inject Mixins
-    $window.ApyComponentMixin.call(ApyStringField.prototype);
-    $window.ApyFieldMixin.call(ApyStringField.prototype);
+    $globals.ApyComponentMixin.call(ApyStringField.prototype);
+    $globals.ApyFieldMixin.call(ApyStringField.prototype);
 
-})(window);
+})( this );

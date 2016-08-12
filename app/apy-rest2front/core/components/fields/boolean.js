@@ -36,9 +36,9 @@
  *  """
  */
 
-(function ($window) {
+(function ($globals) {
 
-    $window.ApyBooleanField = (function () {
+    $globals.ApyBooleanField = (function () {
 
         /**
          * Clone the value.
@@ -93,17 +93,17 @@
             this.parentHasUpdated = this.hasUpdated;
             this.hasUpdated = hasUpdated;
             this.cloneValue = cloneValue;
-            this.initialize(service, name, schema, value, $states, $endpoint, $window.$TYPES.BOOLEAN, null);
-            this.$Class = $window.ApyBooleanField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.BOOLEAN, relationName);
+            this.$Class = $globals.ApyBooleanField;
             return this;
-        }
+        };
 
     })();
 
     // Inject Mixins
-    $window.ApyComponentMixin.call(ApyBooleanField.prototype);
-    $window.ApyFieldMixin.call(ApyBooleanField.prototype);
+    $globals.ApyComponentMixin.call(ApyBooleanField.prototype);
+    $globals.ApyFieldMixin.call(ApyBooleanField.prototype);
 
-})(window);
+})( this );
 
 

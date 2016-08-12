@@ -35,7 +35,7 @@
  *  """
  */
 /* istanbul ignore next */
-(function (angular) {'use strict';
+(function (angular, $globals) {'use strict';
 
     var config = {
         devOptions: {
@@ -57,12 +57,12 @@
         $auth: function () {
             return (
                 this.auth &&
-                isObject(this.auth) &&
+                $globals.isObject(this.auth) &&
                 this.auth.enabled &&
                 this.auth.client_id &&
                 this.auth.endpoint &&
                 this.auth.grant_type
-            )
+            );
         },
         viewPath: function (filename) {
             return ((this.devOptions.mode) ? this.devOptions.htmlRoot : '') + filename;
@@ -79,20 +79,20 @@
         'apy-rest2front.view',
         'apy-rest2front.version'
     ])
-        .provider("apyModal", function apyModalProvider () {
+        .provider('apyModal', function apyModalProvider () {
             this.$get = function apyModalFactory () {
                 var $injector = angular.injector(['ng', 'ui.bootstrap']),
                     $uibModal = $injector.get('$uibModal');
                 return new ApyModalProxy($injector.get('$rootScope'), $uibModal);
             };
         })
-        .provider("apy", function apyProvider () {
+        .provider('apy', function apyProvider () {
             this.$get = function apyFactory () {
                 var $injector = angular.injector(['ng', 'ngFileUpload']),
                     $log = $injector.get('$log'),
                     $http = $injector.get('$http'),
                     Upload = $injector.get('Upload');
-                return new ApyCompositeService($log, $http, Upload, config);
+                return new $globals.ApyCompositeService($log, $http, Upload, config);
             };
         })
         .config(['$routeProvider', function($routeProvider) {
@@ -101,7 +101,7 @@
                 $routeProvider.when('/login', {
                     templateUrl: config.viewPath('login.html'),
                     controller: 'apyLoginCtrl'
-                })
+                });
             }
             // setting a generic parameter 'resource'
             $routeProvider.when('/:resource', {
@@ -123,7 +123,7 @@
                         //console.log("Connect");
                         $location.path('/index');
                     }
-                }, true)
+                }, true);
             }
         }]);
 
@@ -143,11 +143,11 @@
                 event.preventDefault();
 
                 apyModalProvider.info({
-                    title: "Restricted Area",
+                    title: 'Restricted Area',
                     messages: [
-                        "This area cannot be accessed freely.",
-                        "If you need more info, please contact Administrator.",
-                        "admin.web@apy-consulting.com"
+                        'This area cannot be accessed freely.',
+                        'If you need more info, please contact Administrator.',
+                        'admin.web@apy-consulting.com'
                     ]
                 });
             };
@@ -167,7 +167,7 @@
                 }
                 else {
                     apyProvider.authenticate($scope.credentials)
-                        .then(function (response) {
+                        .then(function () {
                             window.location.reload();
                         })
                         .catch(function (error) {
@@ -178,7 +178,7 @@
         }]);
 
         app.run(['$rootScope', '$location', 'apy', function ($rootScope, $location, apyProvider) {
-            $rootScope.$on('$routeChangeStart', function (event) {
+            $rootScope.$on('$routeChangeStart', function () {
                 if (!apyProvider.isAuthenticated()) {
                     $location.path('/login');
                 }
@@ -186,4 +186,4 @@
         }]);
     }
 
-})(window.angular);
+})( window.angular, this );
