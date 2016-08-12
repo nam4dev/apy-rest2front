@@ -35,15 +35,12 @@
 <!--[if IE 8]>         <html lang="en" class="no-js lt-ie9"> <![endif]-->
 <!--[if gt IE 8]><!--> <html lang="en" class="no-js"> <!--<![endif]-->
 <head>
-
     <title>Apy REST2Front - AngularJS</title>
-
     <meta charset="utf-8">
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/>
     <meta http-equiv="X-UA-Compatible" content="IE=edge;chrome=1"/>
-
     <link rel="shortcut icon" href="favicon.ico" />
     <!--[if IE 9]>
     <style>
@@ -70,20 +67,6 @@
             <div class="center-block apy-version">
                 <p>Apy REST2Front, v<span apy-version></span></p>
             </div>
-            <!-- shim is needed to support non-HTML5 FormData browsers (IE8-9)-->
-            <script>
-                //optional need to be loaded before angular-file-upload-shim(.min).js
-                FileAPI = {
-                    //only one of jsPath or jsUrl.
-                    jsPath: 'components/ng-file-upload/FileAPI.min.js',
-//                    jsUrl: 'yourcdn.com/js/FileAPI.min.js',
-                    //only one of staticPath or flashUrl.
-                    staticPath: 'components/ng-file-upload//FileAPI.flash.swf'
-//                    flashUrl: 'yourcdn.com/js/FileAPI.flash.swf'
-                    //forceLoad: true, html5: false //to debug flash in HTML5 browsers
-                    //noContentTimeout: 10000 (see #528)
-                }
-            </script>
             <!-- Apy REST2Front minified import -->
             <script src="apy-rest2front.min.js"></script>
         </footer>
