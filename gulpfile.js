@@ -2,6 +2,7 @@ var fs = require('fs');
 var gulp = require('gulp');
 var gp_if = require('gulp-if');
 var gp_clean = require('gulp-clean');
+var gp_jsdoc3 = require('gulp-jsdoc3');
 var gp_concat = require('gulp-concat');
 var gp_rename = require('gulp-rename');
 var gp_uglify = require('gulp-uglify');
@@ -215,10 +216,49 @@ gulp.task('test', (done) => {
     });
 });
 
+gulp.task('doc', (done) => {
+    gulp.src([
+        'README.md',
+        'app/apy-rest2front/**/*.js',
+        'app/apy-rest2front/**/**/*.js',
+        'app/apy-rest2front/**/**/**/*.js',
+        'app/apy-rest2front/**/**/**/**/*.js'
+    ], {read: false})
+        .pipe(gp_jsdoc3({
+            "tags": {
+                "allowUnknownTags": true
+            },
+            "source": {
+                "excludePattern": "(^|\\/|\\\\)_"
+            },
+            "recurse": true,
+            "opts": {
+                "template": "./node_modules/jsdoc-rst-template/template/",
+                "destination": config.paths.outDir + '/docs'
+            },
+            "plugins": [
+                "plugins/markdown"
+            ],
+            "templates": {
+                "cleverLinks": false,
+                "monospaceLinks": false,
+                "default": {
+                    "layoutFile": "./node_modules/jsdoc-rst-template/template/",
+                    "outputSourceFiles": true
+                },
+                "path": "ink-docstrap",
+                "theme": "cerulean",
+                "navType": "vertical",
+                "linenums": true,
+                "dateFormat": "MMMM Do YYYY, h:mm:ss a"
+            }
+        }, done));
+});
+
 // Grouping task units
 gulp.task('copy', ['copy-fonts', 'copy-favicon'], () => {});
 gulp.task('minify', ['minify-css', 'minify-js', 'minify-html'], () => {});
-gulp.task('build', ['clean', 'copy', 'test', 'minify'], () => {
+gulp.task('build', ['clean', 'copy', 'test', 'minify', 'doc'], () => {
     // ESLint ignores files with "node_modules" paths.
     // So, it's best to have gulp ignore the directory as well.
     // Also, Be sure to return the stream from the task;
