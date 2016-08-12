@@ -251,7 +251,7 @@
         .directive('apyNavigation', [function () {
             return {
                 template: '<ul class="nav navbar-nav"> \
-                <li ng-repeat="schema in $schemas" ng-if="!schema.hidden"> \
+                <li ng-repeat="schema in $schemas | orderBy:\'name\'" ng-if="!schema.hidden"> \
                 <a href="#/{{ schema.name }}"> \
                 <span class="text-capitalize"> \
                 <strong>{{ schema.humanName || schema.name }}</strong> \
