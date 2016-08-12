@@ -38,7 +38,7 @@
 
 angular.module('apy-rest2front.version', [
     'apy-rest2front.version.interpolate-filter',
-    'apy-rest2front.version.version-directive'
+    'apy-rest2front.version.version-directive',
 ])
 
     .value('version', '0.8');

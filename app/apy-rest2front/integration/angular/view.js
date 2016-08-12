@@ -56,7 +56,7 @@
         }
 
         collection.fetch(progress)
-            .then(function (_) {
+            .then(function () {
                 $scope.$apply();
             }).catch(function (error) {
                 apyModalProvider.error(error);
@@ -75,7 +75,7 @@
             var defer = resource.create();
             if(defer) {
                 defer
-                    .then(function (_) {
+                    .then(function () {
                         $scope.$apply();
                     })
                     .catch(function (error) {
@@ -92,7 +92,7 @@
             var defer = resource.update();
             if(defer){
                 defer
-                    .then(function (_) {
+                    .then(function () {
                         $scope.$apply();
                     })
                     .catch(function (error) {
@@ -107,7 +107,7 @@
                 var defer = resource.delete();
                 if(defer) {
                     defer
-                        .then(function (_) {
+                        .then(function () {
                             collection.removeResource(resource);
                             $scope.$apply();
                         })
@@ -197,7 +197,7 @@
         .controller('apyViewCtrl', ['$location', '$rootScope', '$scope', '$routeParams', 'Upload', 'apy', 'apyModal',
             function($location, $rootScope, $scope, $routeParams, Upload, apyProvider, apyModalProvider) {
 
-                function success (response) {
+                function success () {
                     $scope.$schemas = apyProvider.$schemasAsArray;
                     if($routeParams.resource === 'index') {
                         $scope.isIndex = true;
@@ -237,8 +237,8 @@
                     apyProvider
                         .setDependencies({name: "Upload", value: Upload})
                         .loadSchemas(true)
-                        .then(function (response) {
-                            success(response);
+                        .then(function () {
+                            success();
                             $scope.$apply();
                         })
                         .catch(function (error) {
