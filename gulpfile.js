@@ -145,7 +145,7 @@ gulp.task('copy-favicon', () => {
         .pipe(gulp.dest(config.paths.appDir))
 });
 
-gulp.task('lint', ['test'], () => {
+gulp.task('lint', ['copy'], () => {
     // ESLint ignores files with "node_modules" paths.
     // So, it's best to have gulp ignore the directory as well.
     // Also, Be sure to return the stream from the task;
@@ -176,7 +176,7 @@ gulp.task('lint', ['test'], () => {
  * Format global output, adding average info
  * Writing output results to JSON file
  */
-gulp.task('test', (done) => {
+gulp.task('test', ['lint'], (done) => {
     // run Karma
     exec('./node_modules/karma/bin/karma start karma.conf.js --single-run', (error, stdout, stderr) => {
         if (error) {
@@ -281,6 +281,6 @@ gulp.task('doc', (done) => {
 // Grouping task units
 gulp.task('copy', ['copy-fonts', 'copy-favicon'], () => {});
 gulp.task('minify', ['minify-css', 'minify-js', 'minify-html'], () => {});
-gulp.task('build', ['clean', 'copy', 'lint', 'minify', 'doc'], () => {});
+gulp.task('build', ['clean', 'test', 'minify', 'doc'], () => {});
 // Default task
 gulp.task('default', ['build'], () => {});
