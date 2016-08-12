@@ -12,6 +12,7 @@ var exec = require('child_process').exec;
 var karmaServer = require('karma').Server;
 var gp_sourcemaps = require('gulp-sourcemaps');
 var gp_htmlmin = require('gulp-html-minifier');
+var karmaThreshold = require('./apy.conf').karma.thresholdReporter;
 
 var paths = new function () {
     return {
@@ -140,7 +141,7 @@ gulp.task('copy-fonts', () => {
         .pipe(gulp.dest(config.paths.appDir + '/fonts'))
 });
 
-gulp.task('copy-favicon', () => {
+gulp.task('copy-icons', () => {
     return gulp.src(config.paths.iconFiles)
         .pipe(gulp.dest(config.paths.appDir))
 });
@@ -219,7 +220,8 @@ gulp.task('test', ['lint'], (done) => {
             functions: functions.toFixed(decimals),
             statements: statements.toFixed(decimals),
             average: getAvgResult(lines, branches, functions, statements).toFixed(decimals),
-            thresholdAverage: ''
+            thresholdAverage: getAvgResult(karmaThreshold.lines, karmaThreshold.branches,
+                karmaThreshold.functions, karmaThreshold.statements).toFixed(decimals)
         };
         fs.writeFile(testResultsFile, JSON.stringify(testResults, null, 4), function (err) {
             if (err) {
@@ -279,7 +281,7 @@ gulp.task('doc', (done) => {
 
 
 // Grouping task units
-gulp.task('copy', ['copy-fonts', 'copy-favicon'], () => {});
+gulp.task('copy', ['copy-fonts', 'copy-icons'], () => {});
 gulp.task('minify', ['minify-css', 'minify-js', 'minify-html'], () => {});
 gulp.task('build', ['clean', 'test', 'minify', 'doc'], () => {});
 // Default task
