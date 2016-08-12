@@ -1,4 +1,5 @@
 /**
+ *  @license
  *  MIT License
  *
  *  This project is a small automated frontend application based on a REST API schema.
@@ -40,7 +41,11 @@
     $window.ApyBooleanField = (function () {
 
         /**
-         * @param value
+         * Clone the value.
+         * Ensure to always return a Boolean value (avoid undefined)
+         *
+         * @override
+         * @param value: A boolean or undefined value
          * @returns {Boolean}
          */
         function cloneValue(value) {
@@ -48,7 +53,9 @@
         }
 
         /**
+         * Fix parent behavior by ensuring boolean value.
          *
+         * @override
          * @returns {Boolean}
          */
         function hasUpdated() {
@@ -57,13 +64,29 @@
         }
 
         /**
+         * Return a boolean value
          *
+         * @override
          * @returns {boolean}
          */
         function cleanedData() {
             return this.$value || false;
         }
 
+        /**
+         * Common Component interface
+         *
+         * @constructor
+         * @param service
+         * @param name
+         * @param schema
+         * @param value
+         * @param $states
+         * @param $endpoint
+         * @param type
+         * @param relationName
+         * @returns {ApyBooleanField}
+         */
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'boolean';
             this.cleanedData = cleanedData;

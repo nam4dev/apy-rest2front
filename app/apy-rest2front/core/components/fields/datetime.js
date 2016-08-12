@@ -1,4 +1,5 @@
 /**
+ *  @license
  *  MIT License
  *
  *  This project is a small automated frontend application based on a REST API schema.
@@ -38,11 +39,19 @@
 
     $window.ApyDatetimeField = (function () {
 
+        /**
+         *
+         * @returns {string}
+         */
         function cleanedData() {
             this.validate();
             return this.$value.toUTCString();
         }
 
+        /**
+         *
+         * @returns {boolean}
+         */
         function hasUpdated() {
             if (!isDate(this.$memo)) {
                 this.$memo = new Date(this.$memo);
@@ -50,6 +59,11 @@
             return this.$value.getTime() !== this.$memo.getTime();
         }
 
+        /**
+         *
+         * @param value
+         * @returns {*}
+         */
         function cloneValue(value) {
             var clonedValue = value;
             // Non value & String values cases
@@ -74,12 +88,19 @@
             return clonedValue;
         }
 
+        /**
+         *
+         */
         function validate() {
             if (!isDate(this.$value)) {
                 throw new ApyError('Datetime object or string expected');
             }
         }
 
+        /**
+         *
+         * @returns {*}
+         */
         function toString() {
             return (this.$value && this.$value.toUTCString) ? this.$value.toUTCString() : this.$value;
         }

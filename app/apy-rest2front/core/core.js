@@ -1,4 +1,5 @@
 /**
+ *  @license
  *  MIT License
  *
  *  This project is a small automated frontend application based on a REST API schema.
@@ -28,15 +29,14 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
+ */
+
+/**
+ * Integrate all Components in a coherent Service module
+ * Could be used through AngularJs (Service factory)
+ * Might be functional for react.js framework integration
  *
- *  """
- *  Core module.
- *
- *  Integrate all Components in a coherent Service module
- *  Could be used through AngularJs (Service factory)
- *  Might be functional for react.js framework integration
- *
- *  """
+ * @module core.core
  */
 (function ($window) {
 
@@ -47,6 +47,8 @@
      *  * A full CRUD MMI for each (Tables, Lists, Forms, ...)
      *  * A configurable endpoint URI
      *  * A configurable CSS theme (default: Bootstrap 3)
+     *
+     *  @class ApyCompositeService
      */
     $window.ApyCompositeService = (function () {
 
@@ -61,6 +63,13 @@
             return this;
         }
 
+        /**
+         *  Property method which holds,
+         *  whether or not the User is authenticated
+         *
+         *  @method
+         *  @returns Boolean
+         */
         function isAuthenticated() {
             var tokenInfo = this.$tokenInfo || $window.localStorage.getItem('tokenInfo');
             if(tokenInfo && !isObject(tokenInfo)) {
@@ -186,7 +195,9 @@
         }
 
         /**
+         * Create a collection instance
          *
+         * @function
          * @param name
          * @param components
          * @returns {ApyCollectionComponent}
@@ -195,6 +206,16 @@
             return new ApyCollectionComponent(this, name, this.$endpoint, components);
         }
 
+        /**
+         * A service to create collection and more.
+         *
+         * @constructor
+         * @param $log
+         * @param $http
+         * @param $upload
+         * @param config
+         * @returns {*}
+         */
         return function($log, $http, $upload, config) {
             this.$log = $log;
             this.$tokenInfo = undefined;

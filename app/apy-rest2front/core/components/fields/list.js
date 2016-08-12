@@ -1,4 +1,5 @@
 /**
+ *  @license
  *  MIT License
  *
  *  This project is a small automated frontend application based on a REST API schema.

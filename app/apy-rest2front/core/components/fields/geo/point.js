@@ -1,4 +1,5 @@
 /**
+ *  @license
  *  MIT License
  *
  *  This project is a small automated frontend application based on a REST API schema.
@@ -38,6 +39,15 @@
 
     $window.ApyPointField = (function () {
 
+        /**
+         * Set a given value to attributes
+         * `$value` & `$memo` respectively,
+         * using `cloneValue` method
+         *
+         * @override
+         * @param value
+         * @returns {this}
+         */
         function setValue(value) {
             this.$memo = this.cloneValue(value);
             this.$value = this.cloneValue(value);
@@ -45,8 +55,11 @@
         }
 
         /**
+         * Wrap the given value to clone
+         * into its own ApyPoint instance.
          *
-         * @param value
+         * @override
+         * @param value: An Object instance representing a Point
          * @returns {ApyPoint}
          */
         function cloneValue(value) {
@@ -54,7 +67,9 @@
         }
 
         /**
+         * Indicate whether the ApyPointField is updated or not
          *
+         * @override
          * @returns {boolean}
          */
         function hasUpdated () {
@@ -69,7 +84,9 @@
         }
 
         /**
+         * Return an cleaned Object instance representing a Point
          *
+         * @override
          * @returns {Object}
          */
         function cleanedData () {
@@ -77,13 +94,38 @@
             return this.$value.cleanedData();
         }
 
+        /**
+         * FIXME: disabled for now as it may not be necessary to validate, TBC
+         * @override
+         */
         function validate() {}
 
+        /**
+         * Return an ApyPointField representation as a String
+         *
+         * @override
+         * @returns {string}
+         */
         function toString() {
             this.$value.clean();
             return this.$name + ' coordinates(' + this.$value.coordinates + ')';
         }
 
+
+        /**
+         * Common Component interface
+         *
+         * @constructor
+         * @param service
+         * @param name
+         * @param schema
+         * @param value
+         * @param $states
+         * @param $endpoint
+         * @param type
+         * @param relationName
+         * @returns {ApyPointField}
+         */
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.validate = validate;
             this.setValue = setValue;

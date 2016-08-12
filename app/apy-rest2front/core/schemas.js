@@ -1,4 +1,5 @@
 /**
+ *  @license
  *  MIT License
  *
  *  This project is a small automated frontend application based on a REST API schema.
@@ -28,14 +29,15 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
+ */
+
+/**
+ * Schemas mapping management
  *
- *  """
- *  Schemas mapping management
+ *   * Compute embedded URI
+ *   * Compose Resource Component
  *
- *  Compute embedded URI
- *  Compose Resource Component
- *
- *  """
+ * @module core.schemas
  */
 (function ($window) { 'use strict';
 
@@ -43,6 +45,12 @@
      * Represents a Schema instance.
      * Basically, it represents one of
      * your backend Resource specification (schema)
+     *
+     * @class ApySchemaComponent
+     */
+
+    /**
+     * Represents a Schema
      *
      * @param schema
      * @param name
@@ -113,7 +121,7 @@
      * @param schemas
      * @param config
      * @param service
-     *
+     * @class ApySchemasComponent
      * @constructor
      */
     var ApySchemasComponent = function ApySchemasComponent (endpoint, schemas, config, service) {
