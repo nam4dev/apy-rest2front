@@ -80,7 +80,7 @@ module.exports = function(config){
         // Configure the reporter
         coverageReporter: {
             type : 'html',
-            dir : 'coverage/',
+            dir : 'build/coverage/',
             instrumenterOptions: {
                 istanbul: {
                     noCompact: true
