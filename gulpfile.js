@@ -1,6 +1,7 @@
 var fs = require('fs');
 var gulp = require('gulp');
 var gp_if = require('gulp-if');
+var mkdirp = require('mkdirp');
 var gp_clean = require('gulp-clean');
 var gp_jsdoc3 = require('gulp-jsdoc3');
 var gp_concat = require('gulp-concat');
@@ -146,7 +147,17 @@ gulp.task('copy-icons', () => {
         .pipe(gulp.dest(config.paths.appDir))
 });
 
-gulp.task('lint', ['copy'], () => {
+gulp.task('prepare', (done) => {
+    mkdirp(config.paths.outDir, function (err) {
+        if (err) {
+            console.error(err);
+            return done(err);
+        }
+        done();
+    });
+});
+
+gulp.task('lint', ['prepare'], () => {
     // ESLint ignores files with "node_modules" paths.
     // So, it's best to have gulp ignore the directory as well.
     // Also, Be sure to return the stream from the task;
@@ -283,6 +294,6 @@ gulp.task('doc', (done) => {
 // Grouping task units
 gulp.task('copy', ['copy-fonts', 'copy-icons'], () => {});
 gulp.task('minify', ['minify-css', 'minify-js', 'minify-html'], () => {});
-gulp.task('build', ['clean', 'test', 'minify', 'doc'], () => {});
+gulp.task('build', ['clean', 'test', 'minify', 'copy', 'doc'], () => {});
 // Default task
 gulp.task('default', ['build'], () => {});
