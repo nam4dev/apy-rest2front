@@ -5,6 +5,7 @@ var gp_clean = require('gulp-clean');
 var gp_concat = require('gulp-concat');
 var gp_rename = require('gulp-rename');
 var gp_uglify = require('gulp-uglify');
+var gp_eslint = require('gulp-eslint');
 var gp_cssnano = require('gulp-cssnano');
 var exec = require('child_process').exec;
 var karmaServer = require('karma').Server;
@@ -215,8 +216,29 @@ gulp.task('test', (done) => {
 });
 
 // Grouping task units
-gulp.task('minify', ['minify-css', 'minify-js', 'minify-html'], () => {});
 gulp.task('copy', ['copy-fonts', 'copy-favicon'], () => {});
-gulp.task('build', ['clean', 'minify', 'copy', 'test'], () => {});
+gulp.task('minify', ['minify-css', 'minify-js', 'minify-html'], () => {});
+gulp.task('build', ['clean', 'copy', 'test', 'minify'], () => {
+    // ESLint ignores files with "node_modules" paths.
+    // So, it's best to have gulp ignore the directory as well.
+    // Also, Be sure to return the stream from the task;
+    // Otherwise, the task may end before the stream has finished.
+    return gulp.src([
+        'app/apy-rest2front/**/*.js',
+        'app/apy-rest2front/**/**/*.js',
+        'app/apy-rest2front/**/**/**/*.js',
+        'app/apy-rest2front/**/**/**/**/*.js'])
+        // eslint() attaches the lint output to the "eslint" property
+        // of the file object so it can be used by other modules.
+        .pipe(gp_eslint())
+        // eslint.format() outputs the lint results to the console.
+        // Alternatively use eslint.formatEach() (see Docs).
+        .pipe(gp_eslint.format())
+        .pipe(gp_eslint.format('json', fs.createWriteStream(config.paths.outDir + '/lint-report.json')));
+    // To have the process exit with an error code (1) on
+    // lint error, return the stream and pipe to failAfterError last.
+    // FIXME: disabled for now the time to fix all errors
+    //.pipe(gp_eslint.failAfterError());
+});
 // Default task
 gulp.task('default', ['build'], () => {});
