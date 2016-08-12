@@ -270,6 +270,7 @@
                    value="{{ field.$value }}"
                     />
 
+
             <textarea msd-elastic="\n"
                       ng-model="field.$value"
                       ng-if="field.wordCount() > 60"
@@ -506,14 +507,14 @@
         <table class="table" >
             <tr>
                 <th class="pull-right">
-                    <button class="btn btn-default" ng-click="displayList=true;displayLarge=!displayList" ng-class="{'active': displayList}">
+                    <button class="btn btn-default" ng-click="displayHorizontalList()" ng-class="{'active': listDisplay === 'horizontal'}">
                         <i class="glyphicon glyphicon-th-list"></i>
                     </button>
                 </th>
             </tr>
             <tr>
                 <th class="pull-right">
-                    <button class="btn btn-default pull-right" ng-click="displayLarge=true;displayList=!displayLarge" ng-class="{'active': displayLarge}">
+                    <button class="btn btn-default pull-right" ng-click="displayVerticalList()" ng-class="{'active': listDisplay === 'vertical'}">
                         <i class="glyphicon glyphicon-th-large"></i>
                     </button>
                 </th>
@@ -567,7 +568,7 @@
             </tr>
         </table>
     </div>
-    <div ng-if="displayLarge" id="collection-table-vertical">
+    <div ng-if="listDisplay === 'vertical'" id="collection-table-vertical">
         <div ng-if="$collection.count() > 0"
              ng-repeat="resource in $collection.$components track by $index">
             <table class="apy-table display" >
@@ -640,7 +641,7 @@
             </table>
         </div>
     </div>
-    <div ng-if="displayList" id="collection-table-horizontal">
+    <div ng-if="listDisplay === 'horizontal'" id="collection-table-horizontal">
         <table class="apy-table">
             <thead>
             <tr>

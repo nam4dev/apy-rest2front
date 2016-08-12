@@ -203,10 +203,7 @@
                         $scope.isIndex = true;
                         return
                     }
-
-                    $scope.displayLarge = true;
-                    $scope.displayList = !$scope.displayLarge;
-
+                    $scope.listDisplay = window.localStorage.getItem('listDisplay') || 'vertical';
                     setView({
                         $scope: $scope,
                         apyProvider: apyProvider,
@@ -214,6 +211,20 @@
                         apyModalProvider: apyModalProvider
                     });
                 }
+
+                var display;
+
+                $scope.displayVerticalList = function () {
+                    display = 'vertical';
+                    window.localStorage.setItem('listDisplay', display);
+                    $scope.listDisplay = display;
+                };
+
+                $scope.displayHorizontalList = function () {
+                    display = 'horizontal';
+                    window.localStorage.setItem('listDisplay', display);
+                    $scope.listDisplay = display;
+                };
 
                 $scope.logout = function () {
                     apyProvider.invalidate();
