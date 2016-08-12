@@ -1,3 +1,4 @@
+var fs = require('fs');
 var gulp = require('gulp');
 var gp_if = require('gulp-if');
 var gp_clean = require('gulp-clean');
@@ -5,20 +6,21 @@ var gp_concat = require('gulp-concat');
 var gp_rename = require('gulp-rename');
 var gp_uglify = require('gulp-uglify');
 var gp_cssnano = require('gulp-cssnano');
+var exec = require('child_process').exec;
+var karmaServer = require('karma').Server;
 var gp_sourcemaps = require('gulp-sourcemaps');
 var gp_htmlmin = require('gulp-html-minifier');
 
 var paths = new function () {
     return {
         cwd: '.',
-        outDir: 'dist',
-        appDir: 'dist/app',
+        outDir: 'build',
+        appDir: 'build/app',
         outJsMin: 'apy-rest2front.min.js',
         outCssMin: 'apy-rest2front.min.css',
-        outFonts: '/fonts',
         devFiles: [
-            'dist/app/apy-rest2front.min.js.map',
-            'dist/app/apy-rest2front.min.css.map'
+            'build/app/apy-rest2front.min.js.map',
+            'build/app/apy-rest2front.min.css.map'
         ],
         jsFiles: [
             'app/components/babel-polyfill/browser-polyfill.js',
@@ -103,17 +105,17 @@ var config = {
 };
 
 gulp.task('clean', () => {
-    gulp.src(config.paths.devFiles)
+    return gulp.src(config.paths.devFiles, {read: false})
         .pipe(gp_if(!config.dev, gp_clean()))
 });
 
 gulp.task('minify-css', () => {
-    var stream = gulp.src(config.paths.cssFiles)
+    return gulp.src(config.paths.cssFiles)
         .pipe(gp_if(config.dev, gp_sourcemaps.init()))
         .pipe(gp_concat(config.paths.outCssMin))
         .pipe(gp_cssnano(config.minifyCSSOpts))
         .pipe(gp_if(config.dev, gp_sourcemaps.write(config.paths.cwd)))
-        .pipe(gulp.dest(config.paths.appDir))
+        .pipe(gulp.dest(config.paths.appDir + '/scripts'))
 });
 
 gulp.task('minify-js', () => {
@@ -122,7 +124,7 @@ gulp.task('minify-js', () => {
         .pipe(gp_concat(config.paths.outJsMin))
         .pipe(gp_uglify(config.minifyJSOpts))
         .pipe(gp_if(config.dev, gp_sourcemaps.write(config.paths.cwd)))
-        .pipe(gulp.dest(config.paths.appDir))
+        .pipe(gulp.dest(config.paths.appDir + '/scripts'))
 });
 
 gulp.task('minify-html', () => {
@@ -133,7 +135,7 @@ gulp.task('minify-html', () => {
 
 gulp.task('copy-fonts', () => {
     return gulp.src(config.paths.fontFiles)
-        .pipe(gulp.dest(config.paths.outDir + config.paths.outFonts))
+        .pipe(gulp.dest(config.paths.appDir + '/fonts'))
 });
 
 gulp.task('copy-favicon', () => {
@@ -141,7 +143,80 @@ gulp.task('copy-favicon', () => {
         .pipe(gulp.dest(config.paths.appDir))
 });
 
+/**
+ * Run test once and exit
+ * by running a command in a shell
+ * to fix little hang when the Server resource
+ * is asked to end (speedup execution).
+ *
+ * Format global output, adding average info
+ * Writing output results to JSON file
+ */
+gulp.task('test', (done) => {
+    // run Karma
+    exec('./node_modules/karma/bin/karma start karma.conf.js --single-run', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Execution Error: ${error}`);
+            return done(error);
+        }
+        if(stderr)  {
+            console.log(`Test Error(s): ${stderr}`);
+            return done(error);
+        }
+        function getResultAsFloat(str) {
+            try {
+                var pass = str.split('/')[0];
+                var total = str.split('/')[1];
+            } catch(err) {
+                console.log(`Error: ${err}`);
+                return 0.0;
+            }
+            return (parseFloat(pass) / parseFloat(total) * 100)
+        }
+        function getAvgResult(lines, branches, functions, statements) {
+            return (
+                (lines || 0.0) +
+                (branches || 0.0) +
+                (functions || 0.0) +
+                (statements || 0.0)
+                ) / 4
+        }
+        var decimals = 2;
+        var out = `${stdout}`;
+        var re = /(\d+\/\d+)/g;
+        var statements = getResultAsFloat(re.exec(out) + '');
+        var branches = getResultAsFloat(re.exec(out) + '');
+        var functions = getResultAsFloat(re.exec(out) + '');
+        var lines = getResultAsFloat(re.exec(out) + '');
+        var testResultsFile = config.paths.outDir + '/coverage/report.json';
+        var testResults = {
+            lines: lines.toFixed(decimals),
+            branches: branches.toFixed(decimals),
+            functions: functions.toFixed(decimals),
+            statements: statements.toFixed(decimals),
+            average: getAvgResult(lines, branches, functions, statements).toFixed(decimals),
+            thresholdAverage: ''
+        };
+        fs.writeFile(testResultsFile, JSON.stringify(testResults, null, 4), function (err) {
+            if (err) {
+                console.log(`Error while writing file "${testResultsFile}" with errors, ${err}`);
+                return done(err);
+            }
+        });
+        var output = `${stdout}`.replace(`================================================================================`, '');
+        output = output.slice(0, -1);
+        output += `Average      : ${testResults.average}% `;
+        output += `( (${testResults.lines}+${testResults.branches}+${testResults.functions}+${testResults.statements})/4 ) `;
+        output += `Threshold : ${testResults.thresholdAverage}%\n`;
+        output += `===============================================================================`;
+        console.log(output);
+        return done();
+    });
+});
+
+// Grouping task units
 gulp.task('minify', ['minify-css', 'minify-js', 'minify-html'], () => {});
 gulp.task('copy', ['copy-fonts', 'copy-favicon'], () => {});
-gulp.task('build', ['clean', 'minify', 'copy'], () => {});
+gulp.task('build', ['clean', 'minify', 'copy', 'test'], () => {});
+// Default task
 gulp.task('default', ['build'], () => {});

@@ -7,6 +7,7 @@
   "license": "MIT",
   "devDependencies": {
     "del": "^2.2.1",
+    "fs": "0.0.2",
     "gulp": "^3.9.1",
     "gulp-bower": "0.0.13",
     "gulp-clean": "^0.3.2",
@@ -46,7 +47,8 @@
     "prestart": "npm install",
     "start": "http-server -a localhost -p 9000",
     "pretest": "npm install",
-    "test": "./node_modules/karma/bin/karma start karma.conf.js --single-run",
+    "test": "./node_modules/gulp/bin/gulp.js test",
+    "build": "./node_modules/gulp/bin/gulp.js build",
     "test-with-watcher": "./node_modules/karma/bin/karma start karma.conf.js",
     "preupdate-webdriver": "npm install",
     "update-webdriver": "./node_modules/protractor/bin/webdriver-manager update --standalone",
