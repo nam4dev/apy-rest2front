@@ -36,83 +36,60 @@
  */
 
 describe("Core.schemas unit tests", function() {
-    var DEFAULT_CONFIG = {};
-    var DEFAULT_SCHEMAS = {
-        tests: {
-            test: {type: 'list'}
-        }
-    };
-    var DEFAULT_ENDPOINT = 'http://localhost/';
-
-    // Mocked Objects
-
-    // Mocked Service
-    var Service = function () {
-        this.$log = console;
-        this.$schemas = null;
-        this.$instance = null;
-    };
-
-    var _createSchemasComponent = function (endpoint, schemas, config) {
-        var service = new Service();
-        var schemasObj = new ApySchemasComponent(endpoint || DEFAULT_ENDPOINT,
-            schemas || DEFAULT_SCHEMAS, config || DEFAULT_CONFIG, service);
-        service.$instance = schemasObj;
-        service.$schemas = schemasObj.$components;
-        service.$schemasAsArray = schemasObj.$componentArray;
-        return schemasObj
-    };
+    var DEFAULT_CONFIG = apy.tests.DEFAULT_CONFIG;
+    var DEFAULT_SCHEMAS = apy.tests.DEFAULT_SCHEMAS;
+    var DEFAULT_ENDPOINT = apy.tests.DEFAULT_ENDPOINT;
 
     it("[get] No Schema's name is provided - An Error shall be thrown", function () {
         var name = undefined;
         var resource = {};
-        var component = _createSchemasComponent();
+        var component = apy.tests.createSchemasComponent();
         var wrapper = function() {
             component.createResource(name, resource);
         };
-        expect(wrapper).toThrow(new ApyError('Unknown schema name, undefined'));
+        expect(wrapper).toThrow(new apy.Error('Unknown schema name, undefined'));
     });
 
     it("[createResource] No Service object provided - An Error shall be thrown", function () {
         var wrapper = function() {
-            new ApySchemasComponent(DEFAULT_ENDPOINT, DEFAULT_SCHEMAS, DEFAULT_CONFIG);
+            new apy.tests.$types.components.Schemas(DEFAULT_ENDPOINT, DEFAULT_SCHEMAS, DEFAULT_CONFIG);
         };
-        expect(wrapper).toThrow(new ApyError('A Service object must be provided (got type => undefined) !'));
+        expect(wrapper).toThrow(new apy.Error('A Service object must be provided (got type => undefined) !'));
     });
 
     it("[createResource] No Schemas object provided - An Error shall be thrown", function () {
         var wrapper = function() {
-            new ApySchemasComponent(DEFAULT_ENDPOINT, undefined, DEFAULT_CONFIG, new Service());
+            new apy.tests.$types.components.Schemas(DEFAULT_ENDPOINT, undefined, DEFAULT_CONFIG, apy.tests.createService());
         };
-        expect(wrapper).toThrow(new ApyError('A schemas object must be provided (got type => undefined) !'));
+        expect(wrapper).toThrow(new apy.Error('A schemas object must be provided (got type => undefined) !'));
     });
 
-    it("[createResource] An `ApyResourceComponent` shall be created", function () {
+    it("[createResource] An `Resource` shall be created", function () {
         var name = 'tests';
         var resource = {};
-        var component = _createSchemasComponent();
+        var component = apy.tests.createSchemasComponent();
         var resourceInstance = component.createResource(name, resource);
-        expect(resourceInstance instanceof ApyResourceComponent).toBe(true);
+        expect(resourceInstance instanceof apy.tests.$types.components.Resource).toBe(true);
     });
 
-    it("[createResource] An `ApyResourceComponent` shall be created with given parameters", function () {
+    it("[createResource] An `Resource` shall be created with given parameters", function () {
         var name = 'tests';
         var resource = {test: [1, 2, 3]};
-        var component = _createSchemasComponent();
+        var component = apy.tests.createSchemasComponent();
         var resourceInstance = component.createResource(name, resource);
         expect(resourceInstance.$components.length).toEqual(1);
     });
 
     it("[transformData] Case $TYPES.LIST - No schema provided - shall return an empty Array", function () {
         var expectedResult = [];
-        var result = _createSchemasComponent().transformData("", {type: $TYPES.LIST});
+        var result = apy.tests.createSchemasComponent().transformData("", {type: apy.helpers.$TYPES.LIST});
         expect(result).toEqual(expectedResult);
     });
 
     it("[transformData] Case $TYPES.LIST - Schema provided - shall return an non-empty Array", function () {
         var expectedResult = [""];
-        var result = _createSchemasComponent().transformData("", {type: $TYPES.LIST, schema: {
-            type: $TYPES.STRING,
+        var result = apy.tests.createSchemasComponent().transformData("", {type: apy.helpers.$TYPES.LIST, schema: {
+            type: apy.helpers.$TYPES.STRING,
             required: true
         }});
         expect(result).toEqual(expectedResult);
@@ -126,13 +103,13 @@ describe("Core.schemas unit tests", function() {
                 reallyNested: ""
             }
         };
-        var result = _createSchemasComponent().transformData("", {type: $TYPES.DICT, schema: {
-            test: { type: $TYPES.STRING },
-            testList: { type: $TYPES.LIST },
+        var result = apy.tests.createSchemasComponent().transformData("", {type: apy.helpers.$TYPES.DICT, schema: {
+            test: { type: apy.helpers.$TYPES.STRING },
+            testList: { type: apy.helpers.$TYPES.LIST },
             innerDict: {
-                type: $TYPES.DICT,
+                type: apy.helpers.$TYPES.DICT,
                 schema: {
-                    reallyNested: { type: $TYPES.STRING }
+                    reallyNested: { type: apy.helpers.$TYPES.STRING }
                 }
             }
         }});
@@ -141,48 +118,49 @@ describe("Core.schemas unit tests", function() {
 
     it("[transformData] Case $TYPES.FLOAT - shall return decimal 0.0", function () {
         var expectedResult = 0.0;
-        var result = _createSchemasComponent().transformData("", {type: $TYPES.FLOAT});
+        var result = apy.tests.createSchemasComponent().transformData("", {type: apy.helpers.$TYPES.FLOAT});
         expect(result).toEqual(expectedResult);
     });
 
     it("[transformData] Case $TYPES.NUMBER - shall return decimal 0.0", function () {
         var expectedResult = 0.0;
-        var result = _createSchemasComponent().transformData("", {type: $TYPES.NUMBER});
+        var result = apy.tests.createSchemasComponent().transformData("", {type: apy.helpers.$TYPES.NUMBER});
         expect(result).toEqual(expectedResult);
     });
 
     it("[transformData] Case $TYPES.INTEGER - shall return integer 0", function () {
         var expectedResult = 0;
-        var result = _createSchemasComponent().transformData("", {type: $TYPES.INTEGER});
+        var result = apy.tests.createSchemasComponent().transformData("", {type: apy.helpers.$TYPES.INTEGER});
         expect(result).toEqual(expectedResult);
     });
 
     it("[transformData] Case $TYPES.BOOLEAN - shall return a boolean to default value (true)", function () {
         var expectedResult = true;
-        var result = _createSchemasComponent().transformData("", {type: $TYPES.BOOLEAN, default: true});
+        var result = apy.tests.createSchemasComponent().transformData("", {type: apy.helpers.$TYPES.BOOLEAN, default: true});
         expect(result).toEqual(expectedResult);
     });
 
     it("[transformData] Case $TYPES.OBJECTID with prefixed `_` keyName - shall return an empty string", function () {
         var expectedResult = "";
-        var result = _createSchemasComponent().transformData("_test", {type: $TYPES.OBJECTID});
+        var result = apy.tests.createSchemasComponent().transformData("_test", {type: apy.helpers.$TYPES.OBJECTID});
         expect(result).toEqual(expectedResult);
     });
 
     it("[transformData] Case $TYPES.OBJECTID with non-prefixed `_` keyName - shall return matching data relation mapped data (based on schema)", function () {
         var expectedResult = {test: []};
-        var result = _createSchemasComponent().transformData("test", {type: $TYPES.OBJECTID, data_relation: {resource: "tests"}});
+        var schemas = apy.tests.createSchemasComponent();
+        var result = schemas.transformData("test", {type: apy.helpers.$TYPES.OBJECTID, data_relation: {resource: "tests"}});
         expect(result).toEqual(expectedResult);
     });
 
     it("[transformData] Case $TYPES.DATETIME - shall return a Date object (no default provided)", function () {
-        var result = _createSchemasComponent().transformData("test", {type: $TYPES.DATETIME});
+        var result = apy.tests.createSchemasComponent().transformData("test", {type: apy.helpers.$TYPES.DATETIME});
         expect(result instanceof Date).toBe(true);
     });
 
     it("[transformData] Case $TYPES.DATETIME - shall return a Date object (no default provided)", function () {
         var expectedResult = new Date();
-        var result = _createSchemasComponent().transformData("test", {type: $TYPES.DATETIME, default: expectedResult.toUTCString()});
+        var result = apy.tests.createSchemasComponent().transformData("test", {type: apy.helpers.$TYPES.DATETIME, default: expectedResult.toUTCString()});
         expect(result instanceof Date).toBe(true);
         expect(result.toUTCString()).toEqual(expectedResult.toUTCString());
     });

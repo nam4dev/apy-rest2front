@@ -30,7 +30,11 @@
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  Write here what the module does...
+ *  Number Field Uts
  *
  *  """
  */
+
+describe("Component.Field.Number unit tests", function() {
+
+});

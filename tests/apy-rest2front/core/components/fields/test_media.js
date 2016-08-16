@@ -37,20 +37,8 @@
 
 describe("Component.Field.Media unit tests", function() {
 
-    var _createFieldByType = function (type, value, schema) {
-        schema = schema || {};
-        schema.type = type;
-        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
-    };
-
     var _createField = function (value, schema) {
-        return new _createFieldByType('media', _createFile(value), schema);
-
-    };
-
-    var _createFile = function (value) {
-        return new ApyMediaFile(null, value);
-
+        return apy.tests.createFieldByType('media', apy.tests.factory.createMediaFile(value), schema);
     };
 
     // FIXME: seems not to be executed until Promise process (async)
@@ -67,30 +55,30 @@ describe("Component.Field.Media unit tests", function() {
     //    });
     //};
 
-    it("[cloneValue.String.input] shall return an ApyMediaFile instance", function() {
+    it("[cloneValue.String.input] shall return an apy.helpers.MediaFile instance", function() {
         var info = '/media/575bede345feda1fd4515556';
         var field = _createField(info);
-        expect(field.cloneValue(info) instanceof ApyMediaFile).toBe(true);
+        expect(field.cloneValue(info) instanceof apy.tests.$types.MediaFile).toBe(true);
     });
 
-    it("[cloneValue.FileInfo.input] shall return an ApyMediaFile instance", function() {
+    it("[cloneValue.FileInfo.input] shall return an apy.helpers.MediaFile instance", function() {
         var info = {
             file: '/media/575bede345feda1fd4515556',
             content_type: 'image/png',
             name: "avatar.png"
         };
         var field = _createField(info);
-        expect(field.cloneValue(info) instanceof ApyMediaFile).toBe(true);
+        expect(field.cloneValue(info) instanceof apy.tests.$types.MediaFile).toBe(true);
     });
 
-    it("[cloneValue.ApyMediaFile.input] shall return an ApyMediaFile instance", function() {
+    it("[cloneValue:apy.helpers.MediaFile:input] shall return an apy.helpers.MediaFile instance", function() {
         var info = {
             file: '/media/575bede345feda1fd4515556',
             content_type: 'image/png',
             name: "avatar.png"
         };
         var field = _createField(null);
-        expect(field.cloneValue(_createFile(info)) instanceof ApyMediaFile).toBe(true);
+        expect(field.cloneValue(apy.tests.factory.createMediaFile(info)) instanceof apy.tests.$types.MediaFile).toBe(true);
     });
 
     it("[cleanedData.String.input] Shall return NULL ($value.$file property)", function() {
@@ -129,7 +117,7 @@ describe("Component.Field.Media unit tests", function() {
         };
         var field = _createField(info);
         var fieldFile = field.$value;
-        expect(fieldFile instanceof ApyMediaFile).toBe(true);
+        expect(fieldFile instanceof apy.tests.$types.MediaFile).toBe(true);
         expect(fieldFile.$file).toEqual(info.file);
         expect(fieldFile.$type).toEqual(info.content_type);
         expect(fieldFile.$name).toEqual(info.name);
@@ -142,7 +130,7 @@ describe("Component.Field.Media unit tests", function() {
         var info = '/media/575bede345feda1fd4515556';
         var field = _createField(info);
         var fieldFile = field.$value;
-        expect(fieldFile instanceof ApyMediaFile).toBe(true);
+        expect(fieldFile instanceof apy.tests.$types.MediaFile).toBe(true);
         expect(fieldFile.$file).toEqual(info);
         expect(fieldFile.$type).toBeUndefined();
         expect(fieldFile.$name).toBeUndefined();

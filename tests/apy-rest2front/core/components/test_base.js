@@ -55,17 +55,9 @@ describe("Component.Base unit tests", function() {
         }
     };
 
-    // Mocked Service
-    var Service = function () {
-        this.$log = {
-            log: function stub() {
-            }
-        };
-    };
-
     var _createBaseComponent = function (type, value, components) {
-        var component = new ApyComponentMixin();
-        component.initialize(new Service(), "Component.Base.test", {}, value, null, null, type, null, components);
+        var component = new apy.components.ComponentMixin();
+        component.initialize(apy.tests.createService(), "Component.Base.test", {}, value, null, null, type, null, components);
         component.setParent(parent);
         return component;
     };
@@ -242,7 +234,7 @@ describe("Component.Base unit tests", function() {
         expect(clone.$relationName).toEqual(component.$relationName);
     });
 
-    it('[createPolyField] Shall create a new ApyPolyField instance', function () {
+    it('[createPolyField] Shall create a new Poly instance', function () {
         var component = _createBaseComponent('base', null);
         component.createPolyField()
     });

@@ -37,20 +37,20 @@
 
 describe("Component.Field.List unit tests", function() {
 
-    var _createFieldByType = function (type, value, schema) {
-        schema = schema || {};
-        schema.type = type;
-        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
-    };
+    //var _createFieldByType = function (type, value, schema) {
+    //    schema = schema || {};
+    //    schema.type = type;
+    //    return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
+    //};
 
     var _createField = function (value, schema) {
-        return new _createFieldByType('list', value, schema);
+        return apy.tests.createFieldByType('list', value, schema);
     };
 
     it("[hasUpdated][different count] Component should be updated", function() {
-        var original = [_createFieldByType('datetime', new Date())];
+        var original = [apy.tests.createFieldByType('datetime', new Date())];
         var field = _createField(original);
-        field.add(_createFieldByType('datetime', new Date()));
+        field.add(apy.tests.createFieldByType('datetime', new Date()));
         expect(field.hasUpdated()).toBe(true);
     });
 

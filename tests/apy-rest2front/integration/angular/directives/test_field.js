@@ -51,12 +51,14 @@ describe("ApyFieldCtrl", function() {
         var config = {
             pkName: '_id',
             appTheme: 'bootstrap3',
+            schemasEndpointName: "tests",
+            endpoint: "https://www.tests.fr/",
             excludedEndpointByNames: ['logs'],
             schemas: {}
         };
         var schemaName = "tests";
         var endpoint = "https://www.tests.fr/";
-        var provider = new ApyCompositeService($log, $http, Upload, config);
+        var provider = new apy.tests.$types.CompositeService($log, $http, Upload, config);
         // Mocking XmlHttpRequest object
         provider.fetch = function () {
             return {

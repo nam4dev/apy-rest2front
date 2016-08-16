@@ -36,8 +36,6 @@
  */
 
 describe("Component.Resource unit tests", function() {
-
-    var DEFAULT_CONFIG = {};
     var DEFAULT_SCHEMAS = {
         tests: {
             test: {
@@ -51,35 +49,13 @@ describe("Component.Resource unit tests", function() {
             name: { type: "string" }
         }
     };
-    var DEFAULT_SCHEMA_NAME = 'test';
-    var DEFAULT_ENDPOINT = 'http://localhost/';
-
-    var _createService = function ($log, $http, $upload, config) {
-        var deps = [
-            {
-                name: "log",
-                value: {}
-            },
-            {
-                name: "http",
-                value: function () {}
-            },
-            {
-                name: "upload",
-                value: {
-                    upload: function () {}
-                }
-            }
-        ];
-        var service = new ApyCompositeService($log, $http, $upload, config || DEFAULT_CONFIG);
-        service.setDependencies(deps[0], deps[1], deps[2]);
-        service.initEndpoints(DEFAULT_ENDPOINT, DEFAULT_SCHEMA_NAME);
-        service.setSchemas(DEFAULT_SCHEMAS);
-        return service;
+    var _createService = function () {
+        return apy.tests.createService(DEFAULT_SCHEMAS);
     };
 
     function _createResource(service, name, schema, value, $states, $endpoint, type, relationName, components) {
-        return new ApyResourceComponent(service || _createService(), name, schema, value, $states, $endpoint, type, relationName, components);
+        return new apy.tests.$types.components.Resource(service || _createService(), name, schema, value,
+            $states, $endpoint, type, relationName, components);
     }
 
     it("[toString] With some $required fields, Only required field's value shall be displayed", function() {
@@ -297,11 +273,6 @@ describe("Component.Resource unit tests", function() {
     });
 
     it("[load] Shall load from given Object (Resource) - DICT without schema", function() {
-        var resource = _createResource(undefined, 'test', {
-            test: {
-                type: 'dict'
-            }
-        });
         var _id = "0123456789";
         var _etag = "9876543210";
         var resourceObject = {
@@ -312,12 +283,18 @@ describe("Component.Resource unit tests", function() {
                 firstname: "Test"
             }
         };
-        resource.load(resourceObject);
+        var resource = _createResource(undefined, 'test', {
+            test: {
+                type: 'dict'
+            }
+        }, resourceObject);
+
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
         var child = resource.$components[0];
-        expect(child instanceof ApyNestedField).toBe(true);
-        expect(child.$components[0] instanceof ApyPolyField).toBe(true);
+        expect(child.$value).toEqual(resourceObject.test);
+        expect(child instanceof apy.tests.$types.components.fields.Nested).toBe(true);
+        //expect(child.$components[0] instanceof apy.tests.$types.components.fields.Poly).toBe(true);
     });
 
     it("[load] Shall load from given Object (Resource) - POINT", function() {
@@ -337,7 +314,7 @@ describe("Component.Resource unit tests", function() {
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
         var child = resource.$components[0];
-        expect(child instanceof ApyPointField).toBe(true);
+        expect(child instanceof apy.tests.$types.components.fields.geo.Point).toBe(true);
     });
 
     it("[load] Shall load from given Object (Resource) - MEDIA", function() {
@@ -361,7 +338,7 @@ describe("Component.Resource unit tests", function() {
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
         var child = resource.$components[0];
-        expect(child instanceof ApyMediaField).toBe(true);
+        expect(child instanceof apy.tests.$types.components.fields.Media).toBe(true);
     });
 
     it("[load] Shall load from given Object (Resource) - FLOAT", function() {
@@ -382,7 +359,7 @@ describe("Component.Resource unit tests", function() {
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
         var child = resource.$components[0];
-        expect(child instanceof ApyNumberField).toBe(true);
+        expect(child instanceof apy.tests.$types.components.fields.Number).toBe(true);
     });
 
     it("[load] Shall load from given Object (Resource) - NUMBER", function() {
@@ -403,7 +380,7 @@ describe("Component.Resource unit tests", function() {
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
         var child = resource.$components[0];
-        expect(child instanceof ApyNumberField).toBe(true);
+        expect(child instanceof apy.tests.$types.components.fields.Number).toBe(true);
     });
 
     it("[load] Shall load from given Object (Resource) - INTEGER", function() {
@@ -424,7 +401,7 @@ describe("Component.Resource unit tests", function() {
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
         var child = resource.$components[0];
-        expect(child instanceof ApyNumberField).toBe(true);
+        expect(child instanceof apy.tests.$types.components.fields.Number).toBe(true);
     });
 
     it("[load] Shall load from given Object (Resource) - BOOLEAN", function() {
@@ -445,7 +422,7 @@ describe("Component.Resource unit tests", function() {
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
         var child = resource.$components[0];
-        expect(child instanceof ApyBooleanField).toBe(true);
+        expect(child instanceof apy.tests.$types.components.fields.Boolean).toBe(true);
     });
 
     it("[load] Shall load from given Object (Resource) - DATETIME", function() {
@@ -466,7 +443,7 @@ describe("Component.Resource unit tests", function() {
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
         var child = resource.$components[0];
-        expect(child instanceof ApyDatetimeField).toBe(true);
+        expect(child instanceof apy.tests.$types.components.fields.Datetime).toBe(true);
     });
 
     it("[load] Shall load from given Object (Resource) - OBJECTID", function() {
@@ -490,7 +467,7 @@ describe("Component.Resource unit tests", function() {
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
         var child = resource.$components[0];
-        expect(child instanceof ApyEmbeddedField).toBe(true);
+        expect(child instanceof apy.tests.$types.components.fields.Embedded).toBe(true);
     });
 
     it("[load] Shall load from given Object (Resource) - NO TYPE", function() {
@@ -508,7 +485,7 @@ describe("Component.Resource unit tests", function() {
         expect(resource._id).toEqual(_id);
         expect(resource._etag).toEqual(_etag);
         var child = resource.$components[0];
-        expect(child instanceof ApyPolyField).toBe(true);
+        expect(child instanceof apy.tests.$types.components.fields.Poly).toBe(true);
     });
 
     it("[cleanedData] Shall return a well-formed Object mirroring inner components state", function() {

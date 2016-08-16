@@ -37,21 +37,8 @@
 
 describe("Component.Field.Nested unit tests", function() {
 
-    var _createFieldByType = function (type, value, schema) {
-        schema = schema || {};
-        return new window['Apy' + type.capitalize() + 'Field']({
-            $log: console,
-            $instance: {
-                schema2data: function () {
-                    return {}
-                }
-            }
-
-        }, type + ".test", schema, value);
-    };
-
     var _createField = function (value, schema) {
-        return new _createFieldByType('nested', value, schema);
+        return apy.tests.createFieldByType('nested', value, schema);
     };
 
     it("[cleanedData] shall return an Object-like instance based on its Component(s) type & state (updated)", function() {
@@ -63,20 +50,31 @@ describe("Component.Field.Nested unit tests", function() {
                 "Two"
             ]
         };
+        var upDate = new Date();
+        var upString = "An updated string value";
         var schema = {
             test: {type: "string"},
             date: {type: "datetime"},
             items: {type: "list", schema: {type: "string"}}
         };
         var field = _createField(value, schema);
-
-        field.$components[0].$value = "An updated string value";
-        field.$components[1].$value = new Date();
+        field.$components.forEach(function (comp) {
+            switch (comp.$type) {
+                case apy.helpers.$TYPES.STRING:
+                    comp.$value = upString;
+                    break;
+                case apy.helpers.$TYPES.DATETIME:
+                    comp.$value = upDate;
+                    break;
+                default:
+                    break;
+            }
+        });
 
         var cleaned = field.cleanedData();
         expect(cleaned).toEqual({
-            test: field.$components[0].$value,
-            date: field.$components[1].$value.toUTCString(),
+            test: upString,
+            date: upDate.toUTCString(),
             items: value.items
         });
     });

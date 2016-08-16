@@ -37,14 +37,14 @@
 
 describe("Component.Field.Datetime unit tests", function() {
 
-    var _createFieldByType = function (type, value, schema) {
-        schema = schema || {};
-        schema.type = type;
-        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
-    };
+    //var _createFieldByType = function (type, value, schema) {
+    //    schema = schema || {};
+    //    schema.type = type;
+    //    return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
+    //};
 
     var _createField = function (value, schema) {
-        return new _createFieldByType('datetime', value, schema);
+        return new apy.tests.createFieldByType('datetime', value, schema);
     };
 
     it("[setValue] Valid value", function() {
@@ -68,21 +68,21 @@ describe("Component.Field.Datetime unit tests", function() {
         var value = null;
         var field = _createField(value);
         var clonedValue = field.cloneValue(value);
-        expect(isDate(clonedValue)).toBe(true);
+        expect(apy.tests.helper.isDate(clonedValue)).toBe(true);
     });
 
     it("[cloneValue.Undefined.input] shall return a Date object", function() {
         var value = undefined;
         var field = _createField(value);
         var clonedValue = field.cloneValue(value);
-        expect(isDate(clonedValue)).toBe(true);
+        expect(apy.tests.helper.isDate(clonedValue)).toBe(true);
     });
 
     it("[cloneValue.String.input] shall return an equal Date object", function() {
         var value = new Date();
         var field = _createField(null);
         var clonedValue = field.cloneValue(value.toUTCString());
-        expect(isDate(clonedValue)).toBe(true);
+        expect(apy.tests.helper.isDate(clonedValue)).toBe(true);
         expect(clonedValue.toUTCString()).toEqual(value.toUTCString());
     });
 
@@ -90,7 +90,7 @@ describe("Component.Field.Datetime unit tests", function() {
         var value = new Date();
         var field = _createField(null);
         var clonedValue = field.cloneValue(value);
-        expect(isDate(clonedValue)).toBe(true);
+        expect(apy.tests.helper.isDate(clonedValue)).toBe(true);
         expect(clonedValue.toUTCString()).toEqual(value.toUTCString());
     });
 

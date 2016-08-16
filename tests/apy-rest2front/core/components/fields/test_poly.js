@@ -37,12 +37,8 @@
 
 describe("Component.Field.Poly unit tests", function() {
 
-    var _createFieldByType = function (type, value) {
-        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", {type: type}, value);
-    };
-
     var _createField = function (value) {
-        return new _createFieldByType('poly', value);
+        return apy.tests.createFieldByType('poly', value);
     };
 
     var _morphsTo = function (type, value, expectedValue) {
@@ -58,7 +54,7 @@ describe("Component.Field.Poly unit tests", function() {
                 expect(field.count()).toEqual(value.length);
                 break;
             case 'datetime':
-                expect(isDate(field.$value)).toBe(true);
+                expect(apy.tests.helper.isDate(field.$value)).toBe(true);
                 break;
             default :
                 expect(field.$value).toEqual(expectedValue);

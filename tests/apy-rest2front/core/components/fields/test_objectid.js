@@ -36,21 +36,8 @@
  */
 describe("Component.Field.ObjectID unit tests", function() {
 
-    var _createFieldByType = function (type, value, schema) {
-        schema = schema || {};
-        schema.type = type;
-        return new window['Apy' + type.capitalize() + 'Field']({
-            $log: console,
-            $instance: {
-                schema2data: function () {
-                    return {}
-                }
-            }
-        }, type + ".test", schema, value);
-    };
-
     var _createField = function (value, schema) {
-        return new _createFieldByType('embedded', value, schema);
+        return apy.tests.createFieldByType('embedded', value, schema);
     };
 
     it("[selfUpdate] Shall update instance `_id` & `$components` attributes", function() {

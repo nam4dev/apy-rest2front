@@ -55,7 +55,7 @@ describe("ApyViewCtrl", function() {
         };
         var schemaName = "tests";
         var endpoint = "https://www.tests.fr/";
-        var provider = new ApyCompositeService($log, $http, Upload, config);
+        var provider = new apy.tests.$types.CompositeService($log, $http, Upload, config);
         // Mocking XmlHttpRequest object
         provider.$syncHttp = {
             open: function () {

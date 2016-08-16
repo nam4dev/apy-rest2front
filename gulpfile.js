@@ -13,7 +13,9 @@ var exec = require('child_process').exec;
 var karmaServer = require('karma').Server;
 var gp_sourcemaps = require('gulp-sourcemaps');
 var gp_htmlmin = require('gulp-html-minifier');
-var karmaThreshold = require('./apy.conf').karma.thresholdReporter;
+var karmaConfig = require('./apy.conf').karma;
+var karmaThreshold = karmaConfig.thresholdReporter;
+var jsFiles = karmaConfig.files.slice(0, -1);
 
 var paths = new function () {
     return {
@@ -26,53 +28,7 @@ var paths = new function () {
             'build/app/apy-rest2front.min.js.map',
             'build/app/apy-rest2front.min.css.map'
         ],
-        jsFiles: [
-            'app/components/babel-polyfill/browser-polyfill.js',
-            'app/components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.js',
-            'app/components/bluebird/js/browser/bluebird.js',
-
-            'app/components/angular/angular.js',
-            'app/components/angular-animate/angular-animate.js',
-            'app/components/angular-route/angular-route.js',
-            'app/components/angular-mocks/angular-mocks.js',
-            'app/components/angular-elastic/elastic.js',
-            'app/components/jquery/dist/jquery.js',
-            'app/components/bootstrap/dist/js/bootstrap.js',
-            'app/components/angular-bootstrap/ui-bootstrap.js',
-            'app/components/angular-bootstrap/ui-bootstrap-tpls.js',
-            'app/components/angular-backtop/dist/angular-backtop.js',
-            'app/components/ng-file-upload/ng-file-upload-shim.js',
-            'app/components/ng-file-upload/ng-file-upload.js',
-
-            'app/apy-rest2front/core/errors.js',
-            'app/apy-rest2front/core/helper.js',
-            'app/apy-rest2front/core/components/base.js',
-            'app/apy-rest2front/core/components/common.js',
-            'app/apy-rest2front/core/components/fields/field.js',
-            'app/apy-rest2front/core/components/fields/media.js',
-            'app/apy-rest2front/core/components/fields/number.js',
-            'app/apy-rest2front/core/components/fields/string.js',
-            'app/apy-rest2front/core/components/fields/boolean.js',
-            'app/apy-rest2front/core/components/fields/datetime.js',
-            'app/apy-rest2front/core/components/fields/list.js',
-            'app/apy-rest2front/core/components/fields/embedded.js',
-            'app/apy-rest2front/core/components/fields/nested.js',
-            'app/apy-rest2front/core/components/fields/field.js',
-            'app/apy-rest2front/core/components/fields/geo/point.js',
-            'app/apy-rest2front/core/components/fields/poly.js',
-            'app/apy-rest2front/core/components/resource.js',
-            'app/apy-rest2front/core/components/collection.js',
-            'app/apy-rest2front/core/schemas.js',
-            'app/apy-rest2front/core/core.js',
-
-            'app/apy-rest2front/integration/angular/view.js',
-            'app/apy-rest2front/integration/angular/directives/field.js',
-            'app/apy-rest2front/integration/angular/directives/version/version.js',
-            'app/apy-rest2front/integration/angular/directives/version/version-directive.js',
-            'app/apy-rest2front/integration/angular/directives/version/interpolate-filter.js',
-            'app/apy-rest2front/integration/angular/services.js',
-            'app/apy-rest2front/integration/angular/app.js'
-        ],
+        jsFiles: jsFiles,
         cssFiles: [
             'app/components/html5-boilerplate/dist/css/normalize.css',
             'app/components/html5-boilerplate/dist/css/main.css',
@@ -191,14 +147,6 @@ gulp.task('lint', ['prepare'], () => {
 gulp.task('test', ['lint'], (done) => {
     // run Karma
     exec('./node_modules/karma/bin/karma start karma.conf.js --single-run', (error, stdout, stderr) => {
-        if (error) {
-            console.error(`Execution Error: ${error}`);
-            return done(error);
-        }
-        if(stderr)  {
-            console.log(`Test Error(s): ${stderr}`);
-            return done(error);
-        }
         function getResultAsFloat(str) {
             try {
                 var pass = str.split('/')[0];
@@ -240,19 +188,24 @@ gulp.task('test', ['lint'], (done) => {
                 return done(err);
             }
         });
-        var output = `${stdout}`.replace(`================================================================================`, '');
-        output = output.slice(0, -1);
-        output += `Average      : ${testResults.average}% `;
-        output += `( (${testResults.lines}+${testResults.branches}+${testResults.functions}+${testResults.statements})/4 ) `;
-        output += `Threshold : ${testResults.thresholdAverage}%\n`;
-        output += `===============================================================================`;
-        console.log(output);
-        return done();
+        var completeStdout = `${stdout}`.replace(
+            `\n================================================================================`,
+            function injectAverage(){
+                var output = '\n';
+                output += `Average      : ${testResults.average}% `;
+                output += `( (${testResults.lines}+${testResults.branches}+${testResults.functions}+${testResults.statements})/4 ) `;
+                output += `Threshold : ${testResults.thresholdAverage}%\n`;
+                output += `===============================================================================`;
+                return output;
+            }
+        );
+        console.log(completeStdout);
+        return done(error, stdout, stderr);
     });
 });
 
-gulp.task('doc', (done) => {
-    gulp.src([
+gulp.task('doc', () => {
+    return gulp.src([
         'README.md',
         'app/apy-rest2front/**/*.js',
         'app/apy-rest2front/**/**/*.js',
@@ -268,7 +221,7 @@ gulp.task('doc', (done) => {
             },
             "recurse": true,
             "opts": {
-                "template": "./node_modules/jsdoc-rst-template/template/",
+                //"template": "./node_modules/jsdoc-rst-template/template/",
                 "destination": config.paths.outDir + '/docs'
             },
             "plugins": [
@@ -278,7 +231,7 @@ gulp.task('doc', (done) => {
                 "cleverLinks": false,
                 "monospaceLinks": false,
                 "default": {
-                    "layoutFile": "./node_modules/jsdoc-rst-template/template/",
+                    //"layoutFile": "./node_modules/jsdoc-rst-template/template/",
                     "outputSourceFiles": true
                 },
                 "path": "ink-docstrap",
@@ -287,7 +240,7 @@ gulp.task('doc', (done) => {
                 "linenums": true,
                 "dateFormat": "MMMM Do YYYY, h:mm:ss a"
             }
-        }, done));
+        }));
 });
 
 

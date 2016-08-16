@@ -37,14 +37,8 @@
 
 describe("Component.Field.Point unit tests", function() {
 
-    var _createFieldByType = function (type, value, schema) {
-        schema = schema || {};
-        schema.type = type;
-        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
-    };
-
     var _createField = function (value, schema) {
-        return new _createFieldByType('point', value, schema);
+        return apy.tests.createFieldByType('point', value, schema);
     };
 
     it("[setValue] Valid value", function() {
@@ -98,16 +92,17 @@ describe("Component.Field.Point unit tests", function() {
         expect(field.cleanedData()).toEqual({type: 'Point', coordinates: [0.0, 1.0]});
     });
 
-    it("[cloneValue.ApyPoint] Shall return a valid instance of ApyPoint", function() {
-        var value = new ApyPoint({coordinates: [0.0, 1.0]});
+    it("[cloneValue:apy.helpers.GeoPoint] Shall return a valid instance of apy.helpers.GeoPoint", function() {
+        var value = apy.tests.factory.createPoint({coordinates: [0.0, 1.0]});
+
         var field = _createField(value);
-        expect(field.cloneValue(value) instanceof ApyPoint).toBe(true);
+        expect(field.cloneValue(value) instanceof apy.tests.$types.Point).toBe(true);
     });
 
-    it("[cloneValue.not.ApyPoint] Shall return a valid instance of ApyPoint", function() {
+    it("[cloneValue:!apy.helpers.GeoPoint] Shall return a valid instance of apy.helpers.GeoPoint", function() {
         var value = {coordinates: [0.0, 1.0]};
         var field = _createField(value);
-        expect(field.cloneValue(value) instanceof ApyPoint).toBe(true);
+        expect(field.cloneValue(value) instanceof apy.tests.$types.Point).toBe(true);
     });
 });
 

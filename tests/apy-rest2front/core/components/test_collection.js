@@ -36,56 +36,23 @@
  */
 
 describe("Component.Collection unit tests", function() {
-
-    var DEFAULT_CONFIG = {};
-    var DEFAULT_SCHEMAS = {
-        tests: {
-            test: {type: 'list'}
-        }
-    };
-    var DEFAULT_SCHEMA_NAME = 'test';
-    var DEFAULT_ENDPOINT = 'http://localhost/';
-
-    var _createService = function ($log, $http, $upload, config) {
-        var deps = [
-            {
-                name: "log",
-                value: {}
-            },
-            {
-                name: "http",
-                value: function () {}
-            },
-            {
-                name: "upload",
-                value: {
-                    upload: function () {}
-                }
-            }
-        ];
-        var service = new ApyCompositeService($log, $http, $upload, config || DEFAULT_CONFIG);
-        service.setDependencies(deps[0], deps[1], deps[2]);
-        service.initEndpoints(DEFAULT_ENDPOINT, DEFAULT_SCHEMA_NAME);
-        service.setSchemas(DEFAULT_SCHEMAS);
-        return service;
-    };
-
     function _createCollection (service, name, endpoint, components) {
-        return new ApyCollectionComponent(service || _createService(), name, endpoint || DEFAULT_ENDPOINT, components);
+        return new apy.tests.$types.components.Collection(service || apy.tests.createService(), name,
+            endpoint || apy.tests.DEFAULT_ENDPOINT, components);
     }
 
     it("[createResource] A Resource instance shall be append to the Collection", function() {
         var col = _createCollection(undefined, 'tests');
         col.createResource();
         expect(col.count()).toEqual(1);
-        expect(col.getChild(0) instanceof ApyResourceComponent).toBe(true);
+        expect(col.getChild(0) instanceof apy.tests.$types.components.Resource).toBe(true);
     });
 
     it("[removeResource] Given Resource shall be spliced from the collection", function() {
         var col = _createCollection(undefined, 'tests');
         var resource = col.createResource();
         expect(col.count()).toEqual(1);
-        expect(col.getChild(0) instanceof ApyResourceComponent).toBe(true);
+        expect(col.getChild(0) instanceof apy.tests.$types.components.Resource).toBe(true);
         col.removeResource(resource);
         expect(col.count()).toEqual(0);
     });
@@ -170,7 +137,7 @@ describe("Component.Collection unit tests", function() {
         col.clear();
         expect(col.count()).toEqual(0);
     });
-    
+
     it("[save] Shall call create & update", function() {
         var createCall = false;
         var updateCall = false;
@@ -206,13 +173,7 @@ describe("Component.Collection unit tests", function() {
                     hcCallCount++;
                     return true;
                 },
-                create: function () {
-                    callCount++;
-                }
-            },
-            {
-                hasCreated: function () {
-                    hcCallCount++;
+                hasUpdated: function () {
                     return true;
                 },
                 create: function () {
@@ -222,6 +183,21 @@ describe("Component.Collection unit tests", function() {
             {
                 hasCreated: function () {
                     hcCallCount++;
+                    return true;
+                },
+                hasUpdated: function () {
+                    return true;
+                },
+                create: function () {
+                    callCount++;
+                }
+            },
+            {
+                hasCreated: function () {
+                    hcCallCount++;
+                    return true;
+                },
+                hasUpdated: function () {
                     return true;
                 },
                 create: function () {
@@ -244,8 +220,11 @@ describe("Component.Collection unit tests", function() {
         var col = _createCollection(undefined, 'tests');
         var children = [
             {
-                 hasCreated: function () {
+                hasCreated: function () {
                     hcCallCount++;
+                    return false;
+                },
+                hasUpdated: function () {
                     return false;
                 },
                 update: function () {
@@ -253,8 +232,11 @@ describe("Component.Collection unit tests", function() {
                 }
             },
             {
-                 hasCreated: function () {
+                hasCreated: function () {
                     hcCallCount++;
+                    return false;
+                },
+                hasUpdated: function () {
                     return false;
                 },
                 update: function () {
@@ -262,8 +244,11 @@ describe("Component.Collection unit tests", function() {
                 }
             },
             {
-                 hasCreated: function () {
+                hasCreated: function () {
                     hcCallCount++;
+                    return false;
+                },
+                hasUpdated: function () {
                     return false;
                 },
                 update: function () {
@@ -290,13 +275,7 @@ describe("Component.Collection unit tests", function() {
                     hcCallCount++;
                     return false;
                 },
-                delete: function () {
-                    callCount++;
-                }
-            },
-            {
-                hasCreated: function () {
-                    hcCallCount++;
+                hasUpdated: function () {
                     return false;
                 },
                 delete: function () {
@@ -306,6 +285,21 @@ describe("Component.Collection unit tests", function() {
             {
                 hasCreated: function () {
                     hcCallCount++;
+                    return false;
+                },
+                hasUpdated: function () {
+                    return false;
+                },
+                delete: function () {
+                    callCount++;
+                }
+            },
+            {
+                hasCreated: function () {
+                    hcCallCount++;
+                    return false;
+                },
+                hasUpdated: function () {
                     return false;
                 },
                 delete: function () {
@@ -330,17 +324,26 @@ describe("Component.Collection unit tests", function() {
             hasCreated: function () {
                 callCount++;
                 return false;
-            }
-        });
-        col.add({
-            hasCreated: function () {
-                callCount++;
+            },
+            hasUpdated: function () {
                 return false;
             }
         });
         col.add({
             hasCreated: function () {
                 callCount++;
+                return false;
+            },
+            hasUpdated: function () {
+                return false;
+            }
+        });
+        col.add({
+            hasCreated: function () {
+                callCount++;
+                return true;
+            },
+            hasUpdated: function () {
                 return true;
             }
         });
@@ -429,17 +432,26 @@ describe("Component.Collection unit tests", function() {
             hasCreated: function () {
                 return !this._id;
             },
+            hasUpdated: function () {
+                return false;
+            },
             _id: "0123456789"
         });
         col.add({
             hasCreated: function () {
                 return !this._id;
             },
+            hasUpdated: function () {
+                return false;
+            },
             _id: undefined
         });
         col.add({
             hasCreated: function () {
                 return !this._id;
+            },
+            hasUpdated: function () {
+                return false;
             },
             _id: undefined
         });

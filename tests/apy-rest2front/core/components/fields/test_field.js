@@ -38,11 +38,7 @@
 describe("Component.Field.Field unit tests", function() {
 
     var _createField = function (type, value) {
-        return new window['Apy' + type.capitalize() + 'Field'](
-            {$log: console},
-            type + ".test",
-            {type: type},
-            value);
+        return apy.tests.createFieldByType(type, value);
     };
 
     it("[validate][valid type value] nominal case (String, Boolean, Number fields)", function() {

@@ -35,14 +35,9 @@
  *  """
  */
 describe("Component.Field.String unit tests", function() {
-    var _createFieldByType = function (type, value, schema) {
-        schema = schema || {};
-        schema.type = type;
-        return new window['Apy' + type.capitalize() + 'Field']({$log: console}, type + ".test", schema, value);
-    };
 
     var _createField = function (value, schema) {
-        return new _createFieldByType('string', value, schema);
+        return apy.tests.createFieldByType('string', value, schema);
     };
 
     it("[wordCount] Shall return $value length when defined", function() {
