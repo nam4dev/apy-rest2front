@@ -30,15 +30,7 @@
  *
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
  */
-
-/**
- * Integrate all Components in a coherent Service module
- * Could be used through AngularJs (Service factory)
- * Might be functional for react.js framework integration
- *
- * @module core.core
- */
-(function ($globals) {
+(function ( $apy ) {
 
     /**
      *  The ApyService provides an Object which will load,
@@ -48,19 +40,35 @@
      *  * A configurable endpoint URI
      *  * A configurable CSS theme (default: Bootstrap 3)
      *
-     *  @class ApyCompositeService
+     * @class apy.CompositeService
+     *
+     * @augments RequestMixin
+     *
+     * @param $log
+     * @param $http
+     * @param $upload
+     * @param config
      */
-    $globals.ApyCompositeService = (function () {
+    $apy.CompositeService = (function CompositeService() {
 
+        /**
+         *
+         * @param name
+         * @memberOf apy.CompositeService
+         */
         function logMissingProvider(name) {
             console.error('No "'+ name + '" Provider available!');
         }
 
+        /**
+         *
+         * @returns {Promise}
+         * @memberOf apy.CompositeService
+         */
         function invalidate() {
-            this.$tokenInfo = undefined;
-            $globals.localStorage.setItem('tokenInfo', this.$tokenInfo);
-            $globals.location.reload();
-            return this;
+            var nil = null;
+            this.$tokenInfo = nil;
+            return Promise.resolve(nil);
         }
 
         /**
@@ -68,11 +76,15 @@
          *  whether or not the User is authenticated
          *
          *  @method
-         *  @returns Boolean
+         *  @returns {Boolean}
+         *  @memberOf apy.CompositeService
          */
-        function isAuthenticated() {
-            var tokenInfo = this.$tokenInfo||$globals.localStorage.getItem('tokenInfo');
-            if(tokenInfo && !$globals.isObject(tokenInfo)) {
+        function isAuthenticated(source) {
+            source = source|| function () {
+                return null;
+            };
+            var tokenInfo = this.$tokenInfo||source();
+            if(tokenInfo && !$apy.helpers.isObject(tokenInfo)) {
                 try {
                     tokenInfo = JSON.parse(tokenInfo);
                 } catch(JSONError) {
@@ -80,9 +92,17 @@
                 }
             }
             this.$tokenInfo = tokenInfo;
-            return ($globals.isObject(this.$tokenInfo)) ? true : false;
+            return ($apy.helpers.isObject(this.$tokenInfo)) ? true : false;
         }
 
+        /**
+         *
+         * @param credentials
+         * @param method
+         * @param headers
+         * @returns {Promise}
+         * @memberOf apy.CompositeService
+         */
         function authenticate(credentials, method, headers) {
             var self = this;
             var defaultHeaders = {
@@ -116,12 +136,9 @@
                     transformRequest: transform
 
                 })
-                    .then(function (response) {
-                        $globals.localStorage.setItem('tokenInfo', JSON.stringify(response.data));
-                        return resolve(response);
-                    },
+                    .then(resolve,
                     function (error) {
-                        return reject(new ApyEveHTTPError(error));
+                        return reject(new $apy.EveHTTPError(error));
                     });
             });
         }
@@ -129,9 +146,10 @@
         /**
          *
          * @param schemas
+         * @memberOf apy.CompositeService
          */
         function setSchemas(schemas) {
-            var ins = this.$instance = new ApySchemasComponent(this.$endpoint, schemas, this.$config, this);
+            var ins = this.$instance = new $apy.components.Schemas(this.$endpoint, schemas, this.$config, this);
             this.$schemas = ins.$components;
             this.$schemasAsArray = ins.$componentArray;
             return this;
@@ -140,6 +158,7 @@
         /**
          *
          * @returns {Promise}
+         * @memberOf apy.CompositeService
          */
         function loadSchemas(async) {
             if(async) {
@@ -155,6 +174,7 @@
         /**
          *
          * @returns {Promise}
+         * @memberOf apy.CompositeService
          */
         function asyncLoadSchemas() {
             var self = this;
@@ -167,7 +187,7 @@
                         self.setSchemas(response.data);
                         return resolve(response);
                     }, function (error) {
-                        return reject(new ApyEveHTTPError(error));
+                        return reject(new $apy.EveHTTPError(error));
                     });
             });
         }
@@ -177,6 +197,7 @@
          * @param endpoint
          * @param schemaName
          * @returns {this}
+         * @memberOf apy.CompositeService
          */
         function initEndpoints(endpoint, schemaName) {
             this.$endpoint = endpoint;
@@ -187,6 +208,7 @@
         /**
          *
          * @returns {this}
+         * @memberOf apy.CompositeService
          */
         function setDependencies() {
             for(var i = 0; i < arguments.length; ++i) {
@@ -202,21 +224,20 @@
          * @function
          * @param name
          * @param components
-         * @returns {ApyCollectionComponent}
+         * @returns {Collection}
+         * @memberOf apy.CompositeService
          */
         function createCollection(name, components) {
-            return new ApyCollectionComponent(this, name, this.$endpoint, components);
+            return new $apy.components.Collection(this, name, this.$endpoint, components);
         }
 
         /**
-         * A service to create collection and more.
-         *
-         * @constructor
          * @param $log
          * @param $http
          * @param $upload
          * @param config
-         * @returns {*}
+         *
+         * @constructor
          */
         return function($log, $http, $upload, config) {
             this.$log = $log;
@@ -255,6 +276,6 @@
         };
     })();
 
-    $globals.ApyRequestMixin.call(ApyCompositeService.prototype);
+    $apy.components.RequestMixin.call($apy.CompositeService.prototype);
 
-})( this );
+})( apy, window );

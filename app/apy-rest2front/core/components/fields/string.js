@@ -35,14 +35,41 @@
  *
  *  """
  */
-(function ($globals) {
+(function ( $apy ) {
 
-    $globals.ApyStringField = function () {
+    /**
+     * Apy String Field
+     *
+     * @class apy.components.fields.String
+     *
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.fields.FieldMixin
+     *
+     * @param {string} name: Resource name
+     * @param {string} type: Resource type
+     * @param {Object} schema: Resource schema
+     * @param {string} $endpoint: Resource endpoint
+     * @param {Object} service: Reference to Service instance
+     * @param {Array} components: Resource initial components
+     * @param {Object} $states: Resource inner state holder instance
+     * @param {string} relationName: (optional) Resource relation name
+     */
+    $apy.components.fields.String = function String() {
 
+        /**
+         *
+         * @returns {*}
+         * @memberOf apy.components.fields.String
+         */
         function toString() {
             return this.$value;
         }
 
+        /**
+         *
+         * @returns {*}
+         * @memberOf apy.components.fields.String
+         */
         function wordCount() {
             return this.$value ? this.$value.length : 0;
         }
@@ -50,6 +77,7 @@
         /**
          *
          * @returns {Boolean}
+         * @memberOf apy.components.fields.String
          */
         function hasUpdated() {
             this.$value = this.$value || '';
@@ -62,15 +90,19 @@
             this.toString = toString;
             this.wordCount = wordCount;
             this.hasUpdated = hasUpdated;
-            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.STRING, relationName);
-            this.$Class = $globals.ApyStringField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.STRING, relationName);
+            this.$Class = $apy.components.fields.String;
             return this;
         };
 
     }();
 
     // Inject Mixins
-    $globals.ApyComponentMixin.call(ApyStringField.prototype);
-    $globals.ApyFieldMixin.call(ApyStringField.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.fields.String.prototype
+    );
+    $apy.components.fields.FieldMixin.call(
+        $apy.components.fields.String.prototype
+    );
 
-})( this );
+})( apy );

@@ -35,13 +35,31 @@
  *
  *  """
  */
-(function ($globals) {
+(function ( $apy ) {
 
-    $globals.ApyDatetimeField = (function () {
+    /**
+     * Apy Datetime Field
+     *
+     * @class apy.components.fields.Datetime
+     *
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.fields.FieldMixin
+     *
+     * @param {string} name: Resource name
+     * @param {string} type: Resource type
+     * @param {Object} schema: Resource schema
+     * @param {string} $endpoint: Resource endpoint
+     * @param {Object} service: Reference to Service instance
+     * @param {Array} components: Resource initial components
+     * @param {Object} $states: Resource inner state holder instance
+     * @param {string} relationName: (optional) Resource relation name
+     */
+    $apy.components.fields.Datetime = (function Datetime() {
 
         /**
          *
          * @returns {string}
+         * @memberOf apy.components.fields.Datetime
          */
         function cleanedData() {
             this.validate();
@@ -51,9 +69,10 @@
         /**
          *
          * @returns {boolean}
+         * @memberOf apy.components.fields.Datetime
          */
         function hasUpdated() {
-            if (!$globals.isDate(this.$memo)) {
+            if (!$apy.helpers.isDate(this.$memo)) {
                 this.$memo = new Date(this.$memo);
             }
             return this.$value.getTime() !== this.$memo.getTime();
@@ -63,13 +82,14 @@
          *
          * @param value
          * @returns {*}
+         * @memberOf apy.components.fields.Datetime
          */
         function cloneValue(value) {
             var clonedValue = value;
             // Non value & String values cases
-            if (!value || $globals.isString(value)) {
+            if (!value || $apy.helpers.isString(value)) {
                 // String case
-                if ($globals.isString(value)) {
+                if ($apy.helpers.isString(value)) {
                     clonedValue = new Date(value);
                 }
                 // Non value case
@@ -78,28 +98,29 @@
                 }
             }
             // Non value & String values cases
-            else if($globals.isDate(value)) {
+            else if($apy.helpers.isDate(value)) {
                 clonedValue = new Date(value.toUTCString());
             }
             // unhandled types case
             else {
-                throw new ApyError('Unhandled type for datetime field: ' + typeof value);
+                throw new $apy.Error('Unhandled type for datetime field: ' + typeof value);
             }
             return clonedValue;
         }
 
         /**
-         *
+         * @memberOf apy.components.fields.Datetime
          */
         function validate() {
-            if (!$globals.isDate(this.$value)) {
-                throw new ApyError('Datetime object or string expected');
+            if (!$apy.helpers.isDate(this.$value)) {
+                throw new $apy.Error('Datetime object or string expected');
             }
         }
 
         /**
          *
-         * @returns {*}
+         * @returns {this}
+         * @memberOf apy.components.fields.Datetime
          */
         function toString() {
             return (this.$value && this.$value.toUTCString) ? this.$value.toUTCString() : this.$value;
@@ -112,15 +133,19 @@
             this.cloneValue = cloneValue;
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
-            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.DATETIME, relationName);
-            this.$Class = $globals.ApyDatetimeField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.DATETIME, relationName);
+            this.$Class = $apy.components.fields.Datetime;
             return this;
         };
 
     })();
 
     // Inject Mixins
-    $globals.ApyComponentMixin.call(ApyDatetimeField.prototype);
-    $globals.ApyFieldMixin.call(ApyDatetimeField.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.fields.Datetime.prototype
+    );
+    $apy.components.fields.FieldMixin.call(
+        $apy.components.fields.Datetime.prototype
+    );
 
-})(window);
+})( apy );

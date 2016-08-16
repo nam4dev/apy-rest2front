@@ -35,10 +35,35 @@
  *
  *  """
  */
-(function ($globals) {
+(function ( $apy ) {
 
-    $globals.ApyListField = function () {
+    /**
+     * Apy List Field
+     *
+     * @class apy.components.fields.List
+     *
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.fields.FieldMixin
+     * @augments apy.components.RequestMixin
+     * @augments apy.components.CompositeMixin
+     *
+     * @param {string} name: Resource name
+     * @param {string} type: Resource type
+     * @param {Object} schema: Resource schema
+     * @param {string} $endpoint: Resource endpoint
+     * @param {Object} service: Reference to Service instance
+     * @param {Array} components: Resource initial components
+     * @param {Object} $states: Resource inner state holder instance
+     * @param {string} relationName: (optional) Resource relation name
+     */
+    $apy.components.fields.List = function List() {
 
+        /**
+         *
+         * @param value
+         * @returns {this}
+         * @memberOf apy.components.fields.List
+         */
         function setValue(value) {
             var self = this;
             this.$memo = 0;
@@ -56,7 +81,7 @@
         }
 
         /**
-         *
+         * @memberOf apy.components.fields.List
          */
         function load (val) {
             var type;
@@ -75,6 +100,7 @@
         /**
          *
          * @returns {*}
+         * @memberOf apy.components.fields.List
          */
         function reset() {
             this.setValue(this.$memoValue);
@@ -84,6 +110,7 @@
          *
          * @param value
          * @returns {*}
+         * @memberOf apy.components.fields.List
          */
         function cloneValue(value) {
             value = value ? value : [];
@@ -96,6 +123,7 @@
         /**
          *
          * @returns {boolean}
+         * @memberOf apy.components.fields.List
          */
         function hasUpdated () {
             var updated = false;
@@ -115,6 +143,7 @@
         /**
          *
          * @returns {Array}
+         * @memberOf apy.components.fields.List
          */
         function cleanedData () {
             this.validate();
@@ -133,7 +162,7 @@
         }
 
         /**
-         *
+         * @memberOf apy.components.fields.List
          */
         function validate() {
             this.parentValidate();
@@ -145,6 +174,7 @@
         /**
          *
          * @returns {string}
+         * @memberOf apy.components.fields.List
          */
         function selfCommit() {
             this.$memo = this.$components.length;
@@ -165,17 +195,25 @@
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
             this.$memoValue = [];
-            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.LIST, relationName);
-            this.$Class = $globals.ApyListField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.LIST, relationName);
+            this.$Class = $apy.components.fields.List;
             return this;
         };
 
     }();
 
     // Inject Mixins
-    $globals.ApyComponentMixin.call(ApyListField.prototype);
-    $globals.ApyFieldMixin.call(ApyListField.prototype);
-    $globals.ApyRequestMixin.call(ApyListField.prototype);
-    $globals.ApyCompositeMixin.call(ApyListField.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.fields.List.prototype
+    );
+    $apy.components.fields.FieldMixin.call(
+        $apy.components.fields.List.prototype
+    );
+    $apy.components.RequestMixin.call(
+        $apy.components.fields.List.prototype
+    );
+    $apy.components.CompositeMixin.call(
+        $apy.components.fields.List.prototype
+    );
 
-})( this );
+})( apy );

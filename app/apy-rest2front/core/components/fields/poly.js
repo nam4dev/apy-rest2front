@@ -37,15 +37,38 @@
  *
  *  """
  */
-(function ($globals, $) {
+(function ( $apy, $ ) {
 
-    $globals.ApyPolyField = function () {
-        var fieldClassByType = $globals.apy.common.fieldClassByType;
+    /**
+     * Apy Poly(morph) Field
+     *
+     * @class apy.components.fields.Poly
+     *
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.fields.FieldMixin
+     *
+     * @param {string} name: Resource name
+     * @param {string} type: Resource type
+     * @param {Object} schema: Resource schema
+     * @param {string} $endpoint: Resource endpoint
+     * @param {Object} service: Reference to Service instance
+     * @param {Array} components: Resource initial components
+     * @param {Object} $states: Resource inner state holder instance
+     * @param {string} relationName: (optional) Resource relation name
+     */
+    $apy.components.fields.Poly = function Poly() {
+        var fieldClassByType = $apy.helpers.fieldClassByType;
 
+        /**
+         *
+         * @param type
+         * @param schemaName
+         * @memberOf apy.components.fields.Poly
+         */
         function setType(type, schemaName) {
             var field = fieldClassByType(type);
             if(!field) {
-                throw new $globals.ApyError('Unknown Field type, **' + type + '**');
+                throw new $apy.Error('Unknown Field type, **' + type + '**');
             }
             var schema = schemaName ? this.$service.$schemas[schemaName]: null;
             var instance = new field(this.$service, null, schema, null,
@@ -62,11 +85,11 @@
             /* istanbul ignore next */
             if(!this.$parent) {
                 console.debug('No Parent provided for ' +
-                    'ApyPolyField.setType(parent= undefined, type=',
+                    'Poly.setType(parent= undefined, type=',
                     type, ', schemaName=', schemaName);
             }
             switch (type) {
-            case $globals.$TYPES.RESOURCE:
+            case $apy.helpers.$TYPES.RESOURCE:
                 this.add(this.createPolyField({}, null));
                 break;
             default:
@@ -75,6 +98,9 @@
         }
 
         // FIXME
+        /**
+         * @memberOf apy.components.fields.Poly
+         */
         function validate() {
 
         }
@@ -82,6 +108,7 @@
         /**
          *
          * @returns {*}
+         * @memberOf apy.components.fields.Poly
          */
         function toString() {
             return this.$value;
@@ -89,7 +116,7 @@
 
         // FIXME: value & options parameters shall not be useful as a Poly Morph Field
         // FIXME: should not care of schema/options and value except if we decide to try to
-        // FIXME: autodetect type based on given value when we've got a schema-less field (which PolyField certainly is).
+        // FIXME: autodetect type based on given value when we've got a schema-less field (which Poly certainly is).
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.setType = setType;
             this.validate = validate;
@@ -97,15 +124,19 @@
             // Allow to know, this field is a PolyMorph type as it is the only one to have this property,
             // as when setType is invoked, its type is entirely overridden with all similar properties.
             this.$isPolyMorph = true;
-            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.POLY, relationName);
-            this.$Class = $globals.ApyPolyField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.POLY, relationName);
+            this.$Class = $apy.components.fields.Poly;
             return this;
         };
 
     }();
 
     // Inject Mixins
-    $globals.ApyComponentMixin.call(ApyPolyField.prototype);
-    $globals.ApyFieldMixin.call(ApyPolyField.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.fields.Poly.prototype
+    );
+    $apy.components.fields.FieldMixin.call(
+        $apy.components.fields.Poly.prototype
+    );
 
-})(window, window.jQuery);
+})( apy, window.jQuery );

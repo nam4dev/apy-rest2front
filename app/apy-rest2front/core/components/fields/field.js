@@ -35,14 +35,25 @@
  *
  *  """
  */
+/**
+ * @namespace apy.components.fields
+ */
+(function ( $apy ) {'use strict';
 
-(function ($globals) {'use strict';
+    /**
+     *  Base mixin to be coupled
+     *  to ComponentMixin for Field Classes
+     *
+     * @mixin apy.components.fields.FieldMixin
+     */
+    $apy.components.fields.FieldMixin =  (function FieldMixin() { // Registering mixin globally
 
-
-
-    // Registering mixin globally
-    $globals.ApyFieldMixin =  (function () {
-
+        /**
+         *
+         * @param schema
+         * @returns {setOptions}
+         * @memberOf apy.components.fields.FieldMixin
+         */
         function setOptions(schema) {
             schema = schema || {};
             this.$schema = schema;
@@ -54,6 +65,12 @@
             return this;
         }
 
+        /**
+         *
+         * @param value
+         * @returns {setValue}
+         * @memberOf apy.components.fields.FieldMixin
+         */
         function setValue(value) {
             if(!value) {
                 var factory = this.$typesFactory[this.$type];
@@ -67,6 +84,7 @@
         /**
          *
          * @returns {this}
+         * @memberOf apy.components.fields.FieldMixin
          */
         function selfCommit() {
             this.$memo = this.cloneValue(this.$value);
@@ -77,6 +95,7 @@
          *
          * @param update
          * @returns {this}
+         * @memberOf apy.components.fields.FieldMixin
          */
         function selfUpdate(update) {
             this.$value = this.cloneValue(update.$value);
@@ -84,7 +103,7 @@
         }
 
         /**
-         *
+         * @memberOf apy.components.fields.FieldMixin
          */
         function cleanedData() {
             this.validate();
@@ -93,8 +112,9 @@
 
         /**
          *
-         * @returns {string}
          * @private
+         * @returns {string}
+         * @memberOf apy.components.fields.FieldMixin
          */
         function _errorMsg() {
             var msg = 'Field.' + this.$name + ' did not validate' + '\n';
@@ -103,28 +123,30 @@
         }
 
         /**
-         *
+         * @memberOf apy.components.fields.FieldMixin
          */
         function validate() {
             if(this.$value && typeof this.$value !== this.$internalType) {
-                throw new ApyError(this._errorMsg());
+                throw new $apy.Error(this._errorMsg());
             }
         }
 
         return function () {
-            this.validate        = validate;
-            this.setValue        = setValue;
-            this._errorMsg       = _errorMsg;
-            this.setOptions      = setOptions;
-            this.selfUpdate      = selfUpdate;
-            this.selfCommit      = selfCommit;
-            this.cleanedData     = cleanedData;
+            this.validate = validate;
+            this.setValue = setValue;
+            this._errorMsg = _errorMsg;
+            this.setOptions = setOptions;
+            this.selfUpdate = selfUpdate;
+            this.selfCommit = selfCommit;
+            this.cleanedData = cleanedData;
             return this;
         };
 
     })();
 
     // Inject Mixin
-    $globals.ApyComponentMixin.call(ApyFieldMixin.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.fields.FieldMixin.prototype
+    );
 
-})( this );
+})( apy );

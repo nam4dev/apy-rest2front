@@ -36,29 +36,70 @@
  *
  *  """
  */
-(function ($globals) {
+(function ( $apy ) {
 
-    $globals.ApyMediaField = (function () {
+    /**
+     * Apy Media Field
+     *
+     * @class apy.components.fields.Media
+     *
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.fields.FieldMixin
+     *
+     * @param {string} name: Resource name
+     * @param {string} type: Resource type
+     * @param {Object} schema: Resource schema
+     * @param {string} $endpoint: Resource endpoint
+     * @param {Object} service: Reference to Service instance
+     * @param {Array} components: Resource initial components
+     * @param {Object} $states: Resource inner state holder instance
+     * @param {string} relationName: (optional) Resource relation name
+     */
+    $apy.components.fields.Media = (function Media() {
 
+        /**
+         *
+         * @returns {*}
+         * @memberOf apy.components.fields.Media
+         */
         function toString() {
             return this.$value.toString();
         }
 
+        /**
+         *
+         * @returns {*}
+         * @memberOf apy.components.fields.Media
+         */
         function cleanedData() {
             this.validate();
             return this.$value.cleanedData();
         }
 
+        /**
+         *
+         * @param value
+         * @returns {*|apy.helpers.MediaFile}
+         * @memberOf apy.components.fields.Media
+         */
         function cloneValue(value) {
-            if(value instanceof $globals.ApyMediaFile) {
+            if(value instanceof $apy.helpers.MediaFile) {
                 value = value.getInfo();
             }
-            return new $globals.ApyMediaFile(this.$endpoint, value);
+            return new $apy.helpers.MediaFile(this.$endpoint, value);
         }
 
         // FIXME
+        /**
+         * @memberOf apy.components.fields.Media
+         */
         function validate() {}
 
+        /**
+         *
+         * @returns {boolean}
+         * @memberOf apy.components.fields.Media
+         */
         function hasUpdated() {
             function getTime(value) {
                 var $value;
@@ -72,7 +113,7 @@
         }
 
         /**
-         *
+         * @memberOf apy.components.fields.Media
          */
         function reset() {
             if (this.hasUpdated()) {
@@ -88,15 +129,19 @@
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
-            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.MEDIA, relationName);
-            this.$Class = $globals.ApyMediaField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.MEDIA, relationName);
+            this.$Class = $apy.components.fields.Media;
             return this;
         };
 
     })();
 
     // Inject Mixins
-    $globals.ApyComponentMixin.call(ApyMediaField.prototype);
-    $globals.ApyFieldMixin.call(ApyMediaField.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.fields.Media.prototype
+    );
+    $apy.components.fields.FieldMixin.call(
+        $apy.components.fields.Media.prototype
+    );
 
-})( this );
+})( apy );

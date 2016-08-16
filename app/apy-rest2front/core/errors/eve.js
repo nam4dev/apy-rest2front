@@ -29,39 +29,19 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
- *
- *  """
- *  Apy Custom Error Classes.
- *  Create a unique Error interface for all kind of Error
- *
- *  ApyError: Define a base class exposing 2 methods, `title` & `messages`
- *  ApyEveError: Define a specific Eve Error class to handle HTTP Error Response
- *
- *  """
  */
+/**
+ * @namespace apy.errors.eve
+ */
+(function ( $apy ) {
 
-
-(function ($globals) {
     /**
-     * Define a base class exposing 2 methods, `title` & `messages`
+     * Common Eve-based backend methods
      *
-     * @param message
-     * @constructor
+     * @param eveError
+     * @returns {string}
+     * @inner
      */
-    function ApyError(message) {
-        this.title = 'ApyError';
-        var error = Error.call(this, message);
-        this.name = this.title;
-        this.message = error.message;
-        this.stack = error.stack;
-        this.messages = [error.message, error.stack];
-    }
-
-    ApyError.prototype = Object.create(Error.prototype);
-    ApyError.prototype.constructor = ApyError;
-    $globals.ApyError = ApyError;
-
-    // Common Eve-based backend methods
     function title(eveError) {
         var code;
         var title;
@@ -86,12 +66,20 @@
         }
         return both;
     }
+
+    /**
+     * Common Eve-based backend methods
+     *
+     * @param eveError
+     * @returns {Array}
+     * @inner
+     */
     function messages(eveError) {
         var messages = [];
         if(Array.isArray(eveError)) {
             messages = eveError;
         }
-        else if($globals.isObject(eveError) && eveError.data && eveError.data._issues) {
+        else if($apy.helpers.isObject(eveError) && eveError.data && eveError.data._issues) {
             messages = eveError.data._issues;
         }
         else {
@@ -112,36 +100,36 @@
      * Define a specific Eve Error base class
      *
      * @param eveError: Any Eve Error
-     * @constructor
+     * @class apy.errors.eve.EveError
      */
-    function ApyEveError(eveError) {
+    function EveError(eveError) {
         var error = Error.call(this, title(eveError));
-        this.name = 'ApyEveError';
+        this.name = 'EveError';
         this.title = this.message = error.message;
         this.stack = error.stack;
         this.messages = messages(eveError);
     }
 
-    ApyEveError.prototype = Object.create(Error.prototype);
-    ApyEveError.prototype.constructor = ApyEveError;
-    $globals.ApyEveError = ApyEveError;
+    EveError.prototype = Object.create(Error.prototype);
+    EveError.prototype.constructor = EveError;
+    $apy.EveError = EveError;
 
     /**
      * Define a specific Eve Error class to handle HTTP Error
      *
      * @param eveError: The HTTP Error
-     * @constructor
+     * @class apy.errors.eve.EveHTTPError
      */
-    function ApyEveHTTPError(eveError) {
+    function EveHTTPError(eveError) {
         var error = Error.call(this, title(eveError));
-        this.name = 'ApyEveHTTPError';
+        this.name = 'EveHTTPError';
         this.title = this.message = error.message;
         this.stack = error.stack;
         this.messages = messages(eveError);
     }
 
-    ApyEveHTTPError.prototype = Object.create(Error.prototype);
-    ApyEveHTTPError.prototype.constructor = ApyEveHTTPError;
-    $globals.ApyEveHTTPError = ApyEveHTTPError;
+    EveHTTPError.prototype = Object.create(Error.prototype);
+    EveHTTPError.prototype.constructor = EveHTTPError;
+    $apy.EveHTTPError = EveHTTPError;
 
-})( this );
+})( apy );

@@ -3,7 +3,7 @@
  *
  *  This project is a small automated frontend application based on a REST API schema.
  *  It tries to implement a generic data binding upon a REST API system.
- *  For now, python-eve REST API framework has been integrated to Apy REST2Front.
+ *  For now, python-eve REST API framework has been integrated to Apy Frontend.
  *  For UI components (data representation & bindings), AngularJs is used.
  *  Anyhow, the framework is intended to be plugged to any UI or Backend framework...
  *
@@ -27,15 +27,13 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  *
- *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
+ *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
  *
  *  """
- *  One place for common UT snippets
- *  Mocking Main library components
+ *  Write here what the module does...
  *
  *  """
  */
-
 (function ($window) {
 
     // ApyModalProvider Mock
@@ -43,11 +41,11 @@
         return {
             ok: function () {
                 var cb = $context.$modalContext.okCallback;
-                if(isFunction(cb)) cb();
+                if(apy.tests.helper.isFunction(cb)) cb();
             },
             cancel: function () {
                 var cb = $context.$modalContext.cancelCallback;
-                if(isFunction(cb)) cb();
+                if(apy.tests.helper.isFunction(cb)) cb();
             },
             warn: function (context) {
                 $context.$modalContext = context;

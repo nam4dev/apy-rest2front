@@ -29,16 +29,27 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
- *
- *  """
- *  Apy Resource Component abstraction
- *
- *  """
  */
-(function ($globals) {
+(function ( $apy ) {
 
-    $globals.ApyResourceComponent = (function () {
-
+    /**
+     * Apy Resource Component
+     *
+     * @class apy.components.Resource
+     *
+     * @augments ComponentMixin
+     * @augments CompositeMixin
+     * @augments RequestMixin
+     *
+     * @param {string} name: Resource name
+     * @param {string} type: Resource type
+     * @param {Object} schema: Resource schema
+     * @param $states: Resource inner state holder instance
+     * @param {Array} components: Resource initial components
+     * @param {string} endpointBase: Resource endpoint
+     * @param {string} relationName: (optional) Resource relation name
+     */
+    $apy.components.Resource = (function Resource() {
 
 
         /**
@@ -46,6 +57,7 @@
          * (_id ? hasCreated : not)
          *
          * @returns {boolean}
+         * @memberOf apy.components.Resource
          */
         function hasCreated () {
             // FIXME: Ensure default value according chosen backend (for now only python-eve is available)
@@ -65,6 +77,7 @@
          *
          * @param method: The HTTP Method Verb (GET, POST, DELETE, ...)
          * @returns {Promise}
+         * @memberOf apy.components.Resource
          */
         function createResourceRequest(method) {
             var self = this;
@@ -101,7 +114,8 @@
          * If the Resource is created & updated,
          * a POST Request is sent to the backend.
          *
-         * @returns {Promise} or {null}
+         * @returns {Promise}
+         * @memberOf apy.components.Resource
          */
         function create () {
             if(this.hasCreated() && this.hasUpdated()) {
@@ -114,7 +128,8 @@
          * If the Resource is not created & updated,
          * a PATCH Request is sent to the backend.
          *
-         * @returns {Promise} or {null}
+         * @returns {Promise}
+         * @memberOf apy.components.Resource
          */
         function update () {
             if(this.hasUpdated() && !this.hasCreated()) {
@@ -127,7 +142,8 @@
          * If the Resource is not created,
          * a DELETE Request is sent to the backend.
          *
-         * @returns {Promise} or {null}
+         * @returns {Promise}
+         * @memberOf apy.components.Resource
          */
         function del () {
             if(!this.hasCreated()) {
@@ -137,7 +153,7 @@
         }
 
         /**
-         * ApyResourceComponent Constructor
+         * Resource Constructor
          *
          * @param name: Resource name
          * @param type: Resource type
@@ -146,10 +162,11 @@
          * @param components: Resource initial components
          * @param endpointBase: Resource endpoint
          * @param relationName: (optional) Resource relation name
+         *
          * @constructor
          */
         return function (service, name, schema, value, $states, $endpoint, type, relationName, components) {
-            type = type || $globals.$TYPES.RESOURCE;
+            type = type || $apy.helpers.$TYPES.RESOURCE;
 
             this.delete = del;
             this.create = create;
@@ -162,7 +179,7 @@
             this.initialize(service, name, schema, value, st, $endpoint, type, relationName, components);
             this.$selfUpdated = false;
             this.$endpointBase = $endpoint;
-            this.$Class = $globals.ApyResourceComponent;
+            this.$Class = $apy.components.Resource;
 
             if(relationName)
                 this.$endpoint += relationName;
@@ -176,9 +193,15 @@
 
     })();
 
-    // Inject Mixin
-    $globals.ApyComponentMixin.call(ApyResourceComponent.prototype);
-    $globals.ApyRequestMixin.call(ApyResourceComponent.prototype);
-    $globals.ApyCompositeMixin.call(ApyResourceComponent.prototype);
+// Inject Mixins
+    $apy.components.ComponentMixin.call(
+        $apy.components.Resource.prototype
+    );
+    $apy.components.RequestMixin.call(
+        $apy.components.Resource.prototype
+    );
+    $apy.components.CompositeMixin.call(
+        $apy.components.Resource.prototype
+    );
 
-})( this );
+})( apy );

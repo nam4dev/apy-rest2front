@@ -35,10 +35,26 @@
  *
  *  """
  */
+(function ( $apy ) {
 
-(function ($globals) {
-
-    $globals.ApyBooleanField = (function () {
+    /**
+     * Apy Boolean Field
+     *
+     * @class apy.components.fields.Boolean
+     *
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.fields.FieldMixin
+     *
+     * @param {string} name: Resource name
+     * @param {string} type: Resource type
+     * @param {Object} schema: Resource schema
+     * @param {string} $endpoint: Resource endpoint
+     * @param {Object} service: Reference to Service instance
+     * @param {Array} components: Resource initial components
+     * @param {Object} $states: Resource inner state holder instance
+     * @param {string} relationName: (optional) Resource relation name
+     */
+    $apy.components.fields.Boolean = (function () {
 
         /**
          * Clone the value.
@@ -47,6 +63,7 @@
          * @override
          * @param value: A boolean or undefined value
          * @returns {Boolean}
+         * @memberOf apy.components.fields.Boolean
          */
         function cloneValue(value) {
             return value || false;
@@ -57,6 +74,7 @@
          *
          * @override
          * @returns {Boolean}
+         * @memberOf apy.components.fields.Boolean
          */
         function hasUpdated() {
             this.$value = this.cleanedData();
@@ -68,6 +86,7 @@
          *
          * @override
          * @returns {boolean}
+         * @memberOf apy.components.fields.Boolean
          */
         function cleanedData() {
             return this.$value || false;
@@ -85,7 +104,8 @@
          * @param $endpoint
          * @param type
          * @param relationName
-         * @returns {ApyBooleanField}
+         * @returns {this}
+         * @memberOf apy.components.fields.Boolean
          */
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'boolean';
@@ -93,17 +113,21 @@
             this.parentHasUpdated = this.hasUpdated;
             this.hasUpdated = hasUpdated;
             this.cloneValue = cloneValue;
-            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.BOOLEAN, relationName);
-            this.$Class = $globals.ApyBooleanField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.BOOLEAN, relationName);
+            this.$Class = $apy.components.fields.Boolean;
             return this;
         };
 
     })();
 
     // Inject Mixins
-    $globals.ApyComponentMixin.call(ApyBooleanField.prototype);
-    $globals.ApyFieldMixin.call(ApyBooleanField.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.fields.Boolean.prototype
+    );
+    $apy.components.fields.FieldMixin.call(
+        $apy.components.fields.Boolean.prototype
+    );
 
-})( this );
+})( apy );
 
 

@@ -29,18 +29,24 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
- *
- *  """
- *  Common snippets of code (Mixins, ...)
- *
- *  """
  */
+(function ( $apy ) {
 
-(function ($globals) {
+    /**
+     *  RequestMixin offer a common interface to access
+     *  low-level resources
+     *
+     * @mixin apy.components.RequestMixin
+     */
+    $apy.components.RequestMixin = (function RequestMixin() { // Registering mixin globally
 
-    // Registering mixin globally
-    $globals.ApyRequestMixin = (function () {
-
+        /**
+         *
+         * @param headers
+         * @returns {Object}
+         * @memberOf apy.components.RequestMixin
+         *
+         */
         function $authHeaders(headers) {
             var service = this.$service || this;
             headers = headers || {
@@ -55,6 +61,12 @@
             return headers;
         }
 
+        /**
+         *
+         * @param request
+         * @returns {*}
+         * @memberOf apy.components.RequestMixin
+         */
         function $access(request) {
             if(!this.$request) {
                 this.$request = (this.$schema && this.$schema.$hasMedia) ?
@@ -72,6 +84,7 @@
          * @param method: The HTTP method Verb (GET, POST, PATCH, ...)
          *
          * @returns {Promise} Asynchronous
+         * @memberOf apy.components.RequestMixin
          */
         function createRequest (uri, method) {
             var self = this;
@@ -104,7 +117,7 @@
             }
             return new Promise(function (resolve, reject) {
                 return self.$access(request).then(resolve, function (error) {
-                    return reject(new ApyEveHTTPError(error));
+                    return reject(new $apy.EveHTTPError(error));
                 });
             });
         }
@@ -117,8 +130,12 @@
         };
     })();
 
-    // Registering mixin globally
-    $globals.ApyCompositeMixin =  (function () {
+    /**
+     * CompositeMixin offer a common interface to manipulate `recursive` data.
+     *
+     * @mixin apy.components.CompositeMixin
+     */
+    $apy.components.CompositeMixin =  (function CompositeMixin() { // Registering mixin globally
 
         /**
          * Common Method for composite container components (Resource, List)
@@ -131,6 +148,7 @@
          * @param append: If true, the created component instance is appended to `this`
          *
          * @returns {*} A component instance
+         * @memberOf apy.components.CompositeMixin
          */
         function createField (type, name, schema, value, endpoint, append) {
             var fieldObj;
@@ -138,41 +156,41 @@
             append = append === false ? append : true;
             endpoint = endpoint || this.$endpoint;
             switch(type) {
-            case this.$types.LIST:
-                fieldObj = new ApyListField(this.$service, name, schema, value, this.$states, endpoint);
+            case $apy.helpers.$TYPES.LIST:
+                fieldObj = new $apy.components.fields.List(this.$service, name, schema, value, this.$states, endpoint);
                 break;
-            case this.$types.DICT:
-                fieldObj = new ApyNestedField(this.$service, name, schema.schema, value, this.$states, null, this.$types.RESOURCE);
-                if(!schema.schema) {
-                    fieldObj.add(fieldObj.createPolyField(undefined, value, name));
-                }
+            case $apy.helpers.$TYPES.DICT:
+                fieldObj = new $apy.components.fields.Nested(this.$service, name, schema.schema, value, this.$states, null, $apy.helpers.$TYPES.RESOURCE);
+                //if(!schema.schema) {
+                //    fieldObj.add(fieldObj.createPolyField(undefined, value, name));
+                //}
                 break;
-            case this.$types.POINT:
-                fieldObj = new ApyPointField(this.$service, name, schema, value, this.$states, endpoint);
+            case $apy.helpers.$TYPES.POINT:
+                fieldObj = new $apy.components.fields.geo.Point(this.$service, name, schema, value, this.$states, endpoint);
                 break;
-            case this.$types.MEDIA:
-                fieldObj = new ApyMediaField(this.$service, name, schema, value, this.$states, endpoint);
+            case $apy.helpers.$TYPES.MEDIA:
+                fieldObj = new $apy.components.fields.Media(this.$service, name, schema, value, this.$states, endpoint);
                 break;
-            case this.$types.FLOAT:
-            case this.$types.NUMBER:
-            case this.$types.INTEGER:
-                fieldObj = new ApyNumberField(this.$service, name, schema, value, this.$states, endpoint);
+            case $apy.helpers.$TYPES.FLOAT:
+            case $apy.helpers.$TYPES.NUMBER:
+            case $apy.helpers.$TYPES.INTEGER:
+                fieldObj = new $apy.components.fields.Number(this.$service, name, schema, value, this.$states, endpoint);
                 break;
-            case this.$types.STRING:
-                fieldObj = new ApyStringField(this.$service, name, schema, value, this.$states, endpoint);
+            case $apy.helpers.$TYPES.STRING:
+                fieldObj = new $apy.components.fields.String(this.$service, name, schema, value, this.$states, endpoint);
                 break;
-            case this.$types.BOOLEAN:
-                fieldObj = new ApyBooleanField(this.$service, name, schema, value, this.$states, endpoint);
+            case $apy.helpers.$TYPES.BOOLEAN:
+                fieldObj = new $apy.components.fields.Boolean(this.$service, name, schema, value, this.$states, endpoint);
                 break;
 
-            case this.$types.DATETIME:
-                fieldObj = new ApyDatetimeField(this.$service, name, schema, value, this.$states, endpoint);
+            case $apy.helpers.$TYPES.DATETIME:
+                fieldObj = new $apy.components.fields.Datetime(this.$service, name, schema, value, this.$states, endpoint);
                 break;
-            case this.$types.OBJECTID:
+            case $apy.helpers.$TYPES.OBJECTID:
                 var relationName = schema.data_relation.resource;
                 var schemaObject = this.$service.$schemas[relationName];
-                fieldObj = new ApyEmbeddedField(this.$service, name, schemaObject, value,
-                        this.$states, endpoint, this.$types.OBJECTID, relationName);
+                fieldObj = new $apy.components.fields.Embedded(this.$service, name, schemaObject, value,
+                        this.$states, endpoint, $apy.helpers.$TYPES.OBJECTID, relationName);
                 break;
             default:
                 fieldObj = this.createPolyField(undefined, value, name);
@@ -192,6 +210,7 @@
          * Groups Composite (recursive) logic.
          *
          * @param resource: (optional) A Resource Object ({})
+         * @memberOf apy.components.CompositeMixin
          */
         function _load (resource) {
             for (var field in this.$schema) {
@@ -221,6 +240,7 @@
          *
          * @param resource: (optional) A Resource Object ({})
          * @returns {this}
+         * @memberOf apy.components.CompositeMixin
          */
         function load (resource) {
             var self = this;
@@ -253,10 +273,11 @@
          * (based on its `$memo` attribute)
          *
          * @returns {this}
+         * @memberOf apy.components.CompositeMixin
          */
         function reset () {
             this.$components.forEach(function (comp) {
-                comp && comp.reset && comp.reset();
+                comp.reset();
             });
             if(this.$selfUpdated) {
                 this.$selfUpdated = false;
@@ -271,6 +292,7 @@
          *
          * @param obj: Object instance to be evaluated
          * @returns {boolean} Whether the Object is empty or not
+         * @memberOf apy.components.CompositeMixin
          */
         function isEmpty(obj) {
             for (var key in obj) {
@@ -284,6 +306,7 @@
          * All data-related inner components are collected into an Object instance.
          *
          * @returns {Object} collected data-related inner components
+         * @memberOf apy.components.CompositeMixin
          */
         function cleanedData () {
             var cleaned = {};
@@ -304,6 +327,7 @@
          * In other words, whether one of its inner component is UPDATED or not
          *
          * @returns {boolean} true if UPDATED state
+         * @memberOf apy.components.CompositeMixin
          */
         function hasUpdated () {
             if(this.$selfUpdated) {
@@ -324,6 +348,7 @@
          * `$memo` attribute is overridden by the current `$value`.hasUpdated
          *
          * @returns {this}
+         * @memberOf apy.components.CompositeMixin
          */
         function selfCommit () {
             this.$components.forEach(function (comp) {
@@ -341,17 +366,23 @@
          * @param update: The update payload (Object)
          * @param commit: If true, `selfCommit` method is invoked
          * @returns {this}
+         * @memberOf apy.components.CompositeMixin
          */
         function selfUpdate (update, commit) {
             var self = this;
             update = update || {};
             commit = commit || false;
             // Copy private properties such as _id, _etag, ...
-            $globals.forEach(update, function (value, name) {
+            Object.keys(update).forEach(function (name) {
                 if(self.continue(name)) {
-                    self[name] = value;
+                    self[name] = update[name];
                 }
             });
+            //$apy.forEach(update, function (value, name) {
+            //    if(self.continue(name)) {
+            //        self[name] = value;
+            //    }
+            //});
             // Copy $value in case of embedded resource
             if(update.hasOwnProperty('$value')) {
                 this.$value = update.$value;
@@ -373,11 +404,16 @@
             return this;
         }
 
+        /**
+         * @override
+         * @returns {*}
+         * @memberOf apy.components.CompositeMixin
+         */
         function toString() {
             var values = [];
             var excludedTypes = [
-                $globals.$TYPES.BOOLEAN,
-                $globals.$TYPES.DATETIME
+                $apy.helpers.$TYPES.BOOLEAN,
+                $apy.helpers.$TYPES.DATETIME
             ];
 
             var filtered = this.$components.filter(function (c) {
@@ -418,4 +454,4 @@
 
     })();
 
-})( this );
+})( apy );

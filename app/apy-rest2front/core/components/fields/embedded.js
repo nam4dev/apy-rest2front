@@ -35,14 +35,41 @@
  *
  *  """
  */
-(function ($globals) {
+(function ( $apy ) {
 
-    $globals.ApyEmbeddedField = (function () {
+    /**
+     * Apy Embedded Field
+     *
+     * @class apy.components.fields.Embedded
+     *
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.fields.FieldMixin
+     * @augments apy.components.CompositeMixin
+     *
+     * @param {string} name: Resource name
+     * @param {string} type: Resource type
+     * @param {Object} schema: Resource schema
+     * @param {string} $endpoint: Resource endpoint
+     * @param {Object} service: Reference to Service instance
+     * @param {Array} components: Resource initial components
+     * @param {Object} $states: Resource inner state holder instance
+     * @param {string} relationName: (optional) Resource relation name
+     */
+    $apy.components.fields.Embedded = (function Embedded() {
 
+        /**
+         *
+         * @param value
+         * @returns {Object}
+         * @memberOf apy.components.fields.Embedded
+         */
         function cloneValue(value) {
-            return $globals.isObject(value) ? Object.assign(value) : value;
+            return $apy.helpers.isObject(value) ? Object.assign(value) : value;
         }
 
+        /**
+         * @memberOf apy.components.fields.Embedded
+         */
         function selfCommit() {
             var cleaned = this.cleanedData();
             cleaned._id = this._id;
@@ -53,6 +80,12 @@
             this.$memo = cleaned;
         }
 
+        /**
+         *
+         * @param update
+         * @returns {this}
+         * @memberOf apy.components.fields.Embedded
+         */
         function selfUpdate(update) {
             this._id = update._id;
             this._etag = update._etag;
@@ -63,9 +96,14 @@
             return this;
         }
 
+        /**
+         *
+         * @returns {boolean}
+         * @memberOf apy.components.fields.Embedded
+         */
         function hasUpdated () {
             var updated;
-            if(this.$memo && $globals.isObject(this.$memo)) {
+            if(this.$memo && $apy.helpers.isObject(this.$memo)) {
                 updated = this.$memo._id !== this._id;
             }
             else {
@@ -74,12 +112,17 @@
             return updated;
         }
 
+        /**
+         *
+         * @returns {string}
+         * @memberOf apy.components.fields.Embedded
+         */
         function cleanedData () {
             return this._id;
         }
 
         /**
-         *
+         * @memberOf apy.components.fields.Embedded
          */
         function reset() {
             if (this.hasUpdated()) {
@@ -88,16 +131,25 @@
             }
         }
 
+        /**
+         * @memberOf apy.components.fields.Embedded
+         */
         function validate() {
             var id = this._id;
             if(id === undefined || id === null) {
                 var message = 'An Embedded Field should have a non-empty ID[' + typeof id + ']';
-                throw new $globals.ApyError(message);
+                throw new $apy.Error(message);
             }
         }
 
+        /**
+         *
+         * @param value
+         * @returns {this}
+         * @memberOf apy.components.fields.Embedded
+         */
         function setValue(value) {
-            if($globals.isString(value)) {
+            if($apy.helpers.isString(value)) {
                 value = {_id: value};
             }
             this.load(value);
@@ -105,6 +157,11 @@
             return this;
         }
 
+        /**
+         *
+         * @returns {string}
+         * @memberOf apy.components.fields.Embedded
+         */
         function toString() {
             var str = this.parentToString();
             if(!str && this._id) {
@@ -125,16 +182,22 @@
             this.selfCommit = selfCommit;
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
-            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.OBJECTID, relationName);
-            this.$Class = $globals.ApyEmbeddedField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.OBJECTID, relationName);
+            this.$Class = $apy.components.fields.Embedded;
             return this;
         };
 
     })();
 
     // Inject Mixins
-    $globals.ApyComponentMixin.call(ApyEmbeddedField.prototype);
-    $globals.ApyFieldMixin.call(ApyEmbeddedField.prototype);
-    $globals.ApyCompositeMixin.call(ApyEmbeddedField.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.fields.Embedded.prototype
+    );
+    $apy.components.fields.FieldMixin.call(
+        $apy.components.fields.Embedded.prototype
+    );
+    $apy.components.CompositeMixin.call(
+        $apy.components.fields.Embedded.prototype
+    );
 
-})( this );
+})( apy );

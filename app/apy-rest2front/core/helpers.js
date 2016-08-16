@@ -29,17 +29,16 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
- *
- *  """
- *  Groups all utilities functions
- *
- *  """
  */
-
-(function ($globals) {'use strict';
+/**
+ * Groups all utilities functions
+ *
+ * @namespace apy.helpers
+ */
+(function ( $apy ) {'use strict';
 
     /**
-     *
+     * @memberOf apy.helpers
      */
     /* istanbul ignore next */
     var patchObject = function () {
@@ -53,7 +52,6 @@
                     if (target === undefined || target === null) {
                         throw new TypeError('Cannot convert first argument to object');
                     }
-
                     var to = Object(target);
                     for (var i = 1; i < arguments.length; i++) {
                         var nextSource = arguments[i];
@@ -78,7 +76,7 @@
     };
 
     /**
-     *
+     * @memberOf apy.helpers
      */
     var patchString = function () {
         /**
@@ -101,127 +99,19 @@
         };
     };
 
+    var toString = Object.prototype.toString;
+
     /**
-     *
+     * @memberOf apy.helpers
      */
     var patchArray = function () {
         if (!Array.isArray) {
             /* istanbul ignore next */
             Array.isArray = function(arg) {
-                return Object.prototype.toString.call(arg) === '[object Array]';
+                return toString.call(arg) === '[object Array]';
             };
         }
     };
-
-    var NODE_TYPE_ELEMENT = 1;
-
-    var getPrototypeOf      = Object.getPrototypeOf,
-        toString            = Object.prototype.toString,
-        hasOwnProperty      = Object.prototype.hasOwnProperty;
-
-// Borrowed to AngularJs framework
-    /**
-     * @name forEach
-     * @kind function
-     *
-     * @description
-     * Invokes the `iterator` function once for each item in `obj` collection, which can be either an
-     * object or an array. The `iterator` function is invoked with `iterator(value, key, obj)`, where `value`
-     * is the value of an object property or an array element, `key` is the object property key or
-     * array element index and obj is the `obj` itself. Specifying a `context` for the function is optional.
-     *
-     * It is worth noting that `.forEach` does not iterate over inherited properties because it filters
-     * using the `hasOwnProperty` method.
-     *
-     * Unlike ES262's
-     * [Array.prototype.forEach](http://www.ecma-international.org/ecma-262/5.1/#sec-15.4.4.18),
-     * Providing 'undefined' or 'null' values for `obj` will not throw a TypeError, but rather just
-     * return the value provided.
-     *
-     ```js
-     var values = {name: 'misko', gender: 'male'};
-     var log = [];
-     forEach(values, function(value, key) {
-           this.push(key + ': ' + value);
-         }, log);
-     expect(log).toEqual(['name: misko', 'gender: male']);
-     ```
-     *
-     * @param {Object|Array} obj Object to iterate over.
-     * @param {Function} iterator Iterator function.
-     * @param {Object=} context Object to become context (`this`) for the iterator function.
-     * @returns {Object|Array} Reference to `obj`.
-     */
-    /* istanbul ignore next */
-    function forEach(obj, iterator, context) {
-        var key, length;
-        if (obj) {
-            if (isFunction(obj)) {
-                for (key in obj) {
-                    // Need to check if hasOwnProperty exists,
-                    // as on IE8 the result of querySelectorAll is an object without a hasOwnProperty function
-                    if (key != 'prototype' && key != 'length' && key != 'name' && (!obj.hasOwnProperty || obj.hasOwnProperty(key))) {
-                        iterator.call(context, obj[key], key, obj);
-                    }
-                }
-            } else if (isArray(obj) || isArrayLike(obj)) {
-                var isPrimitive = typeof obj !== 'object';
-                for (key = 0, length = obj.length; key < length; key++) {
-                    if (isPrimitive || key in obj) {
-                        iterator.call(context, obj[key], key, obj);
-                    }
-                }
-            } else if (obj.forEach && obj.forEach !== forEach) {
-                obj.forEach(iterator, context, obj);
-            } else if (isBlankObject(obj)) {
-                // createMap() fast path --- Safe to avoid hasOwnProperty check because prototype chain is empty
-                for (key in obj) {
-                    iterator.call(context, obj[key], key, obj);
-                }
-            } else if (typeof obj.hasOwnProperty === 'function') {
-                // Slow path for objects inheriting Object.prototype, hasOwnProperty check needed
-                for (key in obj) {
-                    if (obj.hasOwnProperty(key)) {
-                        iterator.call(context, obj[key], key, obj);
-                    }
-                }
-            } else {
-                // Slow path for objects which do not have a method `hasOwnProperty`
-                for (key in obj) {
-                    if (hasOwnProperty.call(obj, key)) {
-                        iterator.call(context, obj[key], key, obj);
-                    }
-                }
-            }
-        }
-        return obj;
-    }
-
-    /**
-     * @name isUndefined
-     * @kind function
-     *
-     * @description
-     * Determines if a reference is undefined.
-     *
-     * @param {*} value Reference to check.
-     * @returns {boolean} True if `value` is undefined.
-     */
-    /* istanbul ignore next */
-    function isUndefined(value) {return typeof value === 'undefined';}
-
-    /**
-     * @name isDefined
-     * @kind function
-     *
-     * @description
-     * Determines if a reference is defined.
-     *
-     * @param {*} value Reference to check.
-     * @returns {boolean} True if `value` is defined.
-     */
-    /* istanbul ignore next */
-    function isDefined(value) {return typeof value !== 'undefined';}
 
     /**
      * @name isObject
@@ -233,39 +123,11 @@
      *
      * @param {*} value Reference to check.
      * @returns {boolean} True if `value` is an `Object` but not `null`.
+     * @memberOf apy.helpers
      */
     function isObject(value) {
         // http://jsperf.com/isobject4
         return value !== null && typeof value === 'object';
-    }
-
-    function isEmpty(obj) {
-
-        // null and undefined are "empty"
-        if (obj == null) return true;
-
-        // Assume if it has a length property with a non-zero value
-        // that that property is correct.
-        if (obj.length > 0)    return false;
-        if (obj.length === 0)  return true;
-
-        // Otherwise, does it have any properties of its own?
-        // Note that this doesn't handle
-        // toString and valueOf enumeration bugs in IE < 9
-        for (var key in obj) {
-            if (hasOwnProperty.call(obj, key)) return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * Determine if a value is an object with a null prototype
-     *
-     * @returns {boolean} True if `value` is an `Object` with a null prototype
-     */
-    function isBlankObject(value) {
-        return value !== null && typeof value === 'object' && !getPrototypeOf(value);
     }
 
     /**
@@ -277,27 +139,9 @@
      *
      * @param {*} value Reference to check.
      * @returns {boolean} True if `value` is a `String`.
+     * @memberOf apy.helpers
      */
     function isString(value) {return typeof value === 'string';}
-
-    /**
-     * @name isNumber
-     * @kind function
-     *
-     * @description
-     * Determines if a reference is a `Number`.
-     *
-     * This includes the "special" numbers `NaN`, `+Infinity` and `-Infinity`.
-     *
-     * If you wish to exclude these then you can use the native
-     * [`isFinite'](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/isFinite)
-     * method.
-     *
-     * @param {*} value Reference to check.
-     * @returns {boolean} True if `value` is a `Number`.
-     */
-    /* istanbul ignore next */
-    function isNumber(value) {return typeof value === 'number';}
 
     /**
      * @name isDate
@@ -308,22 +152,11 @@
      *
      * @param {*} value Reference to check.
      * @returns {boolean} True if `value` is a `Date`.
+     * @memberOf apy.helpers
      */
     function isDate(value) {
         return toString.call(value) === '[object Date]';
     }
-
-    /**
-     * @name isArray
-     * @kind function
-     *
-     * @description
-     * Determines if a reference is an `Array`.
-     *
-     * @param {*} value Reference to check.
-     * @returns {boolean} True if `value` is an `Array`.
-     */
-    var isArray = Array.isArray;
 
     /**
      * @name isFunction
@@ -334,36 +167,15 @@
      *
      * @param {*} value Reference to check.
      * @returns {boolean} True if `value` is a `Function`.
+     * @memberOf apy.helpers
      */
     function isFunction(value) {return typeof value === 'function';}
-
-    /**
-     * Determines if a value is a regular expression object.
-     *
-     * @private
-     * @param {*} value Reference to check.
-     * @returns {boolean} True if `value` is a `RegExp`.
-     */
-    /* istanbul ignore next */
-    function isRegExp(value) {
-        return toString.call(value) === '[object RegExp]';
-    }
-
-    /**
-     * Checks if `obj` is a window object.
-     *
-     * @private
-     * @param {*} obj Object to check
-     * @returns {boolean} True if `obj` is a window obj.
-     */
-    function isWindow(obj) {
-        return obj && obj.window === obj;
-    }
 
     /**
      *
      * @param obj
      * @returns {boolean}
+     * @memberOf apy.helpers
      */
     function isFile(obj) {
         return toString.call(obj) === '[object File]';
@@ -373,66 +185,35 @@
      *
      * @param obj
      * @returns {boolean}
-     */
-    /* istanbul ignore next */
-    function isFormData(obj) {
-        return toString.call(obj) === '[object FormData]';
-    }
-
-    /**
-     *
-     * @param obj
-     * @returns {boolean}
+     * @memberOf apy.helpers
      */
     function isBlob(obj) {
         return toString.call(obj) === '[object Blob]';
     }
 
     /**
+     * Enum of known types
      *
-     * @param value
-     * @returns {boolean}
+     * @memberOf apy.helpers
+     * @type {{
+     * LIST: string,
+     * DICT: string,
+     * POLY: string,
+     * MEDIA: string,
+     * POINT: string,
+     * FLOAT: string,
+     * NUMBER: string,
+     * NESTED: string,
+     * STRING: string,
+     * BOOLEAN: string,
+     * INTEGER: string,
+     * OBJECTID: string,
+     * EMBEDDED: string,
+     * DATETIME: string,
+     * RESOURCE: string,
+     * COLLECTION: string
+     * }}
      */
-    function isBoolean(value) {
-        return typeof value === 'boolean';
-    }
-
-    /**
-     *
-     * @param obj
-     * @returns {*|boolean}
-     */
-    /* istanbul ignore next */
-    function isPromiseLike(obj) {
-        return obj && isFunction(obj.then);
-    }
-
-    /**
-     * @private
-     * @param {*} obj
-     * @return {boolean} Returns true if `obj` is an array or array-like object (NodeList, Arguments,
-     *                   String ...)
-     */
-    function isArrayLike(obj) {
-        if (obj == null || isWindow(obj)) {
-            /* istanbul ignore next */
-            return false;
-        }
-
-        // Support: iOS 8.2 (not reproducible in simulator)
-        // "length" in obj used to prevent JIT error (gh-11508)
-        var length = 'length' in Object(obj) && obj.length;
-
-        if (obj.nodeType === NODE_TYPE_ELEMENT && length) {
-            /* istanbul ignore next */
-            return true;
-        }
-
-        return isString(obj) || isArray(obj) || length === 0 ||
-            typeof length === 'number' && length > 0 && (length - 1) in obj;
-    }
-
-    // Enum of known types
     var $TYPES = {
         LIST: 'list',
         DICT: 'dict',
@@ -440,10 +221,12 @@
         MEDIA: 'media',
         POINT: 'point',
         FLOAT: 'float',
+        NESTED: 'nested',
         NUMBER: 'number',
         STRING: 'string',
         BOOLEAN: 'boolean',
         INTEGER: 'integer',
+        EMBEDDED: 'embedded',
         OBJECTID: 'objectid',
         DATETIME: 'datetime',
         RESOURCE: 'resource',
@@ -451,12 +234,14 @@
     };
 
     /**
+     * Interface for Media Resource
      *
-     * @param $endpoint
+     * @class apy.helpers.MediaFile
+     *
      * @param value
-     * @constructor
+     * @param $endpoint
      */
-    var ApyMediaFile = function ApyMediaFile($endpoint, value) {
+    var MediaFile = function MediaFile($endpoint, value) {
         $endpoint = $endpoint || '';
         if($endpoint && $endpoint.endsWith && $endpoint.endsWith('/')) {
             $endpoint = $endpoint.slice(0, -1);
@@ -467,17 +252,18 @@
     };
 
     /**
-     *
+     * @memberOf apy.helpers.MediaFile
      */
-    ApyMediaFile.prototype.toString = function toString() {
+    MediaFile.prototype.toString = function toString() {
         return '(' + [this.$name, this.$type].join(', ') + ')';
     };
 
     /**
      *
      * @param $file
+     * @memberOf apy.helpers.MediaFile
      */
-    ApyMediaFile.prototype.setFile = function ($file) {
+    MediaFile.prototype.setFile = function ($file) {
         if(isFile($file) || isObject($file)) {
             this.$file = $file.file || $file;
             this.$uri = this.$endpoint + this.$file;
@@ -498,8 +284,9 @@
     /**
      *
      * @returns {Object}
+     * @memberOf apy.helpers.MediaFile
      */
-    ApyMediaFile.prototype.getInfo = function () {
+    MediaFile.prototype.getInfo = function () {
         return {
             file: this.$file,
             name: this.$name,
@@ -514,24 +301,27 @@
      *
      * @param value
      * @returns {Promise}
+     * @memberOf apy.helpers.MediaFile
      */
-    ApyMediaFile.prototype.load = function load (value) {
+    MediaFile.prototype.load = function load (value) {
         return this.setFile(value).loadURI();
     };
 
     /**
      *
      * @returns {*}
+     * @memberOf apy.helpers.MediaFile
      */
-    ApyMediaFile.prototype.cleanedData = function cleanedData () {
+    MediaFile.prototype.cleanedData = function cleanedData () {
         return isFile(this.$file) ? this.$file: null;
     };
 
     /**
      *
      * @returns {Promise}
+     * @memberOf apy.helpers.MediaFile
      */
-    ApyMediaFile.prototype.loadURI = function loadURI () {
+    MediaFile.prototype.loadURI = function loadURI () {
         var self = this;
 
         function ErrorProxy (error, origin) {
@@ -578,13 +368,16 @@
         });
     };
 
+
     /**
+     * Keep state among kown ones
      *
-     * @param initialState
+     * @class apy.helpers.StateHolder
+     *
      * @param states
-     * @constructor
+     * @param initialState
      */
-    var ApyStateHolder = function ApyStateHolder(initialState, states) {
+    var StateHolder = function StateHolder(initialState, states) {
         this.$states=states;
         this.$current=initialState;
         this.load();
@@ -593,18 +386,20 @@
     /**
      *
      * @param state
-     * @returns {ApyStateHolder}
+     * @returns {StateHolder}
+     * @memberOf apy.helpers.StateHolder
      */
-    ApyStateHolder.prototype.set = function (state) {
+    StateHolder.prototype.set = function (state) {
         this.$current=state;
         return this;
     };
 
     /**
      *
-     * @returns {ApyStateHolder}
+     * @returns {StateHolder}
+     * @memberOf apy.helpers.StateHolder
      */
-    ApyStateHolder.prototype.load = function () {
+    StateHolder.prototype.load = function () {
         var states = this.$states;
         for(var value in states) {
             if(!states.hasOwnProperty(value)) {
@@ -616,8 +411,15 @@
         return this;
     };
 
-    var ApyPoint = function ApyPoint(value) {
-        if(value instanceof ApyPoint) {
+    /**
+     * Point interface implements `coordinates` props
+     *
+     * @class apy.helpers.GeoPoint
+     *
+     * @param value
+     */
+    function GeoPoint(value) {
+        if(value instanceof GeoPoint) {
             value = value.cleanedData();
         }
         if(Array.isArray(value)) {
@@ -640,9 +442,12 @@
         this.y = value.coordinates[1];
         this.coordinates = value.coordinates;
         this.clean();
-    };
+    }
 
-    ApyPoint.prototype.clean = function clean() {
+    /**
+     * @memberOf apy.helpers.GeoPoint
+     */
+    GeoPoint.prototype.clean = function clean() {
         try {
             this.x = parseFloat(this.x);
         }
@@ -658,7 +463,11 @@
         this.coordinates = [this.x, this.y];
     };
 
-    ApyPoint.prototype.cleanedData = function cleanedData() {
+    /**
+     * @memberOf apy.helpers.GeoPoint
+     * @returns {{type: string, coordinates: *}}
+     */
+    GeoPoint.prototype.cleanedData = function cleanedData() {
         this.clean();
         return {
             'type': 'Point',
@@ -666,65 +475,60 @@
         };
     };
 
+    /**
+     * Common behaviour
+     *
+     * @inner _getFieldClassByType
+     * @memberOf apy.helpers
+     * @returns {*}
+     */
+    function _getFieldClassByType(type) {
+        var className = type.capitalize();
+        return (
+            apy.components.fields[className] ||
+            apy.components.fields.geo[className]
+        );
+    }
+
+    /**
+     * Get any known Field Class by its type
+     *
+     * @memberOf apy.helpers
+     * @param {string} type
+     * @returns {*}
+     */
+    function fieldClassByType(type) {
+        type = type || 'poly';
+        switch (type) {
+        case apy.helpers.$TYPES.DICT:
+            type = apy.helpers.$TYPES.NESTED;
+            break;
+        case apy.helpers.$TYPES.OBJECTID:
+            type = apy.helpers.$TYPES.EMBEDDED;
+            break;
+        default :
+            break;
+        }
+        var fieldClass = _getFieldClassByType(type);
+        if(!fieldClass) {
+            throw new apy.Error('Unknown type ' + type);
+        }
+        return fieldClass;
+    }
+
     patchArray();
     patchObject();
     patchString();
 
-    $globals.apy = $globals.apy || {};
-    $globals.apy.common = $globals.apy.common || {};
+    $apy.helpers.$TYPES = $TYPES;
+    $apy.helpers.isDate = isDate;
+    $apy.helpers.isObject = isObject;
+    $apy.helpers.isString = isString;
+    $apy.helpers.isFunction = isFunction;
 
-    $globals.$TYPES = $TYPES;
-    $globals.forEach = forEach;
-    $globals.isUndefined = isUndefined;
-    $globals.isDefined = isDefined;
-    $globals.isObject = isObject;
-    $globals.isBlankObject = isBlankObject;
-    $globals.isString = isString;
-    $globals.isNumber = isNumber;
-    $globals.isDate = isDate;
-    $globals.isFunction = isFunction;
-    $globals.isRegExp = isRegExp;
-    $globals.isWindow = isWindow;
-    $globals.isEmpty = isEmpty;
-    $globals.isFile = isFile;
-    $globals.isFormData = isFormData;
-    $globals.isBlob = isBlob;
-    $globals.isBoolean = isBoolean;
-    $globals.isPromiseLike = isPromiseLike;
-    $globals.isArrayLike = isArrayLike;
+    $apy.helpers.GeoPoint = GeoPoint;
+    $apy.helpers.MediaFile = MediaFile;
+    $apy.helpers.StateHolder = StateHolder;
+    $apy.helpers.fieldClassByType = fieldClassByType;
 
-    $globals.ApyPoint = ApyPoint;
-    $globals.ApyMediaFile = ApyMediaFile;
-    $globals.ApyStateHolder = ApyStateHolder;
-    $globals.ApyStackComponent = ApyStateHolder;
-
-    /**
-     * Common behaviour
-     *
-     * @returns {Class}
-     */
-    function getFieldClassByType(type) {
-        // following naming convention
-        type = type.capitalize();
-        var fieldClassName = 'Apy' + type + 'Field';
-        if(!$globals.hasOwnProperty(fieldClassName)) {
-            return null;
-        }
-        return $globals[fieldClassName];
-    }
-
-    $globals.apy.common.fieldClassByType = function fieldClassByType(type) {
-        type = type || 'poly';
-        if(type !== 'collection') {
-            if(type === 'dict') {
-                type = 'nested';
-            }
-            else if(type === 'objectid') {
-                type = 'embedded';
-            }
-            return getFieldClassByType(type);
-        }
-        return null;
-    };
-
-})( this );
+})( apy );

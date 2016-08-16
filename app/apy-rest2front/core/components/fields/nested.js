@@ -35,24 +35,64 @@
  *
  *  """
  */
-(function ($globals) {
+(function ( $apy ) {
 
-    $globals.ApyNestedField = (function () {
+    /**
+     * Apy Nested Field
+     *
+     * @class apy.components.fields.NestedField
+     *
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.fields.FieldMixin
+     * @augments apy.components.CompositeMixin
+     *
+     * @param {string} name: Resource name
+     * @param {string} type: Resource type
+     * @param {Object} schema: Resource schema
+     * @param {string} $endpoint: Resource endpoint
+     * @param {Object} service: Reference to Service instance
+     * @param {Array} components: Resource initial components
+     * @param {Object} $states: Resource inner state holder instance
+     * @param {string} relationName: (optional) Resource relation name
+     */
+    $apy.components.fields.Nested = (function Nested() {
 
         /**
          *
+         * @override
          * @param value
          * @returns {*}
+         * @memberOf apy.components.fields.Nested
          */
         function cloneValue(value) {
-            return $globals.isObject(value) ? Object.assign(value) : value;
+            return $apy.helpers.isObject(value) ? Object.assign(value) : value;
+        }
+
+        /**
+         * @override
+         * @memberOf apy.components.fields.Nested
+         */
+        function validate() {
+            var errors = [];
+            this.$components.forEach(function (comp) {
+                try {
+                    comp.validate();
+                }
+                catch (error) {
+                    errors.push(error.message);
+                }
+            });
+            if(errors.length) {
+                throw new $apy.Error(errors.join('\n'));
+            }
         }
 
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.cloneValue = cloneValue;
             this.$internalType = 'object';
-            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.RESOURCE, relationName);
-            this.$Class = $globals.ApyNestedField;
+            this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.RESOURCE, relationName);
+            this.$Class = $apy.components.fields.Nested;
+            this.validate = validate;
             this.load(value);
             return this;
         };
@@ -60,8 +100,14 @@
     })();
 
     // Inject Mixins
-    $globals.ApyComponentMixin.call(ApyNestedField.prototype);
-    $globals.ApyFieldMixin.call(ApyNestedField.prototype);
-    $globals.ApyCompositeMixin.call(ApyNestedField.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.fields.Nested.prototype
+    );
+    $apy.components.fields.FieldMixin.call(
+        $apy.components.fields.Nested.prototype
+    );
+    $apy.components.CompositeMixin.call(
+        $apy.components.fields.Nested.prototype
+    );
 
-})( this );
+})( apy );

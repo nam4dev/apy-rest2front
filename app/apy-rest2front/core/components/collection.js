@@ -35,16 +35,41 @@
  *
  *  """
  */
-(function ($globals) {
+(function ( $apy ) {
 
-    $globals.ApyCollectionComponent = (function () {
+    /**
+     * Collection
+     *
+     * @class apy.components.Collection
+     *
+     * @augments ComponentMixin
+     * @augments RequestMixin
+     *
+     * @param name
+     * @param service
+     * @param endpoint
+     * @param components
+     */
+    $apy.components.Collection = (function Collection() {
 
+        /**
+         *
+         * @param promises
+         * @returns {Promise}
+         * @memberOf apy.components.Collection
+         */
         function deferredAll(promises) {
             return Promise.all(promises.map(function(promise) {
                 return promise.reflect();
             }));
         }
 
+        /**
+         *
+         * @override
+         * @returns {string}
+         * @memberOf apy.components.Collection
+         */
         function toString() {
             return '[' + this.$components.join(', ') + ']';
         }
@@ -52,7 +77,8 @@
         /**
          *
          * @param resource
-         * @returns {ApyResourceComponent}
+         * @returns {Resource}
+         * @memberOf apy.components.Collection
          */
         function createResource (resource) {
             var component = this.$service.$instance.createResource(this.$name, resource);
@@ -65,6 +91,7 @@
          *
          * @param resource
          * @returns {Array.<T>}
+         * @memberOf apy.components.Collection
          */
         function remove (resource) {
             return this.$components.splice(this.$components.indexOf(resource), 1);
@@ -72,6 +99,8 @@
 
         /**
          *
+         * @override
+         * @memberOf apy.components.Collection
          */
         function reset () {
             this.$components.forEach(function (comp) {
@@ -81,7 +110,9 @@
 
         /**
          *
+         * @override
          * @returns {boolean}
+         * @memberOf apy.components.Collection
          */
         function hasCreated () {
             return this.unsavedComponents().length > 0;
@@ -89,7 +120,9 @@
 
         /**
          *
+         * @override
          * @returns {boolean}
+         * @memberOf apy.components.Collection
          */
         function hasUpdated () {
             var updated = false;
@@ -103,8 +136,10 @@
 
         /**
          *
+         * @override
          * @param state
          * @returns {this}
+         * @memberOf apy.components.Collection
          */
         function setState (state) {
             this.savedComponents().forEach(function (comp) {
@@ -118,7 +153,9 @@
          * Return whether or not at least one Collection's component's
          * current state is in the passed state
          *
+         * @override
          * @returns {boolean}
+         * @memberOf apy.components.Collection
          */
         function isState(state) {
             return this.$components.some(function (comp) {
@@ -129,6 +166,7 @@
         /**
          *
          * @param items
+         * @memberOf apy.components.Collection
          */
         function load (items) {
             for(var i = 0; i < items.length; i++) {
@@ -141,6 +179,7 @@
         /**
          *
          * @returns {Promise}
+         * @memberOf apy.components.Collection
          */
         function save () {
             return deferredAll([this.create(), this.update()]);
@@ -149,6 +188,7 @@
         /**
          *
          * @returns {Promise}
+         * @memberOf apy.components.Collection
          */
         function fetch (progressHandler) {
             var self = this;
@@ -171,7 +211,7 @@
                     function (error) {
                         self.$log('[ApyFrontendError] => ' + error);
                         progress(100);
-                        return reject(new ApyEveHTTPError(error));
+                        return reject(new $apy.EveHTTPError(error));
                     },
                     function (evt) {
                         var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
@@ -184,6 +224,7 @@
         /**
          *
          * @returns {Promise}
+         * @memberOf apy.components.Collection
          */
         function create () {
             // FIXME: Shall be optimized if `bulk_enabled` is true, making a single request to backend
@@ -200,6 +241,7 @@
         /**
          *
          * @returns {Promise}
+         * @memberOf apy.components.Collection
          */
         function update () {
             // FIXME: Shall be optimized if `bulk_enabled` is true, making a single request to backend
@@ -214,8 +256,9 @@
         }
 
         /**
-         *
+         * @alias delete
          * @returns {Promise}
+         * @memberOf apy.components.Collection
          */
         function del () {
             // FIXME: Shall be optimized using DELETE on root (/) endpoint without ID
@@ -233,6 +276,7 @@
         /**
          *
          * @returns {Promise}
+         * @memberOf apy.components.Collection
          */
         function clear () {
             this.$components = [];
@@ -242,6 +286,7 @@
         /**
          *
          * @returns {Integer}
+         * @memberOf apy.components.Collection
          * *
          */
         function savedCount () {
@@ -251,27 +296,29 @@
         /**
          *
          * @returns {Array}
+         * @memberOf apy.components.Collection
          * *
          */
         function savedComponents () {
             return this.$components.filter(function(comp) {
-                return !comp.hasCreated();
+                return !comp.hasCreated() && !comp.hasUpdated();
             });
         }
 
         /**
          *
          * @returns {Array}
+         * @memberOf apy.components.Collection
          * *
          */
         function unsavedComponents () {
             return this.$components.filter(function(comp) {
-                return comp.hasCreated();
+                return comp.hasCreated() && comp.hasUpdated();
             });
         }
 
         /**
-         * ApyCollectionComponent
+         * Collection
          *
          * @param name
          * @param service
@@ -280,9 +327,9 @@
          * @constructor
          */
         return function (service, name, endpoint, components) {
-            this.initialize(service, name, service.$instance.get(name), null, null, endpoint + name, $globals.$TYPES.COLLECTION, null, components);
+            this.initialize(service, name, service.$instance.get(name), null, null, endpoint + name, $apy.helpers.$TYPES.COLLECTION, null, components);
             this.$endpointBase = endpoint;
-            this.$Class = $globals.ApyCollectionComponent;
+            this.$Class = $apy.components.Collection;
             if(this.$schema.$embeddedURI)
                 this.$endpoint += '?' + this.$schema.$embeddedURI;
 
@@ -311,7 +358,11 @@
     })();
 
     // Inject Mixin
-    $globals.ApyComponentMixin.call(ApyCollectionComponent.prototype);
-    $globals.ApyRequestMixin.call(ApyCollectionComponent.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.Collection.prototype
+    );
+    $apy.components.RequestMixin.call(
+        $apy.components.Collection.prototype
+    );
 
-})( this );
+})( apy );

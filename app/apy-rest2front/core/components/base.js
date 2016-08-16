@@ -35,70 +35,94 @@
  *
  *  """
  */
-
-(function ($globals) {
+/**
+ * @namespace apy.components
+ */
+(function ( $apy ) {
 
     /**
      * Component Interface for the "tree" pattern implementation.constructor.
      * Note: This can be inherited but not instantiated.
      *
-     * @type function
+     * @mixin ComponentMixin
+     * @memberOf apy.components
      */
         // Registering mixin globally
-    $globals.ApyComponentMixin = (function() {
+    $apy.components.ComponentMixin = (function ComponentMixin() {
+
+        /**
+         * StateHolder known states list (CRUD).
+         *
+         * @type {{CREATE: string, READ: string, UPDATE: string, DELETE: string}}
+         * @inner apy.components.ComponentMixin
+         */
+        var STATES = {
+            CREATE: 'CREATE',
+            READ: 'READ',
+            UPDATE: 'UPDATE',
+            DELETE: 'DELETE'
+        };
 
         /**
          *
          * @returns {string}
+         * @memberOf ComponentMixin
          */
-        function toString() {
+        var toString = function toString() {
             return '' + this.$value;
-        }
+        };
 
         /**
          *
          * @param message
          * @returns {this}
+         * @memberOf ComponentMixin
          */
-        function log(message) {
+        var log = function log(message) {
             this.$service && this.$service.$log && this.$service.$log.log(message);
             return this;
-        }
+        };
 
         /**
          *
          * @param child
          * @returns {this}
+         * @memberOf apy.components.ComponentMixin
          */
-        function add(child) {
+        var add = function add(child) {
             this.$components.push(child);
             return this;
-        }
+        };
 
         /**
+         * Prepend to `components`,
+         * any child implementing {apy.components.ComponentMixin} interface
          *
-         * @param child
+         * @param {apy.components.ComponentMixin} child
          * @returns {this}
+         * @memberOf apy.components.ComponentMixin
          */
-        function prepend(child) {
+        var prepend = function prepend(child) {
             this.$components.unshift(child);
             return this;
-        }
+        };
 
         /**
          *
          * @returns {Number}
+         * @memberOf apy.components.ComponentMixin
          */
-        function count() {
+        var count = function count() {
             return this.$components.length;
-        }
+        };
 
         /**
          *
          * @param child
          * @returns {this}
+         * @memberOf apy.components.ComponentMixin
          */
-        function remove(child) {
+        var remove = function remove(child) {
             var length = this.count();
             for (var i = 0; i < length; i++) {
                 if (this.getChild(i) === child) {
@@ -107,30 +131,33 @@
                 }
             }
             return this;
-        }
+        };
 
         /**
          *
          * @param i
          * @returns {*}
+         * @memberOf apy.components.ComponentMixin
          */
-        function getChild(i) {
+        var getChild = function getChild(i) {
             return this.$components[i];
-        }
+        };
 
         /**
          *
          * @returns {boolean}
+         * @memberOf apy.components.ComponentMixin
          */
-        function hasChildren() {
+        var hasChildren = function hasChildren() {
             return this.count() > 0;
-        }
+        };
 
         /**
          *
          * @returns {Array}
+         * @memberOf apy.components.ComponentMixin
          */
-        function cleanedData() {
+        var cleanedData = function cleanedData() {
             var cleaned = [];
             this.$components.filter(function (comp) {
                 return comp.hasUpdated();
@@ -138,15 +165,16 @@
                 cleaned.push(comp.cleanedData());
             });
             return cleaned;
-        }
+        };
 
         /**
          *
          * @returns {Object}
+         * @memberOf apy.components.ComponentMixin
          */
-        function createTypesFactory() {
+        var createTypesFactory = function createTypesFactory() {
             var self = this;
-            var $TYPES = $globals.$TYPES;
+            var $TYPES = $apy.helpers.$TYPES;
             var $typesFactory = {};
             $typesFactory[$TYPES.LIST] = function () {
                 return [];
@@ -158,7 +186,7 @@
                 return undefined;
             };
             $typesFactory[$TYPES.MEDIA] = function () {
-                return new ApyMediaFile(self.$endpoint);
+                return new $apy.helpers.MediaFile(self.$endpoint);
             };
             $typesFactory[$TYPES.FLOAT] = function () {
                 return 0.0;
@@ -185,23 +213,42 @@
                 return null;
             };
             return $typesFactory;
-        }
+        };
 
-        function createTypesForPolyField ($types) {
+        /**
+         *
+         * @returns {Array}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var createTypesForPolyField = function createTypesForPolyField () {
             var $typesForPoly = [];
-            var $TYPES = $globals.$TYPES;
-            Object.keys($types).forEach(function (k) {
-                var type = $types[k];
+            var $TYPES = $apy.helpers.$TYPES;
+            Object.keys($TYPES).forEach(function (k) {
+                var type = $TYPES[k];
                 if([$TYPES.COLLECTION, $TYPES.RESOURCE, $TYPES.POLY, $TYPES.INTEGER, $TYPES.FLOAT].indexOf(type) === -1) {
                     $typesForPoly.push(type);
                 }
             });
             $typesForPoly.sort();
             return $typesForPoly;
-        }
+        };
 
-        function initialize(service, name, schema, value, $states, $endpoint, type, relationName, components) {
-            var $TYPES = $globals.$TYPES;
+        /**
+         *
+         * @param service
+         * @param name
+         * @param schema
+         * @param value
+         * @param $states
+         * @param $endpoint
+         * @param type
+         * @param relationName
+         * @param components
+         * @returns {this}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var initialize = function initialize(service, name, schema, value, $states, $endpoint, type, relationName, components) {
+            var $TYPES = $apy.helpers.$TYPES;
             this.__logger = undefined;
             this.$originalValue = this.cloneValue(value);
             this.$types = $TYPES;
@@ -213,7 +260,7 @@
             // components index
             this.$components = components || [];
             this.$components = this.isArray(this.$components) ? this.$components : [this.$components];
-            this.$typesForPoly = createTypesForPolyField(this.$types);
+            this.$typesForPoly = createTypesForPolyField();
             this.$contentUrl = 'field-' + type + '.html';
             this.$name = name;
             this.$type = type;
@@ -223,22 +270,37 @@
             this.setOptions(schema)
                 .setValue(value);
 
-            this.$Class = $globals.ApyComponentMixin;
+            this.$Class = $apy.components.ComponentMixin;
             return this;
-        }
+        };
 
-        function setOptions(schema) {
+        /**
+         *
+         * @param schema
+         * @returns {this}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var setOptions = function setOptions(schema) {
             this.$schema = schema;
             this.$request = (this.$schema && this.$schema.$hasMedia) ? this.$upload.upload : this.$http;
             return this;
-        }
+        };
 
-        function setValue(value) {
+        /**
+         *
+         * @param value
+         * @returns {this}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var setValue = function setValue(value) {
             this.$value = value;
             return this;
-        }
+        };
 
-        function validate() {
+        /**
+         * @memberOf apy.components.ComponentMixin
+         */
+        var validate = function validate() {
             var errors = [];
             this.$components.forEach(function (component) {
                 try {
@@ -248,51 +310,75 @@
                 }
             });
             if(errors.length) {
-                throw new ApyError('Validation Error: ' + errors.join(', '));
+                throw new $apy.Error('Validation Error: ' + errors.join(', '));
             }
-        }
+        };
 
         /**
          *
          * @param char
          * @param field
          * @returns {boolean}
+         * @memberOf apy.components.ComponentMixin
          */
-        function shallContinue (field, char) {
+        var shallContinue = function shallContinue (field, char) {
             char = char || '_';
             return field.startsWith && field.startsWith(char);
-        }
+        };
 
-        function setParent (parent) {
+        /**
+         *
+         * @param parent
+         * @returns {this}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var setParent = function setParent (parent) {
             this.$parent = parent;
             return this;
-        }
+        };
 
         /* istanbul ignore next */
-        function load () {
+        /**
+         *
+         * @returns {this}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var load = function load () {
             return this;
-        }
+        };
 
-        function clone(parent, value) {
+        /**
+         *
+         * @param parent
+         * @param value
+         * @returns {*}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var clone = function clone(parent, value) {
             if(!this.$Class) {
-                throw new ApyError('No $Class property set !');
+                throw new $apy.Error('No $Class property set !');
             }
             var instance = new this.$Class(this.$service,
                 this.$name, this.$schema, value, this.$states,
                 this.$endpoint, this.$type, this.$relationName);
             instance.setParent(parent || this.$parent);
             return instance;
-        }
+        };
 
-        function cloneChild() {
+        /**
+         *
+         * @returns {*}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var cloneChild = function cloneChild() {
             var clone = null;
             var self = this;
-            var fieldClassByType = $globals.apy.common.fieldClassByType;
+            var fieldClassByType = $apy.helpers.fieldClassByType;
             function iterOverSchema(schema, name) {
                 var cl;
                 var relationName;
                 switch (schema.type) {
-                case $globals.$TYPES.OBJECTID:
+                case $apy.helpers.$TYPES.OBJECTID:
                     relationName = schema.data_relation.resource || self.$relationName || name;
                     break;
                 default :
@@ -316,54 +402,71 @@
                 console.warn('cloneChild.warning', e);
             }
             return clone;
-        }
+        };
 
-        function oneMore() {
+        /**
+         *
+         * @returns {this}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var oneMore = function oneMore() {
             var comp = this.cloneChild();
             if(comp) {
                 this.add(comp);
             }
             return this;
-        }
+        };
 
-        function createPolyField (schema, value, name, parent) {
-            var field = new ApyPolyField(this.$service, name || this.$name, schema, value,
+        /**
+         *
+         * @param schema
+         * @param value
+         * @param name
+         * @param parent
+         * @returns {*}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var createPolyField = function createPolyField (schema, value, name, parent) {
+            var field = new $apy.components.fields.Poly(this.$service, name || this.$name, schema, value,
                 this.$states, this.$endpoint, this.$type, this.$relationName);
             field.setParent(parent || this);
             return field;
-        }
+        };
 
         /**
          *
          * @param value
          * @returns {*}
+         * @memberOf apy.components.ComponentMixin
          */
-        function cloneValue(value) {
+        var cloneValue = function cloneValue(value) {
             return value;
-        }
+        };
 
         /**
          *
          * @returns {boolean}
+         * @memberOf apy.components.ComponentMixin
          */
-        function hasUpdated() {
+        var hasUpdated = function hasUpdated() {
             return this.$value !== this.$memo;
-        }
+        };
 
         /**
-         *
+         * @memberOf apy.components.ComponentMixin
          */
-        function reset() {
+        var reset = function reset() {
             if (this.hasUpdated()) {
                 this.$value = this.cloneValue(this.$memo);
             }
-        }
+        };
 
         /**
          *
          * @returns {boolean}
+         * @memberOf apy.components.ComponentMixin
          */
-        function isReadOnly() {
+        var isReadOnly = function isReadOnly() {
             var readOnly = 0;
             this.$components.forEach(function (comp) {
                 if(comp.readOnly ||
@@ -372,40 +475,39 @@
                 }
             });
             return this.$components.length === readOnly;
-        }
+        };
 
-        function data() {
+        /**
+         *
+         * @returns {*}
+         * @memberOf apy.components.ComponentMixin
+         */
+        var data = function data() {
             return this.$originalValue;
-        }
-
-        // StateHolder known states list (CRUD).
-        var STATES = {
-            CREATE: 'CREATE',
-            READ: 'READ',
-            UPDATE: 'UPDATE',
-            DELETE: 'DELETE'
         };
 
         /**
          * Set Component's inner StateHolder instance to the given state
          *
-         * @param state: The state, must be one of the STATES list
+         * @param {string} state The state, must be one of the STATES list
          * @returns {this}
+         * @memberOf apy.components.ComponentMixin
          */
-        function setState (state) {
+        var setState = function setState (state) {
             this.$states.set(state);
             return this;
-        }
+        };
 
         /**
          * Factory method to get a StateHolder instance
          *
-         * @param states: A list of known states
-         * @param initialState: The initial state (must be one of the `states` list.
+         * @param {Array} states A list of known states
+         * @param {string} initialState The initial state (must be one of the `states` list).
+         * @memberOf apy.components.ComponentMixin
          */
-        function createStateHolder (initialState, states) {
-            return new ApyStateHolder(initialState || STATES.READ, states || STATES);
-        }
+        var createStateHolder = function createStateHolder (initialState, states) {
+            return new $apy.helpers.StateHolder(initialState || STATES.READ, states || STATES);
+        };
 
         /**
          * Factorize logic
@@ -413,86 +515,95 @@
          * current state is in the passed state
          *
          * @returns {boolean}
+         * @memberOf apy.components.ComponentMixin
          */
-        function isState(state) {
+        var isState = function isState(state) {
             return this.$states.$current === state;
-        }
+        };
 
         /**
          * Indicate when the Resource inner state is equal to CREATE
          *
          * @returns {boolean}
+         * @memberOf apy.components.ComponentMixin
          */
-        function inCreateState() {
+        var inCreateState = function inCreateState() {
             return this.isState(STATES.CREATE);
-        }
+        };
 
         /**
          * Indicate when the Resource inner state is equal to READ
          *
          * @returns {boolean}
+         * @memberOf apy.components.ComponentMixin
          */
-        function inReadState() {
+        var inReadState = function inReadState() {
             return this.isState(STATES.READ);
-        }
+        };
 
         /**
          * Indicate when the Resource inner state is equal to UPDATE
          *
          * @returns {boolean}
+         * @memberOf apy.components.ComponentMixin
          */
-        function inUpdateState() {
+        var inUpdateState = function inUpdateState() {
             return this.isState(STATES.UPDATE);
-        }
+        };
 
         /**
          * Indicate when the Resource inner state is equal to DELETE
          *
          * @returns {boolean}
+         * @memberOf apy.components.ComponentMixin
          */
-        function inDeleteState() {
+        var inDeleteState = function inDeleteState() {
             return this.isState(STATES.DELETE);
-        }
+        };
 
         /**
          * Set the Resource inner state to CREATE
          *
          * @returns {this}
+         * @memberOf apy.components.ComponentMixin
          */
-        function setCreateState () {
+        var setCreateState = function setCreateState () {
             this.setState(STATES.CREATE);
             return this;
-        }
+        };
 
         /**
          * Set the Resource inner state to READ
          *
          * @returns {this}
+         * @memberOf apy.components.ComponentMixin
          */
-        function setReadState () {
+        var setReadState = function setReadState () {
             this.setState(STATES.READ);
             return this;
-        }
+        };
 
         /**
          * Set the Resource inner state to UPDATE
          *
          * @returns {this}
+         * @memberOf apy.components.ComponentMixin
          */
-        function setUpdateState () {
+        var setUpdateState = function setUpdateState () {
             this.setState(STATES.UPDATE);
             return this;
-        }
+        };
 
         /**
          * Set the Resource inner state to DELETE
          *
          * @returns {this}
+         * @memberOf apy.components.ComponentMixin
          */
-        function setDeleteState () {
+        var setDeleteState = function setDeleteState () {
             this.setState(STATES.DELETE);
             return this;
-        }
+        };
 
         return function() {
             this.add = add;
@@ -519,7 +630,6 @@
             this.initialize = initialize;
             this.cloneChild = cloneChild;
             this.isArray = Array.isArray;
-            this.isFunction = $globals.isFunction;
             this.continue = shallContinue;
             this.cleanedData = cleanedData;
             this.hasChildren = hasChildren;
@@ -532,9 +642,10 @@
             this.setUpdateState = setUpdateState;
             this.setDeleteState = setDeleteState;
             this.createPolyField = createPolyField;
+            this.isFunction = $apy.helpers.isFunction;
             this.createStateHolder = createStateHolder;
             return this;
         };
     })();
 
-})( this );
+})( apy );

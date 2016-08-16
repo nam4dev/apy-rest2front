@@ -35,9 +35,28 @@
  *
  *  """
  */
-(function ($globals) {
-
-    $globals.ApyPointField = (function () {
+/**
+ * @namespace apy.components.fields.geo
+ */
+(function ( $apy ) {
+    /**
+     * Apy GeoPoint Field
+     *
+     * @class apy.components.fields.geo.Point
+     *
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.fields.FieldMixin
+     *
+     * @param {string} name: Resource name
+     * @param {string} type: Resource type
+     * @param {Object} schema: Resource schema
+     * @param {string} $endpoint: Resource endpoint
+     * @param {Object} service: Reference to Service instance
+     * @param {Array} components: Resource initial components
+     * @param {Object} $states: Resource inner state holder instance
+     * @param {string} relationName: (optional) Resource relation name
+     */
+    $apy.components.fields.geo.Point = (function () {
 
         /**
          * Set a given value to attributes
@@ -47,6 +66,7 @@
          * @override
          * @param value
          * @returns {this}
+         * @memberOf apy.components.fields.geo.Point
          */
         function setValue(value) {
             this.$memo = this.cloneValue(value);
@@ -56,21 +76,23 @@
 
         /**
          * Wrap the given value to clone
-         * into its own ApyPoint instance.
+         * into its own GeoPoint instance.
          *
          * @override
          * @param value: An Object instance representing a Point
-         * @returns {ApyPoint}
+         * @returns {apy.helpers.GeoPoint}
+         * @memberOf apy.components.fields.geo.Point
          */
         function cloneValue(value) {
-            return new $globals.ApyPoint(value);
+            return new $apy.helpers.GeoPoint(value);
         }
 
         /**
-         * Indicate whether the ApyPointField is updated or not
+         * Indicate whether the Point is updated or not
          *
          * @override
          * @returns {boolean}
+         * @memberOf apy.components.fields.geo.Point
          */
         function hasUpdated () {
             var updated = false;
@@ -88,6 +110,7 @@
          *
          * @override
          * @returns {Object}
+         * @memberOf apy.components.fields.geo.Point
          */
         function cleanedData () {
             this.validate();
@@ -97,14 +120,16 @@
         /**
          * FIXME: disabled for now as it may not be necessary to validate, TBC
          * @override
+         * @memberOf apy.components.fields.geo.Point
          */
         function validate() {}
 
         /**
-         * Return an ApyPointField representation as a String
+         * Return an Point representation as a String
          *
          * @override
          * @returns {string}
+         * @memberOf apy.components.fields.geo.Point
          */
         function toString() {
             this.$value.clean();
@@ -124,7 +149,7 @@
          * @param $endpoint
          * @param type
          * @param relationName
-         * @returns {ApyPointField}
+         * @returns {Point}
          */
         return function (service, name, schema, value, $states, $endpoint, type, relationName) {
             this.validate = validate;
@@ -133,15 +158,19 @@
             this.cloneValue = cloneValue;
             this.hasUpdated = hasUpdated;
             this.cleanedData = cleanedData;
-            this.$Class = $globals.ApyPointField;
-            this.initialize(service, name, schema, value, $states, $endpoint, $globals.$TYPES.POINT, relationName);
+            this.$Class = $apy.components.fields.geo.Point;
+            this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.POINT, relationName);
             return this;
         };
 
     })();
 
     // Inject Mixins
-    $globals.ApyComponentMixin.call(ApyPointField.prototype);
-    $globals.ApyFieldMixin.call(ApyPointField.prototype);
+    $apy.components.ComponentMixin.call(
+        $apy.components.fields.geo.Point.prototype
+    );
+    $apy.components.fields.FieldMixin.call(
+        $apy.components.fields.geo.Point.prototype
+    );
 
-})( this );
+})( apy );
