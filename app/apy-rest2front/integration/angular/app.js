@@ -35,17 +35,17 @@
  *  """
  */
 /* istanbul ignore next */
-(function (angular, $globals) {'use strict';
-
+(function ( angular, $apy ) {'use strict';
+    var debug = false;
     var config = {
         devOptions: {
-            mode: false,
+            mode: debug,
             htmlRoot: 'apy-rest2front/integration/angular/'
         },
         endpoint: 'http://localhost:8002/',
         schemasEndpointName: 'schemas',
         auth: {
-            enabled: true,
+            enabled: !debug,
             grant_type: 'password',
             endpoint: 'http://localhost:8002/oauth2/access',
             client_id: 'LB9wIXB5as4WCL1SUXyljgkSIR6l8H1kFEAHUQTH'
@@ -57,7 +57,7 @@
         $auth: function () {
             return (
                 this.auth &&
-                $globals.isObject(this.auth) &&
+                $apy.helpers.isObject(this.auth) &&
                 this.auth.enabled &&
                 this.auth.client_id &&
                 this.auth.endpoint &&
@@ -83,7 +83,7 @@
             this.$get = function apyModalFactory () {
                 var $injector = angular.injector(['ng', 'ui.bootstrap']),
                     $uibModal = $injector.get('$uibModal');
-                return new ApyModalProxy($injector.get('$rootScope'), $uibModal);
+                return new $apy.integration.angular.ApyModalProxy($injector.get('$rootScope'), $uibModal);
             };
         })
         .provider('apy', function apyProvider () {
@@ -92,7 +92,7 @@
                     $log = $injector.get('$log'),
                     $http = $injector.get('$http'),
                     Upload = $injector.get('Upload');
-                return new $globals.ApyCompositeService($log, $http, Upload, config);
+                return new $apy.CompositeService($log, $http, Upload, config);
             };
         })
         .config(['$routeProvider', function($routeProvider) {
@@ -113,7 +113,11 @@
         }])
         .controller('indexCtrl', ['$scope', 'apy', '$location', function ($scope, apyProvider, $location) {
             if(config.$auth()) {
-                $scope.$watch(apyProvider.isAuthenticated, function (value, oldValue) {
+                $scope.$watch(function () {
+                    return apyProvider.isAuthenticated(function () {
+                        return window.localStorage.getItem('tokenInfo');
+                    });
+                }, function (value, oldValue) {
                     if (!value && oldValue) {
                         //console.log("Disconnect");
                         $location.path('/login');
@@ -163,11 +167,12 @@
                 }
 
                 if(errors.length) {
-                    apyModalProvider.error(new ApyEveError(errors));
+                    apyModalProvider.error(new $apy.EveError(errors));
                 }
                 else {
                     apyProvider.authenticate($scope.credentials)
-                        .then(function () {
+                        .then(function (response) {
+                            window.localStorage.setItem('tokenInfo', JSON.stringify(response.data));
                             window.location.reload();
                         })
                         .catch(function (error) {
@@ -179,11 +184,13 @@
 
         app.run(['$rootScope', '$location', 'apy', function ($rootScope, $location, apyProvider) {
             $rootScope.$on('$routeChangeStart', function () {
-                if (!apyProvider.isAuthenticated()) {
+                if (!apyProvider.isAuthenticated(function () {
+                    return window.localStorage.getItem('tokenInfo');
+                })) {
                     $location.path('/login');
                 }
             });
         }]);
     }
 
-})( window.angular, this );
+})( window.angular, apy );

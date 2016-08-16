@@ -35,9 +35,9 @@
  *
  *  """
  */
-(function ($angular) {'use strict';
+(function ( $angular ) {'use strict';
 
-    function setView($context) {
+    function setView( $context ) {
 
         var $scope = $context.$scope;
         var apyProvider = $context.apyProvider;
@@ -46,20 +46,20 @@
 
         var $currentResource = $routeParams.resource;
 
-        var collection = apyProvider.createCollection($currentResource);
+        var collection = apyProvider.createCollection( $currentResource );
 
         $scope.$collection = collection;
         $scope.$schemas = apyProvider.$schemasAsArray;
 
-        function progress(counter) {
+        function progress( counter ) {
             $scope.counter = counter;
         }
 
-        collection.fetch(progress)
+        collection.fetch( progress )
             .then(function () {
                 $scope.$apply();
-            }).catch(function (error) {
-                apyModalProvider.error(error);
+            }).catch(function ( error ) {
+                apyModalProvider.error( error );
             });
 
         $scope.deleteResources = function () {
@@ -71,60 +71,60 @@
         };
 
         /* istanbul ignore next */
-        $scope.create = function (resource) {
+        $scope.create = function ( resource ) {
             var defer = resource.create();
             if(defer) {
                 defer
                     .then(function () {
                         $scope.$apply();
                     })
-                    .catch(function (error) {
-                        apyModalProvider.error(error);
+                    .catch(function ( error ) {
+                        apyModalProvider.error( error );
                     });
             }
             else {
-                collection.removeResource(resource);
+                collection.removeResource( resource );
             }
         };
 
         /* istanbul ignore next */
-        $scope.update = function (resource) {
+        $scope.update = function ( resource ) {
             var defer = resource.update();
             if(defer){
                 defer
                     .then(function () {
                         $scope.$apply();
                     })
-                    .catch(function (error) {
-                        apyModalProvider.error(error);
+                    .catch(function ( error ) {
+                        apyModalProvider.error( error );
                     });
             }
         };
 
         /* istanbul ignore next */
-        $scope.delete = function (resource) {
+        $scope.delete = function ( resource ) {
             var okCallback = function () {
                 var defer = resource.delete();
                 if(defer) {
                     defer
                         .then(function () {
-                            collection.removeResource(resource);
+                            collection.removeResource( resource );
                             $scope.$apply();
                         })
-                        .catch(function (error) {
-                            apyModalProvider.error(error);
+                        .catch(function ( error ) {
+                            apyModalProvider.error( error );
                         });
                 }
                 else {
-                    collection.removeResource(resource);
+                    collection.removeResource( resource );
                 }
             };
-            apyModalProvider.warn(getWarningModalConfig([resource], okCallback));
+            apyModalProvider.warn( getWarningModalConfig( [resource], okCallback ) );
         };
 
         $scope.saveCollection = function () {
             collection.save()
-                .then(function(inspections) {
+                .then(function( inspections ) {
                     var create;
                     var update;
                     var errors;
@@ -132,31 +132,29 @@
                     catch (e) { create = []; }
                     try { update = inspections[1]._settledValueField; }
                     catch (e) { update = []; }
-                    errors = create.concat(update).filter(function(inspection) {
+                    errors = create.concat(update).filter(function( inspection ) {
                         return !inspection.isFulfilled();
                     });
                     if(errors && errors.length) {
                         var reasons = [];
-                        errors.forEach(function (error) {
+                        errors.forEach(function ( error ) {
                             reasons.push(error.reason());
                         });
-                        apyModalProvider.errors(reasons);
+                        apyModalProvider.errors( reasons );
                     }
                 })
                 .then(function () {
                     $scope.$apply();
                 })
-                .catch(function (error) {
-                    apyModalProvider.error(error);
+                .catch(function ( error ) {
+                    apyModalProvider.error( error );
                 });
         };
 
         function getWarningModalConfig(components, okCallback, cancelCallback) {
             var count = components.length;
 
-            cancelCallback = cancelCallback || function () {
-
-            };
+            cancelCallback = cancelCallback || function () {};
 
             function appendS() {
                 if(count > 1) {
@@ -177,8 +175,8 @@
 
             function messages() {
                 var messages = [];
-                components.forEach(function (comp) {
-                    messages.push(comp.toString());
+                components.forEach(function ( comp ) {
+                    messages.push( comp.toString() );
                 });
                 return messages;
             }
@@ -227,7 +225,10 @@
                 };
 
                 $scope.logout = function () {
-                    apyProvider.invalidate();
+                    apyProvider.invalidate().then(function () {
+                        window.localStorage.setItem('tokenInfo', apyProvider.$tokenInfo);
+                        window.location.reload();
+                    });
                 };
 
                 if(apyProvider.$schemasAsArray) {
@@ -262,6 +263,6 @@
             };
         }]);
 
-})(window.angular);
+})( window.angular );
 
 

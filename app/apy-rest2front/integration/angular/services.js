@@ -35,7 +35,7 @@
  *  """
  */
 
-(function ($globals) {
+(function ( $apy ) {
 
     var messagesBasedTemplate = ' \
         <div class="modal-header btn-{{ widgetClass || \'info\' }}"> \
@@ -72,7 +72,7 @@
         </div> \
     ';
 
-    $globals.ApyModalProxy = function ($rootScope, $modal) {
+    $apy.integration.angular.ApyModalProxy = function ($rootScope, $modal) {
         var instances = [];
         var currentInstance;
 
@@ -88,7 +88,7 @@
             base: function base(config) {
 
                 function isFunc(callback) {
-                    return callback && $globals.isFunction(callback);
+                    return callback && $apy.helpers.isFunction(callback);
                 }
 
                 function executeIfPossible(callback) {
@@ -171,7 +171,7 @@
                 var messages = [];
                 errorList.forEach(function (error) {
                     var iter;
-                    if($globals.isObject(error.messages)) {
+                    if($apy.helpers.isObject(error.messages)) {
                         iter = [];
                         Object.keys(error.messages).forEach(function (k) {
                             iter.push(k + ' => ' + error.messages[k]);
@@ -201,4 +201,4 @@
         };
     };
 
-})( this );
+})( apy );

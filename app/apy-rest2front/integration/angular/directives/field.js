@@ -35,7 +35,7 @@
  *  """
  */
 
-(function ($angular) {'use strict';
+(function ( $angular, $apy ) {'use strict';
 
     $angular.module('apy-rest2front.view')
 
@@ -65,7 +65,7 @@
                     })
                     .catch(function (error) {
                         $log.error(error);
-                        apyModalProvider.error(new ApyError(error));
+                        apyModalProvider.error(new $apy.Error(error));
                     });
             };
 
@@ -124,7 +124,7 @@
                         });
                     });
                 } catch(error) {
-                    apyModalProvider.error(new ApyEveHTTPError({
+                    apyModalProvider.error(new $apy.EveHTTPError({
                         data: {
                             _error: {
                                 code: 'UNEXPECTED',
@@ -147,4 +147,4 @@
             };
         });
 
-})(window.angular);
+})( window.angular, apy );
