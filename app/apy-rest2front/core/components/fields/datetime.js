@@ -29,14 +29,8 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
- *
- *  """
- *  Datetime field abstraction
- *
- *  """
  */
-(function ( $apy ) {
-
+(function($apy) {
     /**
      * Apy Datetime Field
      *
@@ -45,21 +39,23 @@
      * @augments apy.components.ComponentMixin
      * @augments apy.components.fields.FieldMixin
      *
-     * @param {string} name: Resource name
-     * @param {string} type: Resource type
-     * @param {Object} schema: Resource schema
-     * @param {string} $endpoint: Resource endpoint
-     * @param {Object} service: Reference to Service instance
-     * @param {Array} components: Resource initial components
-     * @param {Object} $states: Resource inner state holder instance
-     * @param {string} relationName: (optional) Resource relation name
+     * @param {string} name Field name
+     * @param {string} type Field type
+     * @param {Object} schema Field schema
+     * @param {Object} value Field value
+     * @param {string} $endpoint Field endpoint
+     * @param {Object} service Reference to Service instance
+     * @param {Object} $states Field inner state holder instance
+     * @param {string} relationName (optional) Field relation name
      */
     $apy.components.fields.Datetime = (function Datetime() {
-
         /**
+         * Return a datetime represented in UTC time
          *
-         * @returns {string}
+         * @override
          * @memberOf apy.components.fields.Datetime
+         *
+         * @return {string} datetime represented in UTC time
          */
         function cleanedData() {
             this.validate();
@@ -67,9 +63,12 @@
         }
 
         /**
+         * Is the time between memo and current value different ?
          *
-         * @returns {boolean}
+         * @override
          * @memberOf apy.components.fields.Datetime
+         *
+         * @return {boolean} whether it is updated or not
          */
         function hasUpdated() {
             if (!$apy.helpers.isDate(this.$memo)) {
@@ -79,54 +78,66 @@
         }
 
         /**
+         * Clone the datetime either as string or as object
          *
-         * @param value
-         * @returns {*}
+         * @override
          * @memberOf apy.components.fields.Datetime
+         *
+         * @param {string|Date} date A datetime string or object
+         *
+         * @return {Date} A datetime object
          */
-        function cloneValue(value) {
-            var clonedValue = value;
+        function cloneValue(date) {
+            var clonedValue = date;
             // Non value & String values cases
-            if (!value || $apy.helpers.isString(value)) {
+            if (!date || $apy.helpers.isString(date)) {
                 // String case
-                if ($apy.helpers.isString(value)) {
-                    clonedValue = new Date(value);
+                if ($apy.helpers.isString(date)) {
+                    clonedValue = new Date(date);
                 }
                 // Non value case
                 else {
                     clonedValue = new Date();
                 }
             }
-            // Non value & String values cases
-            else if($apy.helpers.isDate(value)) {
-                clonedValue = new Date(value.toUTCString());
+            // Non value & String value cases
+            else if ($apy.helpers.isDate(date)) {
+                clonedValue = new Date(date.toUTCString());
             }
             // unhandled types case
             else {
-                throw new $apy.Error('Unhandled type for datetime field: ' + typeof value);
+                throw new $apy.errors.Error('Unhandled type for datetime field: ' + typeof date);
             }
             return clonedValue;
         }
 
         /**
+         * Validate Field value
+         *
+         * @override
          * @memberOf apy.components.fields.Datetime
+         *
+         * @throws {apy.errors.Error} When current value is not a datetime object
          */
         function validate() {
             if (!$apy.helpers.isDate(this.$value)) {
-                throw new $apy.Error('Datetime object or string expected');
+                throw new $apy.errors.Error('Datetime object or string expected');
             }
         }
 
         /**
+         * Datetime field string representation
          *
-         * @returns {this}
+         * @override
          * @memberOf apy.components.fields.Datetime
+         *
+         * @return {string} Datetime field string representation
          */
         function toString() {
-            return (this.$value && this.$value.toUTCString) ? this.$value.toUTCString() : this.$value;
+            return (this.$value && this.$value.toUTCString) ? this.$value.toUTCString() : (this.$value + '');
         }
 
-        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+        return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.toString = toString;
             this.validate = validate;
             this.hasUpdated = hasUpdated;
@@ -137,7 +148,6 @@
             this.$Class = $apy.components.fields.Datetime;
             return this;
         };
-
     })();
 
     // Inject Mixins
@@ -147,5 +157,4 @@
     $apy.components.fields.FieldMixin.call(
         $apy.components.fields.Datetime.prototype
     );
-
-})( apy );
+})(apy);

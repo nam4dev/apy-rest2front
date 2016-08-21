@@ -30,17 +30,14 @@
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
  */
-/**
- * @namespace apy.errors.eve
- */
-(function ( $apy ) {
-
+(function($apy) {
     /**
      * Common Eve-based backend methods
      *
-     * @param eveError
-     * @returns {string}
-     * @inner
+     * @inner apy.errors
+     *
+     * @param {Object|Array} eveError A list of errors or an Eve specific Error object
+     * @return {string} A title based on EveError introspection
      */
     function title(eveError) {
         var code;
@@ -55,10 +52,10 @@
         }
         catch (e) {title = '';}
 
-        if(code && title) {
+        if (code && title) {
             both = code + ': ' + title;
         }
-        else if(title) {
+        else if (title) {
             both = title;
         }
         else {
@@ -70,27 +67,28 @@
     /**
      * Common Eve-based backend methods
      *
-     * @param eveError
-     * @returns {Array}
-     * @inner
+     * @inner apy.errors
+     *
+     * @param {Object|Array} eveError A list of errors or an Eve specific Error object
+     * @returns {Array} A list of issues based on EveError introspection
      */
     function messages(eveError) {
         var messages = [];
-        if(Array.isArray(eveError)) {
+        if (Array.isArray(eveError)) {
             messages = eveError;
         }
-        else if($apy.helpers.isObject(eveError) && eveError.data && eveError.data._issues) {
+        else if ($apy.helpers.isObject(eveError) && eveError.data && eveError.data._issues) {
             messages = eveError.data._issues;
         }
         else {
-            if(eveError.data && eveError.data.error_description) {
+            if (eveError.data && eveError.data.error_description) {
                 messages.push(eveError.data.error_description);
             }
-            if(eveError.data && eveError.data._error && eveError.data._error.message) {
+            if (eveError.data && eveError.data._error && eveError.data._error.message) {
                 messages.push(eveError.data._error.message);
             }
         }
-        if(Array.isArray(messages) && !messages.length) {
+        if (Array.isArray(messages) && !messages.length) {
             messages.push('No details found!');
         }
         return messages;
@@ -99,8 +97,9 @@
     /**
      * Define a specific Eve Error base class
      *
-     * @param eveError: Any Eve Error
-     * @class apy.errors.eve.EveError
+     * @class apy.errors.EveError
+     *
+     * @param {Object|Array} eveError Any Eve Error
      */
     function EveError(eveError) {
         var error = Error.call(this, title(eveError));
@@ -112,13 +111,14 @@
 
     EveError.prototype = Object.create(Error.prototype);
     EveError.prototype.constructor = EveError;
-    $apy.EveError = EveError;
+    $apy.errors.EveError = EveError;
 
     /**
      * Define a specific Eve Error class to handle HTTP Error
      *
-     * @param eveError: The HTTP Error
-     * @class apy.errors.eve.EveHTTPError
+     * @class apy.errors.EveHTTPError
+     *
+     * @param {Object} eveError Any Eve HTTP Error
      */
     function EveHTTPError(eveError) {
         var error = Error.call(this, title(eveError));
@@ -130,6 +130,5 @@
 
     EveHTTPError.prototype = Object.create(Error.prototype);
     EveHTTPError.prototype.constructor = EveHTTPError;
-    $apy.EveHTTPError = EveHTTPError;
-
-})( apy );
+    $apy.errors.EveHTTPError = EveHTTPError;
+})(apy);

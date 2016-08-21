@@ -29,44 +29,40 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
- *
- *  """
- *  GEO Point field abstraction (GeoJSON)
- *
- *  """
  */
 /**
  * @namespace apy.components.fields.geo
  */
-(function ( $apy ) {
+(function($apy) {
     /**
-     * Apy GeoPoint Field
+     * Apy GeoPoint Field (GeoJSON)
      *
      * @class apy.components.fields.geo.Point
      *
      * @augments apy.components.ComponentMixin
      * @augments apy.components.fields.FieldMixin
      *
-     * @param {string} name: Resource name
-     * @param {string} type: Resource type
-     * @param {Object} schema: Resource schema
-     * @param {string} $endpoint: Resource endpoint
-     * @param {Object} service: Reference to Service instance
-     * @param {Array} components: Resource initial components
-     * @param {Object} $states: Resource inner state holder instance
-     * @param {string} relationName: (optional) Resource relation name
+     * @param {string} name Field name
+     * @param {string} type Field type
+     * @param {Object} schema Field schema
+     * @param {Object} value Field value
+     * @param {string} $endpoint Field endpoint
+     * @param {Object} service Reference to Service instance
+     * @param {Object} $states Field inner state holder instance
+     * @param {string} relationName (optional) Field relation name
      */
-    $apy.components.fields.geo.Point = (function () {
-
+    $apy.components.fields.geo.Point = (function() {
         /**
          * Set a given value to attributes
          * `$value` & `$memo` respectively,
          * using `cloneValue` method
          *
          * @override
-         * @param value
-         * @returns {this}
          * @memberOf apy.components.fields.geo.Point
+         *
+         * @param {*} value An Object instance representing a Point
+         *
+         * @returns {apy.components.fields.geo.Point} `this`
          */
         function setValue(value) {
             this.$memo = this.cloneValue(value);
@@ -79,9 +75,11 @@
          * into its own GeoPoint instance.
          *
          * @override
-         * @param value: An Object instance representing a Point
-         * @returns {apy.helpers.GeoPoint}
          * @memberOf apy.components.fields.geo.Point
+         *
+         * @param {*} value An Object instance representing a Point
+         *
+         * @returns {apy.helpers.GeoPoint} A GeoPoint instance
          */
         function cloneValue(value) {
             return new $apy.helpers.GeoPoint(value);
@@ -91,15 +89,16 @@
          * Indicate whether the Point is updated or not
          *
          * @override
-         * @returns {boolean}
          * @memberOf apy.components.fields.geo.Point
+         *
+         * @return {boolean} is field updated?
          */
-        function hasUpdated () {
+        function hasUpdated() {
             var updated = false;
-            if(this.$memo.x !== this.$value.x) {
+            if (this.$memo.x !== this.$value.x) {
                 updated = true;
             }
-            if(this.$memo.y !== this.$value.y) {
+            if (this.$memo.y !== this.$value.y) {
                 updated = true;
             }
             return updated;
@@ -109,10 +108,13 @@
          * Return an cleaned Object instance representing a Point
          *
          * @override
-         * @returns {Object}
          * @memberOf apy.components.fields.geo.Point
+         *
+         * @returns {Object} cleaned GeoPoint data
+         *
+         * @throws {apy.errors.Error} when validation fails
          */
-        function cleanedData () {
+        function cleanedData() {
             this.validate();
             return this.$value.cleanedData();
         }
@@ -128,30 +130,30 @@
          * Return an Point representation as a String
          *
          * @override
-         * @returns {string}
          * @memberOf apy.components.fields.geo.Point
+         *
+         * @returns {string} Geo Point Field string representation
          */
         function toString() {
             this.$value.clean();
             return this.$name + ' coordinates(' + this.$value.coordinates + ')';
         }
 
-
         /**
-         * Common Component interface
+         * Apy GeoPoint Field
          *
          * @constructor
-         * @param service
-         * @param name
-         * @param schema
-         * @param value
-         * @param $states
-         * @param $endpoint
-         * @param type
-         * @param relationName
-         * @returns {Point}
+         *
+         * @param {string} name Field name
+         * @param {string} type Field type
+         * @param {Object} schema Field schema
+         * @param {Object} value Field value
+         * @param {string} $endpoint Field endpoint
+         * @param {Object} service Reference to Service instance
+         * @param {Object} $states Field inner state holder instance
+         * @param {string} relationName (optional) Field relation name
          */
-        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+        return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.validate = validate;
             this.setValue = setValue;
             this.toString = toString;
@@ -162,7 +164,6 @@
             this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.POINT, relationName);
             return this;
         };
-
     })();
 
     // Inject Mixins
@@ -172,5 +173,4 @@
     $apy.components.fields.FieldMixin.call(
         $apy.components.fields.geo.Point.prototype
     );
-
-})( apy );
+})(apy);

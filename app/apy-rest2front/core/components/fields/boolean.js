@@ -29,14 +29,8 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
- *
- *  """
- *  Boolean field abstraction
- *
- *  """
  */
-(function ( $apy ) {
-
+(function($apy) {
     /**
      * Apy Boolean Field
      *
@@ -45,25 +39,26 @@
      * @augments apy.components.ComponentMixin
      * @augments apy.components.fields.FieldMixin
      *
-     * @param {string} name: Resource name
-     * @param {string} type: Resource type
-     * @param {Object} schema: Resource schema
-     * @param {string} $endpoint: Resource endpoint
-     * @param {Object} service: Reference to Service instance
-     * @param {Array} components: Resource initial components
-     * @param {Object} $states: Resource inner state holder instance
-     * @param {string} relationName: (optional) Resource relation name
+     * @param {string} name Field name
+     * @param {string} type Field type
+     * @param {Object} schema Field schema
+     * @param {Object} value Field value
+     * @param {string} $endpoint Field endpoint
+     * @param {Object} service Reference to Service instance
+     * @param {Object} $states Field inner state holder instance
+     * @param {string} relationName (optional) Field relation name
      */
-    $apy.components.fields.Boolean = (function () {
-
+    $apy.components.fields.Boolean = (function() {
         /**
          * Clone the value.
          * Ensure to always return a Boolean value (avoid undefined)
          *
          * @override
-         * @param value: A boolean or undefined value
-         * @returns {Boolean}
          * @memberOf apy.components.fields.Boolean
+         *
+         * @param {boolean} value A boolean or undefined value
+         *
+         * @return {boolean} The cloned boolean value
          */
         function cloneValue(value) {
             return value || false;
@@ -73,8 +68,9 @@
          * Fix parent behavior by ensuring boolean value.
          *
          * @override
-         * @returns {Boolean}
          * @memberOf apy.components.fields.Boolean
+         *
+         * @return {boolean} Is the Field updated ?
          */
         function hasUpdated() {
             this.$value = this.cleanedData();
@@ -85,29 +81,29 @@
          * Return a boolean value
          *
          * @override
-         * @returns {boolean}
          * @memberOf apy.components.fields.Boolean
+         *
+         * @return {boolean} Field value
          */
         function cleanedData() {
             return this.$value || false;
         }
 
         /**
-         * Common Component interface
+         * Apy Boolean Field
          *
          * @constructor
-         * @param service
-         * @param name
-         * @param schema
-         * @param value
-         * @param $states
-         * @param $endpoint
-         * @param type
-         * @param relationName
-         * @returns {this}
-         * @memberOf apy.components.fields.Boolean
+         *
+         * @param {string} name Resource name
+         * @param {string} type Resource type
+         * @param {Object} schema Resource schema
+         * @param {string} $endpoint Resource endpoint
+         * @param {Object} service Reference to Service instance
+         * @param {Array} components Resource initial components
+         * @param {Object} $states Resource inner state holder instance
+         * @param {string} relationName (optional) Resource relation name
          */
-        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+        return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'boolean';
             this.cleanedData = cleanedData;
             this.parentHasUpdated = this.hasUpdated;
@@ -117,7 +113,6 @@
             this.$Class = $apy.components.fields.Boolean;
             return this;
         };
-
     })();
 
     // Inject Mixins
@@ -127,7 +122,5 @@
     $apy.components.fields.FieldMixin.call(
         $apy.components.fields.Boolean.prototype
     );
-
-})( apy );
-
+})(apy);
 

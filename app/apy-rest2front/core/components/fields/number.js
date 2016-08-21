@@ -29,44 +29,36 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
- *
- *  """
- *  Number field abstraction
- *
- *  Group field types,
- *    - Float
- *    - Integer
- *
- *  """
  */
-(function ( $apy ) {
-
+(function($apy) {
     /**
      * Apy Number Field
+     *
+     * Group field types,
+     *    - Float
+     *    - Integer
      *
      * @class apy.components.fields.Number
      *
      * @augments apy.components.ComponentMixin
      * @augments apy.components.fields.FieldMixin
      *
-     * @param {string} name: Resource name
-     * @param {string} type: Resource type
-     * @param {Object} schema: Resource schema
-     * @param {string} $endpoint: Resource endpoint
-     * @param {Object} service: Reference to Service instance
-     * @param {Array} components: Resource initial components
-     * @param {Object} $states: Resource inner state holder instance
-     * @param {string} relationName: (optional) Resource relation name
+     * @param {string} name Field name
+     * @param {string} type Field type
+     * @param {Object} schema Field schema
+     * @param {Object} value Field value
+     * @param {string} $endpoint Field endpoint
+     * @param {Object} service Reference to Service instance
+     * @param {Object} $states Field inner state holder instance
+     * @param {string} relationName (optional) Field relation name
      */
     $apy.components.fields.Number = (function Number() {
-
-        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+        return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'number';
             this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.NUMBER, relationName);
             this.$Class = $apy.components.fields.Number;
             return this;
         };
-
     })();
 
     // Inject Mixins
@@ -76,5 +68,4 @@
     $apy.components.fields.FieldMixin.call(
         $apy.components.fields.Number.prototype
     );
-
-})( apy );
+})(apy);

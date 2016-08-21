@@ -30,8 +30,7 @@
  *
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
  */
-(function ( $apy ) {
-
+(function($apy) {
     /**
      *  The ApyService provides an Object which will load,
      *  each of your Eve's REST API schema endpoint(s) and gives you:
@@ -42,28 +41,49 @@
      *
      * @class apy.CompositeService
      *
-     * @augments RequestMixin
+     * @augments apy.components.RequestMixin
      *
-     * @param $log
-     * @param $http
-     * @param $upload
-     * @param config
+     * @example
+     * var config = {
+     *     endpoint: 'http://localhost:5000/',
+     *     schemasEndpointName: 'schemas',
+     *     excludedEndpointByNames: ['logs']
+     * };
+     * angular.module('myModule', [])
+     *     .provider('apy', function apyProvider() {
+     *          this.$get = function apyFactory() {
+     *              var $injector = angular.injector(['ng', 'ngFileUpload']),
+     *                  $http = $injector.get('$http'),
+     *                  Upload = $injector.get('Upload');
+     *              return new $apy.CompositeService($http, Upload, config);
+     *          };
+     *      })
+     *      .controller('indexCtrl', ['$scope', 'apy', function($scope, apyProvider) {}]);
+     *
+     * @param {Object} $http Low-level network interface (async HTTP(S) request)
+     * @param {Object} $upload Low-level network interface (async HTTP(S) request) dedicated to upload
+     * @param {Object} config Apy global configuration
      */
     $apy.CompositeService = (function CompositeService() {
 
         /**
+         * Log missing required provider as error
          *
-         * @param name
          * @memberOf apy.CompositeService
+         *
+         * @param {string} name Provider name
+         * @inner logMissingProvider
          */
         function logMissingProvider(name) {
-            console.error('No "'+ name + '" Provider available!');
+            console.error('No "' + name + '" Provider available!');
         }
 
         /**
+         * Authentication invalidation
          *
-         * @returns {Promise}
          * @memberOf apy.CompositeService
+         *
+         * @return {Promise} Asynchronous call
          */
         function invalidate() {
             var nil = null;
@@ -72,36 +92,45 @@
         }
 
         /**
-         *  Property method which holds,
-         *  whether or not the User is authenticated
+         * Property method which holds,
+         * whether or not the User is authenticated
          *
-         *  @method
-         *  @returns {Boolean}
-         *  @memberOf apy.CompositeService
+         * @memberOf apy.CompositeService
+         *
+         * @param {Function} source Any function returning token info.
+         *
+         * @return {Boolean} Whether User is authenticated or not
          */
         function isAuthenticated(source) {
-            source = source|| function () {
+            source = source || function() {
                 return null;
             };
-            var tokenInfo = this.$tokenInfo||source();
-            if(tokenInfo && !$apy.helpers.isObject(tokenInfo)) {
+            var tokenInfo = this.$tokenInfo || source();
+            if (tokenInfo && !$apy.helpers.isObject(tokenInfo)) {
                 try {
                     tokenInfo = JSON.parse(tokenInfo);
-                } catch(JSONError) {
+                } catch (JSONError) {
                     return false;
                 }
             }
             this.$tokenInfo = tokenInfo;
-            return ($apy.helpers.isObject(this.$tokenInfo)) ? true : false;
+            return $apy.helpers.isObject(tokenInfo);
         }
 
         /**
+         * Authenticate against Authentication Server (Oauth2 protocol)
          *
-         * @param credentials
-         * @param method
-         * @param headers
-         * @returns {Promise}
          * @memberOf apy.CompositeService
+         *
+         * @param {Object} credentials Object representing credentials
+         * @param {string} credentials.client_id Oauth2 `CLIENT ID`
+         * @param {string} credentials.grant_type Oauth2 `GRANT TYPE` (eg. password)
+         * @param {string} credentials.username `USERNAME`
+         * @param {string} credentials.password `PASSWORD`
+         * @param {string} method HTTP Method Verb (GET, POST)
+         * @param {Object} headers (optional) HTTP Headers
+         *
+         * @return {Promise} Asynchronous call
          */
         function authenticate(credentials, method, headers) {
             var self = this;
@@ -113,21 +142,21 @@
                     return encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]);
                 }
                 var str = [];
-                for(var p in obj) {
-                    if(obj.hasOwnProperty(p)) {
+                for (var p in obj) {
+                    if (obj.hasOwnProperty(p)) {
                         str.push(pairEncoding(p));
                     }
                 }
                 return str.join('&');
             };
             var requestHeaders = headers || defaultHeaders;
-            if(!credentials.client_id) {
+            if (!credentials.client_id) {
                 credentials.client_id = this.$auth.client_id;
             }
-            if(!credentials.grant_type) {
+            if (!credentials.grant_type) {
                 credentials.grant_type = this.$auth.grant_type;
             }
-            return new Promise(function (resolve, reject) {
+            return new Promise(function(resolve, reject) {
                 self.$access({
                     url: self.$auth.endpoint,
                     method: method || 'POST',
@@ -137,16 +166,20 @@
 
                 })
                     .then(resolve,
-                    function (error) {
-                        return reject(new $apy.EveHTTPError(error));
+                    function(error) {
+                        return reject(new $apy.errors.EveHTTPError(error));
                     });
             });
         }
 
         /**
+         * Schemas Setter
          *
-         * @param schemas
          * @memberOf apy.CompositeService
+         *
+         * @param {Object} schemas The Schemas object got from config or backend endpoint
+         *
+         * @return {apy.CompositeService} itself (chaning pattern)
          */
         function setSchemas(schemas) {
             var ins = this.$instance = new $apy.components.Schemas(this.$endpoint, schemas, this.$config, this);
@@ -156,12 +189,18 @@
         }
 
         /**
+         * Load schema definitions endpoint (a)synchronously
          *
-         * @returns {Promise}
+         * Template method to manage (a)synchronous worlds
+         *
          * @memberOf apy.CompositeService
+         *
+         * @param {boolean} async Load asynchronously or not
+         *
+         * @return {Promise} Asynchronous call
          */
         function loadSchemas(async) {
-            if(async) {
+            if (async) {
                 return this.asyncLoadSchemas();
             }
             this.$syncHttp.open('GET', this.$schemasEndpoint, async);
@@ -172,32 +211,37 @@
         }
 
         /**
+         * Load schema definitions endpoint asynchronously
          *
-         * @returns {Promise}
          * @memberOf apy.CompositeService
+         *
+         * @return {Promise} Asynchronous call
          */
         function asyncLoadSchemas() {
             var self = this;
-            return new Promise(function (resolve, reject) {
+            return new Promise(function(resolve, reject) {
                 self.$access({
                     url: self.$schemasEndpoint,
                     method: 'GET'
                 })
-                    .then(function (response) {
+                    .then(function(response) {
                         self.setSchemas(response.data);
                         return resolve(response);
-                    }, function (error) {
-                        return reject(new $apy.EveHTTPError(error));
+                    }, function(error) {
+                        return reject(new $apy.errors.EveHTTPError(error));
                     });
             });
         }
 
         /**
+         * Init endpoint info
          *
-         * @param endpoint
-         * @param schemaName
-         * @returns {this}
          * @memberOf apy.CompositeService
+         *
+         * @param {string} endpoint REST API endpoint base
+         * @param {string} schemaName REST API schema definitions endpoint name (eg. schemas)
+         *
+         * @return {apy.CompositeService} itself (chaning pattern)
          */
         function initEndpoints(endpoint, schemaName) {
             this.$endpoint = endpoint;
@@ -206,13 +250,15 @@
         }
 
         /**
+         * Set dependencies
          *
-         * @returns {this}
          * @memberOf apy.CompositeService
+         *
+         * @return {apy.CompositeService} itself (chaning pattern)
          */
         function setDependencies() {
-            for(var i = 0; i < arguments.length; ++i) {
-                //i is always valid index in the arguments object
+            for (var i = 0; i < arguments.length; ++i) {
+                // i is always valid index in the arguments object
                 this['$' + arguments[i].name] = arguments[i].value;
             }
             return this;
@@ -221,33 +267,39 @@
         /**
          * Create a collection instance
          *
-         * @function
-         * @param name
-         * @param components
-         * @returns {Collection}
          * @memberOf apy.CompositeService
+         *
+         * @param {string} name Backend Resource name
+         * @param {Array} components A list of initial components
+         *
+         * @return {apy.components.Collection} Created Collection
          */
         function createCollection(name, components) {
             return new $apy.components.Collection(this, name, this.$endpoint, components);
         }
 
         /**
-         * @param $log
-         * @param $http
-         * @param $upload
-         * @param config
+         * The ApyService provides an Object which will load,
+         * each of your Eve's REST API schema endpoint(s) and gives you:
+         *
+         *  * A full CRUD MMI for each (Tables, Lists, Forms, ...)
+         *  * A configurable endpoint URI
+         *  * A configurable CSS theme (default: Bootstrap 3)
+         *
+         * @param {Object} $http Low-level network interface (async HTTP(S) request)
+         * @param {Object} $upload Low-level network interface (async HTTP(S) request) dedicated to upload
+         * @param {Object} config Apy global configuration
          *
          * @constructor
          */
-        return function($log, $http, $upload, config) {
-            this.$log = $log;
+        return function($http, $upload, config) {
             this.$tokenInfo = undefined;
-            this.$http = $http || function () {
+            this.$http = $http || function() {
                 logMissingProvider('$http');
                 return Promise.resolve(arguments);
             };
             this.$config = config || {};
-            this.$upload = $upload || {upload: function () {
+            this.$upload = $upload || {upload: function() {
                 logMissingProvider('Upload');
                 return Promise.resolve(arguments);
             }};
@@ -277,5 +329,4 @@
     })();
 
     $apy.components.RequestMixin.call($apy.CompositeService.prototype);
-
-})( apy, window );
+})(apy, window);

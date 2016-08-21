@@ -29,53 +29,51 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
- *
- *  """
- *  Poly Morph Field
- *
- *  It converts itself to any known types
- *
- *  """
  */
-(function ( $apy, $ ) {
-
+(function($apy, $) {
     /**
      * Apy Poly(morph) Field
+     *
+     * It converts itself to any known types
      *
      * @class apy.components.fields.Poly
      *
      * @augments apy.components.ComponentMixin
      * @augments apy.components.fields.FieldMixin
      *
-     * @param {string} name: Resource name
-     * @param {string} type: Resource type
-     * @param {Object} schema: Resource schema
-     * @param {string} $endpoint: Resource endpoint
-     * @param {Object} service: Reference to Service instance
-     * @param {Array} components: Resource initial components
-     * @param {Object} $states: Resource inner state holder instance
-     * @param {string} relationName: (optional) Resource relation name
+     * @param {string} name Field name
+     * @param {string} type Field type
+     * @param {Object} schema Field schema
+     * @param {Object} value Field value
+     * @param {string} $endpoint Field endpoint
+     * @param {Object} service Reference to Service instance
+     * @param {Object} $states Field inner state holder instance
+     * @param {string} relationName (optional) Field relation name
      */
     $apy.components.fields.Poly = function Poly() {
         var fieldClassByType = $apy.helpers.fieldClassByType;
 
         /**
+         * Type setter.
          *
-         * @param type
-         * @param schemaName
+         * Allow the Polymorph field to `morphs` to another type.
+         *
          * @memberOf apy.components.fields.Poly
+         *
+         * @param {string} type Field type
+         * @param {string} schemaName Backend Resource schema name
          */
         function setType(type, schemaName) {
             var field = fieldClassByType(type);
-            if(!field) {
-                throw new $apy.Error('Unknown Field type, **' + type + '**');
+            if (!field) {
+                throw new $apy.errors.Error('Unknown Field type, **' + type + '**');
             }
-            var schema = schemaName ? this.$service.$schemas[schemaName]: null;
+            var schema = schemaName ? this.$service.$schemas[schemaName] : null;
             var instance = new field(this.$service, null, schema, null,
                 this.$states, this.$endpoint, type, this.$relationName);
 
-            if(this.$value && this.$value.forEach) {
-                this.$value.forEach(function (comp) {
+            if (this.$value && this.$value.forEach) {
+                this.$value.forEach(function(comp) {
                     instance.add(comp);
                 });
             }
@@ -83,7 +81,7 @@
             v && instance.setValue(v);
             $.extend(true, this, instance);
             /* istanbul ignore next */
-            if(!this.$parent) {
+            if (!this.$parent) {
                 console.debug('No Parent provided for ' +
                     'Poly.setType(parent= undefined, type=',
                     type, ', schemaName=', schemaName);
@@ -97,18 +95,21 @@
             }
         }
 
-        // FIXME
         /**
+         * Override parent property to disabled validation.
+         * Polymorph field cannot be validated as no schema is provided.
+         * No choice but to tell the user to use this to its own risks.
+         *
          * @memberOf apy.components.fields.Poly
          */
-        function validate() {
-
-        }
+        function validate() {}
 
         /**
+         * Poly field string representation
          *
-         * @returns {*}
          * @memberOf apy.components.fields.Poly
+         *
+         * @return {string} Poly field string representation
          */
         function toString() {
             return this.$value;
@@ -117,7 +118,7 @@
         // FIXME: value & options parameters shall not be useful as a Poly Morph Field
         // FIXME: should not care of schema/options and value except if we decide to try to
         // FIXME: autodetect type based on given value when we've got a schema-less field (which Poly certainly is).
-        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+        return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.setType = setType;
             this.validate = validate;
             this.toString = toString;
@@ -128,7 +129,6 @@
             this.$Class = $apy.components.fields.Poly;
             return this;
         };
-
     }();
 
     // Inject Mixins
@@ -138,5 +138,4 @@
     $apy.components.fields.FieldMixin.call(
         $apy.components.fields.Poly.prototype
     );
-
-})( apy, window.jQuery );
+})(apy, window.jQuery);

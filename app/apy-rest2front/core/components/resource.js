@@ -30,36 +30,68 @@
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
  */
-(function ( $apy ) {
-
+(function($apy) {
     /**
      * Apy Resource Component
      *
      * @class apy.components.Resource
      *
-     * @augments ComponentMixin
-     * @augments CompositeMixin
-     * @augments RequestMixin
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.CompositeMixin
+     * @augments apy.components.RequestMixin
      *
-     * @param {string} name: Resource name
-     * @param {string} type: Resource type
-     * @param {Object} schema: Resource schema
-     * @param $states: Resource inner state holder instance
-     * @param {Array} components: Resource initial components
-     * @param {string} endpointBase: Resource endpoint
-     * @param {string} relationName: (optional) Resource relation name
+     * @example
+     * var endpoint = 'http://localhost:5000/';
+     * // Schema (usually it comes from REST API or configuration, not that way)
+     * var post = {
+     *     item_title: "Post",
+     *     schema: {
+     *         description: {
+     *             type: "string"
+     *         },
+     *         title: {
+     *             type: "string"
+     *         }
+     *     }
+     * };
+     * // Associated data (usually, data is bound to some UI framework)
+     * var postData = {
+     *     title: "A nice title",
+     *     description: "And another nice description..."
+     * };
+     * // Service is usually initialized by UI framework in charge of representing data
+     * var service = new apy.CompositeService(...);
+     * var resource = new apy.components.Resource(service, post.item_title, post.schema, postData, null, endpoint);
+     * function error(e) {
+     *     console.log('CREATE Error', e);
+     * }
+     * function success(response) {
+     *     if(!response) console.log('Nothing to create');
+     *     else console.log('CREATE ', response);
+     * }
+     * resource.create()
+     *         .then(success)
+     *         .catch(error);
+     *
+     * @param {apy.CompositeService} service Service instance
+     * @param {string} name Resource name
+     * @param {string} type Resource type
+     * @param {Object} schema Resource schema
+     * @param {Object} value Resource value
+     * @param {apy.helpers.StateHolder} $states Resource inner state holder instance
+     * @param {Array} components Resource initial components
+     * @param {string} endpointBase Resource endpoint
+     * @param {string} relationName (optional) Resource relation name
      */
     $apy.components.Resource = (function Resource() {
-
-
         /**
          * Allow to know if the Resource is a fresh created Resource or loaded one
          * (_id ? hasCreated : not)
          *
-         * @returns {boolean}
          * @memberOf apy.components.Resource
+         * @return {boolean} Has the Resource been created ?
          */
-        function hasCreated () {
+        function hasCreated() {
             // FIXME: Ensure default value according chosen backend (for now only python-eve is available)
             var pkAttributeName = this.$service.$config.pkName || '_id';
             return this.hasOwnProperty(pkAttributeName) && !this[pkAttributeName];
@@ -75,23 +107,24 @@
          *
          * On failure, error is logged and passed as-is.
          *
-         * @param method: The HTTP Method Verb (GET, POST, DELETE, ...)
-         * @returns {Promise}
          * @memberOf apy.components.Resource
+         *
+         * @param {string} method The HTTP Method Verb (GET, POST, DELETE, ...)
+         *
+         * @return {Promise} Asynchronous call
          */
         function createResourceRequest(method) {
             var self = this;
-            return new Promise(function (resolve, reject) {
-
-                if(self.$endpointBase && self.$name) {
-                    var successCb = function (response) {
-                        self.$log(response);
+            return new Promise(function(resolve, reject) {
+                if (self.$endpointBase && self.$name) {
+                    var successCb = function(response) {
+                        console.log(response);
                         self.selfUpdate(response.data, true);
                         self.setReadState();
                         return resolve(response);
                     };
-                    var errorCb = function (error) {
-                        self.$log(error);
+                    var errorCb = function(error) {
+                        console.error(error);
                         return reject(error);
                     };
                     return self.createRequest(self.$endpointBase + self.$name, method)
@@ -114,11 +147,11 @@
          * If the Resource is created & updated,
          * a POST Request is sent to the backend.
          *
-         * @returns {Promise}
          * @memberOf apy.components.Resource
+         * @return {Promise} Asynchronous call
          */
-        function create () {
-            if(this.hasCreated() && this.hasUpdated()) {
+        function create() {
+            if (this.hasCreated() && this.hasUpdated()) {
                 return this.createResourceRequest();
             }
             return Promise.resolve(null);
@@ -128,11 +161,11 @@
          * If the Resource is not created & updated,
          * a PATCH Request is sent to the backend.
          *
-         * @returns {Promise}
          * @memberOf apy.components.Resource
+         * @return {Promise} Asynchronous call
          */
-        function update () {
-            if(this.hasUpdated() && !this.hasCreated()) {
+        function update() {
+            if (this.hasUpdated() && !this.hasCreated()) {
                 return this.createResourceRequest('PATCH');
             }
             return Promise.resolve(null);
@@ -142,11 +175,12 @@
          * If the Resource is not created,
          * a DELETE Request is sent to the backend.
          *
-         * @returns {Promise}
+         * @alias delete
          * @memberOf apy.components.Resource
+         * @return {Promise} Asynchronous call
          */
-        function del () {
-            if(!this.hasCreated()) {
+        function del() {
+            if (!this.hasCreated()) {
                 return this.setDeleteState().createResourceRequest('DELETE');
             }
             return Promise.resolve(null);
@@ -155,17 +189,18 @@
         /**
          * Resource Constructor
          *
-         * @param name: Resource name
-         * @param type: Resource type
-         * @param schema: Resource schema
-         * @param $states: Resource inner state holder instance
-         * @param components: Resource initial components
-         * @param endpointBase: Resource endpoint
-         * @param relationName: (optional) Resource relation name
+         * @param {string} name Resource name
+         * @param {string} type Resource type
+         * @param {Object} schema Resource schema
+         * @param {Object} value Resource value
+         * @param {apy.helpers.StateHolder} $states Resource inner state holder instance
+         * @param {Array} components Resource initial components
+         * @param {string} endpointBase Resource endpoint
+         * @param {string} relationName (optional) Resource relation name
          *
          * @constructor
          */
-        return function (service, name, schema, value, $states, $endpoint, type, relationName, components) {
+        return function(service, name, schema, value, $states, $endpoint, type, relationName, components) {
             type = type || $apy.helpers.$TYPES.RESOURCE;
 
             this.delete = del;
@@ -181,16 +216,15 @@
             this.$endpointBase = $endpoint;
             this.$Class = $apy.components.Resource;
 
-            if(relationName)
+            if (relationName)
                 this.$endpoint += relationName;
-            if(schema && schema.$embeddedURI)
+            if (schema && schema.$embeddedURI)
                 this.$endpoint += '?' + schema.$embeddedURI;
 
             this.load(value);
 
             return this;
         };
-
     })();
 
 // Inject Mixins
@@ -203,5 +237,4 @@
     $apy.components.CompositeMixin.call(
         $apy.components.Resource.prototype
     );
-
-})( apy );
+})(apy);

@@ -28,14 +28,14 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
- *
- *  """
- *  One place for common UT snippets
- *  Mocking Main library components
- *
- *  """
  */
-
+/**
+ * One place for common UT snippets
+ *
+ * Mocking Main library components
+ *
+ * @namespace apy.tests
+ */
 (function ($window) {
 
     if(!$window.apy) {
@@ -66,6 +66,11 @@
     };
     DEFAULT_SCHEMAS[DEFAULT_SCHEMA_NAME] = {type: 'list'};
 
+    /**
+     * Mock network-related Object such as `http`
+     *
+     * @class apy.tests.NetMock
+     */
     function NetMock() {
         function stubbed() {}
         if(apy.config.debug) {
@@ -83,6 +88,19 @@
         }
     }
 
+    /**
+     * Create an `apy.CompositeService` instance
+     *
+     * @alias createService
+     * @memberOf apy.tests
+     *
+     * @param {Object} config Global application configuration object
+     * @param {Object} $log Global application logger instance
+     * @param {Object} $http Global application HTTP handler instance
+     * @param {Object} $upload Global application HTTP handler with progress management instance
+     *
+     * @return {apy.CompositeService} A CompositeService instance
+     */
     function _createService(config, $log, $http, $upload) {
         $log = $log || {};
         $http = $http || NetMock();
@@ -92,11 +110,32 @@
         return service;
     }
 
+    /**
+     * Create an `apy.components.Schemas` instance
+     *
+     * @alias createSchemasComponent
+     * @memberOf apy.tests
+     *
+     * @return {apy.components.Schemas} A Schemas instance
+     */
     var _createSchemasComponent = function () {
         var service = apy.tests.createService();
         return service.$instance;
     };
 
+    /**
+     * Create any Field instance based on given type
+     *
+     * @alias createFieldByType
+     * @memberOf apy.tests
+     *
+     * @param {string} type Field's type
+     * @param {*} value Field's value
+     * @param {Object} schema Field's schema object
+     * @param {Object} config Global application configuration object
+     *
+     * @returns {apy.components.fields} Any Field instance
+     */
     var _createFieldByType = function (type, value, schema, config) {
         schema = schema || {};
         schema.type = type;
@@ -104,13 +143,36 @@
         return new fieldClass(_createService(config), type, schema, value);
     };
 
-    // Helpers
+    /**
+     * Types factory
+     *
+     * @class apy.tests.HelperTypesFactory
+     */
     function HelperTypesFactory() {
         return {
+            /**
+             * Create a GeoPoint instance
+             *
+             * @memberOf apy.tests.HelperTypesFactory
+             *
+             * @param {Object|apy.helpers.GeoPoint} params An object representing a Point (x,y)
+             *
+             * @return {apy.helpers.GeoPoint} A GeoPoint instance
+             */
             createPoint: function (params) {
                 // {coordinates: [0.0, 1.0]}
                 return new apy.tests.$types.Point(params);
             },
+            /**
+             * Create a MediaFile instance
+             *
+             * @memberOf apy.tests.HelperTypesFactory
+             *
+             * @param {string|Object} value A media file string or object
+             * @param {string} endpoint REST API endpoint base
+             *
+             * @return {apy.helpers.MediaFile} A MediaFile instance
+             */
             createMediaFile: function (value, endpoint) {
                 return new apy.tests.$types.MediaFile(endpoint || DEFAULT_ENDPOINT, value);
             }
@@ -128,6 +190,11 @@
         Point: apy.helpers.GeoPoint,
         MediaFile: apy.helpers.MediaFile,
         CompositeService: apy.CompositeService,
+        errors: {
+            Error: apy.errors.Error,
+            EveError: apy.errors.EveError,
+            EveHTTPError: apy.errors.EveHTTPError
+        },
         components: {
             Schema: apy.components.Schema,
             Schemas: apy.components.Schemas,

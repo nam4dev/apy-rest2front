@@ -29,34 +29,46 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
- *
- *  """
- *  Apy Collection Component abstraction
- *
- *  """
  */
-(function ( $apy ) {
-
+(function($apy) {
     /**
-     * Collection
+     * A Collection of Resource(s)
      *
      * @class apy.components.Collection
      *
-     * @augments ComponentMixin
-     * @augments RequestMixin
+     * @augments apy.components.ComponentMixin
+     * @augments apy.components.RequestMixin
      *
-     * @param name
-     * @param service
-     * @param endpoint
-     * @param components
+     * @example
+     * var service = new apy.CompositeService(...);
+     * var collection = new apy.components.Collection('myResourceName', service, 'myEndpoint');
+     * function error(e) {
+     *     console.log('Error', e);
+     * }
+     * function success() {
+     *     console.log('Fetched Data', arguments);
+     * }
+     * function progress() {
+     *     console.log('Progress', arguments);
+     * }
+     * collection.fetch(progress)
+     *           .then(success)
+     *           .catch(error);
+     *
+     * @param {string} name Resource endpoint name
+     * @param {apy.CompositeService} service Service instance
+     * @param {string} endpoint REST API endpoint base
+     * @param {Array} components (optional) initial components
      */
     $apy.components.Collection = (function Collection() {
-
         /**
+         * Allow to group/chain Deferred/Promises altogether.
          *
-         * @param promises
-         * @returns {Promise}
          * @memberOf apy.components.Collection
+         *
+         * @param {Array} promises A list of Promise instances
+         *
+         * @return {Promise} A single Promise chaining given ones
          */
         function deferredAll(promises) {
             return Promise.all(promises.map(function(promise) {
@@ -65,69 +77,87 @@
         }
 
         /**
+         * Define how Collection is represented.
+         * A Collection joins all its inner components calling their
+         * `toString()` method.
          *
          * @override
-         * @returns {string}
          * @memberOf apy.components.Collection
+         *
+         * @return {string} The Collection representation as a String
+         *
          */
         function toString() {
             return '[' + this.$components.join(', ') + ']';
         }
 
         /**
+         * Create an `apy.components.Resource` instance.
+         * Either based on given payload or an empty one.
          *
-         * @param resource
-         * @returns {Resource}
          * @memberOf apy.components.Collection
+         *
+         * @param {Object} payload optional Object representing the Resource
+         *
+         * @return {apy.components.Resource} The Created Resource instance
          */
-        function createResource (resource) {
-            var component = this.$service.$instance.createResource(this.$name, resource);
+        function createResource(payload) {
+            var component = this.$service.$instance.createResource(this.$name, payload);
             component.setParent(this);
             this.prepend(component);
             return component;
         }
 
         /**
+         * Remove a given Resource from the Collection
          *
-         * @param resource
-         * @returns {Array.<T>}
+         * @override
          * @memberOf apy.components.Collection
+         *
+         * @param {apy.components.Resource} resource The Resource instance to remove
+         *
+         * @return {Array.<T>}
          */
-        function remove (resource) {
+        function remove(resource) {
             return this.$components.splice(this.$components.indexOf(resource), 1);
         }
 
         /**
+         * Reset all inner Collection's components
          *
          * @override
          * @memberOf apy.components.Collection
          */
-        function reset () {
-            this.$components.forEach(function (comp) {
+        function reset() {
+            this.$components.forEach(function(comp) {
                 comp.reset();
             });
         }
 
         /**
+         * Return `unsaved` Resource(s) count
          *
          * @override
-         * @returns {boolean}
          * @memberOf apy.components.Collection
+         *
+         * @return {boolean} Has the Collection `unsaved` Resource(s) ?
          */
-        function hasCreated () {
+        function hasCreated() {
             return this.unsavedComponents().length > 0;
         }
 
         /**
+         * Return true if at least one inner Resource is updated
          *
          * @override
-         * @returns {boolean}
          * @memberOf apy.components.Collection
+         *
+         * @return {boolean} Is the Collection updated ?
          */
-        function hasUpdated () {
+        function hasUpdated() {
             var updated = false;
-            this.$components.forEach(function (comp) {
-                if(comp.hasUpdated()) {
+            this.$components.forEach(function(comp) {
+                if (comp.hasUpdated()) {
                     updated = true;
                 }
             });
@@ -135,14 +165,17 @@
         }
 
         /**
+         * Set given state to all `saved` Resource(s)
          *
          * @override
-         * @param state
-         * @returns {this}
          * @memberOf apy.components.Collection
+         *
+         * @param {string} state State amongst {CREATE, READ, UPDATE, DELETE}
+         *
+         * @return {apy.components.Collection}
          */
-        function setState (state) {
-            this.savedComponents().forEach(function (comp) {
+        function setState(state) {
+            this.savedComponents().forEach(function(comp) {
                 comp.setState(state);
             });
             return this;
@@ -151,25 +184,28 @@
         /**
          * Factorize logic
          * Return whether or not at least one Collection's component's
-         * current state is in the passed state
+         * current state is in the given state
          *
          * @override
-         * @returns {boolean}
          * @memberOf apy.components.Collection
+         *
+         * @return {boolean} Has Collection some of this state ?
          */
         function isState(state) {
-            return this.$components.some(function (comp) {
+            return this.$components.some(function(comp) {
                 return comp.isState(state);
             });
         }
 
         /**
+         * Load given Resource Objects into the Collection (recursively)
          *
-         * @param items
          * @memberOf apy.components.Collection
+         *
+         * @param {Array} items A list of Resource Objects
          */
-        function load (items) {
-            for(var i = 0; i < items.length; i++) {
+        function load(items) {
+            for (var i = 0; i < items.length; i++) {
                 var resource = items[i];
                 this.createResource(resource);
             }
@@ -177,61 +213,69 @@
         }
 
         /**
+         * Shortcut to create & save all components (according to their state)
          *
-         * @returns {Promise}
          * @memberOf apy.components.Collection
+         *
+         * @return {Promise} A single Promise
          */
-        function save () {
+        function save() {
             return deferredAll([this.create(), this.update()]);
         }
 
         /**
+         * Fetch all Resource Objects based on config parameters
          *
-         * @returns {Promise}
          * @memberOf apy.components.Collection
+         *
+         * @param {function} progressHandler A progress handler
+         *
+         * @return {Promise} Asynchronous call
          */
-        function fetch (progressHandler) {
+        function fetch(progressHandler) {
             var self = this;
-            var progress = progressHandler || function (counter) {
-                self.$log('Progress handler', counter);
+            var progress = progressHandler || function(counter) {
+                console.log('Progress handler', counter);
             };
             progress(25);
-            return new Promise(function (resolve, reject) {
+            return new Promise(function(resolve, reject) {
                 self.clear();
                 progress(50);
                 return self.$access({
                     url: self.$endpoint,
                     method: 'GET'
-                }).then(function (response) {
+                }).then(function(response) {
                     progress(75);
                     self.load(response.data._items);
                     progress(100);
                     return resolve(response);
                 },
-                    function (error) {
-                        self.$log('[ApyFrontendError] => ' + error);
+                    function(error) {
+                        console.error('[ApyFrontendError] => ' + error);
                         progress(100);
-                        return reject(new $apy.EveHTTPError(error));
+                        return reject(new $apy.errors.EveHTTPError(error));
                     },
-                    function (evt) {
+                    function(evt) {
                         var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                        self.$log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
+                        console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
                         progress(progressPercentage);
                     });
             });
         }
 
         /**
+         * Create all `unsaved` Resource(s)
          *
-         * @returns {Promise}
          * @memberOf apy.components.Collection
+         *
+         * @return {Promise} A single Promise chaining all created Resource(s)
          */
-        function create () {
+        function create() {
             // FIXME: Shall be optimized if `bulk_enabled` is true, making a single request to backend
             var promises = [];
-            this.unsavedComponents().forEach(function (comp) {
+            this.unsavedComponents().forEach(function(comp) {
                 var defer = comp.create();
-                if(defer) {
+                if (defer) {
                     promises.push(defer);
                 }
             });
@@ -239,16 +283,18 @@
         }
 
         /**
+         * Update all `saved` Resource(s)
          *
-         * @returns {Promise}
          * @memberOf apy.components.Collection
+         *
+         * @return {Promise} A single Promise chaining all updated Resource(s)
          */
-        function update () {
+        function update() {
             // FIXME: Shall be optimized if `bulk_enabled` is true, making a single request to backend
             var promises = [];
-            this.savedComponents().forEach(function (comp) {
+            this.savedComponents().forEach(function(comp) {
                 var defer = comp.update();
-                if(defer) {
+                if (defer) {
                     promises.push(defer);
                 }
             });
@@ -256,16 +302,19 @@
         }
 
         /**
+         * Delete all `saved` Resource(s)
+         *
          * @alias delete
-         * @returns {Promise}
          * @memberOf apy.components.Collection
+         *
+         * @return {Promise} A single Promise chaining all deleted Resource(s)
          */
-        function del () {
+        function del() {
             // FIXME: Shall be optimized using DELETE on root (/) endpoint without ID
             var promises = [];
-            this.savedComponents().forEach(function (comp) {
+            this.savedComponents().forEach(function(comp) {
                 var defer = comp.delete();
-                if(defer) {
+                if (defer) {
                     promises.push(defer);
                 }
             });
@@ -274,63 +323,69 @@
         }
 
         /**
+         * Clear all Collection's components (Resources)
          *
-         * @returns {Promise}
          * @memberOf apy.components.Collection
+         *
+         * @return {apy.components.Collection}
          */
-        function clear () {
+        function clear() {
             this.$components = [];
             return this;
         }
 
         /**
+         * Represents the count of `saved` Resource(s)
          *
-         * @returns {Integer}
          * @memberOf apy.components.Collection
-         * *
+         *
+         * @return {Integer} `saved` Resource(s) count
          */
-        function savedCount () {
+        function savedCount() {
             return this.savedComponents().length;
         }
 
         /**
+         * Filter `saved` components from `unsaved` ones
          *
-         * @returns {Array}
          * @memberOf apy.components.Collection
-         * *
+         *
+         * @return {Array} filtered Components
          */
-        function savedComponents () {
+        function savedComponents() {
             return this.$components.filter(function(comp) {
                 return !comp.hasCreated() && !comp.hasUpdated();
             });
         }
 
         /**
+         * Filter `unsaved` components from `saved` ones
          *
-         * @returns {Array}
          * @memberOf apy.components.Collection
-         * *
+         *
+         * @return {Array} filtered Components
          */
-        function unsavedComponents () {
+        function unsavedComponents() {
             return this.$components.filter(function(comp) {
                 return comp.hasCreated() && comp.hasUpdated();
             });
         }
 
         /**
-         * Collection
+         * Collection Constructor
          *
          * @param name
          * @param service
          * @param endpoint
          * @param components
+         *
          * @constructor
          */
-        return function (service, name, endpoint, components) {
+        return function(service, name, endpoint, components) {
             this.initialize(service, name, service.$instance.get(name), null, null, endpoint + name, $apy.helpers.$TYPES.COLLECTION, null, components);
             this.$endpointBase = endpoint;
             this.$Class = $apy.components.Collection;
-            if(this.$schema.$embeddedURI)
+            if (this.$schema.$embeddedURI)
                 this.$endpoint += '?' + this.$schema.$embeddedURI;
 
             this.load = load;
@@ -354,7 +409,6 @@
 
             return this;
         };
-
     })();
 
     // Inject Mixin
@@ -364,5 +418,4 @@
     $apy.components.RequestMixin.call(
         $apy.components.Collection.prototype
     );
-
-})( apy );
+})(apy);

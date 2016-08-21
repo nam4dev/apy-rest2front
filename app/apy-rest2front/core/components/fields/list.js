@@ -29,14 +29,8 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
- *
- *  """
- *  List field(s) abstraction
- *
- *  """
  */
-(function ( $apy ) {
-
+(function($apy) {
     /**
      * Apy List Field
      *
@@ -47,22 +41,29 @@
      * @augments apy.components.RequestMixin
      * @augments apy.components.CompositeMixin
      *
-     * @param {string} name: Resource name
-     * @param {string} type: Resource type
-     * @param {Object} schema: Resource schema
-     * @param {string} $endpoint: Resource endpoint
-     * @param {Object} service: Reference to Service instance
-     * @param {Array} components: Resource initial components
-     * @param {Object} $states: Resource inner state holder instance
-     * @param {string} relationName: (optional) Resource relation name
+     * @param {string} name Field name
+     * @param {string} type Field type
+     * @param {Object} schema Field schema
+     * @param {Object} value Field value
+     * @param {string} $endpoint Field endpoint
+     * @param {Object} service Reference to Service instance
+     * @param {Object} $states Field inner state holder instance
+     * @param {string} relationName (optional) Field relation name
      */
     $apy.components.fields.List = function List() {
-
         /**
+         * Set a given value to attributes
+         * `$value` & `$memo` respectively,
+         * using `cloneValue` method
          *
-         * @param value
-         * @returns {this}
+         * Load each inner component with given value
+         *
+         * @override
          * @memberOf apy.components.fields.List
+         *
+         * @param {Array} value An Array instance representing a List of Resources
+         *
+         * @returns {apy.components.fields.List} `this`
          */
         function setValue(value) {
             var self = this;
@@ -71,8 +72,8 @@
             this.$value = this.cloneValue(value);
             // Reset components
             this.$components = [];
-            if(Array.isArray(value)) {
-                value.forEach(function (el) {
+            if (Array.isArray(value)) {
+                value.forEach(function(el) {
                     self.load(el);
                 });
             }
@@ -81,58 +82,76 @@
         }
 
         /**
+         * Load each value contained into inner `$value` prop,
+         * into a matching Apy Field based on its schema.
+         *
+         * **If no schema is specified, an `apy.components.fields.Poly` is created**
+         *
+         * @override
          * @memberOf apy.components.fields.List
+         *
+         * @param {*} val (optional) value matching schema type
+         *
+         * @return {apy.components.fields.List} `this`
          */
-        function load (val) {
+        function load(val) {
             var type;
-            var value = val || this.$value || {};
-            var schema = this.$schema.schema;
             try {
-                type = schema.type;
+                type = this.$schema.schema.type;
             }
-            catch(e) {
-                schema = {};
+            catch (e) {
+                type = null;
             }
-            this.$$createField(type, this.$name, schema, value, this.$endpoint, true);
+            this.$$createField(type, this.$name, this.$schema.schema, val || this.$value, this.$endpoint, true);
             return this;
         }
 
         /**
+         * Reset inner value to its original value ($memoValue) if different
          *
-         * @returns {*}
          * @memberOf apy.components.fields.List
+         *
+         * @return {apy.components.fields.List} `this`
          */
         function reset() {
             this.setValue(this.$memoValue);
+            return this;
         }
 
         /**
+         * List field - clone a value
          *
-         * @param value
-         * @returns {*}
          * @memberOf apy.components.fields.List
+         *
+         * @param {Array} value A list array
+         *
+         * @return {Array} cloned value
          */
         function cloneValue(value) {
             value = value ? value : [];
-            if(!Array.isArray(value)) {
+            if (!Array.isArray(value)) {
                 value = new Array(value);
             }
             return value;
         }
 
         /**
+         * Return true if original value has changed from current one.
+         * In other words, if inner components count has changed or if any
+         * contained component is updated.
          *
-         * @returns {boolean}
          * @memberOf apy.components.fields.List
+         *
+         * @return {boolean} Is the List field updated ?
          */
-        function hasUpdated () {
+        function hasUpdated() {
             var updated = false;
-            if(this.$memo !== this.$components.length) {
+            if (this.$memo !== this.$components.length) {
                 updated = true;
             }
-            if(!updated) {
-                this.$components.forEach(function (comp) {
-                    if(comp.hasUpdated()) {
+            if (!updated) {
+                this.$components.forEach(function(comp) {
+                    if (comp.hasUpdated()) {
                         updated = true;
                     }
                 });
@@ -141,20 +160,22 @@
         }
 
         /**
+         * Get cleaned data
          *
-         * @returns {Array}
          * @memberOf apy.components.fields.List
+         *
+         * @return {Array} An Array List
          */
-        function cleanedData () {
+        function cleanedData() {
             this.validate();
-            if(this.$allowed && this.$allowed.length &&
+            if (this.$allowed && this.$allowed.length &&
                 this.$value && this.$value.length) {
                 return this.$value;
             }
             var data = [];
-            this.$components.forEach(function (comp) {
+            this.$components.forEach(function(comp) {
                 var cleaned = comp.cleanedData();
-                if(cleaned || cleaned === false || cleaned === 0) {
+                if (cleaned || cleaned === false || cleaned === 0) {
                     data.push(cleaned);
                 }
             });
@@ -162,28 +183,39 @@
         }
 
         /**
+         * Override parent property to specified validation behaviour.
+         *
          * @memberOf apy.components.fields.List
+         *
+         * @throws {apy.errors.Error} When validation fails
          */
         function validate() {
             this.parentValidate();
-            this.$components.forEach(function (comp) {
+            this.$components.forEach(function(comp) {
                 comp.validate();
             });
         }
 
         /**
+         * List Field Method to update itself.
          *
-         * @returns {string}
+         * Reset `$memo` to the current components count
+         * Call each inner component `selfCommit` method
+         *
+         * @override
          * @memberOf apy.components.fields.List
+         *
+         * @return {apy.components.fields.List} `this`
          */
         function selfCommit() {
             this.$memo = this.$components.length;
-            this.$components.forEach(function (comp) {
+            this.$components.forEach(function(comp) {
                 comp.selfCommit();
             });
+            return this;
         }
 
-        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+        return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.load = load;
             this.reset = reset;
             this.parentValidate = this.validate;
@@ -199,7 +231,6 @@
             this.$Class = $apy.components.fields.List;
             return this;
         };
-
     }();
 
     // Inject Mixins
@@ -215,5 +246,4 @@
     $apy.components.CompositeMixin.call(
         $apy.components.fields.List.prototype
     );
-
-})( apy );
+})(apy);

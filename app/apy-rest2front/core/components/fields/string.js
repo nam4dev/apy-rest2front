@@ -29,14 +29,8 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
- *
- *  """
- *  String field abstraction
- *
- *  """
  */
-(function ( $apy ) {
-
+(function($apy) {
     /**
      * Apy String Field
      *
@@ -45,46 +39,52 @@
      * @augments apy.components.ComponentMixin
      * @augments apy.components.fields.FieldMixin
      *
-     * @param {string} name: Resource name
-     * @param {string} type: Resource type
-     * @param {Object} schema: Resource schema
-     * @param {string} $endpoint: Resource endpoint
-     * @param {Object} service: Reference to Service instance
-     * @param {Array} components: Resource initial components
-     * @param {Object} $states: Resource inner state holder instance
-     * @param {string} relationName: (optional) Resource relation name
+     * @param {string} name Field name
+     * @param {string} type Field type
+     * @param {Object} schema Field schema
+     * @param {Object} value Field value
+     * @param {string} $endpoint Field endpoint
+     * @param {Object} service Reference to Service instance
+     * @param {Object} $states Field inner state holder instance
+     * @param {string} relationName (optional) Field relation name
      */
     $apy.components.fields.String = function String() {
-
         /**
+         * String field string representation
          *
-         * @returns {*}
          * @memberOf apy.components.fields.String
+         *
+         * @return {string} String field string representation
          */
         function toString() {
             return this.$value;
         }
 
         /**
+         * Return the count of char(s) contained into the sentence
          *
-         * @returns {*}
          * @memberOf apy.components.fields.String
+         *
+         * @return {Number} Count of chars in the sentence
          */
         function wordCount() {
             return this.$value ? this.$value.length : 0;
         }
 
         /**
+         * Return true if original value has changed from current one.
+         * Ensure current value is a string (not null)
          *
-         * @returns {Boolean}
          * @memberOf apy.components.fields.String
+         *
+         * @return {boolean} Is the String field updated ?
          */
         function hasUpdated() {
             this.$value = this.$value || '';
             return this.parentHasUpdated();
         }
 
-        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+        return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'string';
             this.parentHasUpdated = this.hasUpdated;
             this.toString = toString;
@@ -94,7 +94,6 @@
             this.$Class = $apy.components.fields.String;
             return this;
         };
-
     }();
 
     // Inject Mixins
@@ -104,5 +103,4 @@
     $apy.components.fields.FieldMixin.call(
         $apy.components.fields.String.prototype
     );
-
-})( apy );
+})(apy);

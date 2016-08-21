@@ -34,9 +34,11 @@
  *
  *  """
  */
+/**
+ * @namespace apy.integration.angular
+ */
 
-(function ( $apy ) {
-
+(function( $apy ) {
     var messagesBasedTemplate = ' \
         <div class="modal-header btn-{{ widgetClass || \'info\' }}"> \
             <h3 class="modal-title">  \
@@ -72,21 +74,75 @@
         </div> \
     ';
 
-    $apy.integration.angular.ApyModalProxy = function ($rootScope, $modal) {
+    /* istanbul ignore next */
+    /**
+     * Proxy of angular-ui modal
+     *
+     * Interface to manage heterogeneous Errors from
+     * different backend (Eve, django-rest, ...)
+     *
+     * @class apy.integration.angular.ApyModalProxy
+     *
+     * @example
+     * //...
+     * function success(response) {
+     *     if(!response) console.log('Nothing to create');
+     *     else console.log('CREATE ', response);
+     * }
+     *
+     * // @see `apy.components.Resource` for more details
+     * resource.create()
+     *         .then(success)
+     *         // Interface to display Eve Error consistently
+     *         .catch(apyModalProvider.error);
+     *
+     * @param {Object} $rootScope Angular `$rootScope` instance
+     * @param {Object} $modal Angular-ui `$modal` instance
+     *
+     * @return {apy.integration.angular.ApyModalProxy}
+     */
+    function ApyModalProxy($rootScope, $modal) {
         var instances = [];
         var currentInstance;
 
         return {
-            cancel: function () {
+            /**
+             * Cancel the current instance
+             *
+             * @memberOf apy.integration.angular.ApyModalProxy
+             */
+            cancel: function() {
                 currentInstance && currentInstance.close(0);
             },
-            cancelAll: function () {
-                instances.forEach(function (instance) {
+            /**
+             * Cancel all modal instances
+             *
+             * @memberOf apy.integration.angular.ApyModalProxy
+             */
+            cancelAll: function() {
+                instances.forEach(function(instance) {
                     instance && instance.close(0);
                 });
             },
+            /**
+             * Base method to factorize Modal logic
+             *
+             * @memberOf apy.integration.angular.ApyModalProxy
+             *
+             * @param {Object} config A configuration object
+             * @param {string} config.title Modal header title
+             * @param {boolean} config.asList Display messages as list
+             * @param {string} config.message A single message
+             * @param {Array} config.messages A list of messages
+             * @param {string} config.okBtnName OK name (default 'OK')
+             * @param {string} config.cancelBtnName Cancel name (default 'Cancel')
+             * @param {string} config.widgetClass bootstrap widget class (info, success, warning, danger, ...)
+             * @param {string} config.okWidgetClass bootstrap widget class for OK button (info, success, warning, danger, ...)
+             * @param {string} config.cancelWidgetClass bootstrap widget class for Cancel button (info, success, warning, danger, ...)
+             * @param {Function} config.okCallback Callback to be called when OK button is pressed
+             * @param {Function} config.cancelCallback Callback to be called when Cancel button is pressed
+             */
             base: function base(config) {
-
                 function isFunc(callback) {
                     return callback && $apy.helpers.isFunction(callback);
                 }
@@ -96,7 +152,7 @@
                 }
 
                 function callbacksWrapper(isOk) {
-                    if(isOk) {
+                    if (isOk) {
                         executeIfPossible(okCallback);
                     }
                     else {
@@ -127,11 +183,11 @@
                 $scope.okWidgetClass = config.okWidgetClass || config.widgetClass;
                 $scope.cancelWidgetClass = config.cancelWidgetClass || config.widgetClass;
                 // Define default OK button behavior
-                $scope.ok = function () {
+                $scope.ok = function() {
                     $instance.close(1);
                 };
-                if(isFunc(cancelCallback)) {
-                    $scope.cancel = function () {
+                if (isFunc(cancelCallback)) {
+                    $scope.cancel = function() {
                         $instance.close(0);
                     };
                 }
@@ -139,9 +195,45 @@
                 instances.push($instance);
                 $instance.result.then(callbacksWrapper);
             },
+            /**
+             * Display an info modal
+             *
+             * @memberOf apy.integration.angular.ApyModalProxy
+             *
+             * @param {Object} config A configuration object
+             * @param {string} config.title Modal header title
+             * @param {boolean} config.asList Display messages as list
+             * @param {string} config.message A single message
+             * @param {Array} config.messages A list of messages
+             * @param {string} config.okBtnName OK name (default 'OK')
+             * @param {string} config.cancelBtnName Cancel name (default 'Cancel')
+             * @param {string} config.widgetClass bootstrap widget class (info, success, warning, danger, ...)
+             * @param {string} config.okWidgetClass bootstrap widget class for OK button (info, success, warning, danger, ...)
+             * @param {string} config.cancelWidgetClass bootstrap widget class for Cancel button (info, success, warning, danger, ...)
+             * @param {Function} config.okCallback Callback to be called when OK button is pressed
+             * @param {Function} config.cancelCallback Callback to be called when Cancel button is pressed
+             */
             info: function info(config) {
                 this.base(config);
             },
+            /**
+             * Display a warning modal
+             *
+             * @memberOf apy.integration.angular.ApyModalProxy
+             *
+             * @param {Object} config A configuration object
+             * @param {string} config.title Modal header title
+             * @param {boolean} config.asList Display messages as list
+             * @param {string} config.message A single message
+             * @param {Array} config.messages A list of messages
+             * @param {string} config.okBtnName OK name (default 'OK')
+             * @param {string} config.cancelBtnName Cancel name (default 'Cancel')
+             * @param {string} config.widgetClass bootstrap widget class (info, success, warning, danger, ...)
+             * @param {string} config.okWidgetClass bootstrap widget class for OK button (info, success, warning, danger, ...)
+             * @param {string} config.cancelWidgetClass bootstrap widget class for Cancel button (info, success, warning, danger, ...)
+             * @param {Function} config.okCallback Callback to be called when OK button is pressed
+             * @param {Function} config.cancelCallback Callback to be called when Cancel button is pressed
+             */
             warn: function warn(config) {
                 var cls = 'warning';
                 this.base({
@@ -156,24 +248,65 @@
                     cancelCallback: config.cancelCallback
                 });
             },
-            error: function error(e, okCallback) {
+            /**
+             * Display an error modal
+             *
+             * @memberOf apy.integration.angular.ApyModalProxy
+             *
+             * @param {Object} config A configuration object
+             * @param {string} config.title Modal header title
+             * @param {boolean} config.asList Display messages as list
+             * @param {string} config.message A single message
+             * @param {Array} config.messages A list of messages
+             * @param {string} config.okBtnName OK name (default 'OK')
+             * @param {string} config.cancelBtnName Cancel name (default 'Cancel')
+             * @param {string} config.widgetClass bootstrap widget class (info, success, warning, danger, ...)
+             * @param {string} config.okWidgetClass bootstrap widget class for OK button (info, success, warning, danger, ...)
+             * @param {string} config.cancelWidgetClass bootstrap widget class for Cancel button (info, success, warning, danger, ...)
+             * @param {Function} config.okCallback Callback to be called when OK button is pressed
+             * @param {Function} config.cancelCallback Callback to be called when Cancel button is pressed
+             */
+            error: function error(config) {
                 var cls = 'danger';
-                this.base({
-                    title: e.title,
-                    messages: e.messages,
-                    okCallback: okCallback,
-                    widgetClass: cls,
-                    okWidgetClass: cls
-                });
+                config.widgetClass = cls;
+                config.okWidgetClass = cls;
+                this.base(config);
             },
-            errors: function errors(errorList) {
-                var cls = 'danger';
+            /**
+             * Display an error modal
+             *
+             * @memberOf apy.integration.angular.ApyModalProxy
+             *
+             * @param {Object} config A configuration object
+             * @param {string} config.title Modal header title
+             * @param {boolean} config.asList Display messages as list
+             * @param {string} config.message A single message
+             * @param {Array} config.messages A list of messages
+             * @param {string} config.okBtnName OK name (default 'OK')
+             * @param {string} config.cancelBtnName Cancel name (default 'Cancel')
+             * @param {string} config.widgetClass bootstrap widget class (info, success, warning, danger, ...)
+             * @param {string} config.okWidgetClass bootstrap widget class for OK button (info, success, warning, danger, ...)
+             * @param {string} config.cancelWidgetClass bootstrap widget class for Cancel button (info, success, warning, danger, ...)
+             * @param {Function} config.okCallback Callback to be called when OK button is pressed
+             * @param {Function} config.cancelCallback Callback to be called when Cancel button is pressed
+             */
+            errors: function errors(config) {
                 var messages = [];
-                errorList.forEach(function (error) {
+                var cls = 'danger';
+                config = config || {};
+                config.widgetClass = cls;
+                config.okWidgetClass = cls;
+                if(!config.title) {
+                    config.title = 'Errors';
+                }
+                if(!config.messages) {
+                    config.messages = []
+                }
+                config.messages.forEach(function(error) {
                     var iter;
-                    if($apy.helpers.isObject(error.messages)) {
+                    if ($apy.helpers.isObject(error.messages)) {
                         iter = [];
-                        Object.keys(error.messages).forEach(function (k) {
+                        Object.keys(error.messages).forEach(function(k) {
                             iter.push(k + ' => ' + error.messages[k]);
                         });
                     }
@@ -181,17 +314,34 @@
                         iter = error.messages;
                     }
                     messages.push(error.title);
-                    iter.forEach(function (value) {
+                    iter.forEach(function(value) {
                         messages.push(value);
                     });
                 });
-                this.base({
-                    title: 'Errors',
-                    messages: messages,
-                    widgetClass: cls,
-                    okWidgetClass: cls
-                });
+                if(!messages.length) {
+                    messages.push('No details found!')
+                }
+                config.messages = messages;
+                this.base(config);
             },
+            /**
+             * Display a success modal
+             *
+             * @memberOf apy.integration.angular.ApyModalProxy
+             *
+             * @param {Object} config A configuration object
+             * @param {string} config.title Modal header title
+             * @param {boolean} config.asList Display messages as list
+             * @param {string} config.message A single message
+             * @param {Array} config.messages A list of messages
+             * @param {string} config.okBtnName OK name (default 'OK')
+             * @param {string} config.cancelBtnName Cancel name (default 'Cancel')
+             * @param {string} config.widgetClass bootstrap widget class (info, success, warning, danger, ...)
+             * @param {string} config.okWidgetClass bootstrap widget class for OK button (info, success, warning, danger, ...)
+             * @param {string} config.cancelWidgetClass bootstrap widget class for Cancel button (info, success, warning, danger, ...)
+             * @param {Function} config.okCallback Callback to be called when OK button is pressed
+             * @param {Function} config.cancelCallback Callback to be called when Cancel button is pressed
+             */
             success: function success(config) {
                 var cls = 'success';
                 config.widgetClass = cls;
@@ -199,6 +349,8 @@
                 this.base(config);
             }
         };
-    };
+    }
+
+    $apy.integration.angular.ApyModalProxy = ApyModalProxy;
 
 })( apy );

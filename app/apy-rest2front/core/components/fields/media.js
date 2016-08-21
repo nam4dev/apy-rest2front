@@ -29,47 +29,45 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
- *
- *  """
- *  Media field abstraction
- *  A Media type shall be any type of Resource (music, picture, video, ...)
- *
- *  """
  */
-(function ( $apy ) {
-
+(function($apy) {
     /**
      * Apy Media Field
+     *
+     * A Media type shall be any type of Resource (music, picture, video, ...)
      *
      * @class apy.components.fields.Media
      *
      * @augments apy.components.ComponentMixin
      * @augments apy.components.fields.FieldMixin
      *
-     * @param {string} name: Resource name
-     * @param {string} type: Resource type
-     * @param {Object} schema: Resource schema
-     * @param {string} $endpoint: Resource endpoint
-     * @param {Object} service: Reference to Service instance
-     * @param {Array} components: Resource initial components
-     * @param {Object} $states: Resource inner state holder instance
-     * @param {string} relationName: (optional) Resource relation name
+     * @param {string} name Field name
+     * @param {string} type Field type
+     * @param {Object} schema Field schema
+     * @param {Object} value Field value
+     * @param {string} $endpoint Field endpoint
+     * @param {Object} service Reference to Service instance
+     * @param {Object} $states Field inner state holder instance
+     * @param {string} relationName (optional) Field relation name
      */
     $apy.components.fields.Media = (function Media() {
-
         /**
+         * Media field string representation
          *
-         * @returns {*}
          * @memberOf apy.components.fields.Media
+         *
+         * @return {string} Media field string representation
          */
         function toString() {
             return this.$value.toString();
         }
 
         /**
+         * Get cleaned data
          *
-         * @returns {*}
          * @memberOf apy.components.fields.Media
+         *
+         * @return {null|Object} Either null or a wrapped file object
          */
         function cleanedData() {
             this.validate();
@@ -77,33 +75,40 @@
         }
 
         /**
+         * Media field - clone a value
          *
-         * @param value
-         * @returns {*|apy.helpers.MediaFile}
          * @memberOf apy.components.fields.Media
+         *
+         * @param {string|apy.helpers.MediaFile} value Either a string or wrapped file
+         *
+         * @return {apy.helpers.MediaFile} cloned value
          */
         function cloneValue(value) {
-            if(value instanceof $apy.helpers.MediaFile) {
+            if (value instanceof $apy.helpers.MediaFile) {
                 value = value.getInfo();
             }
             return new $apy.helpers.MediaFile(this.$endpoint, value);
         }
 
-        // FIXME
         /**
+         * Override parent property to specified validation behaviour.
+         *
          * @memberOf apy.components.fields.Media
          */
         function validate() {}
 
         /**
+         * Return true if original value has changed from current one.
+         * In other words, if $lastModifiedDate is different from original value
          *
-         * @returns {boolean}
          * @memberOf apy.components.fields.Media
+         *
+         * @return {boolean} Is the String field updated ?
          */
         function hasUpdated() {
             function getTime(value) {
                 var $value;
-                if(value && value.getTime) {
+                if (value && value.getTime) {
                     $value = value.getTime();
                 }
                 return $value;
@@ -113,15 +118,20 @@
         }
 
         /**
+         * Reset inner value to its original value ($memo) if different
+         *
          * @memberOf apy.components.fields.Media
+         *
+         * @return {apy.components.fields.Media} `this`
          */
         function reset() {
             if (this.hasUpdated()) {
                 this.$value = this.cloneValue(this.$memo);
             }
+            return this
         }
 
-        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+        return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.reset = reset;
             this.validate = validate;
             this.toString = toString;
@@ -133,7 +143,6 @@
             this.$Class = $apy.components.fields.Media;
             return this;
         };
-
     })();
 
     // Inject Mixins
@@ -143,5 +152,4 @@
     $apy.components.fields.FieldMixin.call(
         $apy.components.fields.Media.prototype
     );
-
-})( apy );
+})(apy);

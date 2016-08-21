@@ -42,6 +42,9 @@ var apy = {
         eve: {}
     },
     helpers: {},
+    /**
+     * @namespace apy.integration
+     */
     integration: {
         angular: {
 
@@ -55,10 +58,10 @@ var apy = {
     }
 };
 
-//if( module && module.exports ) {
+// if( module && module.exports ) {
 //    module.exports = apy;
-//}
-//else
-if( window ) {
+// }
+// else
+if (window) {
     window.apy = apy;
 }

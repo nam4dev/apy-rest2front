@@ -32,15 +32,16 @@
 /**
  * @namespace apy.errors
  */
-(function ( $apy ) {
+(function($apy) {
     /**
-     * Define a base class implementing 2 properties,
+     * Define a Custom Error base class implementing 2 properties,
      *
      *  * `title`
      *  * `messages`
      *
-     * @param message
      * @class apy.errors.Error
+     *
+     * @param {string} message A descriptive message
      */
     function ApyError(message) {
         this.title = 'Error';
@@ -53,5 +54,5 @@
 
     ApyError.prototype = Object.create(Error.prototype);
     ApyError.prototype.constructor = ApyError;
-    $apy.Error = ApyError;
-})( apy );
+    $apy.errors.Error = ApyError;
+})(apy);

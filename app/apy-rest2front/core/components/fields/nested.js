@@ -29,52 +29,54 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
- *
- *  """
- *  Hash-map field abstraction
- *
- *  """
  */
-(function ( $apy ) {
-
+(function($apy) {
     /**
      * Apy Nested Field
      *
-     * @class apy.components.fields.NestedField
+     * @class apy.components.fields.Nested
      *
      * @augments apy.components.ComponentMixin
      * @augments apy.components.fields.FieldMixin
      * @augments apy.components.CompositeMixin
      *
-     * @param {string} name: Resource name
-     * @param {string} type: Resource type
-     * @param {Object} schema: Resource schema
-     * @param {string} $endpoint: Resource endpoint
-     * @param {Object} service: Reference to Service instance
-     * @param {Array} components: Resource initial components
-     * @param {Object} $states: Resource inner state holder instance
-     * @param {string} relationName: (optional) Resource relation name
+     * @param {string} name Field name
+     * @param {string} type Field type
+     * @param {Object} schema Field schema
+     * @param {Object} value Field value
+     * @param {string} $endpoint Field endpoint
+     * @param {Object} service Reference to Service instance
+     * @param {Object} $states Field inner state holder instance
+     * @param {string} relationName (optional) Field relation name
      */
     $apy.components.fields.Nested = (function Nested() {
-
         /**
+         * Nested field - clone a value
          *
          * @override
-         * @param value
-         * @returns {*}
          * @memberOf apy.components.fields.Nested
+         *
+         * @param {Object} value Nested field value
+         *
+         * @return {Object} cloned value
          */
         function cloneValue(value) {
             return $apy.helpers.isObject(value) ? Object.assign(value) : value;
         }
 
         /**
+         * Validate each component
+         * if error, all errors are collected before being
+         * thrown.
+         *
          * @override
          * @memberOf apy.components.fields.Nested
+         *
+         * @throws {apy.errors.Error} when validation fails
          */
         function validate() {
             var errors = [];
-            this.$components.forEach(function (comp) {
+            this.$components.forEach(function(comp) {
                 try {
                     comp.validate();
                 }
@@ -82,12 +84,12 @@
                     errors.push(error.message);
                 }
             });
-            if(errors.length) {
-                throw new $apy.Error(errors.join('\n'));
+            if (errors.length) {
+                throw new $apy.errors.Error(errors.join('\n'));
             }
         }
 
-        return function (service, name, schema, value, $states, $endpoint, type, relationName) {
+        return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.cloneValue = cloneValue;
             this.$internalType = 'object';
             this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.RESOURCE, relationName);
@@ -96,7 +98,6 @@
             this.load(value);
             return this;
         };
-
     })();
 
     // Inject Mixins
@@ -109,5 +110,4 @@
     $apy.components.CompositeMixin.call(
         $apy.components.fields.Nested.prototype
     );
-
-})( apy );
+})(apy);

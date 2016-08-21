@@ -29,16 +29,11 @@
  *  SOFTWARE.
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
- *
- *  """
- *  Apy Field Component abstraction
- *
- *  """
  */
 /**
  * @namespace apy.components.fields
  */
-(function ( $apy ) {'use strict';
+(function($apy) {'use strict';
 
     /**
      *  Base mixin to be coupled
@@ -46,13 +41,17 @@
      *
      * @mixin apy.components.fields.FieldMixin
      */
-    $apy.components.fields.FieldMixin =  (function FieldMixin() { // Registering mixin globally
+    $apy.components.fields.FieldMixin = (function FieldMixin() {
 
         /**
+         * Field' schemas object setter
          *
-         * @param schema
-         * @returns {setOptions}
+         * @override
          * @memberOf apy.components.fields.FieldMixin
+         *
+         * @param {Object} schema Field schema
+         *
+         * @return {apy.components.fields.FieldMixin} `this`
          */
         function setOptions(schema) {
             schema = schema || {};
@@ -66,13 +65,17 @@
         }
 
         /**
+         * Field's value setter
          *
-         * @param value
-         * @returns {setValue}
+         * @override
          * @memberOf apy.components.fields.FieldMixin
+         *
+         * @param {Object} value Field value
+         *
+         * @return {apy.components.fields.FieldMixin} `this`
          */
         function setValue(value) {
-            if(!value) {
+            if (!value) {
                 var factory = this.$typesFactory[this.$type];
                 value = factory ? factory() : undefined;
             }
@@ -82,9 +85,13 @@
         }
 
         /**
+         * Common method to definitely set the updated field's values,
+         * after a successful Request to the backend has been acknowledged.
+         * `$memo` attribute is overridden by the current `$value`
          *
-         * @returns {this}
          * @memberOf apy.components.fields.FieldMixin
+         *
+         * @return {apy.components.fields.FieldMixin} `this`
          */
         function selfCommit() {
             this.$memo = this.cloneValue(this.$value);
@@ -92,18 +99,29 @@
         }
 
         /**
+         * Allow one Field component to update itself.
          *
-         * @param update
-         * @returns {this}
          * @memberOf apy.components.fields.FieldMixin
+         *
+         * @param {Object} update The update payload
+         * @param {boolean} commit If true, `selfCommit` method is invoked
+         *
+         * @return {apy.components.fields.FieldMixin} `this`
          */
-        function selfUpdate(update) {
-            this.$value = this.cloneValue(update.$value);
+        function selfUpdate(update, commit) {
+            this.$value = update.$value;
+            if (commit) {
+                this.selfCommit();
+            }
             return this;
         }
 
         /**
+         * Logic Field base to get cleaned data
+         *
          * @memberOf apy.components.fields.FieldMixin
+         *
+         * @return {*} Field's `$value` property value
          */
         function cleanedData() {
             this.validate();
@@ -111,10 +129,12 @@
         }
 
         /**
+         * Format a validation error message
          *
-         * @private
-         * @returns {string}
+         * @inner
          * @memberOf apy.components.fields.FieldMixin
+         *
+         * @return {string} A formatted error message
          */
         function _errorMsg() {
             var msg = 'Field.' + this.$name + ' did not validate' + '\n';
@@ -123,15 +143,21 @@
         }
 
         /**
+         * Validate each component
+         * if error, all errors are collected before being
+         * thrown.
+         *
          * @memberOf apy.components.fields.FieldMixin
+         *
+         * @throws {apy.errors.Error} when validation fails
          */
         function validate() {
-            if(this.$value && typeof this.$value !== this.$internalType) {
-                throw new $apy.Error(this._errorMsg());
+            if (this.$value && typeof this.$value !== this.$internalType) {
+                throw new $apy.errors.Error(this._errorMsg());
             }
         }
 
-        return function () {
+        return function() {
             this.validate = validate;
             this.setValue = setValue;
             this._errorMsg = _errorMsg;
@@ -141,12 +167,10 @@
             this.cleanedData = cleanedData;
             return this;
         };
-
     })();
 
     // Inject Mixin
     $apy.components.ComponentMixin.call(
         $apy.components.fields.FieldMixin.prototype
     );
-
-})( apy );
+})(apy);

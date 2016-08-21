@@ -30,7 +30,7 @@
  *
  *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
  */
-(function ( $apy ) { 'use strict';
+(function($apy) { 'use strict';
 
     /**
      * Represents a Schema instance.
@@ -39,49 +39,68 @@
      *
      * @class apy.components.Schema
      *
-     * @param schema
+     * @example
+     * var members = {
+     *     lastname: { type: 'string'},
+     *     firstname: { type: 'string'},
+     *     address: {
+     *         type: 'dict',
+     *         schema: {
+     *             road: { type: 'string'},
+     *             street: { type: 'string'},
+     *             zipcode: { type: 'integer'},
+     *             city: { type: 'string'},
+     *         }
+     *     }
+     * };
+     * var apySchema = new apy.components.Schema(members, 'members');
+     *
+     * @param {Object} schema A schema object
      * @param name
      */
-    var Schema = function Schema (schema, name) {
+    var Schema = function Schema(schema, name) {
         this.$base = schema;
         this.$name = name;
         this.$hasMedia = false;
         this.$embeddedURI = '';
-        this.$headers = Object.keys(schema).filter(function (key) {
+        this.$headers = Object.keys(schema).filter(function(key) {
             return !key.startsWith('_');
         }).sort().reverse();
         this.load();
     };
 
     /**
+     * Recursively load the given schema Object into embedded Object.
+     * It aims at finding all embedded Resource(s) to build a valid
+     * Eve `embedded` URI fragment.
      *
-     * @param self
-     * @param schema
-     * @param embedded
-     * @param level
-     * @inner
+     * @inner apy.components
+     * @param {apy.components.Schema} self Schema instance
+     * @param {Object} schema The schema object
+     * @param {Object} embedded An object reference to be valuated
+     * @param {number} level The depth/level to properly recurse over given object
      */
     function recursiveLoad(self, schema, embedded, level) {
         level = level || 0;
         embedded = embedded || {};
-        Object.keys(schema).forEach(function (fieldName) {
+        Object.keys(schema).forEach(function(fieldName) {
             var validator = schema[fieldName];
-            if(level === 0) {
+            if (level === 0) {
                 self[fieldName] = validator;
             }
-            if(validator.schema) {
+            if (validator.schema) {
                 var wrappedSchema = {};
                 wrappedSchema[fieldName] = validator.schema;
                 recursiveLoad(self, wrappedSchema, embedded, level + 1);
             }
-            if($apy.helpers.isObject(validator) && validator.type) {
+            if ($apy.helpers.isObject(validator) && validator.type) {
                 switch (validator.type) {
                 case $apy.helpers.$TYPES.MEDIA:
                     self.$hasMedia = true;
                     break;
                 case $apy.helpers.$TYPES.OBJECTID:
                     if (fieldName !== '_id') {
-                        if(validator.data_relation.embeddable) {
+                        if (validator.data_relation.embeddable) {
                             embedded[fieldName] = 1;
                         }
                     }
@@ -98,13 +117,13 @@
      * Computes the `embedded` URI fragment
      * Evaluates `$isEmbeddable` property
      *
-     * @returns {this}
      * @memberOf apy.components.Schema
+     * @return {apy.components.Schema} itself (chaining pattern)
      */
-    Schema.prototype.load = function load () {
+    Schema.prototype.load = function load() {
         var embedded = {};
         recursiveLoad(this, this.$base, embedded);
-        if(Object.keys(embedded).length) {
+        if (Object.keys(embedded).length) {
             this.$embeddedURI = 'embedded=' + JSON.stringify(embedded);
         }
         return this;
@@ -115,17 +134,57 @@
      *
      * @class apy.components.Schemas
      *
-     * @param endpoint
-     * @param schemas
-     * @param config
-     * @param service
+     * @example
+     * var logs = {
+     *     time: { type: 'datetime'},
+     *     text: { type: 'string'},
+     * };
+     *
+     * var members = {
+     *     lastname: { type: 'string'},
+     *     firstname: { type: 'string'},
+     *     address: {
+     *         type: 'dict',
+     *         schema: {
+     *             road: { type: 'string'},
+     *             street: { type: 'string'},
+     *             zipcode: { type: 'integer'},
+     *             city: { type: 'string'},
+     *         }
+     *     }
+     * };
+     *
+     * var activities = {
+     *     start: { type: 'datetime'},
+     *     end: { type: 'datetime'},
+     *     description: { type: 'string'}
+     * };
+     *
+     * var endpoint = 'http://my/api/2/';
+     * var schemas = {
+     *     logs: logs,
+     *     members: members,
+     *     activities: activities
+     * };
+     * var service = apy.CompositeService(...);
+     *
+     * var apySchemas = new apy.components.Schemas(endpoint, schemas, {
+     *     excludedEndpointByNames: ['logs']
+     * }, service);
+     *
+     * @param {string} endpoint REST API endpoint base
+     * @param {Object} schemas An object defining each schema associated to its name
+     * @param {Object} config Apy configuration object
+     * @param {apy.CompositeService} service Apy Composite service instance
+     *
+     * @throws {apy.errors.Error}
      */
-    var Schemas = function Schemas (endpoint, schemas, config, service) {
-        if(!service || !$apy.helpers.isObject(service)) {
-            throw new $apy.Error('A Service object must be provided (got type => ' + typeof service + ') !');
+    var Schemas = function Schemas(endpoint, schemas, config, service) {
+        if (!service || !$apy.helpers.isObject(service)) {
+            throw new $apy.errors.Error('A Service object must be provided (got type => ' + typeof service + ') !');
         }
-        if(!schemas || !$apy.helpers.isObject(schemas)) {
-            throw new $apy.Error('A schemas object must be provided (got type => ' + typeof schemas + ') !');
+        if (!schemas || !$apy.helpers.isObject(schemas)) {
+            throw new $apy.errors.Error('A schemas object must be provided (got type => ' + typeof schemas + ') !');
         }
         this.$names = [];
         this.$humanNames = [];
@@ -154,41 +213,52 @@
     };
 
     /**
+     * Create a Resource component based on,
+     * given Schema's name and optional payload
      *
-     * @param name
-     * @param resource
-     * @returns {Resource}
      * @memberOf apy.components.Schemas
+     *
+     * @param {string} name Resource name based on given Schema names
+     * @param {Object} payload (optional) Resource payload object
+     *
+     * @return {apy.components.Resource} Resource component based on given name & payload
+     * @throws {apy.errors.Error}
      */
-    Schemas.prototype.createResource = function createResource (name, resource) {
+    Schemas.prototype.createResource = function createResource(name, payload) {
         var schema = this.get(name);
-        if(!schema) {
-            throw new $apy.Error('No schema provided for name', name);
+        if (!schema) {
+            throw new $apy.errors.Error('No schema provided for name', name);
         }
-        var value = resource || this.schema2data(schema);
+        var value = payload || this.schema2data(schema);
         return new $apy.components.Resource(this.$service, name, schema, value,
             null, this.$endpoint, $apy.helpers.$TYPES.RESOURCE, name);
     };
 
     /**
+     * Get an `apy.components.Schema` instance by its name
      *
-     * @param schemaName
-     * @returns {*}
      * @memberOf apy.components.Schemas
+     *
+     * @param {string} schemaName Schema's name
+     *
+     * @return {apy.components.Schema}
+     * @throws {apy.errors.Error}
      */
-    Schemas.prototype.get = function get (schemaName) {
-        if(!this.$components.hasOwnProperty(schemaName)) {
-            throw new $apy.Error('Unknown schema name, ' + schemaName);
+    Schemas.prototype.get = function get(schemaName) {
+        if (!this.$components.hasOwnProperty(schemaName)) {
+            throw new $apy.errors.Error('Unknown schema name, ' + schemaName);
         }
         return this.$components[schemaName];
     };
 
     /**
+     * Load all given Schema objects
+     *
      * @memberOf apy.components.Schemas
      */
-    Schemas.prototype.load = function load () {
+    Schemas.prototype.load = function load() {
         var self = this;
-        Object.keys(this.$schemas).forEach(function (schemaName) {
+        Object.keys(this.$schemas).forEach(function(schemaName) {
             var schema = new $apy.components.Schema(self.$schemas[schemaName], schemaName);
             var humanName = schemaName.replaceAll('_', ' ');
             self.$names.push(schemaName);
@@ -206,18 +276,21 @@
     };
 
     /**
+     * Create recursively based on a Schema a matching payload
      *
-     * @param key
-     * @param value
-     * @returns {*}
      * @memberOf apy.components.Schemas
+     *
+     * @param {string} key Schema's name
+     * @param {Object} value Schema object
+     *
+     * @returns {*} Default value
      */
     Schemas.prototype.transformData = function transformData(key, value) {
         var val;
         switch (value.type) {
         case $apy.helpers.$TYPES.LIST:
             if (value.schema) {
-                switch(value.schema.type) {
+                switch (value.schema.type) {
                 case $apy.helpers.$TYPES.OBJECTID:
                     val = [];
                     break;
@@ -235,7 +308,7 @@
             break;
         /* istanbul ignore next */
         case $apy.helpers.$TYPES.MEDIA:
-            //val = new apy.helpers.MediaFile(this.$endpoint);
+            // val = new apy.helpers.MediaFile(this.$endpoint);
             break;
         case $apy.helpers.$TYPES.FLOAT:
         case $apy.helpers.$TYPES.NUMBER:
@@ -251,16 +324,16 @@
             val = value.default || false;
             break;
         case $apy.helpers.$TYPES.OBJECTID:
-            if(key && key.startsWith && key.startsWith('_')) {
+            if (key && key.startsWith && key.startsWith('_')) {
                 val = '';
             }
             else {
                 val = {};
                 var keyResource = value.data_relation.resource;
-                if(this.$service.$schemas &&
+                if (this.$service.$schemas &&
                     this.$service.$schemas.hasOwnProperty(keyResource)) {
                     var $base = this.$service.$schemas[keyResource].$base;
-                    if(!key) val = this.schema2data($base, key);
+                    if (!key) val = this.schema2data($base, key);
                     else val[key] = this.schema2data($base, key);
                 }
             }
@@ -276,31 +349,30 @@
     };
 
     /**
+     * Create recursively based on a Schema a matching payload
      *
-     * @param schema
-     * @param keyName
-     * @returns {Object}
      * @memberOf apy.components.Schemas
+     *
+     * @param {Object} schema Schema object
+     * @param {string} keyName key Schema's name
+     *
+     * @return {Object} A payload based on given schema
      */
-    Schemas.prototype.schema2data = function schema2data (schema, keyName) {
+    Schemas.prototype.schema2data = function schema2data(schema, keyName) {
         var self = this;
         var data;
-        if(keyName) {
+        if (keyName) {
             data = this.transformData(keyName, schema);
         }
         else {
             data = schema ? {} : this.$template;
-            Object.keys(schema).forEach(function (key) {
+            Object.keys(schema).forEach(function(key) {
                 data[key] = self.transformData(key, schema[key]);
             });
-            //$apy.forEach(schema, function (value, key) {
-            //    data[key] = self.transformData(key, value);
-            //});
         }
         return data;
     };
 
     $apy.components.Schema = Schema;
     $apy.components.Schemas = Schemas;
-
-})( apy );
+})(apy);
