@@ -1,0 +1,38 @@
+---
+  root: true
+  "extends": "eslint:recommended"
+  "env":
+      "browser": true
+  "globals":
+    "$": 1
+    "module": 1
+    "window": 1
+    "angular": 1
+    "Promise": 1
+    "apy": 1
+  "ecmaFeatures":
+    "modules": true
+  "plugins": ["babel"]
+  "parser": "babel-eslint"
+  "rules":
+    "indent": [
+      "error",
+      4
+    ]
+    "linebreak-style": [
+      "error",
+      "unix"
+    ]
+    "quotes": [
+      "error",
+      "single"
+    ]
+    "semi": [
+      "error",
+      "always"
+    ]
+    "no-cond-assign": [
+      "error",
+      "always"
+    ]
+    "no-console": "off"
