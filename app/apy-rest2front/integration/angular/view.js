@@ -35,10 +35,9 @@
  *
  *  """
  */
-(function ( $angular ) {'use strict';
+(function($angular) {'use strict';
 
-    function setView( $context ) {
-
+    function setView($context) {
         var $scope = $context.$scope;
         var apyProvider = $context.apyProvider;
         var $routeParams = $context.$routeParams;
@@ -46,85 +45,93 @@
 
         var $currentResource = $routeParams.resource;
 
-        var collection = apyProvider.createCollection( $currentResource );
+        var collection = apyProvider.createCollection($currentResource);
 
         $scope.$collection = collection;
         $scope.$schemas = apyProvider.$schemasAsArray;
 
-        function progress( counter ) {
+        function progress(counter) {
             $scope.counter = counter;
         }
 
-        collection.fetch( progress )
-            .then(function () {
+        collection.fetch(progress)
+            .then(function() {
                 $scope.$apply();
-            }).catch(function ( error ) {
-                apyModalProvider.error( error );
+            }).catch(function(error) {
+                apyModalProvider.error(error);
             });
 
-        $scope.deleteResources = function () {
-            var okCallback = function () {
-                collection.delete();
-                $scope.$apply();
+        $scope.deleteResources = function() {
+            var okCallback = function() {
+                var defer = collection.delete();
+                if (defer) {
+                    defer
+                        .then(function() {
+                            $scope.$apply();
+                        })
+                        .catch(function(error) {
+                            apyModalProvider.error(error);
+                        });
+                }
             };
             apyModalProvider.warn(getWarningModalConfig(collection.savedComponents(), okCallback));
         };
 
         /* istanbul ignore next */
-        $scope.create = function ( resource ) {
+        $scope.create = function(resource) {
             var defer = resource.create();
-            if(defer) {
+            if (defer) {
                 defer
-                    .then(function () {
+                    .then(function() {
                         $scope.$apply();
                     })
-                    .catch(function ( error ) {
-                        apyModalProvider.error( error );
+                    .catch(function(error) {
+                        apyModalProvider.error(error);
                     });
             }
             else {
-                collection.removeResource( resource );
+                collection.removeResource(resource);
             }
         };
 
         /* istanbul ignore next */
-        $scope.update = function ( resource ) {
+        $scope.update = function(resource) {
             var defer = resource.update();
-            if(defer){
+            if (defer) {
                 defer
-                    .then(function () {
+                    .then(function() {
                         $scope.$apply();
                     })
-                    .catch(function ( error ) {
-                        apyModalProvider.error( error );
+                    .catch(function(error) {
+                        apyModalProvider.error(error);
                     });
             }
         };
 
         /* istanbul ignore next */
-        $scope.delete = function ( resource ) {
-            var okCallback = function () {
+        $scope.delete = function(resource) {
+            var okCallback = function() {
                 var defer = resource.delete();
-                if(defer) {
+                if (defer) {
                     defer
-                        .then(function () {
-                            collection.removeResource( resource );
+                        .then(function() {
+                            collection.removeResource(resource);
                             $scope.$apply();
                         })
-                        .catch(function ( error ) {
-                            apyModalProvider.error( error );
+                        .catch(function(error) {
+                            apyModalProvider.error(error);
                         });
                 }
                 else {
-                    collection.removeResource( resource );
+                    collection.removeResource(resource);
                 }
             };
-            apyModalProvider.warn( getWarningModalConfig( [resource], okCallback ) );
+            apyModalProvider.warn(getWarningModalConfig([resource], okCallback));
         };
 
-        $scope.saveCollection = function () {
+        $scope.saveCollection = function() {
             collection.save()
-                .then(function( inspections ) {
+                .then(function(inspections) {
                     var create;
                     var update;
                     var errors;
@@ -132,32 +139,32 @@
                     catch (e) { create = []; }
                     try { update = inspections[1]._settledValueField; }
                     catch (e) { update = []; }
-                    errors = create.concat(update).filter(function( inspection ) {
+                    errors = create.concat(update).filter(function(inspection) {
                         return !inspection.isFulfilled();
                     });
-                    if(errors && errors.length) {
+                    if (errors && errors.length) {
                         var reasons = [];
-                        errors.forEach(function ( error ) {
+                        errors.forEach(function(error) {
                             reasons.push(error.reason());
                         });
-                        apyModalProvider.errors( reasons );
+                        apyModalProvider.errors({messages: reasons});
                     }
                 })
-                .then(function () {
+                .then(function() {
                     $scope.$apply();
                 })
-                .catch(function ( error ) {
-                    apyModalProvider.error( error );
+                .catch(function(error) {
+                    apyModalProvider.error(error);
                 });
         };
 
         function getWarningModalConfig(components, okCallback, cancelCallback) {
             var count = components.length;
 
-            cancelCallback = cancelCallback || function () {};
+            cancelCallback = cancelCallback || function() {};
 
             function appendS() {
-                if(count > 1) {
+                if (count > 1) {
                     return 's';
                 }
                 return '';
@@ -175,8 +182,8 @@
 
             function messages() {
                 var messages = [];
-                components.forEach(function ( comp ) {
-                    messages.push( comp.toString() );
+                components.forEach(function(comp) {
+                    messages.push(comp.toString());
                 });
                 return messages;
             }
@@ -194,10 +201,9 @@
 
         .controller('apyViewCtrl', ['$location', '$rootScope', '$scope', '$routeParams', 'Upload', 'apy', 'apyModal',
             function($location, $rootScope, $scope, $routeParams, Upload, apyProvider, apyModalProvider) {
-
-                function success () {
+                function success() {
                     $scope.$schemas = apyProvider.$schemasAsArray;
-                    if($routeParams.resource === 'index') {
+                    if ($routeParams.resource === 'index') {
                         $scope.isIndex = true;
                         return;
                     }
@@ -212,44 +218,50 @@
 
                 var display;
 
-                $scope.displayVerticalList = function () {
+                $scope.displayVerticalList = function() {
                     display = 'vertical';
                     window.localStorage.setItem('listDisplay', display);
                     $scope.listDisplay = display;
                 };
 
-                $scope.displayHorizontalList = function () {
+                $scope.displayHorizontalList = function() {
                     display = 'horizontal';
                     window.localStorage.setItem('listDisplay', display);
                     $scope.listDisplay = display;
                 };
 
-                $scope.logout = function () {
-                    apyProvider.invalidate().then(function () {
-                        window.localStorage.setItem('tokenInfo', apyProvider.$tokenInfo);
-                        window.location.reload();
-                    });
+                $scope.logout = function() {
+                    apyProvider.invalidate()
+                        .then(function() {
+                            window.localStorage.setItem('tokenInfo', apyProvider.$tokenInfo);
+                            window.location.reload();
+                        })
+                        .catch(console.error);
                 };
 
-                if(apyProvider.$schemasAsArray) {
+                if (apyProvider.$schemasAsArray) {
                     success();
                 }
                 else {
                     apyProvider
                         .setDependencies({name: 'Upload', value: Upload})
                         .loadSchemas(true)
-                        .then(function () {
+                        .then(function() {
                             success();
                             $scope.$apply();
                         })
-                        .catch(function (error) {
-                            apyModalProvider.error(error, function () {
-                                $location.path('/login');
+                        .catch(function(error) {
+                            apyModalProvider.error({
+                                title: error.title,
+                                messages: error.messages,
+                                okCallback: function() {
+                                    $location.path('/login');
+                                }
                             });
                         });
                 }
             }])
-        .directive('apyNavigation', [function () {
+        .directive('apyNavigation', [function() {
             return {
                 template: '<ul class="nav navbar-nav"> \
                 <li ng-repeat="schema in $schemas | orderBy:\'name\'" ng-if="!schema.hidden"> \
@@ -262,7 +274,5 @@
                 </ul>'
             };
         }]);
-
-})( window.angular );
-
+})(window.angular);
 

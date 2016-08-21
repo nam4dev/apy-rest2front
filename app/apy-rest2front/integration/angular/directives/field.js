@@ -35,49 +35,49 @@
  *  """
  */
 
-(function ( $angular, $apy ) {'use strict';
+(function($angular, $apy) {'use strict';
 
     $angular.module('apy-rest2front.view')
 
-        .controller('ApyFieldCtrl', ['$scope', '$log', '$uibModal', 'apy', 'apyModal', function ($scope, $log, $uibModal, apyProvider, apyModalProvider) {
+        .controller('ApyFieldCtrl', ['$scope', '$uibModal', 'apy', 'apyModal', function($scope, $uibModal, apyProvider, apyModalProvider) {
             var win;
             $scope.opened = false;
             $scope.displaySchemaNames = false;
             $scope.dateOptions = {};
-            //$scope.$states = apyProvider.$states;
+            // $scope.$states = apyProvider.$states;
             $scope.altInputFormats = ['M!/d!/yyyy'];
             $scope.formats = ['yyyy-MMM-dd HH:mm:ss', 'yyyy/MM/dd', 'dd.MM.yyyy', 'shortDate'];
             $scope.format = $scope.formats[0];
 
-            $scope.displayChoices = function () {
+            $scope.displayChoices = function() {
                 $scope.displaySchemaNames = true;
             };
 
-            $scope.hideChoices = function () {
+            $scope.hideChoices = function() {
                 $scope.displaySchemaNames = false;
             };
 
             /* istanbul ignore next */
-            $scope.setFile = function (field, file) {
+            $scope.setFile = function(field, file) {
                 field.$value.load(file)
-                    .then(function () {
+                    .then(function() {
                         $scope.$apply();
                     })
-                    .catch(function (error) {
-                        $log.error(error);
-                        apyModalProvider.error(new $apy.Error(error));
+                    .catch(function(error) {
+                        var err = new $apy.errors.Error(error);
+                        apyModalProvider.error(err);
                     });
             };
 
-            $scope.expandList = function (field) {
-                $scope.ok = function () {
+            $scope.expandList = function(field) {
+                $scope.ok = function() {
                     win && win.dismiss('cancel');
                 };
 
-                $scope.cancel = function () {
+                $scope.cancel = function() {
                     win && win.dismiss('cancel');
                 };
-                if(!field.count()) {
+                if (!field.count()) {
                     field.oneMore();
                 }
                 win = $uibModal.open({
@@ -88,12 +88,12 @@
                 });
             };
 
-            $scope.expandRecursive = function (field) {
-                $scope.ok = function () {
+            $scope.expandRecursive = function(field) {
+                $scope.ok = function() {
                     win && win.dismiss('cancel');
                 };
 
-                $scope.cancel = function () {
+                $scope.cancel = function() {
                     field && field.reset();
                     win && win.dismiss('cancel');
                 };
@@ -106,15 +106,15 @@
             };
 
             /* istanbul ignore next */
-            $scope.resourcePicker = function (field) {
+            $scope.resourcePicker = function(field) {
                 // UI Callbacks
-                $scope.cancel = function () {
+                $scope.cancel = function() {
                     win && win.dismiss('cancel');
                 };
                 // Data Layer
                 try {
                     var collection = apyProvider.createCollection(field.$relationName);
-                    collection.fetch().then(function () {
+                    collection.fetch().then(function() {
                         $scope.$collection = collection;
                         win = $uibModal.open({
                             animation: false,
@@ -123,15 +123,16 @@
                             scope: $scope
                         });
                     });
-                } catch(error) {
-                    apyModalProvider.error(new $apy.EveHTTPError({
+                } catch (error) {
+                    var err = new $apy.errors.EveHTTPError({
                         data: {
                             _error: {
                                 code: 'UNEXPECTED',
                                 message: '' + error
                             }
                         }
-                    }));
+                    });
+                    apyModalProvider.error(err);
                 }
             };
         }])
@@ -146,5 +147,4 @@
                 controller: 'ApyFieldCtrl'
             };
         });
-
-})( window.angular, apy );
+})(window.angular, apy);
