@@ -41,6 +41,67 @@ describe("Component.Field.Nested unit tests", function() {
         return apy.tests.createFieldByType('nested', value, schema);
     };
 
+    it("[cloneValue] Non Object value - shall be returned as-is", function() {
+        var nonObjectValue = 'test';
+        var value = {
+            test: "A string value",
+            date: new Date(),
+            items: [
+                "One",
+                "Two"
+            ]
+        };
+        var schema = {
+            test: {type: "string"},
+            date: {type: "datetime"},
+            items: {type: "list", schema: {type: "string"}}
+        };
+        expect(_createField(value, schema).cloneValue(nonObjectValue)).toEqual(nonObjectValue);
+    });
+
+    it("[validate] Valid values - Shall not throw", function() {
+        var value = {
+            test: "A string value",
+            date: new Date(),
+            items: [
+                "One",
+                "Two"
+            ]
+        };
+        var schema = {
+            test: {type: "string"},
+            date: {type: "datetime"},
+            items: {type: "list", schema: {type: "string"}}
+        };
+        var field = _createField(value, schema);
+        function wrapper() {
+            field.validate();
+        }
+        expect(wrapper).not.toThrow();
+    });
+
+    it("[validate] Invalid values - Shall throw", function() {
+        var value = {
+            test: "A string value",
+            date: new Date(),
+            items: [
+                "One",
+                "Two"
+            ]
+        };
+        var schema = {
+            test: {type: "string"},
+            date: {type: "datetime"},
+            items: {type: "list", schema: {type: "string"}}
+        };
+        var field = _createField(value, schema);
+        field.getChild(1).$value = 123; // Should be a string
+        function wrapper() {
+            field.validate();
+        }
+        expect(wrapper).toThrow();
+    });
+
     it("[cleanedData] shall return an Object-like instance based on its Component(s) type & state (updated)", function() {
         var value = {
             test: "A string value",

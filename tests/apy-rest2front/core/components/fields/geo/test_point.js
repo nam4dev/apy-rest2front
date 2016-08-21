@@ -41,6 +41,12 @@ describe("Component.Field.Point unit tests", function() {
         return apy.tests.createFieldByType('point', value, schema);
     };
 
+    it("[toString] Shall display name & coordinates", function() {
+        var value = {coordinates: [0.0, 1.0]};
+        var field = _createField(value);
+        expect(field.toString()).toEqual(field.$name + ' coordinates(' + field.$value.coordinates + ')');
+    });
+
     it("[setValue] Valid value", function() {
         var value = {coordinates: [0.0, 1.0]};
         var field = _createField(value);

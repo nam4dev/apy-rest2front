@@ -34,8 +34,7 @@
  *
  *  """
  */
-
-describe("ApyViewCtrl", function() {
+describe("integration.angular.ApyViewCtrl", function() {
 
     var $controller;
     beforeEach(module('apy-rest2front.view'));

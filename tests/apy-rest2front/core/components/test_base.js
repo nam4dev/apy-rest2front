@@ -62,19 +62,6 @@ describe("Component.Base unit tests", function() {
         return component;
     };
 
-    it("[log] Shall log message using Service logger instance", function () {
-        var message = "A string";
-        var component = _createBaseComponent();
-        component.$service = {
-            $log: {
-                log: function () {
-                    expect(arguments[0]).toEqual(message);
-                }
-            }
-        };
-        component.$log(message);
-    });
-
     it("[add] Inner $components Array shall contains the child", function () {
         var child = "A string";
         var component = _createBaseComponent();
@@ -158,7 +145,6 @@ describe("Component.Base unit tests", function() {
         expect(component.$type).toEqual(type);
         expect(component.$types).toBeDefined();
         expect(component.$service).toBeDefined();
-        expect(component.$service.$log).toBeDefined();
         expect(component.$typesFactory).toBeDefined();
         expect(component.$components).toBeDefined();
         expect(component.$components).toEqual(value);

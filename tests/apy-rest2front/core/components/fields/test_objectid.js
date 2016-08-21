@@ -40,6 +40,44 @@ describe("Component.Field.ObjectID unit tests", function() {
         return apy.tests.createFieldByType('embedded', value, schema);
     };
 
+    it("[toString] Shall return ID", function() {
+        var value = {_id: '01234567899876543210'};
+        var field = _createField(value);
+        expect(field.toString()).toEqual(value._id);
+    });
+
+    it("[setValue] String ID Value - shall be wrapped into an Object", function() {
+        var value = '01234567899876543210';
+        var expected = {_id: value};
+        var field = _createField(value);
+        field.setValue(value);
+        expect(field._id).toEqual(value);
+        expect(field.$memo).toEqual(expected);
+    });
+
+    it("[validate] Undefined ID - shall throw", function() {
+        var field = _createField({});
+        function wrapper() {
+            field.validate();
+        }
+        expect(wrapper).toThrow();
+    });
+
+    it("[validate] Null ID - shall throw", function() {
+        var field = _createField({});
+        field._id = null;
+        function wrapper() {
+            field.validate();
+        }
+        expect(wrapper).toThrow();
+    });
+
+
+    it("[cloneValue] Non Object value - shall be returned as-is", function() {
+        var nonObjectValue = 'test';
+        expect(_createField({}).cloneValue(nonObjectValue)).toEqual(nonObjectValue);
+    });
+
     it("[selfUpdate] Shall update instance `_id` & `$components` attributes", function() {
         var value = {
             _id: "0123456789A9876543210"
@@ -47,6 +85,18 @@ describe("Component.Field.ObjectID unit tests", function() {
         var field = _createField({});
         expect(field._id).toBeUndefined();
         field.selfUpdate(value);
+        expect(field._id).toEqual(value._id);
+        expect(field.$components).toEqual([]);
+    });
+
+    it("[selfCommit] Shall definitely update instance `_id` & `$components` attributes into $memo", function() {
+        var value = {
+            _id: "0123456789A9876543210"
+        };
+        var field = _createField({});
+        expect(field._id).toBeUndefined();
+        field.selfUpdate(value, true);
+        field.reset();
         expect(field._id).toEqual(value._id);
         expect(field.$components).toEqual([]);
     });

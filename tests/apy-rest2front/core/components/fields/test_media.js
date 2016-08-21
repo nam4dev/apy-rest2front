@@ -55,6 +55,26 @@ describe("Component.Field.Media unit tests", function() {
     //    });
     //};
 
+    it("[toString] shall return MediaFile.toString() representation", function() {
+        var info = '/media/575bede345feda1fd4515556';
+        var field = _createField(info);
+        expect(field.toString()).toEqual(field.$value.toString());
+        expect(field.toString()).toEqual('(' + info + ')');
+    });
+
+    it("[reset] shall reset current value to original one", function() {
+        var info = '/media/575bede345feda1fd4515556';
+        var field = _createField(info);
+        expect(field.hasUpdated()).toBe(false);
+        expect(field.$value.$lastModifiedDate).toEqual(field.$memo.$lastModifiedDate);
+        field.$value.$lastModifiedDate = new Date();
+        expect(field.$value.$lastModifiedDate).not.toEqual(field.$memo.$lastModifiedDate);
+        expect(field.hasUpdated()).toBe(true);
+        field.reset();
+        expect(field.hasUpdated()).toBe(false);
+        expect(field.$value.$lastModifiedDate).toEqual(field.$memo.$lastModifiedDate);
+    });
+
     it("[cloneValue.String.input] shall return an apy.helpers.MediaFile instance", function() {
         var info = '/media/575bede345feda1fd4515556';
         var field = _createField(info);
