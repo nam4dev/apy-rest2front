@@ -1,12 +1,14 @@
-# Contribute to Apy Frontend
+# Help me make it better :)
+
+## Contributing to Apy Frontend
 
 If you'd like to bring your brain into the party, do not hesitate a sec :)
 
 To contribute simply fork this project then submit your Pull Request(s) - PR
 
-## Continuous Integration
+### Continuous Integration
 
-### Travis CI
+#### Travis CI
 
 [Travis CI][travis] is a continuous integration service, which can monitor GitHub for new commits
 to your repository and execute scripts such as building the app or running tests. The `apy-frontend`
@@ -16,14 +18,14 @@ tests when you push to GitHub.
 You will need to enable the integration between Travis and GitHub. See the Travis website for more
 instruction on how to do this.
 
-### GitLab CI
+#### GitLab CI
 
 [GitLab CI][gitlab-ci] is a continuous integration service, which can monitor GitLab for new commits
 to your repository and execute scripts such as building the app or running tests. The `apy-frontend`
 project contains a GitLab configuration file, `.gitlab-ci.yml`, which will cause GitLab to run your
 tests when you push to GitLab.
 
-## TODO List
+### TODO List
 
 - Configuration Templating System (ui / backend)
     - UI
@@ -36,6 +38,8 @@ tests when you push to GitLab.
 - Documentation enhancement.
     - Make doc-strings & API Documentation.
 
+- Enhance Apy configuration.
+- Pagination system.
 - Per Resource-based Authentication System.
 - Data Validation enforced based on schema (when provided).
 - Implement another `UI-framework`, such as [`React`][react].
