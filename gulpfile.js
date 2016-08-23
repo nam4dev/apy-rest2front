@@ -53,7 +53,7 @@ gulp.task('copy-fonts', () => {
 });
 
 gulp.task('copy-icons', () => {
-    return gulp.src(gp_config.paths.icon.files.src)
+    return gulp.src(gp_config.paths.icons.files.src)
         .pipe(gulp.dest(gp_config.paths.appDir));
 });
 
