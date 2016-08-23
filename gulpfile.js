@@ -82,7 +82,7 @@ gulp.task('lint', ['prepare'], () => {
     return gulp.src(gp_config.paths.eslint.src)
         // eslint() attaches the lint output to the "eslint" property
         // of the file object so it can be used by other modules.
-        .pipe(gp_eslint())
+        .pipe(gp_eslint({ fix: true }))
         // eslint.format() outputs the lint results to the console.
         // Alternatively use eslint.formatEach() (see Docs).
         .pipe(gp_eslint.format())
