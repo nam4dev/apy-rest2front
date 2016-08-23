@@ -1,7 +1,4 @@
 (function ($module) {
-    // ESLint command line
-    //./node_modules/eslint/bin/eslint.js --plugin "babel" "app/apy-rest2front/**/*.js" "app/apy-rest2front/**/**/*.js" "app/apy-rest2front/**/**/**/*.js" "app/apy-rest2front/**/**/**/**/*.js"
-
     var allJS = [
         'app/components/babel-polyfill/browser-polyfill.js',
         'app/components/html5-boilerplate/dist/js/vendor/modernizr-2.8.3.min.js',
@@ -53,40 +50,131 @@
         'tests/**/*.js'
     ];
     var jsFiles = allJS.slice(0, -1);
-    var paths = new function Paths() {
-        return {
-            cwd: '.',
-            outDir: 'build',
-            appDir: 'build/app',
-            outJsMin: 'apy-rest2front.min.js',
-            outCssMin: 'apy-rest2front.min.css',
-            devFiles: [
-                'build/app/apy-rest2front.min.js.map',
-                'build/app/apy-rest2front.min.css.map'
+    var paths = {
+        cwd: '.',
+        outDir: 'build',
+        appDir: 'build/app',
+        // Old configuration structure - kept for retro-compat - to be deleted ASAP
+        outJsMin: 'apy-rest2front.min.js',
+        outCssMin: 'apy-rest2front.min.css',
+        devFiles: [
+            'build/app/apy-rest2front.min.js.map',
+            'build/app/apy-rest2front.min.css.map'
+        ],
+        jsFiles: jsFiles,
+        cssFiles: [
+            'app/components/html5-boilerplate/dist/css/normalize.css',
+            'app/components/html5-boilerplate/dist/css/main.css',
+            'app/components/bootstrap/dist/css/bootstrap.min.css',
+            'app/components/angular-backtop/dist/angular-backtop.css',
+            'app/apy-rest2front/integration/angular/login.css',
+            'app/apy-rest2front/integration/common/css/core.css',
+            'app/apy-rest2front/integration/common/css/responsive.css'
+        ],
+        htmlFiles: [
+            'app/apy-rest2front/integration/angular/view.html',
+            'app/apy-rest2front/integration/angular/login.html',
+            'app/index.html'
+        ],
+        fontFiles: [
+            'app/components/bootstrap/dist/fonts/*.{eot,svg,ttf,woff,woff2}'
+        ],
+        iconFiles: [
+            'app/apy-rest2front/integration/common/*.ico'
+        ],
+        // New configuration structure
+        dev: {
+            files: {
+                src: [
+                    'build/app/apy-rest2front.min.js.map',
+                    'build/app/apy-rest2front.min.css.map'
+                ]
+            } 
+        },
+        js: {
+            minified: 'apy-rest2front.min.js',
+            files: {
+                src: jsFiles
+            },
+            dest: 'build/app/scripts'
+        },
+        css: {
+            minified: 'apy-rest2front.min.css',
+            files: {
+                src: [
+                    'app/components/html5-boilerplate/dist/css/normalize.css',
+                    'app/components/html5-boilerplate/dist/css/main.css',
+                    'app/components/bootstrap/dist/css/bootstrap.min.css',
+                    'app/components/angular-backtop/dist/angular-backtop.css',
+                    'app/apy-rest2front/integration/angular/login.css',
+                    'app/apy-rest2front/integration/common/css/core.css',
+                    'app/apy-rest2front/integration/common/css/responsive.css'
+                ]
+            },
+            dest: 'build/app/scripts'
+        },
+        html: {
+            files: {
+                src: [
+                    'app/apy-rest2front/integration/angular/view.html',
+                    'app/apy-rest2front/integration/angular/login.html',
+                    'app/index.html'
+                ]
+            }
+        },
+        fonts: {
+            dest: 'build/app/fonts',
+            files: {
+                src: [
+                    'app/components/bootstrap/dist/fonts/*.{eot,svg,ttf,woff,woff2}'
+                ]
+            }
+        },
+        icons: {
+            files: {
+                src: [
+                    'app/apy-rest2front/integration/common/*.ico'
+                ]
+            }
+        },
+        doc: {
+            src: [
+                'README.md',
+                'app/apy-rest2front/**/*.js',
+                'app/apy-rest2front/**/**/*.js',
+                'app/apy-rest2front/**/**/**/*.js',
+                'app/apy-rest2front/**/**/**/**/*.js',
+                'tests/apy-rest2front/common/*.js'
             ],
-            jsFiles: jsFiles,
-            cssFiles: [
-                'app/components/html5-boilerplate/dist/css/normalize.css',
-                'app/components/html5-boilerplate/dist/css/main.css',
-                'app/components/bootstrap/dist/css/bootstrap.min.css',
-                'app/components/angular-backtop/dist/angular-backtop.css',
-                'app/apy-rest2front/integration/angular/login.css',
-                'app/apy-rest2front/integration/common/css/core.css',
-                'app/apy-rest2front/integration/common/css/responsive.css'
+            files: {
+                static: {
+                    src: ["./app/apy-rest2front/integration/common/favicon.ico"]
+                },
+                design: {
+                    src: [
+                        "design/apy-frontend-avatar.png",
+                        "design/UML_classes_diagram.png",
+                        "design/UML_classes_diagram800x610.png"
+                    ],
+                    dest: 'build/docs/design'
+                }
+            },
+            dest: 'build/docs'
+        },
+        coverage: {
+            report: 'build/coverage/report.json',
+            dest: 'build/coverage/'
+        },
+        eslint: {
+            src: [
+                'app/apy-rest2front/**/*.js',
+                'app/apy-rest2front/**/**/*.js',
+                'app/apy-rest2front/**/**/**/*.js',
+                'app/apy-rest2front/**/**/**/**/*.js'
             ],
-            htmlFiles: [
-                'app/apy-rest2front/integration/angular/view.html',
-                'app/apy-rest2front/integration/angular/login.html',
-                'app/index.html'
-            ],
-            fontFiles: [
-                'app/components/bootstrap/dist/fonts/*.{eot,svg,ttf,woff,woff2}'
-            ],
-            iconFiles: [
-                'app/apy-rest2front/integration/common/*.ico'
-            ]
+            report: 'build/eslint-report.json'
         }
-    }();
+    };
 
     $module.exports = {
         gulp: {
@@ -109,8 +197,7 @@
                 },
                 "recurse": true,
                 "opts": {
-                    //"template": "./node_modules/jsdoc-sphinx/template",
-                    "destination": paths.outDir + '/docs'
+                    "destination": paths.doc.dest
                 },
                 "plugins": [
                     "plugins/markdown"
@@ -119,15 +206,9 @@
                     "cleverLinks": false,
                     "monospaceLinks": false,
                     "default": {
-                        //"layoutFile": "./node_modules/jsdoc-sphinx/template",
                         "outputSourceFiles": true,
                         "staticFiles": {
-                            "paths": [
-                                "./design/apy-frontend-avatar.png",
-                                "./design/UML_classes_diagram.png",
-                                "./design/UML_classes_diagram800x610.png",
-                                "./app/apy-rest2front/integration/common/favicon.ico"
-                            ]
+                            "paths": paths.doc.files.static.src
                         }
                     },
                     "path": "ink-docstrap",
@@ -175,7 +256,7 @@
                 // Configure the reporter
                 coverageReporter: {
                     type : 'html',
-                    dir : 'build/coverage/',
+                    dir : paths.coverage.dest,
                     instrumenterOptions: {
                         istanbul: {
                             noCompact: true
