@@ -1,7 +1,7 @@
 ![Apy REST2Front Logo](./apy-frontend-avatar.png)
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 [![Build Status](https://gitlab.com/apysoft/apy-frontend/badges/master/build.svg)](https://gitlab.com/apysoft/apy-frontend/builds)
-![Coverage](https://gitlab.com/apysoft/apy-frontend/badges/master/coverage.svg?job=coverage)
+![Coverage](https://gitlab.com/apysoft/apy-frontend/badges/master/coverage.svg)
 
 # Apy REST2Front — Administrate your REST API instantly.
 
