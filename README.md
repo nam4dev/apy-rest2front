@@ -1,7 +1,7 @@
-![Apy REST2Front Logo](./apy-frontend-avatar.png)
+![Apy REST2Front Logo](./design/apy-frontend-avatar.png)
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 [![Build Status](https://gitlab.com/apysoft/apy-frontend/badges/master/build.svg)](https://gitlab.com/apysoft/apy-frontend/builds)
-![Coverage](https://gitlab.com/apysoft/apy-frontend/badges/master/coverage.svg)
+[![Coverage](https://gitlab.com/apysoft/apy-frontend/badges/master/coverage.svg)](https://gitlab.com/apysoft/apy-frontend/commits/master)
 
 # Apy REST2Front — Administrate your REST API instantly.
 
@@ -577,8 +577,8 @@ configure your server to serve the files under the `app/` directory.
 
 ### Classes Diagram
 
-![Apy REST2Front UML Classes diagram image](./UML_classes_diagram800x610.png)
-[Apy REST2Front UML Classes diagram](./UML_classes_diagram.png)
+![Apy REST2Front UML Classes diagram image](./design/UML_classes_diagram800x610.png)
+[Apy REST2Front UML Classes diagram](./design/UML_classes_diagram.png)
 
 ### Directory Layout
 
