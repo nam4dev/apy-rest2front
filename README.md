@@ -1,20 +1,14 @@
 ![Apy REST2Front Logo](./design/apy-rest2front-avatar.png)
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
-[![Coverage](https://gitlab.com/apysoft/apy-frontend/badges/master/coverage.svg)](https://gitlab.com/apysoft/apy-frontend/commits/master)
-
-#### Gitlab
-<a href="https://gitlab.com/apysoft/apy-frontend/builds">
-    <img src="https://gitlab.com/apysoft/apy-frontend/badges/master/build.svg" alt="Gitlab Build Status" style="max-width:100%;" />
-</a>
-
-#### Github
+[![Coverage Status](https://coveralls.io/repos/nam4dev/apy-rest2front/badge.svg?branch=master)](https://coveralls.io/r/nam4dev/apy-rest2front?branch=master)
 [![Github Build Status](https://travis-ci.com/nam4dev/apy-rest2front.svg?token=xmj27dsr9gMzXM1ACqjL&branch=master)](https://travis-ci.com/nam4dev/apy-rest2front)
+[![Documentation](http://inch-ci.org/github/remote-exec/command-designer.png)](https://docs.apy-consulting.com/apy-rest2front/)
 
 # Apy REST2Front — Administrate your REST API instantly.
 
 Apy REST2Front is a small project to automate frontend CRUD views application based on REST API schemas.
 It tries to implement a generic data binding upon a REST API system to Web MMI.
-Authentication is managed only for Oauth2 protocol, others shall be implemented
+Authentication is managed only for Oauth2 protocol, others shall be implemented.
 
 For now, only [`python-eve`][eve] REST API framework has been integrated.
 For UI components (data representation & bindings), [`AngularJs`][angular] is used. 
