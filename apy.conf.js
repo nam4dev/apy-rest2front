@@ -54,35 +54,6 @@
         cwd: '.',
         outDir: 'build',
         appDir: 'build/app',
-        // Old configuration structure - kept for retro-compat - to be deleted ASAP
-        outJsMin: 'apy-rest2front.min.js',
-        outCssMin: 'apy-rest2front.min.css',
-        devFiles: [
-            'build/app/apy-rest2front.min.js.map',
-            'build/app/apy-rest2front.min.css.map'
-        ],
-        jsFiles: jsFiles,
-        cssFiles: [
-            'app/components/html5-boilerplate/dist/css/normalize.css',
-            'app/components/html5-boilerplate/dist/css/main.css',
-            'app/components/bootstrap/dist/css/bootstrap.min.css',
-            'app/components/angular-backtop/dist/angular-backtop.css',
-            'app/apy-rest2front/integration/angular/login.css',
-            'app/apy-rest2front/integration/common/css/core.css',
-            'app/apy-rest2front/integration/common/css/responsive.css'
-        ],
-        htmlFiles: [
-            'app/apy-rest2front/integration/angular/view.html',
-            'app/apy-rest2front/integration/angular/login.html',
-            'app/index.html'
-        ],
-        fontFiles: [
-            'app/components/bootstrap/dist/fonts/*.{eot,svg,ttf,woff,woff2}'
-        ],
-        iconFiles: [
-            'app/apy-rest2front/integration/common/*.ico'
-        ],
-        // New configuration structure
         dev: {
             files: {
                 src: [
@@ -152,7 +123,7 @@
                 },
                 design: {
                     src: [
-                        "design/apy-frontend-avatar.png",
+                        "design/apy-rest2front-avatar.png",
                         "design/UML_classes_diagram.png",
                         "design/UML_classes_diagram800x610.png"
                     ],

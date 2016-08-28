@@ -27,7 +27,7 @@
  *  OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  *  SOFTWARE.
  *
- *  `apy-frontend`  Copyright (C) 2016  (apy) Namgyal Brisson.
+ *  `apy-rest2front`  Copyright (C) 2016  (apy) Namgyal Brisson.
  */
 /**
  * @namespace apy.errors

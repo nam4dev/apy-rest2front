@@ -11,7 +11,7 @@ To contribute simply fork this project then submit your Pull Request(s) - PR
 #### Travis CI
 
 [Travis CI][travis] is a continuous integration service, which can monitor GitHub for new commits
-to your repository and execute scripts such as building the app or running tests. The `apy-frontend`
+to your repository and execute scripts such as building the app or running tests. The `apy-rest2front`
 project contains a Travis configuration file, `.travis.yml`, which will cause Travis to run your
 tests when you push to GitHub.
 
@@ -21,7 +21,7 @@ instruction on how to do this.
 #### GitLab CI
 
 [GitLab CI][gitlab-ci] is a continuous integration service, which can monitor GitLab for new commits
-to your repository and execute scripts such as building the app or running tests. The `apy-frontend`
+to your repository and execute scripts such as building the app or running tests. The `apy-rest2front`
 project contains a GitLab configuration file, `.gitlab-ci.yml`, which will cause GitLab to run your
 tests when you push to GitLab.
 
@@ -42,9 +42,9 @@ tests when you push to GitLab.
 - Pagination system.
 - Per Resource-based Authentication System.
 - Data Validation enforced based on schema (when provided).
+- Enhance Progress handler (PATCH, POST, DELETE).
 - Implement another `UI-framework`, such as [`React`][react].
 - Implement another `Backend-framework`, such as [`Django-rest-framework`][dj-rest-fwk].
-- Progress handler per Resource (PATCH, POST, DELETE).
 
 [eve]: http://python-eve.org/
 [angular]: https://angularjs.org/

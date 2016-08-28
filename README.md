@@ -1,4 +1,4 @@
-![Apy REST2Front Logo](./design/apy-frontend-avatar.png)
+![Apy REST2Front Logo](./design/apy-rest2front-avatar.png)
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
 [![Build Status](https://gitlab.com/apysoft/apy-frontend/badges/master/build.svg)](https://gitlab.com/apysoft/apy-frontend/builds)
 [![Coverage](https://gitlab.com/apysoft/apy-frontend/badges/master/coverage.svg)](https://gitlab.com/apysoft/apy-frontend/commits/master)
