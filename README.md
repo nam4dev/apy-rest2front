@@ -8,7 +8,7 @@
 
 Apy REST2Front is a small project to automate frontend CRUD views application based on REST API schemas.
 It tries to implement a generic data binding upon a REST API system to Web MMI.
-Authentication is managed only for Oauth2 protocol, others shall be implemented.
+Authentication is managed only for Oauth2 protocol, others shall be implemented :).
 
 For now, only [`python-eve`][eve] REST API framework has been integrated.
 For UI components (data representation & bindings), [`AngularJs`][angular] is used. 
@@ -31,14 +31,14 @@ its package manager (npm) installed.  You can get them from [http://nodejs.org/]
 Clone the `apy-rest2front` repository using [git][git]:
 
 ```
-git clone https://gitlab.com/apysoft/apy-rest2front.git
+git clone https://github.com/nam4dev/apy-rest2front.git
 cd apy-rest2front
 ```
 
 If you just want to start a new project without the `apy-rest2front` commit history then you can do:
 
 ```bash
-git clone --depth=1 https://gitlab.com/apysoft/apy-rest2front.git <your-project-name>
+git clone --depth=1 https://github.com/nam4dev/apy-rest2front.git <your-project-name>
 ```
 
 The `depth=1` tells git to only pull down one commit worth of historical data.
@@ -644,7 +644,7 @@ For more information, please check out [Apy REST2Front][apy-rest2front]
 [AngularJS]: https://angularjs.org/
 [react]: https://facebook.github.io/react/
 [dj-rest-fwk]: http://www.django-rest-framework.org/
-[apy-rest2front]: https://gitlab.com/apysoft/apy-rest2front
+[apy-rest2front]: https://github.com/nam4dev/apy-rest2front
 [git]: http://git-scm.com/
 [bower]: http://bower.io
 [npm]: https://www.npmjs.org/
