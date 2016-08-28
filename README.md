@@ -3,7 +3,9 @@
 [![Coverage](https://gitlab.com/apysoft/apy-frontend/badges/master/coverage.svg)](https://gitlab.com/apysoft/apy-frontend/commits/master)
 
 #### Gitlab
-[![Gitlab Build Status](https://gitlab.com/apysoft/apy-frontend/badges/master/build.svg)](https://gitlab.com/apysoft/apy-frontend/builds)
+<a href="https://gitlab.com/apysoft/apy-frontend/builds">
+    <img src="https://gitlab.com/apysoft/apy-frontend/badges/master/build.svg" alt="Gitlab Build Status" style="max-width:100%;" />
+</a>
 
 #### Github
 [![Github Build Status](https://travis-ci.com/nam4dev/apy-rest2front.svg?token=xmj27dsr9gMzXM1ACqjL&branch=master)](https://travis-ci.com/nam4dev/apy-rest2front)
