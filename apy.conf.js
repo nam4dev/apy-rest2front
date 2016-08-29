@@ -60,7 +60,7 @@
                     'build/app/apy-rest2front.min.js.map',
                     'build/app/apy-rest2front.min.css.map'
                 ]
-            } 
+            }
         },
         js: {
             minified: 'apy-rest2front.min.js',
@@ -147,6 +147,49 @@
         }
     };
 
+    var reporters = [
+        'progress',
+        'coverage',
+        'threshold'
+    ];
+    var coverage_reporters = [];
+    var plugins = [
+        'karma-jasmine',
+        'karma-coverage',
+        'karma-chrome-launcher',
+        'karma-firefox-launcher',
+        'karma-phantomjs-launcher',
+        'karma-threshold-reporter'
+    ];
+
+    if (process.env.TRAVIS) {
+        console.log('On Travis sending coveralls');
+        coverage_reporters.push( {
+            type: 'lcov',
+            dir: paths.coverage.dest,
+            instrumenterOptions: {
+                istanbul: {
+                    noCompact: true
+                }
+            },
+            includeAllSources: true
+        } );
+        reporters.push('coveralls');
+        plugins.push('karma-coveralls');
+    } else {
+        console.log('Not on Travis so not sending coveralls');
+        coverage_reporters.push({
+            type : 'html',
+            dir : paths.coverage.dest,
+            instrumenterOptions: {
+                istanbul: {
+                    noCompact: true
+                }
+            },
+            includeAllSources: true
+        });
+    }
+
     $module.exports = {
         gulp: {
             dev: false,
@@ -200,16 +243,9 @@
                 colors: true,
                 //browsers : ['Chrome', 'ChromeCanary', 'Firefox', 'PhantomJS'],
                 browsers : ['PhantomJS'],
-                plugins : [
-                    'karma-jasmine',
-                    'karma-coverage',
-                    'karma-chrome-launcher',
-                    'karma-firefox-launcher',
-                    'karma-phantomjs-launcher',
-                    'karma-threshold-reporter'
-                ],
+                plugins : plugins,
                 // coverage reporter generates the coverage
-                reporters: ['progress', 'coverage', 'threshold'],
+                reporters: reporters,
                 preprocessors: {
                     // source files, that you wanna generate coverage for
                     // do not include tests or libraries
@@ -226,14 +262,7 @@
                 },
                 // Configure the reporter
                 coverageReporter: {
-                    type : 'html',
-                    dir : paths.coverage.dest,
-                    instrumenterOptions: {
-                        istanbul: {
-                            noCompact: true
-                        }
-                    },
-                    includeAllSources: true
+                    reporters: coverage_reporters
                 }
             }
         }
