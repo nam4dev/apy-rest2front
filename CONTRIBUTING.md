@@ -2,7 +2,7 @@
 
 ## Contributing to Apy Frontend
 
-If you'd like to bring your brain into the party, do not hesitate a sec :)
+If you'd like to bring your brain into the party, you are welcomed :)
 
 To contribute simply fork this project then submit your Pull Request(s) - PR
 
@@ -24,31 +24,3 @@ instruction on how to do this.
 to your repository and execute scripts such as building the app or running tests. The `apy-rest2front`
 project contains a GitLab configuration file, `.gitlab-ci.yml`, which will cause GitLab to run your
 tests when you push to GitLab.
-
-### TODO List
-
-- Configuration Templating System (ui / backend)
-    - UI
-        - Implement [`Angular`][angular] template
-        - Implement [`React`][react] template
-    - Backend
-        - Implement [`Eve`][angular] template
-        - Implement [`Django-rest-framework`][dj-rest-fwk] template
-
-- Documentation enhancement.
-    - Make doc-strings & API Documentation.
-
-- Enhance Apy configuration.
-- Pagination system.
-- Per Resource-based Authentication System.
-- Data Validation enforced based on schema (when provided).
-- Enhance Progress handler (PATCH, POST, DELETE).
-- Implement another `UI-framework`, such as [`React`][react].
-- Implement another `Backend-framework`, such as [`Django-rest-framework`][dj-rest-fwk].
-
-[eve]: http://python-eve.org/
-[angular]: https://angularjs.org/
-[react]: https://facebook.github.io/react/
-[dj-rest-fwk]: http://www.django-rest-framework.org/
-[travis]: https://travis-ci.org/
-[gitlab-ci]: https://about.gitlab.com/gitlab-ci/
