@@ -24,3 +24,6 @@ instruction on how to do this.
 to your repository and execute scripts such as building the app or running tests. The `apy-rest2front`
 project contains a GitLab configuration file, `.gitlab-ci.yml`, which will cause GitLab to run your
 tests when you push to GitLab.
+
+[travis]: https://travis-ci.org/
+[gitlab-ci]: https://about.gitlab.com/gitlab-ci/
