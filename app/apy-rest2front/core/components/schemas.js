@@ -286,6 +286,11 @@
      * @returns {*} Default value
      */
     Schemas.prototype.transformData = function transformData(key, value) {
+
+        function getDefault(def) {
+            return (def && $apy.helpers.isFunction(def)) ? def() : def;
+        }
+
         var val;
         switch (value.type) {
         case $apy.helpers.$TYPES.LIST:
@@ -312,16 +317,16 @@
             break;
         case $apy.helpers.$TYPES.FLOAT:
         case $apy.helpers.$TYPES.NUMBER:
-            val = value.default || 0.0;
+            val = getDefault(value.default) || 0.0;
             break;
         case $apy.helpers.$TYPES.STRING:
-            val = value.default || '';
+            val = getDefault(value.default) || '';
             break;
         case $apy.helpers.$TYPES.INTEGER:
-            val = value.default || 0;
+            val = getDefault(value.default) || 0;
             break;
         case $apy.helpers.$TYPES.BOOLEAN:
-            val = value.default || false;
+            val = getDefault(value.default) || false;
             break;
         case $apy.helpers.$TYPES.OBJECTID:
             if (key && key.startsWith && key.startsWith('_')) {
