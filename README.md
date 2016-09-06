@@ -6,7 +6,7 @@
 
 # Apy REST2Front — Administrate your REST API instantly.
 
-Apy REST2Front is a small project to automate frontend CRUD views application based on REST API schemas.
+Apy REST2Front is a small project to automate frontend CRUD views application based on REST API schema.
 It tries to implement a generic data binding upon a REST API system to Web MMI.
 Authentication is managed only for Oauth2 protocol, others shall be implemented :).
 
