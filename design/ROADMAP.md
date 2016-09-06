@@ -29,7 +29,7 @@
 ## 0.8.4: Add more authentication system (ACL-based)
 ## 0.8.5: Add a GUI widget concept to Field (email, phone, video viewer, audio player, ...)
 ## 0.8.6: Add progress handlers for files & Resources (partially implemented)
-## 0.8.7: Add schemas parser to generate GUI web `apy-rest2front` based on Swagger format
+## 0.8.7: Add schema parsers to generate web MMI `apy-rest2front` based on Swagger format
 ## 0.8.8: Add Pagination system (HATEOS)
 
 [eve]: http://python-eve.org/
