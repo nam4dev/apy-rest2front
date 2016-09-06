@@ -6,7 +6,8 @@
 
 # Apy REST2Front — Administrate your REST API instantly.
 
-Apy REST2Front is a small project to automate frontend CRUD views application based on REST API schema.
+Apy REST2Front is a small project, mostly meant as a proof of concept, to automate frontend CRUD views application based on REST API schema definitions.
+
 It tries to implement a generic data binding upon a REST API system to Web MMI.
 Authentication is managed only for Oauth2 protocol, others shall be implemented :).
 
@@ -61,9 +62,9 @@ Behind the scenes this will also call `bower install`.  You should find that you
 folders in your project.
 
 * `node_modules` - contains the npm packages for the tools we need
-* `app/bower_components` - contains the `apy-rest2front` framework files
+* `app/components` - contains the `apy-rest2front` framework files
 
-*Note that the `bower_components` folder would normally be installed in the root folder but
+*Note that the `components` folder would normally be installed in the root folder but
 `apy-rest2front` changes this location through the `.bowerrc` file.  Putting it in the app folder makes
 it easier to serve the files by a webserver.*
 
@@ -144,8 +145,6 @@ npm start
 **We need to ensure `Eve REST API` is running on our configured `endpoint`**
 
 Now browse to the app folder at [`http://localhost:9000/build/app`](http://localhost:9000/build/app).
-
-
 
 ### Coverage
 
@@ -483,7 +482,6 @@ predefined script to do this:
 npm run test (single run through gulp & karma)
 ```
 
-
 ### End to end testing
 
 The `apy-rest2front` app comes with end-to-end tests, again written in [Jasmine][jasmine]. These tests
@@ -634,9 +632,10 @@ app/
         favicon.ico               --> Apy REST2Front favicon
 ```
 
-## Contact
-
-For more information, please check out [Apy REST2Front][apy-rest2front]
+## [Contributing](CONTRIBUTING.md)
+## [Contributors](CONTRIBUTORS.md)
+## [Road Map](design/ROADMAP.md)
+## [Github Repository][apy-rest2front-github]
 
 [eve]: http://python-eve.org/
 [eve-auth]: http://python-eve.org/authentication.html
@@ -644,7 +643,7 @@ For more information, please check out [Apy REST2Front][apy-rest2front]
 [AngularJS]: https://angularjs.org/
 [react]: https://facebook.github.io/react/
 [dj-rest-fwk]: http://www.django-rest-framework.org/
-[apy-rest2front]: https://github.com/nam4dev/apy-rest2front
+[apy-rest2front-github]: https://github.com/nam4dev/apy-rest2front
 [git]: http://git-scm.com/
 [bower]: http://bower.io
 [npm]: https://www.npmjs.org/
