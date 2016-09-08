@@ -44,6 +44,11 @@ gulp.task('minify-js', () => {
 gulp.task('minify-html', () => {
     return gulp.src(gp_config.paths.html.files.src)
         .pipe(gp_htmlmin(gp_config.minifyHTMLOpts))
+        .pipe(gp_rename(function (path) {
+            if(path.basename === 'index4build') {
+                path.basename = "index";
+            }
+        }))
         .pipe(gulp.dest(gp_config.paths.appDir));
 });
 
