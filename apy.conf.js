@@ -89,7 +89,7 @@
                 src: [
                     'app/apy-rest2front/integration/angular/view.html',
                     'app/apy-rest2front/integration/angular/login.html',
-                    'app/index.html'
+                    'app/index4build.html'
                 ]
             }
         },
