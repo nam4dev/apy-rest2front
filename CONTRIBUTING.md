@@ -1,6 +1,6 @@
 # Help me make it better :)
 
-## Contributing to Apy Frontend
+## Contributing to Apy REST2Front
 
 If you'd like to bring your brain into the party, you are welcomed :)
 
