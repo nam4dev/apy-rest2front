@@ -1,8 +1,7 @@
 `Apy REST2Front`
 ################
 
-`apy-rest2front` is written by **[Namgyal BRISSON](https://github.com/nam4dev)**
-under the **[Namgyal BRISSON](https://github.com/apy-soft)** organisation.
+`apy-rest2front` is written by **[Namgyal BRISSON](https://github.com/nam4dev)**.
 
 Development Lead
 ================
