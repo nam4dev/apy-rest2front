@@ -55,7 +55,8 @@ var apy = {
         fields: {
             geo: {}
         }
-    }
+    },
+    settings: null
 };
 
 // if( module && module.exports ) {
