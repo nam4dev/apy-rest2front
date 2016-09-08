@@ -59,20 +59,20 @@
                 var $injector = angular.injector(['ng', 'ngFileUpload']),
                     $http = $injector.get('$http'),
                     Upload = $injector.get('Upload');
-                return new $apy.CompositeService($http, Upload, apy.settings);
+                return new $apy.CompositeService($http, Upload, $apy.settings);
             };
         })
         .config(['$routeProvider', function($routeProvider) {
-            if (apy.settings.$auth()) {
+            if ($apy.settings.$auth()) {
                 // Auth route
                 $routeProvider.when('/login', {
-                    templateUrl: apy.settings.viewPath('login.html'),
+                    templateUrl: $apy.settings.viewPath('login.html'),
                     controller: 'apyLoginCtrl'
                 });
             }
             // setting a generic parameter 'resource'
             $routeProvider.when('/:resource', {
-                templateUrl: apy.settings.viewPath('view.html'),
+                templateUrl: $apy.settings.viewPath('view.html'),
                 controller: 'apyViewCtrl'
             })
                 // default route
@@ -82,7 +82,7 @@
 
             $scope.apyTick = '' + parseInt(new Date().getTime());
 
-            if (apy.settings.$auth()) {
+            if ($apy.settings.$auth()) {
                 $scope.$watch(function() {
                     return apyProvider.isAuthenticated(function() {
                         return window.localStorage.getItem('tokenInfo');
@@ -101,7 +101,7 @@
             }
         }]);
 
-    if (apy.settings.$auth()) {
+    if ($apy.settings.$auth()) {
         app.controller('apyLoginCtrl', ['$scope', 'apy', 'apyModal', function($scope, apyProvider, apyModalProvider) {
             if (!$scope.credentials ||
                 !$scope.credentials.username ||
