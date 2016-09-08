@@ -634,7 +634,7 @@ app/
 
 ## [Contributing](CONTRIBUTING.md)
 ## [Contributors](CONTRIBUTORS.md)
-## [Road Map](design/ROADMAP.md)
+## [Road Map](ROADMAP.md)
 ## [Github Repository][apy-rest2front-github]
 
 [eve]: http://python-eve.org/
