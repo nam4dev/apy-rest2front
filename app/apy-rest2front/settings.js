@@ -35,26 +35,125 @@
  *  """
  */
 (function ($apy) {
-    var Settings = function () {
-        return {
+
+    /**
+     *
+     * @class apy.settings._Settings
+     *
+     * @param {Object} settings Settings object,
+     *  representing user-specific settings
+     */
+    function _Settings(settings) {
+
+        var bTemplate;
+        var fTemplate;
+
+        return $.extend(true, {
             theme: 'bs3',
             availableThemes: [
                 'bs3'
             ],
-            $endpoint: function () {
+            /**
+             * Log missing required Handler as error
+             *
+             * @memberOf apy.settings._Settings
+             *
+             * @param {string} name Handler name
+             * @inner _Settings
+             */
+            _logMissingHandler: function _logMissingHandler(name) {
+                console.error('No "' + name + '" Provider available!');
+            },
+            /**
+             * @memberOf apy.settings._Settings
+             *
+             * @return {string}
+             */
+            $endpoint: function $endpoint() {
                 return (
                     this.endpoints.root.hostname
                     + ':' +
                     this.endpoints.root.port
+                    + '/'
                 );
             },
-            $definitionsEndpoint: function () {
+            /**
+             * @memberOf apy.settings._Settings
+             *
+             * @return {string}
+             */
+            $definitionsEndpoint: function $definitionsEndpoint() {
                 return (
-                    this.endpoints.root.hostname
-                    + ':' +
-                    this.endpoints.root.port
-                    + '/' + this.endpoints.definitions
+                    this.$endpoint() + this.endpoints.definitions
                 );
+            },
+            /**
+             * @memberOf apy.settings._Settings
+             *
+             * @param raw
+             * @return {*}
+             */
+            httpHandler: function httpHandler(raw) {
+                if(raw) return new XMLHttpRequest();
+                var self = this;
+                return this.$http || function() {
+                        self._logMissingHandler('$http');
+                        return Promise.resolve(arguments);
+                    }
+            },
+            /**
+             * @memberOf apy.settings._Settings
+             *
+             * @return {*|{upload: Function}}
+             */
+            uploadHandler: function uploadHandler() {
+                var self = this;
+                return this.$upload || {
+                        upload: function() {
+                            self._logMissingHandler('$upload');
+                            return Promise.resolve(arguments);
+                        }
+                    }
+            },
+            /**
+             * @memberOf apy.settings._Settings
+             *
+             * @param name
+             * @return {string}
+             */
+            getIconByName: function (name) {
+                return ((this.development.TRUE) ? this.development.importRoot + 'common/' : '') + name;
+            },
+            /**
+             * @memberOf apy.settings._Settings
+             *
+             * @param name
+             * @return {string}
+             */
+            getViewByName: function(name) {
+                return ((this.development.TRUE) ? (this.development.importRoot + this.templates.frontend + '/') : '') + name + '.html';
+            },
+            /**
+             * @memberOf apy.settings._Settings
+             *
+             * @return {*}
+             */
+            bTemplate: function () {
+                if(!bTemplate) {
+                    bTemplate = this.availableTemplates.backend[this.templates.backend];
+                }
+                return bTemplate;
+            },
+            /**
+             * @memberOf apy.settings._Settings
+             *
+             * @return {*}
+             */
+            fTemplate: function () {
+                if(!fTemplate) {
+                    fTemplate = this.availableTemplates.frontend[this.templates.frontend];
+                }
+                return fTemplate;
             },
             endpoints: {
                 excluded: [
@@ -73,12 +172,14 @@
             availableTemplates: {
                 backend: {
                     eve: {
-                        meta: {
-                            id: '_id',
-                            etag: '_etag',
-                            created: '_created',
-                            updated: '_updated',
-                            deleted: '_deleted'
+                        id: '_id',
+                        etag: '_etag',
+                        created: '_created',
+                        updated: '_updated',
+                        deleted: '_deleted',
+                        embedded: {
+                            enabled: true,
+                            key: 'embedded'
                         }
                     }
                 },
@@ -91,13 +192,10 @@
             schemaOverrides: {},
             development: {
                 TRUE: false,
-                importRoot: 'apy-rest2front/integration/angular/',
-                getViewByName: function(filename) {
-                    return ((this.TRUE) ? this.importRoot : '') + filename;
-                }
+                importRoot: 'apy-rest2front/integration/'
             },
             authentication: {
-                enabled: true,
+                enabled: false,
                 grant_type: 'password',
                 endpoint: 'http://localhost:5000/oauth/token',
                 client_id: '<your-client-id>',
@@ -109,40 +207,68 @@
                         this.grant_type
                     );
                 }
-            },
-            // FIXME: Remove when adapted
-            devOptions: {
-                mode: true,
-                htmlRoot: 'apy-rest2front/integration/angular/'
-            },
-            endpoint: 'http://localhost:5000/',
-            schemasEndpointName: 'schemas',
-            auth: {
-                enabled: true,
-                grant_type: 'password',
-                endpoint: 'http://localhost:5000/oauth/token',
-                client_id: '<your-client-id>'
-            },
-            pkName: '_id',
-            appTheme: 'bootstrap3',
-            excludedEndpointByNames: ['logs'],
-            schemas: {},
-            $auth: function() {
-                return (
-                    this.auth &&
-                    $apy.helpers.isObject(this.auth) &&
-                    this.auth.enabled &&
-                    this.auth.client_id &&
-                    this.auth.endpoint &&
-                    this.auth.grant_type
-                );
-            },
-            viewPath: function(filename) {
-                return ((this.devOptions.mode) ? this.devOptions.htmlRoot : '') + filename;
             }
-            // FIXME: End Remove
-        };
-    };
-    apy.settings = new Settings();
-})( apy );
+        }, settings);
+    }
+
+    /**
+     *
+     * @class apy.settings.Settings
+     *
+     */
+    function Settings() {
+        var _settings;
+
+        return {
+            /**
+             * accessor
+             *
+             * @memberOf apy.settings.Settings
+             *
+             * @return {*}
+             */
+            get: function () {
+                return _settings;
+            },
+            /**
+             *
+             * @memberOf apy.settings.Settings
+             *
+             * @param id
+             * @param value
+             */
+            set: function (id, value) {
+                _settings[id] = value;
+            },
+            /**
+             * Get or Create a _Settings instance.
+             *
+             * @memberOf apy.settings.Settings
+             *
+             * @param settings
+             * @return {_Settings}
+             */
+            create: function (settings) {
+                _settings = new _Settings(settings);
+                return _settings;
+            },
+            /**
+             *
+             * @memberOf apy.settings.Settings
+             *
+             * @param settings
+             * @return {*}
+             */
+            getOrCreate: function (settings) {
+                var __settings = this.get();
+                if (!__settings) {
+                    __settings = this.create(settings);
+                }
+                return __settings;
+            }
+        }
+
+    }
+    $apy.settings = new Settings();
+})(apy);
 
