@@ -44,25 +44,34 @@
      * @augments apy.components.RequestMixin
      *
      * @example
-     * var config = {
-     *     endpoint: 'http://localhost:5000/',
-     *     schemasEndpointName: 'schemas',
-     *     excludedEndpointByNames: ['logs']
-     * };
+     * var settings = $apy.settings.create({
+     *    // configuration example
+     *    endpoints: {
+     *        root: {
+     *            port: 5000,
+     *            hostname: "http://localhost"
+     *        }
+     *    },
+     *    authentication: {
+     *        enabled: true,
+     *        grant_type: 'password',
+     *        endpoint: 'http://localhost:5000/oauth/token',
+     *        client_id: '<your-client-id>'
+     *    },
+     *    development: {
+     *        TRUE: true
+     *    }
+     * });
      * angular.module('myModule', [])
      *     .provider('apy', function apyProvider() {
      *          this.$get = function apyFactory() {
-     *              var $injector = angular.injector(['ng', 'ngFileUpload']),
-     *                  $http = $injector.get('$http'),
-     *                  Upload = $injector.get('Upload');
-     *              return new $apy.CompositeService($http, Upload, config);
+     *              var $injector = angular.injector(['ng', 'ngFileUpload']);
+     *              $apy.settings.set('$http', $injector.get('$http'));
+     *              $apy.settings.set('$upload', $injector.get('Upload'));
+     *              return new $apy.CompositeService();
      *          };
      *      })
      *      .controller('indexCtrl', ['$scope', 'apy', function($scope, apyProvider) {}]);
-     *
-     * @param {Object} $http Low-level network interface (async HTTP(S) request)
-     * @param {Object} $upload Low-level network interface (async HTTP(S) request) dedicated to upload
-     * @param {Object} config Apy global configuration
      */
     $apy.CompositeService = (function CompositeService() {
 
@@ -257,8 +266,6 @@
          *  * A full CRUD MMI for each (Tables, Lists, Forms, ...)
          *  * A configurable endpoint URI
          *  * A configurable CSS theme (default: Bootstrap 3)
-         *
-         * @param {Object} settings Apy REST2Front global configuration
          *
          * @constructor
          */
