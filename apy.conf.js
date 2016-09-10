@@ -105,7 +105,8 @@
         icons: {
             files: {
                 src: [
-                    'app/apy-rest2front/integration/common/*.ico'
+                    'app/apy-rest2front/integration/common/*.ico',
+                    'app/apy-rest2front/integration/common/*.jpg'
                 ]
             }
         },
@@ -256,10 +257,10 @@
                 // Coverage minimal thresholds
                 // FIXME: raise up to 90%
                 thresholdReporter: {
-                    statements: 75,
-                    branches: 60,
-                    functions: 70,
-                    lines: 75
+                    statements: 85,
+                    branches: 75,
+                    functions: 80,
+                    lines: 85
                 },
                 // Configure the reporter
                 coverageReporter: {

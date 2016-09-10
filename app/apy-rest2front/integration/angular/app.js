@@ -37,6 +37,27 @@
 /* istanbul ignore next */
 (function(angular, $apy) {'use strict';
 
+    var settings = $apy.settings.create({
+        // configuration example
+        endpoints: {
+            root: {
+                port: 5000,
+                hostname: "http://localhost"
+            }
+        },
+        authentication: {
+            enabled: true,
+            grant_type: 'password',
+            endpoint: 'http://localhost:5000/oauth/token',
+            client_id: '<your-client-id>'
+        },
+        development: {
+            TRUE: false
+        }
+    });
+    // Alias
+    var authentication = settings.authentication;
+
     var app = angular.module('apy-rest2front', [
         'ngRoute',
         'ngAnimate',
@@ -56,23 +77,23 @@
         })
         .provider('apy', function apyProvider() {
             this.$get = function apyFactory() {
-                var $injector = angular.injector(['ng', 'ngFileUpload']),
-                    $http = $injector.get('$http'),
-                    Upload = $injector.get('Upload');
-                return new $apy.CompositeService($http, Upload, $apy.settings);
+                var $injector = angular.injector(['ng', 'ngFileUpload']);
+                $apy.settings.set('$http', $injector.get('$http'));
+                $apy.settings.set('$upload', $injector.get('Upload'));
+                return new $apy.CompositeService();
             };
         })
         .config(['$routeProvider', function($routeProvider) {
-            if ($apy.settings.$auth()) {
+            if (authentication.isEnabled()) {
                 // Auth route
                 $routeProvider.when('/login', {
-                    templateUrl: $apy.settings.viewPath('login.html'),
+                    templateUrl: settings.getViewByName('login'),
                     controller: 'apyLoginCtrl'
                 });
             }
             // setting a generic parameter 'resource'
             $routeProvider.when('/:resource', {
-                templateUrl: $apy.settings.viewPath('view.html'),
+                templateUrl: settings.getViewByName('view'),
                 controller: 'apyViewCtrl'
             })
                 // default route
@@ -82,7 +103,7 @@
 
             $scope.apyTick = '' + parseInt(new Date().getTime());
 
-            if ($apy.settings.$auth()) {
+            if (authentication.isEnabled()) {
                 $scope.$watch(function() {
                     return apyProvider.isAuthenticated(function() {
                         return window.localStorage.getItem('tokenInfo');
@@ -101,7 +122,7 @@
             }
         }]);
 
-    if ($apy.settings.$auth()) {
+    if (authentication.isEnabled()) {
         app.controller('apyLoginCtrl', ['$scope', 'apy', 'apyModal', function($scope, apyProvider, apyModalProvider) {
             if (!$scope.credentials ||
                 !$scope.credentials.username ||
@@ -111,6 +132,7 @@
                     password: undefined
                 };
             }
+            $scope.loginIcon = settings.getIconByName('login_icon.jpg');
 
             // Auth Help link
             $scope.help = function(event) {
