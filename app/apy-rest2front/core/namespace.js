@@ -56,13 +56,12 @@ var apy = {
             geo: {}
         }
     },
+    /**
+     * @namespace apy.settings
+     */
     settings: null
 };
 
-// if( module && module.exports ) {
-//    module.exports = apy;
-// }
-// else
 if (window) {
     window.apy = apy;
 }

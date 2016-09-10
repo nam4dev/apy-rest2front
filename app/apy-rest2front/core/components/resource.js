@@ -92,9 +92,8 @@
          * @return {boolean} Has the Resource been created ?
          */
         function hasCreated() {
-            // FIXME: Ensure default value according chosen backend (for now only python-eve is available)
-            var pkAttributeName = this.$service.$config.pkName || '_id';
-            return this.hasOwnProperty(pkAttributeName) && !this[pkAttributeName];
+            var id = this.$template.id;
+            return this.hasOwnProperty(id) && !this[id];
         }
 
         /**
@@ -202,6 +201,8 @@
          */
         return function(service, name, schema, value, $states, $endpoint, type, relationName, components) {
             type = type || $apy.helpers.$TYPES.RESOURCE;
+
+            this.$template = $apy.settings.get().bTemplate();
 
             this.delete = del;
             this.create = create;

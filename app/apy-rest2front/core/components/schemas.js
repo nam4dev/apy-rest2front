@@ -56,13 +56,15 @@
      * var apySchema = new apy.components.Schema(members, 'members');
      *
      * @param {Object} schema A schema object
-     * @param name
+     * @param {string} name The schema name
+     * @param {apy.settings._Settings} settings A settings instance
      */
-    var Schema = function Schema(schema, name) {
+    var Schema = function Schema(schema, name, settings) {
         this.$base = schema;
         this.$name = name;
         this.$hasMedia = false;
         this.$embeddedURI = '';
+        this.$bTemplate = settings.bTemplate();
         this.$headers = Object.keys(schema).filter(function(key) {
             return !key.startsWith('_');
         }).sort().reverse();
@@ -95,18 +97,18 @@
             }
             if ($apy.helpers.isObject(validator) && validator.type) {
                 switch (validator.type) {
-                case $apy.helpers.$TYPES.MEDIA:
-                    self.$hasMedia = true;
-                    break;
-                case $apy.helpers.$TYPES.OBJECTID:
-                    if (fieldName !== '_id') {
-                        if (validator.data_relation.embeddable) {
-                            embedded[fieldName] = 1;
+                    case $apy.helpers.$TYPES.MEDIA:
+                        self.$hasMedia = true;
+                        break;
+                    case $apy.helpers.$TYPES.OBJECTID:
+                        if (fieldName !== self.$bTemplate.id) {
+                            if (validator.data_relation.embeddable) {
+                                embedded[fieldName] = 1;
+                            }
                         }
-                    }
-                    break;
-                default :
-                    break;
+                        break;
+                    default :
+                        break;
                 }
             }
         });
@@ -122,9 +124,9 @@
      */
     Schema.prototype.load = function load() {
         var embedded = {};
-        recursiveLoad(this, this.$base, embedded);
-        if (Object.keys(embedded).length) {
-            this.$embeddedURI = 'embedded=' + JSON.stringify(embedded);
+        recursiveLoad(this, this.$base, embedded, 0);
+        if (this.$bTemplate.embedded.enabled && Object.keys(embedded).length) {
+            this.$embeddedURI = this.$bTemplate.embedded.key + '=' + JSON.stringify(embedded);
         }
         return this;
     };
@@ -174,28 +176,28 @@
      *
      * @param {string} endpoint REST API endpoint base
      * @param {Object} schemas An object defining each schema associated to its name
-     * @param {Object} config Apy configuration object
      * @param {apy.CompositeService} service Apy Composite service instance
      *
      * @throws {apy.errors.Error}
      */
-    var Schemas = function Schemas(endpoint, schemas, config, service) {
+    var Schemas = function Schemas(endpoint, schemas, service) {
         if (!service || !$apy.helpers.isObject(service)) {
             throw new $apy.errors.Error('A Service object must be provided (got type => ' + typeof service + ') !');
         }
         if (!schemas || !$apy.helpers.isObject(schemas)) {
             throw new $apy.errors.Error('A schemas object must be provided (got type => ' + typeof schemas + ') !');
         }
+
         this.$names = [];
         this.$humanNames = [];
         this.$components = {};
         this.$service = service;
         this.$componentArray = [];
         this.$endpoint = endpoint;
-        this.$config = config || {};
+        this.$settings = $apy.settings.get();
         this.$schemas = schemas || {};
-        $.extend(true, this.$schemas, this.$config.schemas || {});
-        this.$excluded = this.$config.excludedEndpointByNames || [];
+        $.extend(true, this.$schemas, this.$settings.schemaOverrides || {});
+        this.$excluded = this.$settings.endpoints.excluded || [];
         this.$template = {
             _id: '',
             _etag: '',
@@ -259,7 +261,7 @@
     Schemas.prototype.load = function load() {
         var self = this;
         Object.keys(this.$schemas).forEach(function(schemaName) {
-            var schema = new $apy.components.Schema(self.$schemas[schemaName], schemaName);
+            var schema = new $apy.components.Schema(self.$schemas[schemaName], schemaName, self.$settings);
             var humanName = schemaName.replaceAll('_', ' ');
             self.$names.push(schemaName);
             self.$humanNames.push(humanName);
@@ -293,62 +295,62 @@
 
         var val;
         switch (value.type) {
-        case $apy.helpers.$TYPES.LIST:
-            if (value.schema) {
-                switch (value.schema.type) {
-                case $apy.helpers.$TYPES.OBJECTID:
+            case $apy.helpers.$TYPES.LIST:
+                if (value.schema) {
+                    switch (value.schema.type) {
+                        case $apy.helpers.$TYPES.OBJECTID:
+                            val = [];
+                            break;
+                        default :
+                            val = [this.transformData(undefined, value.schema)];
+                            break;
+                    }
+                }
+                else {
                     val = [];
-                    break;
-                default :
-                    val = [this.transformData(undefined, value.schema)];
-                    break;
                 }
-            }
-            else {
-                val = [];
-            }
-            break;
-        case $apy.helpers.$TYPES.DICT:
-            val = this.schema2data(value.schema);
-            break;
-        /* istanbul ignore next */
-        case $apy.helpers.$TYPES.MEDIA:
-            // val = new apy.helpers.MediaFile(this.$endpoint);
-            break;
-        case $apy.helpers.$TYPES.FLOAT:
-        case $apy.helpers.$TYPES.NUMBER:
-            val = getDefault(value.default) || 0.0;
-            break;
-        case $apy.helpers.$TYPES.STRING:
-            val = getDefault(value.default) || '';
-            break;
-        case $apy.helpers.$TYPES.INTEGER:
-            val = getDefault(value.default) || 0;
-            break;
-        case $apy.helpers.$TYPES.BOOLEAN:
-            val = getDefault(value.default) || false;
-            break;
-        case $apy.helpers.$TYPES.OBJECTID:
-            if (key && key.startsWith && key.startsWith('_')) {
-                val = '';
-            }
-            else {
-                val = {};
-                var keyResource = value.data_relation.resource;
-                if (this.$service.$schemas &&
-                    this.$service.$schemas.hasOwnProperty(keyResource)) {
-                    var $base = this.$service.$schemas[keyResource].$base;
-                    if (!key) val = this.schema2data($base, key);
-                    else val[key] = this.schema2data($base, key);
+                break;
+            case $apy.helpers.$TYPES.DICT:
+                val = this.schema2data(value.schema);
+                break;
+            /* istanbul ignore next */
+            case $apy.helpers.$TYPES.MEDIA:
+                // val = new apy.helpers.MediaFile(this.$endpoint);
+                break;
+            case $apy.helpers.$TYPES.FLOAT:
+            case $apy.helpers.$TYPES.NUMBER:
+                val = getDefault(value.default) || 0.0;
+                break;
+            case $apy.helpers.$TYPES.STRING:
+                val = getDefault(value.default) || '';
+                break;
+            case $apy.helpers.$TYPES.INTEGER:
+                val = getDefault(value.default) || 0;
+                break;
+            case $apy.helpers.$TYPES.BOOLEAN:
+                val = getDefault(value.default) || false;
+                break;
+            case $apy.helpers.$TYPES.OBJECTID:
+                if (key && key.startsWith && key.startsWith('_')) {
+                    val = '';
                 }
-            }
-            break;
-        case $apy.helpers.$TYPES.DATETIME:
-            val = value.default ? new Date(value.default) : new Date();
-            break;
-        default :
-            val = null;
-            break;
+                else {
+                    val = {};
+                    var keyResource = value.data_relation.resource;
+                    if (this.$service.$schemas &&
+                        this.$service.$schemas.hasOwnProperty(keyResource)) {
+                        var $base = this.$service.$schemas[keyResource].$base;
+                        if (!key) val = this.schema2data($base, key);
+                        else val[key] = this.schema2data($base, key);
+                    }
+                }
+                break;
+            case $apy.helpers.$TYPES.DATETIME:
+                val = value.default ? new Date(value.default) : new Date();
+                break;
+            default :
+                val = null;
+                break;
         }
         return val;
     };

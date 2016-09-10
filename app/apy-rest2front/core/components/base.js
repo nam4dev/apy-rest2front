@@ -33,7 +33,7 @@
 /**
  * @namespace apy.components
  */
-(function(apy) {
+(function($apy) {
     /**
      * Base Component Interface.
      * Apy Composite base component abstraction (field, resource, collection)
@@ -45,7 +45,7 @@
      * @memberOf apy.components
      */
         // Registering mixin globally
-    apy.components.ComponentMixin = (function ComponentMixin() {
+    $apy.components.ComponentMixin = (function ComponentMixin() {
         /**
          * StateHolder known states list (CRUD).
          *
@@ -180,7 +180,7 @@
          */
         var createTypesFactory = function createTypesFactory() {
             var self = this;
-            var $TYPES = apy.helpers.$TYPES;
+            var $TYPES = $apy.helpers.$TYPES;
             var $typesFactory = {};
             $typesFactory[$TYPES.LIST] = function() {
                 return [];
@@ -192,7 +192,7 @@
                 return undefined;
             };
             $typesFactory[$TYPES.MEDIA] = function() {
-                return new apy.helpers.MediaFile(self.$endpoint);
+                return new $apy.helpers.MediaFile(self.$endpoint);
             };
             $typesFactory[$TYPES.FLOAT] = function() {
                 return 0.0;
@@ -231,7 +231,7 @@
          */
         var createTypesForPolyField = function createTypesForPolyField() {
             var $typesForPoly = [];
-            var $TYPES = apy.helpers.$TYPES;
+            var $TYPES = $apy.helpers.$TYPES;
             Object.keys($TYPES).forEach(function(k) {
                 var type = $TYPES[k];
                 if ([$TYPES.COLLECTION, $TYPES.RESOURCE, $TYPES.POLY, $TYPES.INTEGER, $TYPES.FLOAT].indexOf(type) === -1) {
@@ -260,14 +260,11 @@
          * @return {apy.components.ComponentMixin} `this`
          */
         var initialize = function initialize(service, name, schema, value, $states, endpoint, type, relationName, components) {
-            var $TYPES = apy.helpers.$TYPES;
+            var $TYPES = $apy.helpers.$TYPES;
             this.$originalValue = this.cloneValue(value);
             this.$types = $TYPES;
             this.$service = service;
             this.$typesFactory = createTypesFactory();
-            // FIXME: Dependencies inherited from Frontend framework (here AngularJs)
-            this.$http = service.$http;
-            this.$upload = service.$upload;
             // components index
             this.$components = components || [];
             this.$components = this.isArray(this.$components) ? this.$components : [this.$components];
@@ -281,7 +278,7 @@
             this.setOptions(schema)
                 .setValue(value);
 
-            this.$Class = apy.components.ComponentMixin;
+            this.$Class = $apy.components.ComponentMixin;
             return this;
         };
 
@@ -296,7 +293,6 @@
          */
         var setOptions = function setOptions(schema) {
             this.$schema = schema;
-            this.$request = (this.$schema && this.$schema.$hasMedia) ? this.$upload.upload : this.$http;
             return this;
         };
 
@@ -333,7 +329,7 @@
                 }
             });
             if (errors.length) {
-                throw new apy.errors.Error('Validation Error: ' + errors.join(', '));
+                throw new $apy.errors.Error('Validation Error: ' + errors.join(', '));
             }
         };
 
@@ -416,7 +412,7 @@
          */
         var clone = function clone(parent, value) {
             if (!this.$Class) {
-                throw new apy.errors.Error('No $Class property set !');
+                throw new $apy.errors.Error('No $Class property set !');
             }
             var instance = new this.$Class(this.$service,
                 this.$name, this.$schema, value, this.$states,
@@ -436,12 +432,12 @@
         var cloneChild = function cloneChild() {
             var clone = null;
             var self = this;
-            var fieldClassByType = apy.helpers.fieldClassByType;
+            var fieldClassByType = $apy.helpers.fieldClassByType;
             function iterOverSchema(schema, name) {
                 var cl;
                 var relationName;
                 switch (schema.type) {
-                case apy.helpers.$TYPES.OBJECTID:
+                case $apy.helpers.$TYPES.OBJECTID:
                     relationName = schema.data_relation.resource || self.$relationName || name;
                     break;
                 default :
@@ -496,7 +492,7 @@
          * @return {apy.components.fields.Poly} A Polymorph Field instance
          */
         var createPolyField = function createPolyField(schema, value, name, parent) {
-            var field = new apy.components.fields.Poly(this.$service, name || this.$name, schema, value,
+            var field = new $apy.components.fields.Poly(this.$service, name || this.$name, schema, value,
                 this.$states, this.$endpoint, this.$type, this.$relationName);
             field.setParent(parent || this);
             return field;
@@ -595,7 +591,7 @@
          * @return {apy.helpers.StateHolder} A StateHolder instance
          */
         var createStateHolder = function createStateHolder(initialState, states) {
-            return new apy.helpers.StateHolder(initialState || STATES.READ, states || STATES);
+            return new $apy.helpers.StateHolder(initialState || STATES.READ, states || STATES);
         };
 
         /**
@@ -739,7 +735,7 @@
             this.setUpdateState = setUpdateState;
             this.setDeleteState = setDeleteState;
             this.createPolyField = createPolyField;
-            this.isFunction = apy.helpers.isFunction;
+            this.isFunction = $apy.helpers.isFunction;
             this.createStateHolder = createStateHolder;
             return this;
         };

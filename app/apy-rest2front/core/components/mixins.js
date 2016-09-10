@@ -54,6 +54,7 @@
             headers = headers || {
                 'Content-Type': 'application/json'
             };
+            // FIXME Shall be accessed from apy.settings[_Settings] instance
             if (service && service.$tokenInfo && service.$tokenInfo.access_token) {
                 var authToken = '';
                 var type = service.$tokenInfo.token_type;
@@ -75,6 +76,12 @@
          * @return {Promise} Asynchronous call
          */
         function $access(request) {
+            if(!this.$http) {
+                this.$http = $apy.settings.get().httpHandler();
+            }
+            if(!this.$upload) {
+                this.$upload = $apy.settings.get().uploadHandler();
+            }
             if (!this.$request) {
                 this.$request = (this.$schema && this.$schema.$hasMedia) ?
                     this.$upload.upload : this.$http;
@@ -97,10 +104,10 @@
         function createRequest(uri, method) {
             var self = this;
             var setConfig = function() {
-                request.url += '/' + self._id;
-                request.headers['If-Match'] = self._etag;
+                request.url += '/' + self[self.$template.id];
+                request.headers['If-Match'] = self[self.$template.etag];
             };
-            if (method === 'PATCH' && !self._id) {
+            if (method === 'PATCH' && !this[this.$template.id]) {
                 method = 'POST';
             }
             method = method || 'POST';

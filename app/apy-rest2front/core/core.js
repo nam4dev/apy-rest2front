@@ -67,18 +67,6 @@
     $apy.CompositeService = (function CompositeService() {
 
         /**
-         * Log missing required provider as error
-         *
-         * @memberOf apy.CompositeService
-         *
-         * @param {string} name Provider name
-         * @inner logMissingProvider
-         */
-        function logMissingProvider(name) {
-            console.error('No "' + name + '" Provider available!');
-        }
-
-        /**
          * Authentication invalidation
          *
          * @memberOf apy.CompositeService
@@ -182,7 +170,7 @@
          * @return {apy.CompositeService} itself (chaning pattern)
          */
         function setSchemas(schemas) {
-            var ins = this.$instance = new $apy.components.Schemas(this.$endpoint, schemas, this.$config, this);
+            var ins = this.$instance = new $apy.components.Schemas(this.$endpoint, schemas, this);
             this.$schemas = ins.$components;
             this.$schemasAsArray = ins.$componentArray;
             return this;
@@ -234,27 +222,11 @@
         }
 
         /**
-         * Init endpoint info
-         *
-         * @memberOf apy.CompositeService
-         *
-         * @param {string} endpoint REST API endpoint base
-         * @param {string} schemaName REST API schema definitions endpoint name (eg. schemas)
-         *
-         * @return {apy.CompositeService} itself (chaning pattern)
-         */
-        function initEndpoints(endpoint, schemaName) {
-            this.$endpoint = endpoint;
-            this.$schemasEndpoint = endpoint + schemaName;
-            return this;
-        }
-
-        /**
          * Set dependencies
          *
          * @memberOf apy.CompositeService
          *
-         * @return {apy.CompositeService} itself (chaning pattern)
+         * @return {apy.CompositeService} itself (chaining pattern)
          */
         function setDependencies() {
             for (var i = 0; i < arguments.length; ++i) {
@@ -286,43 +258,35 @@
          *  * A configurable endpoint URI
          *  * A configurable CSS theme (default: Bootstrap 3)
          *
-         * @param {Object} $http Low-level network interface (async HTTP(S) request)
-         * @param {Object} $upload Low-level network interface (async HTTP(S) request) dedicated to upload
-         * @param {Object} config Apy global configuration
+         * @param {Object} settings Apy REST2Front global configuration
          *
          * @constructor
          */
-        return function($http, $upload, config) {
-            this.$tokenInfo = undefined;
-            this.$http = $http || function() {
-                logMissingProvider('$http');
-                return Promise.resolve(arguments);
-            };
-            this.$config = config || {};
-            this.$upload = $upload || {upload: function() {
-                logMissingProvider('Upload');
-                return Promise.resolve(arguments);
-            }};
-            this.$auth = config.auth || {};
-            this.$theme = config.appTheme;
-            this.$syncHttp = new XMLHttpRequest();
+        return function() {
             this.$schemas = null;
             this.$endpoint = null;
             this.$instance = null;
+            this.$tokenInfo = null;
             this.$schemasAsArray = null;
             this.$schemasEndpoint = null;
+
+            // Get Singleton Settings instance
+            this.$settings = $apy.settings.get();
+
+            this.$theme = this.$settings.theme;
+            this.$auth = this.$settings.authentication;
+            this.$endpoint = this.$settings.$endpoint();
+            this.$syncHttp = this.$settings.httpHandler(true);
+            this.$schemasEndpoint = this.$settings.$definitionsEndpoint();
 
             this.setSchemas = setSchemas;
             this.invalidate = invalidate;
             this.loadSchemas = loadSchemas;
             this.authenticate = authenticate;
-            this.initEndpoints = initEndpoints;
             this.isAuthenticated = isAuthenticated;
             this.setDependencies = setDependencies;
             this.createCollection = createCollection;
             this.asyncLoadSchemas = asyncLoadSchemas;
-
-            this.initEndpoints(config.endpoint, config.schemasEndpointName);
 
             return this;
         };
