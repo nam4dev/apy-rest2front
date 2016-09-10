@@ -35,8 +35,7 @@
  *  """
  */
 
-describe("Core.schemas unit tests", function() {
-    var DEFAULT_CONFIG = apy.tests.DEFAULT_CONFIG;
+describe("Components.schemas unit tests", function() {
     var DEFAULT_SCHEMAS = apy.tests.DEFAULT_SCHEMAS;
     var DEFAULT_ENDPOINT = apy.tests.DEFAULT_ENDPOINT;
 
@@ -52,14 +51,14 @@ describe("Core.schemas unit tests", function() {
 
     it("[createResource] No Service object provided - An Error shall be thrown", function () {
         var wrapper = function() {
-            new apy.tests.$types.components.Schemas(DEFAULT_ENDPOINT, DEFAULT_SCHEMAS, DEFAULT_CONFIG);
+            new apy.tests.$types.components.Schemas(DEFAULT_ENDPOINT, DEFAULT_SCHEMAS);
         };
         expect(wrapper).toThrow(new apy.tests.$types.errors.Error('A Service object must be provided (got type => undefined) !'));
     });
 
     it("[createResource] No Schemas object provided - An Error shall be thrown", function () {
         var wrapper = function() {
-            new apy.tests.$types.components.Schemas(DEFAULT_ENDPOINT, undefined, DEFAULT_CONFIG, apy.tests.createService());
+            new apy.tests.$types.components.Schemas(DEFAULT_ENDPOINT, undefined, apy.tests.createService());
         };
         expect(wrapper).toThrow(new apy.tests.$types.errors.Error('A schemas object must be provided (got type => undefined) !'));
     });

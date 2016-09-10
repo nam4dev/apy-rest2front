@@ -54,15 +54,13 @@
     var DEFAULT_SCHEMA_NAME = 'tests';
     var DEFAULT_ENDPOINT = 'https://www.tests.fr/';
     var DEFAULT_CONFIG = {
-        schemas: {},
-        pkName: '_id',
-        auth: {
-            enabled: false
-        },
-        appTheme: 'bootstrap3',
-        endpoint: DEFAULT_ENDPOINT,
-        schemasEndpointName: DEFAULT_SCHEMA_NAME,
-        excludedEndpointByNames: ['logs']
+        endpoints: {
+            definitions: DEFAULT_SCHEMA_NAME,
+            root: {
+                port: 80,
+                hostname: DEFAULT_ENDPOINT
+            }
+        }
     };
     DEFAULT_SCHEMAS[DEFAULT_SCHEMA_NAME] = {type: 'list'};
 
@@ -94,18 +92,15 @@
      * @alias createService
      * @memberOf apy.tests
      *
-     * @param {Object} config Global application configuration object
-     * @param {Object} $log Global application logger instance
-     * @param {Object} $http Global application HTTP handler instance
-     * @param {Object} $upload Global application HTTP handler with progress management instance
+     * @param {Object} settings Global application configuration object
      *
      * @return {apy.CompositeService} A CompositeService instance
      */
-    function _createService(config, $log, $http, $upload) {
-        $log = $log || {};
-        $http = $http || NetMock();
-        $upload = $upload || { upload: NetMock() };
-        var service = new apy.tests.$types.CompositeService($log, $http, $upload, config || DEFAULT_CONFIG);
+    function _createService(settings) {
+        settings = settings || {};
+        $http = settings.$http || NetMock();
+        $upload = settings.$upload || { upload: NetMock() };
+        var service = new apy.tests.$types.CompositeService(settings || DEFAULT_CONFIG);
         service.setSchemas(DEFAULT_SCHEMAS);
         return service;
     }
@@ -129,10 +124,10 @@
      * @alias createFieldByType
      * @memberOf apy.tests
      *
-     * @param {string} type Field's type
-     * @param {*} value Field's value
-     * @param {Object} schema Field's schema object
-     * @param {Object} config Global application configuration object
+     * @param {string} type Field's type
+     * @param {*} value Field's value
+     * @param {Object} schema Field's schema object
+     * @param {Object} config Global application configuration object
      *
      * @returns {apy.components.fields} Any Field instance
      */

@@ -91,8 +91,12 @@ describe("ApyFieldCtrl", function() {
                     }
                 }})
         };
-        provider.initEndpoints(endpoint, schemaName)
-            .loadSchemas();
+        // FIXME Update test settings behavior to fit the need
+        //service.initEndpoints(endpoint, schemaName);
+        // FIXME Quick workaround for now (2 lines)
+        provider.$endpoint = endpoint;
+        provider.$schemasEndpoint = schemaName;
+        provider.loadSchemas(false);
 
         var $context = {};
         $context.$scope = {};
