@@ -1,5 +1,86 @@
-@media only screen and (max-width: 800px) {
+@media only screen and (max-width: 768px) {
     .responsive td:nth-child(even), .responsive td:nth-child(odd) {
         padding-left: 5%;
+    }
+}
+
+/* Media Queries selector */
+@media (max-width: 768px) {
+    .modal-dialog {
+        width: 85%;
+        margin: 0 auto;
+    }
+}
+@media (min-width: 768px) {
+    .modal-dialog {
+        width: 75%;
+        margin: 1em auto;
+    }
+}
+/* Apy Table Css */
+@media (max-width: 768px) {
+    .apy-table td ,
+    .apy-table th {
+        padding: .5em;
+    }
+
+    .apy-table td {
+        width: 100%;
+    }
+
+    .uib-daypicker th,
+    .uib-monthpicker th,
+    .uib-yearpicker th {
+        padding: 0;
+        width: auto !important;
+    }
+
+    .uib-daypicker td,
+    .uib-monthpicker td,
+    .uib-yearpicker td {
+        padding: 0;
+        width: auto !important;
+    }
+}
+@media (min-width: 768px) {
+    .apy-table td ,
+    .apy-table th {
+        padding: .5em;
+    }
+
+    .uib-daypicker th,
+    .uib-monthpicker th,
+    .uib-yearpicker th {
+        padding: 0;
+        width: auto !important;
+    }
+
+    .uib-daypicker td,
+    .uib-monthpicker td,
+    .uib-yearpicker td {
+        padding: 0;
+        width: auto !important;
+    }
+
+    .apy-table th {
+        width: 15%;
+    }
+
+    .apy-table td {
+        width: 85%;
+    }
+}
+/* End Media Queries selector */
+
+/* "backtop" button behavior adapted for mobile */
+@media screen and (max-width:768px) {
+    #backtop.light {
+        left: 0;
+        bottom: 0;
+        right: initial;
+        width: 100%;
+    }
+    #backtop.light button{
+        width: 100%;
     }
 }

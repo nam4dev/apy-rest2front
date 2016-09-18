@@ -267,7 +267,8 @@
                    minlength="{{ field.$minlength }}"
                    maxlength="{{ field.$maxlength }}"
                    required="{{ field.$required }}"
-                   value="{{ field.$value }}"
+                   value="{{ field.$value }}",
+                   placeholder="{{ field.$name }}"
                     />
 
 
@@ -400,7 +401,7 @@
                             <tr ng-if="$collection.count() === 0">
                                 <td class="text-center"
                                     colspan="{{ $collection.$schema.$headers.length + 1 }}">
-                                    <span >No Items Found.</span>
+                                    <span >No <span class="text-capitalize">{{ $collection.$name }}</span> Found. <a href="#/{{ $collection.$name }}">Create one :)</a></span>
                                 </td>
                             </tr>
                             </tbody>
