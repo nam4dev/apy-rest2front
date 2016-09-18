@@ -116,19 +116,21 @@
             var self = this;
             return new Promise(function(resolve, reject) {
                 if (self.$endpointBase && self.$name) {
-                    var successCb = function(response) {
+                    var on_success = function(response) {
                         console.log(response);
-                        self.selfUpdate(response.data, true);
+                        self.selfUpdate(response, true);
                         self.setReadState();
                         return resolve(response);
                     };
-                    var errorCb = function(error) {
+                    var on_failure = function(error) {
                         console.error(error);
                         return reject(error);
                     };
+                    var on_progress = function(evt) {
+                        console.log('[RESOURCE::createResourceRequest] => progress', evt);
+                    };
                     return self.createRequest(self.$endpointBase + self.$name, method)
-                        .then(successCb)
-                        .catch(errorCb);
+                        .then(on_success, on_failure, on_progress);
                 }
                 return reject({
                     data: {

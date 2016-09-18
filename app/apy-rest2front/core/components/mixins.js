@@ -38,7 +38,7 @@
      * @mixin apy.components.RequestMixin
      */
     $apy.components.RequestMixin = (function RequestMixin() {
- // Registering mixin globally
+        // Registering mixin globally
 
         /**
          * Set `Authorization` HTTP Header (if available)
@@ -52,8 +52,8 @@
         function $authHeaders(headers) {
             var service = this.$service || this;
             headers = headers || {
-                'Content-Type': 'application/json'
-            };
+                    'Content-Type': 'application/json'
+                };
             // FIXME Shall be accessed from apy.settings[_Settings] instance
             if (service && service.$tokenInfo && service.$tokenInfo.access_token) {
                 var authToken = '';
@@ -76,19 +76,80 @@
          * @return {Promise} Asynchronous call
          */
         function $access(request) {
-            if(!this.$http) {
-                this.$http = $apy.settings.get().httpHandler();
-            }
-            if(!this.$upload) {
-                this.$upload = $apy.settings.get().uploadHandler();
-            }
-            if (!this.$request) {
-                this.$request = (this.$schema && this.$schema.$hasMedia) ?
-                    this.$upload.upload : this.$http;
+            if(!this.$request) {
+                this.$request = $.ajax;
             }
             request = request || {};
             request.headers = this.$authHeaders(request.headers);
             return this.$request(request);
+        }
+
+        /**
+         * Common Method for components which need to request on network
+         *
+         * @memberOf apy.components.RequestMixin
+         *
+         * @param {Object} options The Request object
+         *
+         * @return {Promise} Asynchronous call
+         */
+        function request(options) {
+            var self = this;
+            return new Promise(function(resolve, reject) {
+                function on_success(data) {
+                    console.log('browser-request got your root path:\n', data);
+                    return resolve(data);
+                }
+                function on_failure(error) {
+                    console.log('There was an error, but at least browser-request loaded and ran!', typeof error, error);
+                    var _err = new $apy.errors.EveHTTPError(error);
+                    return reject(_err);
+                }
+                function on_resource_progress(evt) {
+                    var fileName;
+                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                    try {
+                        fileName = evt.config.data.file.name;
+                    }
+                    catch (e) {
+                        console.log('Error while retrieving filename: ' + e);
+                    }
+                    console.log('progress: ' + progressPercentage + '% ' + fileName, evt);
+                }
+                self.$access(options)
+                    .then(on_success, on_failure, on_resource_progress);
+            });
+        }
+
+        /**
+         *
+         * @param request
+         */
+        function setConfig(request) {
+            request.url += '/' + this[this.$template.id];
+            request.headers['If-Match'] = this[this.$template.etag];
+        }
+
+        function setRequest(request) {
+            var payload = this.cleanedData();
+            if(payload) {
+                var formData = new FormData();
+                Object.keys(payload).forEach(function (key) {
+                    var value = payload[key];
+                    if(Array.isArray(value)) {
+                        value.forEach(function (val) {
+                            // Following convention
+                            formData.append(key + '[]', val);
+                        })
+                    }
+                    else {
+                        formData.append(key, value);
+                    }
+                });
+                request.data = formData;
+                request.processData = false;
+                request.contentType = false;
+            }
         }
 
         /**
@@ -102,11 +163,6 @@
          * @return {Promise} Asynchronous call
          */
         function createRequest(uri, method) {
-            var self = this;
-            var setConfig = function() {
-                request.url += '/' + self[self.$template.id];
-                request.headers['If-Match'] = self[self.$template.etag];
-            };
             if (method === 'PATCH' && !this[this.$template.id]) {
                 method = 'POST';
             }
@@ -117,28 +173,27 @@
                 headers: {}
             };
             switch (method) {
-            case 'POST':
-                request.data = this.cleanedData();
-                break;
-            case 'PATCH':
-                setConfig();
-                request.data = this.cleanedData();
-                break;
-            case 'DELETE':
-                setConfig();
-                break;
-            default :
-                break;
+                case 'POST':
+                    this.setRequest(request);
+                    break;
+                case 'PATCH':
+                    this.setConfig(request);
+                    this.setRequest(request);
+                    break;
+                case 'DELETE':
+                    this.setConfig(request);
+                    break;
+                default :
+                    break;
             }
-            return new Promise(function(resolve, reject) {
-                return self.$access(request).then(resolve, function(error) {
-                    return reject(new $apy.errors.EveHTTPError(error));
-                });
-            });
+            return this.request(request)
         }
 
         return function() {
             this.$access = $access;
+            this.request = request;
+            this.setConfig = setConfig;
+            this.setRequest = setRequest;
             this.$authHeaders = $authHeaders;
             this.createRequest = createRequest;
             return this;
@@ -174,47 +229,47 @@
             append = append === false ? append : true;
             endpoint = endpoint || this.$endpoint;
             switch (type) {
-            case $apy.helpers.$TYPES.LIST:
-                fieldObj = new $apy.components.fields.List(this.$service, name, schema, value, this.$states, endpoint);
-                break;
-            case $apy.helpers.$TYPES.DICT:
-                fieldObj = new $apy.components.fields.Nested(this.$service, name, schema.schema, value, this.$states, null, $apy.helpers.$TYPES.RESOURCE);
-                // if(!schema.schema) {
-                //    fieldObj.add(fieldObj.createPolyField(undefined, value, name));
-                // }
-                break;
-            case $apy.helpers.$TYPES.POINT:
-                fieldObj = new $apy.components.fields.geo.Point(this.$service, name, schema, value, this.$states, endpoint);
-                break;
-            case $apy.helpers.$TYPES.MEDIA:
-                fieldObj = new $apy.components.fields.Media(this.$service, name, schema, value, this.$states, endpoint);
-                break;
-            case $apy.helpers.$TYPES.FLOAT:
-            case $apy.helpers.$TYPES.NUMBER:
-            case $apy.helpers.$TYPES.INTEGER:
-                fieldObj = new $apy.components.fields.Number(this.$service, name, schema, value, this.$states, endpoint);
-                break;
-            case $apy.helpers.$TYPES.STRING:
-                fieldObj = new $apy.components.fields.String(this.$service, name, schema, value, this.$states, endpoint);
-                break;
-            case $apy.helpers.$TYPES.BOOLEAN:
-                fieldObj = new $apy.components.fields.Boolean(this.$service, name, schema, value, this.$states, endpoint);
-                break;
+                case $apy.helpers.$TYPES.LIST:
+                    fieldObj = new $apy.components.fields.List(this.$service, name, schema, value, this.$states, endpoint);
+                    break;
+                case $apy.helpers.$TYPES.DICT:
+                    fieldObj = new $apy.components.fields.Nested(this.$service, name, schema.schema, value, this.$states, null, $apy.helpers.$TYPES.RESOURCE);
+                    // if(!schema.schema) {
+                    //    fieldObj.add(fieldObj.createPolyField(undefined, value, name));
+                    // }
+                    break;
+                case $apy.helpers.$TYPES.POINT:
+                    fieldObj = new $apy.components.fields.geo.Point(this.$service, name, schema, value, this.$states, endpoint);
+                    break;
+                case $apy.helpers.$TYPES.MEDIA:
+                    fieldObj = new $apy.components.fields.Media(this.$service, name, schema, value, this.$states, endpoint);
+                    break;
+                case $apy.helpers.$TYPES.FLOAT:
+                case $apy.helpers.$TYPES.NUMBER:
+                case $apy.helpers.$TYPES.INTEGER:
+                    fieldObj = new $apy.components.fields.Number(this.$service, name, schema, value, this.$states, endpoint);
+                    break;
+                case $apy.helpers.$TYPES.STRING:
+                    fieldObj = new $apy.components.fields.String(this.$service, name, schema, value, this.$states, endpoint);
+                    break;
+                case $apy.helpers.$TYPES.BOOLEAN:
+                    fieldObj = new $apy.components.fields.Boolean(this.$service, name, schema, value, this.$states, endpoint);
+                    break;
 
-            case $apy.helpers.$TYPES.DATETIME:
-                fieldObj = new $apy.components.fields.Datetime(this.$service, name, schema, value, this.$states, endpoint);
-                break;
-            case $apy.helpers.$TYPES.OBJECTID:
-                var relationName = schema.data_relation.resource;
-                var schemaObject = this.$service.$schemas[relationName];
-                fieldObj = new $apy.components.fields.Embedded(this.$service, name, schemaObject, value,
+                case $apy.helpers.$TYPES.DATETIME:
+                    fieldObj = new $apy.components.fields.Datetime(this.$service, name, schema, value, this.$states, endpoint);
+                    break;
+                case $apy.helpers.$TYPES.OBJECTID:
+                    var relationName = schema.data_relation.resource;
+                    var schemaObject = this.$service.$schemas[relationName];
+                    fieldObj = new $apy.components.fields.Embedded(this.$service, name, schemaObject, value,
                         this.$states, endpoint, $apy.helpers.$TYPES.OBJECTID, relationName);
-                break;
-            default:
-                fieldObj = this.createPolyField(undefined, value, name);
+                    break;
+                default:
+                    fieldObj = this.createPolyField(undefined, value, name);
                     // FIXME: known to be used for Resource, Embedded Field, check no side-effect on List Field
-                fieldObj.readOnly = true;
-                break;
+                    fieldObj.readOnly = true;
+                    break;
             }
             fieldObj.setParent(this);
             if (append) {
@@ -469,10 +524,10 @@
         }
 
         return function() {
-            this.toString = toString;
             this.load = load;
             this._load = _load;
             this.reset = reset;
+            this.toString = toString;
             this.hasUpdated = hasUpdated;
             this.selfUpdate = selfUpdate;
             this.selfCommit = selfCommit;

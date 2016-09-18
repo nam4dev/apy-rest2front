@@ -38,7 +38,7 @@
 (function(angular, $apy) {'use strict';
 
     var settings = $apy.settings.create({
-        // configuration example
+        // configuration here
         endpoints: {
             root: {
                 port: 5000,
@@ -46,7 +46,7 @@
             }
         },
         authentication: {
-            enabled: true,
+            enabled: false,
             grant_type: 'password',
             endpoint: 'http://localhost:5000/oauth/token',
             client_id: '<your-client-id>'
@@ -77,9 +77,6 @@
         })
         .provider('apy', function apyProvider() {
             this.$get = function apyFactory() {
-                var $injector = angular.injector(['ng', 'ngFileUpload']);
-                $apy.settings.set('$http', $injector.get('$http'));
-                $apy.settings.set('$upload', $injector.get('Upload'));
                 return new $apy.CompositeService();
             };
         })
@@ -137,13 +134,11 @@
             // Auth Help link
             $scope.help = function(event) {
                 event.preventDefault();
-
                 apyModalProvider.info({
                     title: 'Restricted Area',
                     messages: [
                         'This area cannot be accessed freely.',
-                        'If you need more info, please contact Administrator.',
-                        'admin.web@apy-consulting.com'
+                        'If you need more info, please contact Administrator.'
                     ]
                 });
             };
@@ -163,13 +158,16 @@
                 }
                 else {
                     apyProvider.authenticate($scope.credentials)
-                        .then(function(response) {
-                            window.localStorage.setItem('tokenInfo', JSON.stringify(response.data));
+                        .then(
+                        function(response) {
+                            console.log('response', response);
+                            window.localStorage.setItem('tokenInfo', JSON.stringify(response));
                             window.location.reload();
-                        })
-                        .catch(function(error) {
+                        },
+                        function(error) {
                             apyModalProvider.error(error);
-                        });
+                        }
+                    );
                 }
             };
         }]);

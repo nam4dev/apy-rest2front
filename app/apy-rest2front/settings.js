@@ -54,17 +54,6 @@
                 'bs3'
             ],
             /**
-             * Log missing required Handler as error
-             *
-             * @memberOf apy.settings._Settings
-             *
-             * @param {string} name Handler name
-             * @inner _Settings
-             */
-            _logMissingHandler: function _logMissingHandler(name) {
-                console.error('No "' + name + '" Provider available!');
-            },
-            /**
              * @memberOf apy.settings._Settings
              *
              * @return {string}
@@ -86,34 +75,6 @@
                 return (
                     this.$endpoint() + this.endpoints.definitions
                 );
-            },
-            /**
-             * @memberOf apy.settings._Settings
-             *
-             * @param raw
-             * @return {*}
-             */
-            httpHandler: function httpHandler(raw) {
-                if(raw) return new XMLHttpRequest();
-                var self = this;
-                return this.$http || function() {
-                        self._logMissingHandler('$http');
-                        return Promise.resolve(arguments);
-                    }
-            },
-            /**
-             * @memberOf apy.settings._Settings
-             *
-             * @return {*|{upload: Function}}
-             */
-            uploadHandler: function uploadHandler() {
-                var self = this;
-                return this.$upload || {
-                        upload: function() {
-                            self._logMissingHandler('$upload');
-                            return Promise.resolve(arguments);
-                        }
-                    }
             },
             /**
              * @memberOf apy.settings._Settings
@@ -249,7 +210,12 @@
              * @return {_Settings}
              */
             create: function (settings) {
-                _settings = new _Settings(settings);
+                if(!_settings) {
+                    _settings = new _Settings(settings);
+                }
+                else {
+                    throw new $apy.errors.ApyError('Settings cannot be set twice!');
+                }
                 return _settings;
             },
             /**

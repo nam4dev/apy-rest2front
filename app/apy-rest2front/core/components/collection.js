@@ -235,31 +235,40 @@
         function fetch(progressHandler) {
             var self = this;
             var progress = progressHandler || function(counter) {
-                console.log('Progress handler', counter);
-            };
+                    console.log('Progress handler', counter);
+                };
             progress(25);
             return new Promise(function(resolve, reject) {
                 self.clear();
                 progress(50);
-                return self.$access({
-                    url: self.$endpoint,
-                    method: 'GET'
-                }).then(function(response) {
+                function on_success(response) {
                     progress(75);
-                    self.load(response.data._items);
+                    self.load(response._items);
                     progress(100);
                     return resolve(response);
-                },
-                    function(error) {
-                        console.error('[ApyFrontendError] => ' + error);
-                        progress(100);
-                        return reject(new $apy.errors.EveHTTPError(error));
-                    },
-                    function(evt) {
-                        var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
-                        console.log('progress: ' + progressPercentage + '% ' + evt.config.data.file.name);
-                        progress(progressPercentage);
-                    });
+                }
+
+                function on_failure(error) {
+                    console.error('[ApyFrontendError] => ', error);
+                    progress(100);
+                    return reject(new $apy.errors.EveHTTPError(error));
+                }
+
+                function on_progress(evt) {
+                    var fileName;
+                    var progressPercentage = parseInt(100.0 * evt.loaded / evt.total);
+                    try {
+                        fileName = evt.config.data.file.name;
+                    }
+                    catch (e) { fileName = null; }
+                    console.log('progress: ' + progressPercentage + '% ' + fileName, evt);
+                    progress(progressPercentage);
+                }
+
+                return self.request({
+                    url: self.$endpoint,
+                    method: 'GET'
+                }).then(on_success, on_failure, on_progress);
             });
         }
 
@@ -354,7 +363,7 @@
          */
         function savedComponents() {
             return this.$components.filter(function(comp) {
-                return !comp.hasCreated() && !comp.hasUpdated();
+                return !comp.hasCreated();
             });
         }
 

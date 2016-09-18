@@ -60,13 +60,15 @@
             /* istanbul ignore next */
             $scope.setFile = function(field, file) {
                 field.$value.load(file)
-                    .then(function() {
+                    .then(
+                    function() {
                         $scope.$apply();
-                    })
-                    .catch(function(error) {
+                    },
+                    function(error) {
                         var err = new $apy.errors.Error(error);
                         apyModalProvider.error(err);
-                    });
+                    }
+                );
             };
 
             $scope.expandList = function(field) {
@@ -107,6 +109,26 @@
 
             /* istanbul ignore next */
             $scope.resourcePicker = function(field) {
+
+                function on_success() {
+                    $scope.$collection = collection;
+                    win = $uibModal.open({
+                        animation: false,
+                        templateUrl: 'modal-embedded.html',
+                        controllerAs: 'ModalCtrl',
+                        scope: $scope
+                    });
+                }
+
+                function on_failure(error) {
+                    console.log('[FIELD::resourcePicker] Error', error);
+                    apyModalProvider.error(error);
+                }
+
+                function on_progress(evt) {
+                    console.log('[FIELD::resourcePicker] => progress', evt);
+                }
+
                 // UI Callbacks
                 $scope.cancel = function() {
                     win && win.dismiss('cancel');
@@ -114,15 +136,7 @@
                 // Data Layer
                 try {
                     var collection = apyProvider.createCollection(field.$relationName);
-                    collection.fetch().then(function() {
-                        $scope.$collection = collection;
-                        win = $uibModal.open({
-                            animation: false,
-                            templateUrl: 'modal-embedded.html',
-                            controllerAs: 'ModalCtrl',
-                            scope: $scope
-                        });
-                    });
+                    collection.fetch().then(on_success, on_failure, on_progress);
                 } catch (error) {
                     var err = new $apy.errors.EveHTTPError({
                         data: {

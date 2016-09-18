@@ -100,8 +100,8 @@
          */
         function isAuthenticated(source) {
             source = source || function() {
-                return null;
-            };
+                    return null;
+                };
             var tokenInfo = this.$tokenInfo || source();
             if (tokenInfo && !$apy.helpers.isObject(tokenInfo)) {
                 try {
@@ -131,9 +131,7 @@
          */
         function authenticate(credentials, method, headers) {
             var self = this;
-            var defaultHeaders = {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            };
+            var defaultHeaders = {};
             var transform = function(obj) {
                 function pairEncoding(key) {
                     return encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]);
@@ -147,14 +145,16 @@
                 return str.join('&');
             };
             var requestHeaders = headers || defaultHeaders;
+
             if (!credentials.client_id) {
                 credentials.client_id = this.$auth.client_id;
             }
             if (!credentials.grant_type) {
                 credentials.grant_type = this.$auth.grant_type;
             }
+
             return new Promise(function(resolve, reject) {
-                self.$access({
+                self.request({
                     url: self.$auth.endpoint,
                     method: method || 'POST',
                     headers: requestHeaders,
@@ -162,10 +162,15 @@
                     transformRequest: transform
 
                 })
-                    .then(resolve,
+                    .then(
+                    function (data) {
+                        //self.$auth.setSession(data);
+                        return resolve(data);
+                    },
                     function(error) {
                         return reject(new $apy.errors.EveHTTPError(error));
-                    });
+                    }
+                );
             });
         }
 
@@ -217,16 +222,26 @@
         function asyncLoadSchemas() {
             var self = this;
             return new Promise(function(resolve, reject) {
-                self.$access({
+
+                function on_success(response) {
+                    console.log('RESPONSE', response);
+                    self.setSchemas(response);
+                    return resolve(response);
+                }
+
+                function on_progress(evt) {
+                    console.log('[CORE::asyncLoadSchemas] => progress', evt);
+                }
+
+                function on_failure(error) {
+                    return reject(new $apy.errors.EveHTTPError(error));
+                }
+
+                self.request({
                     url: self.$schemasEndpoint,
                     method: 'GET'
                 })
-                    .then(function(response) {
-                        self.setSchemas(response.data);
-                        return resolve(response);
-                    }, function(error) {
-                        return reject(new $apy.errors.EveHTTPError(error));
-                    });
+                    .then(on_success, on_failure, on_progress);
             });
         }
 
@@ -277,13 +292,15 @@
             this.$schemasAsArray = null;
             this.$schemasEndpoint = null;
 
+            // FIXME: Fix async UT
+            this.$syncHttp = new XMLHttpRequest();
+
             // Get Singleton Settings instance
             this.$settings = $apy.settings.get();
 
             this.$theme = this.$settings.theme;
             this.$auth = this.$settings.authentication;
             this.$endpoint = this.$settings.$endpoint();
-            this.$syncHttp = this.$settings.httpHandler(true);
             this.$schemasEndpoint = this.$settings.$definitionsEndpoint();
 
             this.setSchemas = setSchemas;
