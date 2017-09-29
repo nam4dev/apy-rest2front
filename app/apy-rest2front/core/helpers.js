@@ -35,101 +35,7 @@
  *
  * @namespace apy.helpers
  */
-(function(apy) {'use strict';
-
-    /* istanbul ignore next */
-    /**
-     * Add to Object type, method
-     *
-     *     assign(target) (Object copy)
-     *
-     * @memberOf apy.helpers
-     */
-    var patchObject = function() {
-        if (!Object.assign) {
-            Object.defineProperty(Object, 'assign', {
-                enumerable: false,
-                configurable: true,
-                writable: true,
-                value: function(target) {
-                    'use strict';
-                    if (target === undefined || target === null) {
-                        throw new TypeError('Cannot convert first argument to object');
-                    }
-                    var to = Object(target);
-                    for (var i = 1; i < arguments.length; i++) {
-                        var nextSource = arguments[i];
-                        if (nextSource === undefined || nextSource === null) {
-                            continue;
-                        }
-                        nextSource = Object(nextSource);
-
-                        var keysArray = Object.keys(nextSource);
-                        for (var nextIndex = 0, len = keysArray.length; nextIndex < len; nextIndex++) {
-                            var nextKey = keysArray[nextIndex];
-                            var desc = Object.getOwnPropertyDescriptor(nextSource, nextKey);
-                            if (desc !== undefined && desc.enumerable) {
-                                to[nextKey] = nextSource[nextKey];
-                            }
-                        }
-                    }
-                    return to;
-                }
-            });
-        }
-    };
-
-    /* istanbul ignore next */
-    /**
-     * Add to String type, methods
-     *
-     *     capitalize()
-     *     replaceAll(target, replacement)
-     *
-     * @memberOf apy.helpers
-     */
-    var patchString = function() {
-        /**
-         * Replace all occurences in a string
-         *
-         * @param {string} target string fragment to be replaced
-         * @param {string} replacement string fragment to replace with
-         *
-         * @return {string} Modified string
-         */
-        String.prototype.replaceAll = function(target, replacement) {
-            return this.split(target).join(replacement);
-        };
-
-        /**
-         * Capitalize string
-         *
-         * @return {string}
-         */
-        String.prototype.capitalize = function() {
-            var lower = this.toLowerCase();
-            return lower.charAt(0).toUpperCase() + lower.slice(1);
-        };
-    };
-
-    var toString = Object.prototype.toString;
-
-    /* istanbul ignore next */
-    /**
-     * Add to Array type, method
-     *
-     *     isArray
-     *
-     * @memberOf apy.helpers
-     */
-    var patchArray = function() {
-        if (!Array.isArray) {
-            Array.isArray = function(arg) {
-                return toString.call(arg) === '[object Array]';
-            };
-        }
-    };
-
+(function($apy) {'use strict';
     /**
      * Determines if a reference is an `Object`. Unlike `typeof` in JavaScript, `null`s are not
      * considered to be objects. Note that JavaScript arrays are objects.
@@ -284,15 +190,17 @@
      * @param {string|Object|File} file A media resource file
      * @param {string} endpoint REST API endpoint base
      */
-    var MediaFile = function MediaFile(endpoint, file) {
-        endpoint = endpoint || '';
-        if (endpoint && endpoint.endsWith && endpoint.endsWith('/')) {
-            endpoint = endpoint.slice(0, -1);
+    function MediaFile(endpoint, file) {
+        if($apy.constants.FILE_API_SUPPORTED) {
+            endpoint = endpoint || '';
+            if (endpoint && endpoint.endsWith && endpoint.endsWith('/')) {
+                endpoint = endpoint.slice(0, -1);
+            }
+            this.$uri = null;
+            this.$endpoint = endpoint;
+            this.setFile(file);
         }
-        this.$uri = null;
-        this.$endpoint = endpoint;
-        this.setFile(file);
-    };
+    }
 
     /**
      * MediaFile string representation
@@ -307,7 +215,10 @@
      */
     MediaFile.prototype.toString = function toString() {
 
-        if(this.$name && this.$type) {
+        if(!$apy.constants.FILE_API_SUPPORTED) {
+            return 'File API is not supported on your browser!'
+        }
+        else if(this.$name && this.$type) {
             return '(' + [this.$name, this.$type].join(', ') + ')';
         }
         else if(this.$name) {
@@ -324,139 +235,153 @@
         }
     };
 
-    /**
-     * Set given file
-     *
-     * @memberOf apy.helpers.MediaFile
-     *
-     * @param {string|Object|File} file A media resource file
-     *
-     * @return {apy.helpers.MediaFile} `this`
-     */
-    MediaFile.prototype.setFile = function(file) {
-        if (isFile(file) || isObject(file)) {
-            this.$file = file.file || file;
-            this.$uri = this.$endpoint + this.$file;
-            this.$name = file.name || this.$name;
-            this.$type = file.type || file.content_type || this.$type;
-            this.$isImage = this.$type ? this.$type.indexOf('image') !== -1 : false;
-            this.$isAudio = this.$type ? this.$type.indexOf('audio') !== -1 : false;
-            this.$isVideo = this.$type ? this.$type.indexOf('video') !== -1 : false;
-            this.$lastModified = file.lastModified || this.$lastModified;
-            this.$lastModifiedDate = file.lastModifiedDate || this.$lastModifiedDate;
-        }
-        else if (isString(file)) {
-            this.$file = file;
-        }
-        return this;
-    };
+    if($apy.constants.FILE_API_SUPPORTED) {
 
-    /**
-     * Get MediaFile information
-     *
-     * @example
-     * // Below properties returned by `getInfo()`
-     * var returnedMediaFileProps = {
+        /**
+         * Set given file
+         *
+         * @memberOf apy.helpers.MediaFile
+         *
+         * @param {string|Object|File} file A media resource file
+         *
+         * @return {apy.helpers.MediaFile} `this`
+         */
+        MediaFile.prototype.setFile = function (file) {
+            if (isFile(file) || isObject(file)) {
+                this.$file = file.file || file;
+                this.$uri = this.$endpoint + this.$file;
+                this.$name = file.name || this.$name;
+                this.$type = file.type || file.content_type || this.$type;
+                this.$isImage = this.$type ? this.$type.indexOf('image') !== -1 : false;
+                this.$isAudio = this.$type ? this.$type.indexOf('audio') !== -1 : false;
+                this.$isVideo = this.$type ? this.$type.indexOf('video') !== -1 : false;
+                this.$lastModified = file.lastModified || this.$lastModified;
+                this.$lastModifiedDate = file.lastModifiedDate || this.$lastModifiedDate;
+            }
+            else if (isString(file)) {
+                this.$file = file;
+            }
+            return this;
+        };
+
+        /**
+         * Get MediaFile information
+         *
+         * @example
+         * // Below properties returned by `getInfo()`
+         * var returnedMediaFileProps = {
      *     file: this.$file,
      *     name: this.$name,
      *     type: this.$type,
      *     lastModified: this.$lastModified,
      *     lastModifiedDate: this.$lastModifiedDate
      * };
-     *
-     * @memberOf apy.helpers.MediaFile
-     *
-     * @return {Object} A Proxy File Object
-     */
-    MediaFile.prototype.getInfo = function() {
-        return {
-            file: this.$file,
-            name: this.$name,
-            type: this.$type,
-            lastModified: this.$lastModified,
-            lastModifiedDate: this.$lastModifiedDate
-        };
-    };
-
-    /**
-     * Load given file and compute matching URI according to media type
-     *
-     * @memberOf apy.helpers.MediaFile
-     *
-     * @param {string|Object|File} file A media resource file
-     *
-     * @return {Promise} Asynchronous call
-     */
-    MediaFile.prototype.load = function load(file) {
-        return this.setFile(file).loadURI();
-    };
-
-    /**
-     * Return cleaned data for saving process
-     * Only `File` type are returned as Eve does not understand Object
-     *
-     * @memberOf apy.helpers.MediaFile
-     *
-     * @return {File|null} Selected File instance or null
-     */
-    MediaFile.prototype.cleanedData = function cleanedData() {
-        return isFile(this.$file) ? this.$file : null;
-    };
-
-    /**
-     * Load asynchronously the file URI.abbrev
-     *
-     * @todo Fix Audio & Video type display
-     *
-     * @memberOf apy.helpers.MediaFile
-     *
-     * @return {Promise} Asynchronous call
-     */
-    MediaFile.prototype.loadURI = function loadURI() {
-        var self = this;
-
-        function ErrorProxy(error, origin) {
+         *
+         * @memberOf apy.helpers.MediaFile
+         *
+         * @return {Object} A Proxy File Object
+         */
+        MediaFile.prototype.getInfo = function () {
             return {
-                self: error,
-                message: '' + error,
-                origin: origin
+                file: this.$file,
+                name: this.$name,
+                type: this.$type,
+                lastModified: this.$lastModified,
+                lastModifiedDate: this.$lastModifiedDate
             };
-        }
+        };
 
-        return new Promise(function(resolve, reject) {
-            var $reader = new FileReader();
-            $reader.onerror = function(e) {
-                return reject(new ErrorProxy(e, '$reader.onerror'));
-            };
-            if (self.$isImage && isBlob(self.$file) || isFile(self.$file)) {
-                $reader.onload = function(evt) {
-                    self.$file.isLoaded = true;
-                    self.$uri = self.$file.$result = evt.target.result;
-                    return resolve(evt.target.result);
+        /**
+         * Load given file and compute matching URI according to media type
+         *
+         * @memberOf apy.helpers.MediaFile
+         *
+         * @param {string|Object|File} file A media resource file
+         *
+         * @return {Promise} Asynchronous call
+         */
+        MediaFile.prototype.load = function load(file) {
+            return this.setFile(file).loadURI();
+        };
+
+        MediaFile.prototype.file2base64 = function syncRead() {
+            var dataURI = null;
+            var file = isFile(this.$file) ? this.$file : null;
+            if (file) {
+                dataURI = file.$result;
+            }
+            return dataURI;
+        };
+
+        /**
+         * Return cleaned data for saving process
+         * Only `File` type are returned as Eve does not understand Object
+         *
+         * @memberOf apy.helpers.MediaFile
+         *
+         * @return {File|null} Selected File instance or null
+         */
+        MediaFile.prototype.cleanedData = function cleanedData() {
+            // return this.file2base64();
+            return isFile(this.$file) ? this.$file : null;
+        };
+
+        /**
+         * Load asynchronously the file URI.abbrev
+         *
+         * @todo Fix Audio & Video type display
+         *
+         * @memberOf apy.helpers.MediaFile
+         *
+         * @return {Promise} Asynchronous call
+         */
+        MediaFile.prototype.loadURI = function loadURI() {
+            var self = this;
+
+            function ErrorProxy(error, origin) {
+                return {
+                    self: error,
+                    message: '' + error,
+                    origin: origin
                 };
-
-                if (self.$file.isLoaded) {
-                    return resolve(self.$file.$result);
-                }
-
-                try {
-                    $reader.readAsDataURL(self.$file);
-                }
-                catch (e) {
-                    return reject(new ErrorProxy(e, '$reader.readAsDataURL'));
-                }
             }
-            // else if(self.$isVideo || isBlob(self.$file) || isFile(self.$file) || isObject(self.$file) || !self.$file) {
-            //    var url = null;
-            //    if(self.$file)
-            //        url = URL.createObjectURL(self.$file);
-            //    return resolve(url);
-            // }
-            else {
-                return resolve(self.$endpoint + self.$file);
-            }
-        });
-    };
+
+            return new Promise(function (resolve, reject) {
+                var $reader = new FileReader();
+                $reader.onerror = function (e) {
+                    return reject(new ErrorProxy(e, '$reader.onerror'));
+                };
+                if (self.$isImage && isBlob(self.$file) || isFile(self.$file)) {
+                    $reader.onload = function (evt) {
+                        self.$file.isLoaded = true;
+                        self.$uri = self.$file.$result = evt.target.result;
+                        return resolve(evt.target.result);
+                    };
+
+                    if (self.$file.isLoaded) {
+                        return resolve(self.$file.$result);
+                    }
+
+                    try {
+                        $reader.readAsDataURL(self.$file);
+                    }
+                    catch (e) {
+                        return reject(new ErrorProxy(e, '$reader.readAsDataURL'));
+                    }
+                }
+                // else if(self.$isVideo || isBlob(self.$file) || isFile(self.$file) || isObject(self.$file) || !self.$file) {
+                //    var url = null;
+                //    if(self.$file)
+                //        url = URL.createObjectURL(self.$file);
+                //    return resolve(url);
+                // }
+                else {
+                    return resolve(self.$endpoint + self.$file);
+                }
+            });
+        };
+
+    }
 
     /**
      * Keep state among known ones
@@ -481,11 +406,11 @@
      * @param {Object} states An Object representing states
      * @param {string} initialState A state picked from states
      */
-    var StateHolder = function StateHolder(initialState, states) {
+    function StateHolder(initialState, states) {
         this.$states = states;
         this.$current = initialState;
         this.load();
-    };
+    }
 
     /**
      * Set a state picked from `states` reference
@@ -603,8 +528,8 @@
     function _getFieldClassByType(type) {
         var className = type.capitalize();
         return (
-            apy.components.fields[className] ||
-            apy.components.fields.geo[className]
+            $apy.components.fields[className] ||
+            $apy.components.fields.geo[className]
         );
     }
 
@@ -622,34 +547,30 @@
     function fieldClassByType(type) {
         type = type || 'poly';
         switch (type) {
-            case apy.helpers.$TYPES.DICT:
-                type = apy.helpers.$TYPES.NESTED;
+            case $apy.helpers.$TYPES.DICT:
+                type = $apy.helpers.$TYPES.NESTED;
                 break;
-            case apy.helpers.$TYPES.OBJECTID:
-                type = apy.helpers.$TYPES.EMBEDDED;
+            case $apy.helpers.$TYPES.OBJECTID:
+                type = $apy.helpers.$TYPES.EMBEDDED;
                 break;
             default :
                 break;
         }
         var fieldClass = _getFieldClassByType(type);
         if (!fieldClass) {
-            throw new apy.errors.Error('Unknown type ' + type);
+            throw new $apy.errors.Error('Unknown type ' + type);
         }
         return fieldClass;
     }
 
-    patchArray();
-    patchObject();
-    patchString();
+    $apy.helpers.$TYPES = $TYPES;
+    $apy.helpers.isDate = isDate;
+    $apy.helpers.isObject = isObject;
+    $apy.helpers.isString = isString;
+    $apy.helpers.isFunction = isFunction;
 
-    apy.helpers.$TYPES = $TYPES;
-    apy.helpers.isDate = isDate;
-    apy.helpers.isObject = isObject;
-    apy.helpers.isString = isString;
-    apy.helpers.isFunction = isFunction;
-
-    apy.helpers.GeoPoint = GeoPoint;
-    apy.helpers.MediaFile = MediaFile;
-    apy.helpers.StateHolder = StateHolder;
-    apy.helpers.fieldClassByType = fieldClassByType;
+    $apy.helpers.GeoPoint = GeoPoint;
+    $apy.helpers.MediaFile = MediaFile;
+    $apy.helpers.StateHolder = StateHolder;
+    $apy.helpers.fieldClassByType = fieldClassByType;
 })(apy);
