@@ -236,17 +236,11 @@
              */
             warn: function warn(config) {
                 var cls = 'warning';
-                this.base({
-                    asList: true,
-                    widgetClass: cls,
-                    okWidgetClass: cls,
-                    numberedList: true,
-                    title: config.title,
-                    message: config.message,
-                    messages: config.messages,
-                    okCallback: config.okCallback,
-                    cancelCallback: config.cancelCallback
-                });
+                config.asList = true;
+                config.widgetClass = cls;
+                config.okWidgetClass = cls;
+                config.numberedList = true;
+                this.base(config);
             },
             /**
              * Display an error modal
@@ -270,6 +264,7 @@
                 var cls = 'danger';
                 config.widgetClass = cls;
                 config.okWidgetClass = cls;
+                config.messages = [config.stack];
                 this.base(config);
             },
             /**
