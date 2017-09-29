@@ -267,11 +267,8 @@
                    minlength="{{ field.$minlength }}"
                    maxlength="{{ field.$maxlength }}"
                    required="{{ field.$required }}"
-                   value="{{ field.$value }}",
                    placeholder="{{ field.$name }}"
                     />
-
-
             <textarea msd-elastic="\n"
                       ng-model="field.$value"
                       ng-if="field.wordCount() > 60"
@@ -282,9 +279,7 @@
                       maxlength="{{ field.$maxlength }}"
                       required="{{ field.$required }}"
                     >
-                {{ field.$value }}
             </textarea>
-
         </div>
     </script>
 
@@ -620,12 +615,14 @@
                         </button>
                     </td>
                 </tr>
-                <tr ng-repeat="header in $collection.$schema.$headers track by $index">
+                <tr ng-repeat="header in $collection.$schema.$headers track by $index"
+                    ng-if="resource.$components[$index].$displayed" >
                     <th class="hidden-sm hidden-xs">
                         <strong class="text-capitalize text-underlined">{{ header }}</strong>
                     </th>
                     <td >
-                        <apy-field field="resource.$components[$index]"></apy-field>
+                        <apy-field field="resource.$components[$index]"
+                                   ng-if="resource.$components[$index].$displayed"></apy-field>
                     </td>
                 </tr>
             </table>
@@ -655,7 +652,8 @@
             <tbody>
             <tr ng-repeat="resource in $collection.$components track by $index">
                 <td ng-repeat="header in $collection.$schema.$headers track by $index" >
-                    <apy-field field="resource.$components[$index]"></apy-field>
+                    <apy-field field="resource.$components[$index]"
+                               ng-if="resource.$components[$index].$displayed"></apy-field>
                 </td>
                 <td>
                     <button type="button"

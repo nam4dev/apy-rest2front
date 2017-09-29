@@ -104,24 +104,12 @@
          */
         function validate() {}
 
-        /**
-         * Poly field string representation
-         *
-         * @memberOf apy.components.fields.Poly
-         *
-         * @return {string} Poly field string representation
-         */
-        function toString() {
-            return this.$value;
-        }
-
         // FIXME: value & options parameters shall not be useful as a Poly Morph Field
         // FIXME: should not care of schema/options and value except if we decide to try to
         // FIXME: autodetect type based on given value when we've got a schema-less field (which Poly certainly is).
         return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.setType = setType;
             this.validate = validate;
-            this.toString = toString;
             // Allow to know, this field is a PolyMorph type as it is the only one to have this property,
             // as when setType is invoked, its type is entirely overridden with all similar properties.
             this.$isPolyMorph = true;

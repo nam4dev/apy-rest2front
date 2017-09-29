@@ -134,6 +134,9 @@
          * @return {string} Datetime field string representation
          */
         function toString() {
+            if(this.$render) {
+                return this.$render(this);
+            }
             return (this.$value && this.$value.toUTCString) ? this.$value.toUTCString() : (this.$value + '');
         }
 

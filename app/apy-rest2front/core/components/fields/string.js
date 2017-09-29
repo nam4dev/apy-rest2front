@@ -50,17 +50,6 @@
      */
     $apy.components.fields.String = function String() {
         /**
-         * String field string representation
-         *
-         * @memberOf apy.components.fields.String
-         *
-         * @return {string} String field string representation
-         */
-        function toString() {
-            return this.$value;
-        }
-
-        /**
          * Return the count of char(s) contained into the sentence
          *
          * @memberOf apy.components.fields.String
@@ -87,7 +76,6 @@
         return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.$internalType = 'string';
             this.parentHasUpdated = this.hasUpdated;
-            this.toString = toString;
             this.wordCount = wordCount;
             this.hasUpdated = hasUpdated;
             this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.STRING, relationName);

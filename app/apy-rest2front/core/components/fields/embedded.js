@@ -207,6 +207,9 @@
          * @return {string} Embedded Field string representation
          */
         function toString() {
+            if(this.$render) {
+                return this.$render(this);
+            }
             var str = this.parentToString();
             if (!str && this._id) {
                 str = this._id;

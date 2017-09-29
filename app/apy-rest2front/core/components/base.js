@@ -67,9 +67,12 @@
          *
          * @return {string} Component base string representation
          */
-        var toString = function toString() {
+        function toString() {
+            if(this.$render) {
+                return this.$render(this);
+            }
             return '' + this.$value;
-        };
+        }
 
         /**
          *
@@ -79,10 +82,10 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var add = function add(child) {
+        function add(child) {
             this.$components.push(child);
             return this;
-        };
+        }
 
         /**
          * Prepend to `components`,
@@ -94,10 +97,10 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var prepend = function prepend(child) {
+        function prepend(child) {
             this.$components.unshift(child);
             return this;
-        };
+        }
 
         /**
          * Count of inner component (children)
@@ -106,9 +109,9 @@
          *
          * @return {Number} children's count
          */
-        var count = function count() {
+        function count() {
             return this.$components.length;
-        };
+        }
 
         /**
          * Remove given child
@@ -119,7 +122,7 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var remove = function remove(child) {
+        function remove(child) {
             var length = this.count();
             for (var i = 0; i < length; i++) {
                 if (this.getChild(i) === child) {
@@ -128,7 +131,7 @@
                 }
             }
             return this;
-        };
+        }
 
         /**
          * Get a child component
@@ -139,9 +142,9 @@
          *
          * @return {apy.components.ComponentMixin} Child
          */
-        var getChild = function getChild(index) {
+        function getChild(index) {
             return this.$components[index];
-        };
+        }
 
         /**
          * Root component's has children?
@@ -150,9 +153,9 @@
          *
          * @return {boolean} Is children's count > 0
          */
-        var hasChildren = function hasChildren() {
+        function hasChildren() {
             return this.count() > 0;
-        };
+        }
 
         /**
          * Logic base to get cleaned data from component
@@ -178,7 +181,7 @@
          *
          * @return {Object} A registry of default value functions of known types
          */
-        var createTypesFactory = function createTypesFactory() {
+        function createTypesFactory() {
             var self = this;
             var $TYPES = $apy.helpers.$TYPES;
             var $typesFactory = {};
@@ -219,7 +222,7 @@
                 return null;
             };
             return $typesFactory;
-        };
+        }
 
         /**
          * Create a list of types to which `apy.components.fields.Poly` may switch
@@ -229,7 +232,7 @@
          *
          * @return {Array} A list of types
          */
-        var createTypesForPolyField = function createTypesForPolyField() {
+        function createTypesForPolyField() {
             var $typesForPoly = [];
             var $TYPES = $apy.helpers.$TYPES;
             Object.keys($TYPES).forEach(function(k) {
@@ -240,7 +243,7 @@
             });
             $typesForPoly.sort();
             return $typesForPoly;
-        };
+        }
 
         /**
          * Common constructor-like `initialize` method
@@ -259,7 +262,7 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var initialize = function initialize(service, name, schema, value, $states, endpoint, type, relationName, components) {
+        function initialize(service, name, schema, value, $states, endpoint, type, relationName, components) {
             var $TYPES = $apy.helpers.$TYPES;
             this.$originalValue = this.cloneValue(value);
             this.$types = $TYPES;
@@ -280,7 +283,7 @@
 
             this.$Class = $apy.components.ComponentMixin;
             return this;
-        };
+        }
 
         /**
          * Component' schemas object setter
@@ -291,10 +294,15 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var setOptions = function setOptions(schema) {
+        function setOptions(schema) {
             this.$schema = schema;
+            this.$render = schema.$render;
+            this.$displayed = schema.$displayed;
+            if([true, false].indexOf(this.$displayed) === -1) {
+                this.$displayed = true;
+            }
             return this;
-        };
+        }
 
         /**
          * Component's value setter
@@ -305,10 +313,10 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var setValue = function setValue(value) {
+        function setValue(value) {
             this.$value = value;
             return this;
-        };
+        }
 
         /**
          * Validate each component
@@ -319,7 +327,7 @@
          *
          * @throws apy.errors.Error when validation fails
          */
-        var validate = function validate() {
+        function validate() {
             var errors = [];
             this.$components.forEach(function(component) {
                 try {
@@ -331,7 +339,7 @@
             if (errors.length) {
                 throw new $apy.errors.Error('Validation Error: ' + errors.join(', '));
             }
-        };
+        }
 
         /**
          * When a Component payload is received from the backend
@@ -366,10 +374,10 @@
          *
          * @return {boolean}
          */
-        var shallContinue = function shallContinue(field, char) {
+        function shallContinue(field, char) {
             char = char || '_';
             return field.startsWith && field.startsWith(char);
-        };
+        }
 
         /**
          * Component's parent setter
@@ -380,10 +388,10 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var setParent = function setParent(parent) {
+        function setParent(parent) {
             this.$parent = parent;
             return this;
-        };
+        }
 
         /* istanbul ignore next */
         /**
@@ -394,9 +402,9 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var load = function load() {
+        function load() {
             return this;
-        };
+        }
 
         /**
          * Clone component itself
@@ -410,7 +418,7 @@
          *
          * @return {apy.components.ComponentMixin} Cloned component
          */
-        var clone = function clone(parent, value) {
+        function clone(parent, value) {
             if (!this.$Class) {
                 throw new $apy.errors.Error('No $Class property set !');
             }
@@ -419,7 +427,7 @@
                 this.$endpoint, this.$type, this.$relationName);
             instance.setParent(parent || this.$parent);
             return instance;
-        };
+        }
 
         /**
          * Clone a child component
@@ -429,7 +437,7 @@
          *
          * @return {*} Cloned child component
          */
-        var cloneChild = function cloneChild() {
+        function cloneChild() {
             var clone = null;
             var self = this;
             var fieldClassByType = $apy.helpers.fieldClassByType;
@@ -461,7 +469,7 @@
                 console.warn('cloneChild.warning', e);
             }
             return clone;
-        };
+        }
 
         /**
          * Add one more child to the Component
@@ -471,13 +479,13 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var oneMore = function oneMore() {
+        function oneMore() {
             var comp = this.cloneChild();
             if (comp) {
                 this.add(comp);
             }
             return this;
-        };
+        }
 
         /**
          * Generalize Polymorph Field creation
@@ -491,12 +499,12 @@
          *
          * @return {apy.components.fields.Poly} A Polymorph Field instance
          */
-        var createPolyField = function createPolyField(schema, value, name, parent) {
+        function createPolyField(schema, value, name, parent) {
             var field = new $apy.components.fields.Poly(this.$service, name || this.$name, schema, value,
                 this.$states, this.$endpoint, this.$type, this.$relationName);
             field.setParent(parent || this);
             return field;
-        };
+        }
 
         /**
          * Base method interface to clone a value
@@ -507,9 +515,9 @@
          *
          * @return {*} cloned value
          */
-        var cloneValue = function cloneValue(value) {
+        function cloneValue(value) {
             return value;
-        };
+        }
 
         /**
          * Return true if at least one inner Component is updated
@@ -519,9 +527,9 @@
          *
          * @return {boolean} Is the Component updated ?
          */
-        var hasUpdated = function hasUpdated() {
+        function hasUpdated() {
             return this.$value !== this.$memo;
-        };
+        }
 
         /**
          * Reset inner component value to its original value ($memo) if different
@@ -530,12 +538,12 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var reset = function reset() {
+        function reset() {
             if (this.hasUpdated()) {
                 this.$value = this.cloneValue(this.$memo);
             }
             return this
-        };
+        }
 
         /**
          * Is the component a `read-only` one ?
@@ -544,7 +552,7 @@
          *
          * @return {boolean} true or false
          */
-        var isReadOnly = function isReadOnly() {
+        function isReadOnly() {
             var readOnly = 0;
             this.$components.forEach(function(comp) {
                 if (comp.readOnly ||
@@ -553,7 +561,7 @@
                 }
             });
             return this.$components.length === readOnly;
-        };
+        }
 
         /**
          * Shortcut original value getter
@@ -562,9 +570,9 @@
          *
          * @return {*} Original value for the component (passed from constructor)
          */
-        var data = function data() {
+        function data() {
             return this.$originalValue;
-        };
+        }
 
         /**
          * Set Component's inner StateHolder instance to the given state
@@ -575,10 +583,10 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var setState = function setState(state) {
+        function setState(state) {
             this.$states.set(state);
             return this;
-        };
+        }
 
         /**
          * Factory method to get a StateHolder instance
@@ -590,9 +598,9 @@
          *
          * @return {apy.helpers.StateHolder} A StateHolder instance
          */
-        var createStateHolder = function createStateHolder(initialState, states) {
+        function createStateHolder(initialState, states) {
             return new $apy.helpers.StateHolder(initialState || STATES.READ, states || STATES);
-        };
+        }
 
         /**
          * Factorize logic
@@ -603,9 +611,9 @@
          *
          * @return {boolean}
          */
-        var isState = function isState(state) {
+        function isState(state) {
             return this.$states.$current === state;
-        };
+        }
 
         /**
          * Indicate when the Component inner state is equal to CREATE
@@ -614,9 +622,9 @@
          *
          * @return {boolean}
          */
-        var inCreateState = function inCreateState() {
+        function inCreateState() {
             return this.isState(STATES.CREATE);
-        };
+        }
 
         /**
          * Indicate when the Component inner state is equal to READ
@@ -625,9 +633,9 @@
          *
          * @return {boolean}
          */
-        var inReadState = function inReadState() {
+        function inReadState() {
             return this.isState(STATES.READ);
-        };
+        }
 
         /**
          * Indicate when the Component inner state is equal to UPDATE
@@ -636,9 +644,9 @@
          *
          * @return {boolean}
          */
-        var inUpdateState = function inUpdateState() {
+        function inUpdateState() {
             return this.isState(STATES.UPDATE);
-        };
+        }
 
         /**
          * Indicate when the Component inner state is equal to DELETE
@@ -647,9 +655,9 @@
          *
          * @return {boolean}
          */
-        var inDeleteState = function inDeleteState() {
+        function inDeleteState() {
             return this.isState(STATES.DELETE);
-        };
+        }
 
         /**
          * Set the Component inner state to CREATE
@@ -658,10 +666,10 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var setCreateState = function setCreateState() {
+        function setCreateState() {
             this.setState(STATES.CREATE);
             return this;
-        };
+        }
 
         /**
          * Set the Component inner state to READ
@@ -670,10 +678,10 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var setReadState = function setReadState() {
+        function setReadState() {
             this.setState(STATES.READ);
             return this;
-        };
+        }
 
         /**
          * Set the Component inner state to UPDATE
@@ -682,10 +690,10 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var setUpdateState = function setUpdateState() {
+        function setUpdateState() {
             this.setState(STATES.UPDATE);
             return this;
-        };
+        }
 
         /**
          * Set the Component inner state to DELETE
@@ -694,10 +702,10 @@
          *
          * @return {apy.components.ComponentMixin} `this`
          */
-        var setDeleteState = function setDeleteState() {
+        function setDeleteState() {
             this.setState(STATES.DELETE);
             return this;
-        };
+        }
 
         return function() {
             this.add = add;

@@ -59,6 +59,9 @@
          * @return {string} Media field string representation
          */
         function toString() {
+            if(this.$render) {
+                return this.$render(this);
+            }
             return this.$value.toString();
         }
 

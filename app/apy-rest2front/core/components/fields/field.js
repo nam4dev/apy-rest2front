@@ -61,6 +61,11 @@
             this.$unique = schema.unique || this.$unique || false;
             this.$required = schema.required || this.$required || false;
             this.$allowed = schema.allowed || this.$allowed || [];
+            this.$render = schema.$render || this.$render;
+            this.$displayed = schema.$displayed;
+            if([true, false].indexOf(this.$displayed) === -1) {
+                this.$displayed = true;
+            }
             return this;
         }
 
