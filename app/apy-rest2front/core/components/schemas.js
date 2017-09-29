@@ -368,6 +368,7 @@
     Schemas.prototype.schema2data = function schema2data(schema, keyName) {
         var self = this;
         var data;
+        schema = schema || {};
         if (keyName) {
             data = this.transformData(keyName, schema);
         }
