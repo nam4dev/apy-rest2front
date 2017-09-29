@@ -131,7 +131,9 @@
          */
         function authenticate(credentials, method, headers) {
             var self = this;
-            var defaultHeaders = {};
+            var defaultHeaders = {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            };
             var transform = function(obj) {
                 function pairEncoding(key) {
                     return encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]);
