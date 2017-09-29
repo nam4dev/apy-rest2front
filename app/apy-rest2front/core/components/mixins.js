@@ -135,16 +135,19 @@
             if(payload) {
                 var formData = new FormData();
                 Object.keys(payload).forEach(function (key) {
-                    var value = payload[key];
-                    if(Array.isArray(value)) {
-                        value.forEach(function (val) {
-                            // Following convention
-                            formData.append(key + '[]', val);
-                        })
-                    }
-                    else {
-                        formData.append(key, value);
-                    }
+                   if(payload[key] instanceof File) {
+                       formData.append(key, payload.pop(key));
+                   }
+                   if(Array.isArray(payload[key]) && payload[key][0] instanceof File) {
+                       var files = payload[key];
+                       (files || []).forEach(function (f) {
+                           formData.append(key, f);
+                       });
+                       delete payload[key];
+                   }
+                   else {
+                       formData.append(key, JSON.stringify(payload[key]));
+                   }
                 });
                 request.data = formData;
                 request.processData = false;
@@ -266,7 +269,7 @@
                         this.$states, endpoint, $apy.helpers.$TYPES.OBJECTID, relationName);
                     break;
                 default:
-                    fieldObj = this.createPolyField(undefined, value, name);
+                    fieldObj = this.createPolyField(schema, value, name);
                     // FIXME: known to be used for Resource, Embedded Field, check no side-effect on List Field
                     fieldObj.readOnly = true;
                     break;
@@ -441,6 +444,9 @@
                     comp.$selfUpdated = false;
                 }
             });
+            if (this.$selfUpdated) {
+                this.$selfUpdated = false;
+            }
             return this;
         }
 
@@ -494,6 +500,11 @@
          * @return {string} Composite Component string representation
          */
         function toString() {
+
+            if(this.$render) {
+                return this.$render(this);
+            }
+
             var values = [];
             var excludedTypes = [
                 $apy.helpers.$TYPES.BOOLEAN,
