@@ -67,6 +67,11 @@
                     <strong>{{ message }}</strong> \
                 </p> \
             </div> \
+            \
+            <div ng-if="debug && stack"> \
+                <input ng-model="showStack" id="showStack" type="checkbox" /> Show Stack traces\
+                <p ng-if="showStack">{{ stack }}</p> \
+            </div> \
         </div> \
         <div class="modal-footer"> \
             <button class="btn btn-{{ okWidgetClass || \'info\' }}" type="button" ng-click="ok()" ng-if="ok">{{ okBtnName || "Ok" }}</button> \
@@ -164,6 +169,7 @@
                 var okCallback = config.okCallback;
                 var cancelCallback = config.cancelCallback;
                 var $scope = $rootScope.$new();
+                var settings = $apy.settings.get();
 
                 var options = {
                     animation: config.animation || true,
@@ -172,7 +178,11 @@
                     scope: $scope
                 };
 
+                $scope.showStack = false;
+                $scope.debug = settings.development.TRUE;
+
                 $scope.title = config.title;
+                $scope.stack = config.stack;
                 $scope.asList = config.asList;
                 $scope.message = config.message;
                 $scope.messages = config.messages;
@@ -264,7 +274,6 @@
                 var cls = 'danger';
                 config.widgetClass = cls;
                 config.okWidgetClass = cls;
-                config.messages = [config.stack];
                 this.base(config);
             },
             /**
@@ -298,23 +307,28 @@
                     config.messages = []
                 }
                 config.messages.forEach(function(error) {
-                    var iter;
-                    if ($apy.helpers.isObject(error.messages)) {
-                        iter = [];
+                    if($apy.helpers.isObject(error) && error.title) {
+                        messages.push(error.title);
+                    }
+
+                    if($apy.helpers.isString(error)) {
+                        messages.push(error);
+                    }
+                    else if (
+                        $apy.helpers.isObject(error) &&
+                        $apy.helpers.isObject(error.messages)
+                    ) {
                         Object.keys(error.messages).forEach(function(k) {
-                            iter.push(k + ' => ' + error.messages[k]);
+                            messages.push(k + ' => ' + error.messages[k]);
                         });
                     }
                     else {
-                        iter = error.messages;
+                        messages = error.messages;
                     }
-                    messages.push(error.title);
-                    iter.forEach(function(value) {
-                        messages.push(value);
-                    });
                 });
+
                 if(!messages.length) {
-                    messages.push('No details found!')
+                    messages.push('No details found!');
                 }
                 config.messages = messages;
                 this.base(config);
