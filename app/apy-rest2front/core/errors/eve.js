@@ -44,11 +44,23 @@
         var title;
         var both;
         try {
-            code = eveError.status || eveError.data._error.code;
+            if ($apy.helpers.isObject(eveError) &&
+                eveError.data && eveError.data._error) {
+                code = eveError.data._error.code;
+            }
+            else {
+                code = eveError.status || eveError._error.code;
+            }
         }
         catch (e) {code = 'Error';}
         try {
-            title = eveError.statusText || eveError.data._error.message;
+            if ($apy.helpers.isObject(eveError) &&
+                eveError.data && eveError.data._error) {
+                title = eveError.data._error.message;
+            }
+            else {
+                title = eveError.statusText || eveError._error.message;
+            }
         }
         catch (e) {title = '';}
 
@@ -74,24 +86,57 @@
      */
     function messages(eveError) {
         var messages = [];
+
         if (Array.isArray(eveError)) {
             messages = eveError;
         }
-        else if ($apy.helpers.isObject(eveError) && eveError.data && eveError.data._issues) {
+        if($apy.helpers.isObject(eveError) && eveError._error) {
+            messages.push(eveError._error.message);
+        }
+        if (eveError.data && eveError.data.error_description) {
+            messages.push(eveError.data.error_description);
+        }
+        if (eveError.data && eveError.data._error && eveError.data._error.message) {
+            messages.push(eveError.data._error.message);
+        }
+        if ($apy.helpers.isObject(eveError) && eveError.data && eveError.data._issues) {
             messages = eveError.data._issues;
         }
-        else {
-            if (eveError.data && eveError.data.error_description) {
-                messages.push(eveError.data.error_description);
-            }
-            if (eveError.data && eveError.data._error && eveError.data._error.message) {
-                messages.push(eveError.data._error.message);
-            }
-        }
+
         if (Array.isArray(messages) && !messages.length) {
             messages.push('No details found!');
         }
         return messages;
+    }
+
+    /**
+     * Normalize an Error (HTTP)
+     *
+     * @param error The error instance
+     * @return {{}} A normalized Error
+     */
+    function normalizeError(error) {
+        var normalizedError;
+        if(error.responseJSON) {
+            normalizedError = error.responseJSON;
+        }
+        else if(error.responseText) {
+            try{
+                normalizedError = JSON.parse(error.responseText);
+            } catch(e) {
+                console.debug(e);
+            }
+        }
+        else {
+            normalizedError = error;
+        }
+        try {
+            normalizedError.status = error.status;
+            normalizedError.statusText = error.statusText;
+        } catch(e) {
+            console.debug(e);
+        }
+        return normalizedError;
     }
 
     /**
@@ -121,11 +166,12 @@
      * @param {Object} eveError Any Eve HTTP Error
      */
     function EveHTTPError(eveError) {
-        var error = Error.call(this, title(eveError));
+        var normalizedError = normalizeError(eveError);
+        var error = Error.call(this, title(normalizedError));
         this.name = 'EveHTTPError';
         this.title = this.message = error.message;
         this.stack = error.stack;
-        this.messages = messages(eveError);
+        this.messages = messages(normalizedError);
     }
 
     EveHTTPError.prototype = Object.create(Error.prototype);
