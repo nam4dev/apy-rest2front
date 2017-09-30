@@ -85,6 +85,10 @@
         function invalidate() {
             var nil = null;
             this.$tokenInfo = nil;
+            (
+                this.$auth.storage &&
+                this.$auth.storage.setItem(this.$auth.userKey, null)
+            );
             return Promise.resolve(nil);
         }
 
@@ -129,12 +133,12 @@
          *
          * @return {Promise} Asynchronous call
          */
-        function authenticate(credentials, method, headers) {
+        function authenticateOAuth2(credentials, method, headers) {
             var self = this;
             var defaultHeaders = {
                 'Content-Type': 'application/x-www-form-urlencoded'
             };
-            var transform = function(obj) {
+            function transform2URLEncoded(obj) {
                 function pairEncoding(key) {
                     return encodeURIComponent(key) + '=' + encodeURIComponent(obj[key]);
                 }
@@ -145,7 +149,7 @@
                     }
                 }
                 return str.join('&');
-            };
+            }
             var requestHeaders = headers || defaultHeaders;
 
             if (!credentials.client_id) {
@@ -155,13 +159,15 @@
                 credentials.grant_type = this.$auth.grant_type;
             }
 
+            self.$auth.transformData(credentials);
+
             return new Promise(function(resolve, reject) {
                 self.request({
                     url: self.$auth.endpoint,
                     method: method || 'POST',
                     headers: requestHeaders,
                     data: credentials,
-                    transformRequest: transform
+                    transformRequest: transform2URLEncoded
 
                 })
                     .then(
@@ -174,6 +180,73 @@
                     }
                 );
             });
+        }
+
+        /**
+         * Authenticate against Authentication Server (Token-based protocol)
+         *
+         * @memberOf apy.CompositeService
+         *
+         * @param {Object} credentials Object representing credentials
+         * @param {string} credentials.username `USERNAME`
+         * @param {string} credentials.password `PASSWORD`
+         * @param {string} method HTTP Method Verb (GET, POST)
+         * @param {Object} headers (optional) HTTP Headers
+         *
+         * @return {Promise} Asynchronous call
+         */
+        function authenticateTokenBased(credentials, method, headers) {
+            var self = this;
+            var defaultHeaders = {
+                'Content-Type': 'application/json'
+            };
+
+            var requestHeaders = headers || defaultHeaders;
+            self.$auth.transformData(credentials);
+
+            return new Promise(function(resolve, reject) {
+                self.request({
+                    url: self.$auth.endpoint,
+                    method: method || 'POST',
+                    headers: requestHeaders,
+                    data: JSON.stringify(credentials),
+                })
+                    .then(
+                    function (data) {
+                        //self.$auth.setSession(data);
+                        return resolve(data);
+                    },
+                    function(error) {
+                        return reject(error);
+                    }
+                );
+            });
+        }
+
+        /**
+         * Authenticate against Authentication Server
+         * Template method aggregating all known protocols authentication
+         *
+         * @memberOf apy.CompositeService
+         *
+         * @param {string} protocol Protocol used (Oauth, Oauth2, Token-based, ...)
+         * @param {Object} credentials Object representing credentials
+         * @param {string} credentials.client_id Oauth2 `CLIENT ID`
+         * @param {string} credentials.grant_type Oauth2 `GRANT TYPE` (eg. password)
+         * @param {string} credentials.username `USERNAME`
+         * @param {string} credentials.password `PASSWORD`
+         * @param {string} method HTTP Method Verb (GET, POST)
+         * @param {Object} headers (optional) HTTP Headers
+         *
+         * @return {Promise} Asynchronous call
+         */
+        function authenticate(protocol, credentials, method, headers) {
+            switch (protocol) {
+                case 'oauth2':
+                    return this.authenticateOAuth2(credentials, method, headers);
+                default:
+                    return this.authenticateTokenBased(credentials, method, headers);
+            }
         }
 
         /**
@@ -305,10 +378,13 @@
             this.$endpoint = this.$settings.$endpoint();
             this.$schemasEndpoint = this.$settings.$definitionsEndpoint();
 
+
             this.setSchemas = setSchemas;
             this.invalidate = invalidate;
             this.loadSchemas = loadSchemas;
             this.authenticate = authenticate;
+            this.authenticateOAuth2 = authenticateOAuth2;
+            this.authenticateTokenBased = authenticateTokenBased;
             this.isAuthenticated = isAuthenticated;
             this.setDependencies = setDependencies;
             this.createCollection = createCollection;
