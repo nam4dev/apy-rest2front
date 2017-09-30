@@ -97,13 +97,12 @@
             var self = this;
             return new Promise(function(resolve, reject) {
                 function on_success(data) {
-                    console.log('browser-request got your root path:\n', data);
                     return resolve(data);
                 }
                 function on_failure(error) {
-                    console.log('There was an error, but at least browser-request loaded and ran!', typeof error, error);
-                    var _err = new $apy.errors.EveHTTPError(error);
-                    return reject(_err);
+                    return reject(
+                        new $apy.errors.EveHTTPError(error)
+                    );
                 }
                 function on_resource_progress(evt) {
                     var fileName;
@@ -135,19 +134,19 @@
             if(payload) {
                 var formData = new FormData();
                 Object.keys(payload).forEach(function (key) {
-                   if(payload[key] instanceof File) {
-                       formData.append(key, payload.pop(key));
-                   }
-                   if(Array.isArray(payload[key]) && payload[key][0] instanceof File) {
-                       var files = payload[key];
-                       (files || []).forEach(function (f) {
-                           formData.append(key, f);
-                       });
-                       delete payload[key];
-                   }
-                   else {
-                       formData.append(key, JSON.stringify(payload[key]));
-                   }
+                    if(payload[key] instanceof File) {
+                        formData.append(key, payload.pop(key));
+                    }
+                    if(Array.isArray(payload[key]) && payload[key][0] instanceof File) {
+                        var files = payload[key];
+                        (files || []).forEach(function (f) {
+                            formData.append(key, f);
+                        });
+                        delete payload[key];
+                    }
+                    else {
+                        formData.append(key, JSON.stringify(payload[key]));
+                    }
                 });
                 request.data = formData;
                 request.processData = false;
