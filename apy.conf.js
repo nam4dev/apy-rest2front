@@ -17,7 +17,7 @@
         'app/components/ng-file-upload/ng-file-upload-shim.js',
         'app/components/ng-file-upload/ng-file-upload.js',
 
-        'app/apy-rest2front/core/namespace.js',
+        'app/apy-rest2front/setup.js',
         'app/apy-rest2front/settings.js',
         'app/apy-rest2front/core/errors/bases.js',
         'app/apy-rest2front/core/errors/eve.js',
