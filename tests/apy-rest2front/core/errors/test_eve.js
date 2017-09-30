@@ -151,4 +151,23 @@ describe("Core.errors.eve unit tests", function() {
         expect(error.messages).toEqual(fakeEveError.data._issues);
     });
 
+    it("[EveHTTPError]", function () {
+        var fakeEveError = {
+            status: 401,
+            statusText: 'Unauthorized',
+            _error: {
+                code: 401,
+                message: 'Invalid Credentials'
+            }
+        };
+        var error = new apy.tests.$types.errors.EveHTTPError(fakeEveError);
+
+        expect(error.name).toBeDefined();
+        expect(error.title).toBeDefined();
+        expect(error.messages).toBeDefined();
+
+        expect(error.messages).toEqual([fakeEveError._error.message]);
+        expect(error.title).toEqual(fakeEveError.status + ': ' + fakeEveError.statusText);
+    });
+
 });
