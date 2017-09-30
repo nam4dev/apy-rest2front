@@ -157,16 +157,38 @@
             },
             authentication: {
                 enabled: false,
+                userKey: 'User',
+                storage: localStorage,
                 grant_type: 'password',
-                endpoint: 'http://localhost:5000/oauth/token',
-                client_id: '<your-client-id>',
+                client_id: '<my-client-id>',
+                endpoint: '<my-authentication-endpoint>',
                 isEnabled: function() {
+                    // Can be overridden
                     return (
                         this.enabled &&
                         this.client_id &&
                         this.endpoint &&
                         this.grant_type
                     );
+                },
+                // eslint-disable-next-line no-unused-vars
+                transformData: function (data) {
+                    // Transform data payload
+                    // according to your auth backend
+                },
+                isAuthenticated: function() {
+                    // Can be overridden
+                    return (
+                        this.storage &&
+                        this.storage.getItem(this.userKey)
+                    );
+                },
+                transformResponse: function(authUser) {
+                    // The Response expects a JSON string
+                    // containing data with attributes:
+                    // - token_type (Bearer, ...);
+                    // - access_token (token-based string);
+                    return authUser;
                 }
             }
         }, settings);

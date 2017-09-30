@@ -248,10 +248,7 @@
                 $scope.logout = function() {
                     apyProvider.invalidate()
                         .then(
-                        function() {
-                            window.localStorage.setItem('tokenInfo', apyProvider.$tokenInfo);
-                            window.location.reload();
-                        },
+                        window.location.reload,
                         console.error
                     );
                 };
