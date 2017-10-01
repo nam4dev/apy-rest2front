@@ -226,6 +226,8 @@
 
             this.load(value);
 
+            this.$render = schema.$render;
+
             return this;
         };
     })();
