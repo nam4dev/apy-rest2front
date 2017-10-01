@@ -66,7 +66,7 @@
         this.$embeddedURI = '';
         this.$bTemplate = settings.bTemplate();
         this.$headers = Object.keys(schema).filter(function(key) {
-            return !key.startsWith('_');
+            return !key.startsWith('_') && !key.startsWith('$');
         }).sort().reverse();
         this.load();
     };
