@@ -44,7 +44,7 @@
         'app/apy-rest2front/integration/angular/services.js',
         'app/apy-rest2front/integration/angular/app.js',
         'app/apy-rest2front/integration/angular/view.js',
-        'app/apy-rest2front/integration/angular/login.js',
+        'app/apy-rest2front/integration/angular/signin.js',
         'app/apy-rest2front/integration/angular/directives/field.js',
         'app/apy-rest2front/integration/angular/directives/version/version.js',
         'app/apy-rest2front/integration/angular/directives/version/version-directive.js',
@@ -196,7 +196,6 @@
     $module.exports = {
         gulp: {
             dev: false,
-            allJS: allJS,
             paths: paths,
             minifyHTMLOpts: {
                 minifyCSS: true,

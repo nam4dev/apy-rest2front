@@ -30,7 +30,7 @@
  *  `apy-rest2front`  Copyright (C) 2016 Namgyal Brisson.
  *
  *  """
- *  Angular login page controller
+ *  Angular signin page controller
  *
  *  """
  */
@@ -41,7 +41,7 @@
     var app = $apy.integration.app;
     var settings = $apy.settings.get();
 
-    app.controller('apyLoginCtrl', ['$scope', 'apy', 'apyModal', function ($scope, apyProvider, apyModalProvider) {
+    app.controller('apySignInCtrl', ['$scope', 'apy', 'apyModal', function ($scope, apyProvider, apyModalProvider) {
         if (!$scope.credentials ||
             !$scope.credentials.username ||
             !$scope.credentials.password) {
@@ -50,7 +50,7 @@
                 password: undefined
             };
         }
-        $scope.loginIcon = settings.getIconByName('login_icon.jpg');
+        $scope.signInIcon = settings.getIconByName('signin_icon.jpg');
 
         // Auth Help link
         $scope.needHelp = function (event) {
@@ -64,7 +64,7 @@
             });
         };
 
-        $scope.signin = function (event) {
+        $scope.signIn = function (event) {
             event.preventDefault();
             var errors = [];
             if (!$scope.credentials.username) {
