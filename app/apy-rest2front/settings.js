@@ -85,7 +85,7 @@
             getIconByName: function (name) {
                 return (
                     (this.development.enabled) ?
-                        this.development.importRoot + 'common/' : ''
+                        this.development.importRoot + 'assets/' : ''
                     ) + name;
             },
             /**

@@ -80,9 +80,9 @@
                     'app/components/html5-boilerplate/dist/css/main.css',
                     'app/components/bootstrap/dist/css/bootstrap.min.css',
                     'app/components/angular-backtop/dist/angular-backtop.css',
-                    'app/apy-rest2front/integration/angular/login.css',
-                    'app/apy-rest2front/integration/common/css/core.css',
-                    'app/apy-rest2front/integration/common/css/responsive.css'
+                    'app/apy-rest2front/integration/assets/css/signin.css',
+                    'app/apy-rest2front/integration/assets/css/core.css',
+                    'app/apy-rest2front/integration/assets/css/responsive.css'
                 ]
             },
             dest: 'build/app/scripts'
@@ -91,7 +91,7 @@
             files: {
                 src: [
                     'app/apy-rest2front/integration/angular/view.html',
-                    'app/apy-rest2front/integration/angular/login.html',
+                    'app/apy-rest2front/integration/angular/signin.html',
                     'app/index4build.html'
                 ]
             }
@@ -107,8 +107,8 @@
         icons: {
             files: {
                 src: [
-                    'app/apy-rest2front/integration/common/*.ico',
-                    'app/apy-rest2front/integration/common/*.jpg'
+                    'app/apy-rest2front/integration/assets/*.ico',
+                    'app/apy-rest2front/integration/assets/*.jpg'
                 ]
             }
         },
@@ -123,7 +123,7 @@
             ],
             files: {
                 static: {
-                    src: ["./app/apy-rest2front/integration/common/favicon.ico"]
+                    src: ["./app/apy-rest2front/integration/assets/favicon.ico"]
                 },
                 design: {
                     src: [

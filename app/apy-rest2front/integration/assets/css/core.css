@@ -62,6 +62,10 @@ select[multiple], select[size] {
     margin-top: 5%;
 }
 
+.apy-container {
+    margin-top: 6%;
+}
+
 /* End Apy Css rules */
 
 .modal-header {
