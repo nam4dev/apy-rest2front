@@ -5,11 +5,11 @@
             <div class="account-wall">
                 <img class="profile-img" ng-src="{{ loginIcon }}"
                      alt="">
-                <form class="form-signin">
+                <form class="form-signin" name="">
                     <input type="text" class="form-control" placeholder="Username" required autofocus ng-model="credentials.username">
                     <input type="password" class="form-control" placeholder="Password" required ng-model="credentials.password">
-                    <input class="btn btn-lg btn-primary btn-block" type="submit" ng-click="login($event)" value="Sign in" />
-                    <a href="#" class="pull-right need-help" ng-click="help($event)">Need help? </a><span class="clearfix"></span>
+                    <input class="btn btn-lg btn-primary btn-block" type="submit" ng-click="signin($event)" value="Sign in" />
+                    <a href="#" class="pull-right need-help" ng-click="needHelp($event)">Need help? </a><span class="clearfix"></span>
                 </form>
             </div>
         </div>

@@ -19,9 +19,9 @@
 
         'app/apy-rest2front/setup.js',
         'app/apy-rest2front/settings.js',
+        'app/apy-rest2front/core/helpers.js',
         'app/apy-rest2front/core/errors/bases.js',
         'app/apy-rest2front/core/errors/eve.js',
-        'app/apy-rest2front/core/helpers.js',
         'app/apy-rest2front/core/components/base.js',
         'app/apy-rest2front/core/components/mixins.js',
         'app/apy-rest2front/core/components/fields/field.js',
@@ -41,13 +41,14 @@
         'app/apy-rest2front/core/components/schemas.js',
         'app/apy-rest2front/core/core.js',
 
+        'app/apy-rest2front/integration/angular/services.js',
+        'app/apy-rest2front/integration/angular/app.js',
         'app/apy-rest2front/integration/angular/view.js',
+        'app/apy-rest2front/integration/angular/login.js',
         'app/apy-rest2front/integration/angular/directives/field.js',
         'app/apy-rest2front/integration/angular/directives/version/version.js',
         'app/apy-rest2front/integration/angular/directives/version/version-directive.js',
         'app/apy-rest2front/integration/angular/directives/version/interpolate-filter.js',
-        'app/apy-rest2front/integration/angular/services.js',
-        'app/apy-rest2front/integration/angular/app.js',
         'tests/**/*.js'
     ];
     var jsFiles = allJS.slice(0, -1);
