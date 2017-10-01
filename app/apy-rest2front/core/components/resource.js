@@ -226,6 +226,7 @@
 
             this.load(value);
 
+            this.selected = false;
             this.$render = schema.$render;
 
             return this;
