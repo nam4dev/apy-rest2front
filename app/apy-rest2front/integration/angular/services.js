@@ -179,7 +179,7 @@
                 };
 
                 $scope.showStack = false;
-                $scope.debug = settings.development.TRUE;
+                $scope.debug = settings.development.enabled;
 
                 $scope.title = config.title;
                 $scope.stack = config.stack;

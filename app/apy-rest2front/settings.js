@@ -83,7 +83,10 @@
              * @return {string}
              */
             getIconByName: function (name) {
-                return ((this.development.TRUE) ? this.development.importRoot + 'common/' : '') + name;
+                return (
+                    (this.development.enabled) ?
+                        this.development.importRoot + 'common/' : ''
+                    ) + name;
             },
             /**
              * @memberOf apy.settings._Settings
@@ -92,7 +95,10 @@
              * @return {string}
              */
             getViewByName: function(name) {
-                return ((this.development.TRUE) ? (this.development.importRoot + this.templates.frontend + '/') : '') + name + '.html';
+                return (
+                    (this.development.enabled) ?
+                        (this.development.importRoot + this.templates.frontend + '/') : ''
+                    ) + name + '.html';
             },
             /**
              * @memberOf apy.settings._Settings
@@ -152,7 +158,7 @@
             },
             schemaOverrides: {},
             development: {
-                TRUE: false,
+                enabled: false,
                 importRoot: 'apy-rest2front/integration/'
             },
             authentication: {
