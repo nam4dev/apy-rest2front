@@ -215,6 +215,7 @@
     };
 
     // constants
+    $window.apy.tests.settings = apy.settings;
     $window.apy.tests.DEFAULT_CONFIG = DEFAULT_CONFIG;
     $window.apy.tests.DEFAULT_SCHEMAS = DEFAULT_SCHEMAS;
     $window.apy.tests.DEFAULT_ENDPOINT = DEFAULT_ENDPOINT;
