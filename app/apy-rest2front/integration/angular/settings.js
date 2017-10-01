@@ -2,6 +2,7 @@
 
     $apy.customSettings = {
         // Custom Settings here (cf. documentation for all possibilities)
+        // npm run build -- --settings="./mySettings.js"
         endpoints: {
             root: {
                 port: 5000,
@@ -15,6 +16,7 @@
             isEnabled: function() {
                 return true;
             },
+            // eslint-disable-next-line no-unused-vars
             transformData: function (data) {
                 // For instance one can adapt
                 // the backend according ones needs:
@@ -22,6 +24,7 @@
                 // data.email = data.username;
                 // delete data.username;
             },
+            // eslint-disable-next-line no-unused-vars
             transformResponse: function(authUser) {
                 // For instance one can adapt
                 // the backend according ones needs:
