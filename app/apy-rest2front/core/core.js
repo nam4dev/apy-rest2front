@@ -299,7 +299,6 @@
             return new Promise(function(resolve, reject) {
 
                 function on_success(response) {
-                    console.log('RESPONSE', response);
                     self.setSchemas(response);
                     return resolve(response);
                 }

@@ -565,9 +565,13 @@
 
     $apy.helpers.$TYPES = $TYPES;
     $apy.helpers.isDate = isDate;
-    $apy.helpers.isObject = isObject;
+    $apy.helpers.isFile = isFile;
+    $apy.helpers.isBlob = isBlob;
+    $apy.helpers.isFloat = isFloat;
     $apy.helpers.isString = isString;
+    $apy.helpers.isObject = isObject;
     $apy.helpers.isFunction = isFunction;
+    $apy.helpers.isNegativeZero = isNegativeZero;
 
     $apy.helpers.GeoPoint = GeoPoint;
     $apy.helpers.MediaFile = MediaFile;
