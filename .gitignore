@@ -12,4 +12,5 @@ components/ui.*
 tmp
 .DS_Store
 .idea
+**/integration/**/settings.js
 
