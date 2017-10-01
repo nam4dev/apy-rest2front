@@ -75,7 +75,7 @@
          * @return {apy.components.fields.Embedded} `this`
          */
         function selfCommit() {
-            var cleaned = this.parentCleanedData() || {};
+            var cleaned = this.super_cleanedData() || {};
             cleaned._id = this._id;
             cleaned._etag = this._etag;
             cleaned._links = this._links;
@@ -210,8 +210,8 @@
             if(this.$render) {
                 return this.$render(this);
             }
-            var str = this.parentToString();
-            if (!str && this._id) {
+            var str = this.super_toString();
+            if (['', 'undefined'].indexOf(str) !== -1 && this._id) {
                 str = this._id;
             }
             return str;
@@ -233,7 +233,7 @@
          */
         return function(service, name, schema, value, $states, $endpoint, type, relationName) {
             this.reset = reset;
-            this.parentToString = this.toString;
+            this.super_toString = this.toString;
             this.toString = toString;
             this.validate = validate;
             this.setValue = setValue;
@@ -241,7 +241,7 @@
             this.hasUpdated = hasUpdated;
             this.selfUpdate = selfUpdate;
             this.selfCommit = selfCommit;
-            this.parentCleanedData = this.cleanedData;
+            this.super_cleanedData = this.cleanedData;
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
             this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.OBJECTID, relationName);
