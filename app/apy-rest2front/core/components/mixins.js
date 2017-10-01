@@ -519,14 +519,12 @@
                     return excludedTypes.indexOf(c.$type) === -1;
                 });
             }
+
             filtered.forEach(function(c) {
-                if (c.$value) {
-                    var toString = c.toString();
-                    if (toString) {
-                        values.push(toString);
-                    }
-                }
+                var str = c.toString();
+                if(str) values.push(str);
             });
+
             if (values.length) {
                 return values.join(', ');
             }
