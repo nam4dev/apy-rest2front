@@ -268,7 +268,7 @@
                    maxlength="{{ field.$maxlength }}"
                    required="{{ field.$required }}"
                    placeholder="{{ field.$name }}"
-                    />
+            />
             <textarea msd-elastic="\n"
                       ng-model="field.$value"
                       ng-if="field.wordCount() > 60"
@@ -278,7 +278,7 @@
                       minlength="{{ field.$minlength }}"
                       maxlength="{{ field.$maxlength }}"
                       required="{{ field.$required }}"
-                    >
+            >
             </textarea>
         </div>
     </script>
@@ -561,6 +561,14 @@
                             class="btn btn-default">
                         <i class="glyphicon glyphicon-trash"></i>
                     </button>
+                    <button id="gSelect"
+                            type="button"
+                            ng-if="$collection.savedCount() > 0"
+                            ng-click="$collection.toggleSelect()"
+                            class="btn btn-default">
+                        <i ng-if="$collection.selectedComponents().length" class="glyphicon glyphicon-check"></i>
+                        <i ng-if="!$collection.selectedComponents().length" class="glyphicon glyphicon-unchecked"></i>
+                    </button>
             </tr>
         </table>
     </div>
@@ -571,6 +579,12 @@
                 <tr>
                     <th class="hidden-sm hidden-xs"></th>
                     <td>
+                        <button type="button"
+                                ng-click="select(resource)"
+                                class="btn btn-default pull-right">
+                            <i ng-if="resource.selected" class="glyphicon glyphicon-check"></i>
+                            <i ng-if="!resource.selected" class="glyphicon glyphicon-unchecked"></i>
+                        </button>
                         <button type="button"
                                 ng-if="!resource.isReadOnly() && resource.hasCreated()"
                                 ng-click="$collection.removeResource(resource)"
@@ -656,6 +670,12 @@
                                ng-if="resource.$components[$index].$displayed"></apy-field>
                 </td>
                 <td>
+                    <button type="button"
+                            ng-click="select(resource)"
+                            class="btn btn-default pull-right">
+                        <i ng-if="resource.selected" class="glyphicon glyphicon-check"></i>
+                        <i ng-if="!resource.selected" class="glyphicon glyphicon-unchecked"></i>
+                    </button>
                     <button type="button"
                             ng-if="!resource.isReadOnly() && resource.hasCreated()"
                             ng-click="$collection.removeResource(resource)"
