@@ -41,6 +41,7 @@
         'app/apy-rest2front/core/components/schemas.js',
         'app/apy-rest2front/core/core.js',
 
+        'app/apy-rest2front/integration/angular/settings.js',
         'app/apy-rest2front/integration/angular/services.js',
         'app/apy-rest2front/integration/angular/app.js',
         'app/apy-rest2front/integration/angular/view.js',

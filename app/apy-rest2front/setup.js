@@ -67,6 +67,7 @@
          * @namespace apy.settings
          */
         settings: null,
+        customSettings: null,
         /**
          * @namespace apy.constants
          */

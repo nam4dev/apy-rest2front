@@ -37,28 +37,12 @@
 /* istanbul ignore next */
 (function(angular, $apy) {'use strict';
 
-    var settings = $apy.settings.create({
-        // configuration here
-        endpoints: {
-            root: {
-                port: 5000,
-                hostname: "http://localhost"
-            }
-        },
-        authentication: {
-            enabled: false,
-            grant_type: 'password',
-            endpoint: 'http://localhost:5000/oauth/token',
-            client_id: '<your-client-id>'
-        },
-        development: {
-            TRUE: false
-        }
-    });
+    var customSettings = $apy.customSettings || {};
+    var settings = $apy.settings.create(customSettings);
     // Alias
-    var authentication = settings.authentication;
+    var auth = settings.authentication;
 
-    var app = angular.module('apy-rest2front', [
+    var app = $apy.integration.app = angular.module('apy-rest2front', [
         'ngRoute',
         'ngAnimate',
         'ngFileUpload',
@@ -81,11 +65,11 @@
             };
         })
         .config(['$routeProvider', function($routeProvider) {
-            if (authentication.isEnabled()) {
+            if (auth.isEnabled()) {
                 // Auth route
-                $routeProvider.when('/login', {
-                    templateUrl: settings.getViewByName('login'),
-                    controller: 'apyLoginCtrl'
+                $routeProvider.when('/signin', {
+                    templateUrl: settings.getViewByName('signin'),
+                    controller: 'apySignInCtrl'
                 });
             }
             // setting a generic parameter 'resource'
@@ -93,22 +77,22 @@
                 templateUrl: settings.getViewByName('view'),
                 controller: 'apyViewCtrl'
             })
-                // default route
+            // default route
                 .otherwise({redirectTo: 'index'});
         }])
         .controller('indexCtrl', ['$scope', 'apy', '$location', function($scope, apyProvider, $location) {
 
             $scope.apyTick = '' + parseInt(new Date().getTime());
 
-            if (authentication.isEnabled()) {
+            if (auth.isEnabled()) {
                 $scope.$watch(function() {
-                    return apyProvider.isAuthenticated(function() {
-                        return window.localStorage.getItem('tokenInfo');
+                    return apyProvider.isAuthenticated(function () {
+                        return settings.authentication.isAuthenticated();
                     });
                 }, function(value, oldValue) {
                     if (!value && oldValue) {
                         // console.log("Disconnect");
-                        $location.path('/login');
+                        $location.path('/signin');
                     }
 
                     if (value) {
@@ -119,65 +103,13 @@
             }
         }]);
 
-    if (authentication.isEnabled()) {
-        app.controller('apyLoginCtrl', ['$scope', 'apy', 'apyModal', function($scope, apyProvider, apyModalProvider) {
-            if (!$scope.credentials ||
-                !$scope.credentials.username ||
-                !$scope.credentials.password) {
-                $scope.credentials = {
-                    username: undefined,
-                    password: undefined
-                };
-            }
-            $scope.loginIcon = settings.getIconByName('login_icon.jpg');
-
-            // Auth Help link
-            $scope.help = function(event) {
-                event.preventDefault();
-                apyModalProvider.info({
-                    title: 'Restricted Area',
-                    messages: [
-                        'This area cannot be accessed freely.',
-                        'If you need more info, please contact Administrator.'
-                    ]
-                });
-            };
-
-            $scope.login = function(event) {
-                event.preventDefault();
-                var errors = [];
-                if (!$scope.credentials.username) {
-                    errors.push('No username provided');
-                }
-                if (!$scope.credentials.password) {
-                    errors.push('No password provided');
-                }
-
-                if (errors.length) {
-                    apyModalProvider.error(new $apy.errors.EveError(errors));
-                }
-                else {
-                    apyProvider.authenticate($scope.credentials)
-                        .then(
-                        function(response) {
-                            console.log('response', response);
-                            window.localStorage.setItem('tokenInfo', JSON.stringify(response));
-                            window.location.reload();
-                        },
-                        function(error) {
-                            apyModalProvider.error(error);
-                        }
-                    );
-                }
-            };
-        }]);
-
+    if (auth.isEnabled()) {
         app.run(['$rootScope', '$location', 'apy', function($rootScope, $location, apyProvider) {
             $rootScope.$on('$routeChangeStart', function() {
-                if (!apyProvider.isAuthenticated(function() {
-                        return window.localStorage.getItem('tokenInfo');
+                if (!apyProvider.isAuthenticated(function () {
+                        return settings.authentication.isAuthenticated();
                     })) {
-                    $location.path('/login');
+                    $location.path('/signin');
                 }
             });
         }]);

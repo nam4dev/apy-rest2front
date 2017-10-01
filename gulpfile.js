@@ -33,6 +33,15 @@ gulp.task('minify-css', () => {
 });
 
 gulp.task('minify-js', () => {
+    var customSettings = gp_util.env.settings;
+    if(customSettings) {
+        var index = gp_config.paths.js.files.src.indexOf(
+            'app/apy-rest2front/integration/angular/settings.js'
+        );
+        if (index !== -1) {
+            gp_config.paths.js.files.src[index] = customSettings;
+        }
+    }
     return gulp.src(gp_config.paths.js.files.src)
         .pipe(gp_if(gp_config.dev, gp_sourcemaps.init()))
         .pipe(gp_concat(gp_config.paths.js.minified))
@@ -85,8 +94,8 @@ gulp.task('lint', ['prepare'], () => {
     // Also, Be sure to return the stream from the task;
     // Otherwise, the task may end before the stream has finished.
     return gulp.src(gp_config.paths.eslint.src)
-        // eslint() attaches the lint output to the "eslint" property
-        // of the file object so it can be used by other modules.
+    // eslint() attaches the lint output to the "eslint" property
+    // of the file object so it can be used by other modules.
         .pipe(gp_eslint({ fix: true }))
         // eslint.format() outputs the lint results to the console.
         // Alternatively use eslint.formatEach() (see Docs).
