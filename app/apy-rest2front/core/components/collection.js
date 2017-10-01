@@ -301,7 +301,9 @@
         function update() {
             // FIXME: Shall be optimized if `bulk_enabled` is true, making a single request to backend
             var promises = [];
-            this.savedComponents().forEach(function(comp) {
+            var selection = this.selectedOrSaved();
+
+            selection.forEach(function(comp) {
                 var defer = comp.update();
                 if (defer) {
                     promises.push(defer);
@@ -321,7 +323,9 @@
         function del() {
             // FIXME: Shall be optimized using DELETE on root (/) endpoint without ID
             var promises = [];
-            this.savedComponents().forEach(function(comp) {
+            var selection = this.selectedOrSaved();
+
+            selection.forEach(function(comp) {
                 var defer = comp.delete();
                 if (defer) {
                     promises.push(defer);
@@ -339,8 +343,67 @@
          * @return {apy.components.Collection}
          */
         function clear() {
-            this.$components = [];
+            var selection = this.selectedComponents();
+            if(selection.length) {
+                var self = this;
+                selection.forEach(function (res) {
+                    self.removeResource(res)
+                });
+            }
+            else {
+                this.$components = [];
+            }
             return this;
+        }
+
+        /**
+         * Select all components (set the `selected` attribute)
+         *
+         * @memberOf apy.components.Collection
+         */
+        function selectAll() {
+            this.savedComponents().forEach(function (comp) {
+                comp.selected = true;
+            });
+        }
+
+        /**
+         * Unselect all components (set the `selected` attribute)
+         *
+         * @memberOf apy.components.Collection
+         */
+        function unselectAll() {
+            this.savedComponents().forEach(function (comp) {
+                comp.selected = false;
+            });
+        }
+
+        /**
+         * toggle-select all components (set the `selected` attribute)
+         *
+         * @memberOf apy.components.Collection
+         */
+        function toggleSelect() {
+            var selected = this.selectedComponents();
+            if(!selected.length) {
+                this.selectAll();
+            }
+            else {
+                this.unselectAll();
+            }
+        }
+
+        /**
+         * Return the selected components if any or saved Resource(s)
+         *
+         * @memberOf apy.components.Collection
+         *
+         * @return {Array} `selected` or `saved` Resource(s)
+         */
+        function selectedOrSaved() {
+            var selected = this.selectedComponents();
+            return selected.length ? selected: this.savedComponents()
+
         }
 
         /**
@@ -381,6 +444,19 @@
         }
 
         /**
+         * Filter `selected` components (resources)
+         *
+         * @memberOf apy.components.Collection
+         *
+         * @return {Array} selected Components
+         */
+        function selectedComponents() {
+            return this.$components.filter(function(comp) {
+                return comp.selected;
+            });
+        }
+
+        /**
          * Collection Constructor
          *
          * @param name
@@ -408,13 +484,18 @@
             this.isState = isState;
             this.setState = setState;
             this.toString = toString;
+            this.selectAll = selectAll;
             this.savedCount = savedCount;
             this.removeResource = remove;
             this.hasCreated = hasCreated;
             this.hasUpdated = hasUpdated;
+            this.unselectAll = unselectAll;
+            this.toggleSelect = toggleSelect;
             this.createResource = createResource;
+            this.selectedOrSaved = selectedOrSaved;
             this.savedComponents = savedComponents;
             this.unsavedComponents = unsavedComponents;
+            this.selectedComponents = selectedComponents;
 
             return this;
         };

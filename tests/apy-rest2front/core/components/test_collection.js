@@ -265,6 +265,57 @@ describe("Component.Collection unit tests", function() {
         expect(hcCallCount).toEqual(children.length);
     });
 
+    it("[update] Only selected resources", function() {
+        var callCount = 0;
+        var hcCallCount = 0;
+        var col = _createCollection(undefined, 'tests');
+        var children = [
+            {
+                hasCreated: function () {
+                    return false;
+                },
+                hasUpdated: function () {
+                    return false;
+                },
+                update: function () {
+                    callCount++;
+                },
+                selected: true
+            },
+            {
+                hasCreated: function () {
+                    return false;
+                },
+                hasUpdated: function () {
+                    return false;
+                },
+                update: function () {
+                    callCount++;
+                }
+            },
+            {
+                hasCreated: function () {
+                    return false;
+                },
+                hasUpdated: function () {
+                    return false;
+                },
+                update: function () {
+                    callCount++;
+                },
+                selected: true
+            }
+        ];
+        children.forEach(function (child) {
+            col.add(child);
+        });
+        expect(col.count()).toEqual(children.length);
+        col.update();
+        expect(callCount).toEqual(
+            children.filter(function(c) {return c.selected}).length
+        );
+    });
+
     it("[delete] Delete method of all inner components shall be called", function() {
         var callCount = 0;
         var hcCallCount = 0;
