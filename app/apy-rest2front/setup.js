@@ -54,10 +54,9 @@
          * @namespace apy.integration
          */
         integration: {
-            angular: {
-
-            },
-            react: {}
+            app: null,
+            react: {},
+            angular: {},
         },
         components: {
             fields: {
@@ -79,22 +78,6 @@
     var getKeys = Object.keys;
     var isNaN = window.isNaN;
 
-    /**
-     * Returns "true" if any is object
-     * @param {*} any
-     * @returns {Boolean}
-     */
-    function isObject(any) {
-        return any instanceof Object;
-    }
-    /**
-     * Returns "true" if any is number
-     * @param {*} any
-     * @returns {Boolean}
-     */
-    function isNumber(any) {
-        return typeof any === 'number' && !isNaN(any);
-    }
     /**
      * Walks object recursively
      *
@@ -130,7 +113,7 @@
                     stack.length = 0;
                     break;
                 } else {
-                    if(max <= depth || !isObject(value)) continue;
+                    if(max <= depth || !value instanceof Object) continue;
 
                     if (cache.indexOf(value) !== -1) {
                         if (ignore) continue;
@@ -165,104 +148,17 @@
         var ctx = context;
         var _mode = mode === 1;
         var ignore = !!ignoreCircularReferences;
-        var max = isNumber(maxDepth) ? maxDepth : MAX_DEPTH;
+        var max = (
+            typeof maxDepth === 'number' && !isNaN(maxDepth)
+        ) ? maxDepth : MAX_DEPTH;
+
+
 
         return walk(object, cb, ctx, _mode, ignore, max);
     }
 
     // export
     Object.traverse = traverse;
-
-}(window));
-
-(function(window) {
-    'use strict';
-
-    var Blob = window.Blob;
-    var File = window.File;
-    var FileList = window.FileList;
-    var FormData = window.FormData;
-
-    var isSupported = (Blob && File && FileList && FormData);
-    var toString = Object.prototype.toString;
-    var forEach = Array.prototype.forEach;
-    var map = Array.prototype.map;
-
-    if (!isSupported) return;
-
-    /**
-     * Returns type of anything
-     * @param {Object} any
-     * @returns {String}
-     */
-    function getType(any) {
-        return toString.call(any).slice(8, -1);
-    }
-    /**
-     * Converts path to FormData name
-     * @param {Array} path
-     * @returns {String}
-     */
-    function toName(path) {
-        var array = map.call(path, function(value) {
-            return '[' + value + ']';
-        });
-        array[0] = path[0];
-        return array.join('');
-    }
-
-    /**
-     * Converts object to FormData
-     *
-     * @param {Object} object
-     * @param {Boolean} asJSON
-     *
-     * @returns {FormData}
-     */
-    function toFormData(object, asJSON) {
-
-        var form = new FormData();
-        var cb = function(node, value, key, path) {
-
-            var name;
-            var type = getType(value);
-
-            console.log('path: ', path, 'type: ', type, 'key: ', key, 'value: ', value);
-
-            switch (type) {
-                case 'Array':
-                    break; // step into
-                case 'Object':
-                    break; // step into
-                case 'FileList':
-                    forEach.call(value, function(item, index) {
-                        var way = path.concat(index);
-                        var name = toName(way);
-                        form.append(name, item);
-                    });
-                    return true; // prevent step into
-                case 'File':
-                    name = toName(path);
-                    form.append(name, value);
-                    return true; // prevent step into
-                case 'Blob':
-                    name = toName(path);
-                    form.append(name, value, value.name);
-                    return true; // prevent step into
-                default:
-                    name = toName(path);
-                    form.append(name, asJSON ? JSON.stringify(value): value);
-                    return true; // prevent step into
-            }
-        };
-
-        Object.traverse(object, cb, null, null, true);
-
-        return form;
-    }
-
-    // export
-    Object.toFormData = toFormData;
 
 }(window));
 
@@ -314,6 +210,26 @@
                     return to;
                 }
             });
+        }
+        if(!Object.prototype.pop) {
+            Object.defineProperty(
+                Object.prototype, 'pop',
+                {
+                    writable: false,
+                    configurable: false,
+                    enumerable: false,
+                    value: function (name, defaultValue) {
+                        var value;
+                        try {
+                            value = this[name];
+                            delete this[name];
+                        } catch(err) {
+                            value = defaultValue;
+                        }
+                        return value;
+                    }
+                }
+            );
         }
     };
 
