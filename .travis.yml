@@ -3,8 +3,7 @@ node_js:
   - "6.1"
 
 before_script:
-  - npm install --silent
+  - yarn install --silent
 
 script:
-  - ./node_modules/bower/bin/bower --allow-root install
-  - npm test
+  - yarn test
