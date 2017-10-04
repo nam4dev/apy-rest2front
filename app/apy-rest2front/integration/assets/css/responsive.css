@@ -67,7 +67,8 @@
     }
 
     .apy-table td {
-        width: 85%;
+        width: 100%;
+        padding: 0;
     }
 }
 /* End Media Queries selector */
@@ -78,9 +79,29 @@
         left: 0;
         bottom: 0;
         right: initial;
+        /*width: 100%;*/
+    }
+    #backtop.light button {
         width: 100%;
     }
-    #backtop.light button{
-        width: 100%;
+}
+
+@media screen and (max-width:768px) {
+    .navbar {
+        min-height: 30px;
+        margin-bottom: 0;
+    }
+
+    .navbar-toggle {
+        margin: 0;
+        padding: 0;
+    }
+
+    .navbar-default .navbar-toggle {
+        border-color: transparent;
+    }
+
+    .navbar-default .navbar-toggle:hover {
+        background-color: transparent;
     }
 }

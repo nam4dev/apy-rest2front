@@ -65,10 +65,6 @@
             );
 
         $scope.deleteResources = function() {
-            var selection = (
-                collection.selectedComponents() ||
-                    collection.savedComponents()
-            );
             var okCallback = function() {
                 var defer = collection.delete();
                 if (defer) {
@@ -83,7 +79,7 @@
                         );
                 }
             };
-            apyModalProvider.warn(getWarningModalConfig(selection, okCallback));
+            apyModalProvider.warn(getWarningModalConfig(collection.selectedOrSaved(), okCallback));
         };
 
         /* istanbul ignore next */
@@ -291,15 +287,13 @@
             }])
         .directive('apyNavigation', [function() {
             return {
-                template: '<ul class="nav navbar-nav"> \
-                <li ng-repeat="schema in $schemas | orderBy:\'name\'" ng-if="!schema.hidden"> \
-                <a href="#/{{ schema.name }}"> \
+                template: '<li class="nav-item" ng-repeat="schema in $schemas | orderBy:\'name\'" ng-if="!schema.hidden"> \
+                <a class="nav-link" href="#/{{ schema.name }}"> \
                 <span class="text-capitalize"> \
                 <strong>{{ schema.humanName || schema.name }}</strong> \
                 </span> \
                 </a> \
-                </li> \
-                </ul>'
+                </li>'
             };
         }]);
 })(window.angular);

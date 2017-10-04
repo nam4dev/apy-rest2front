@@ -52,18 +52,20 @@ select[multiple], select[size] {
     table-layout: fixed;
 }
 
-.apy-tables-controls {
-    position: fixed;
-    right: 0.5%;
-}
-
 .apy-version {
     width: 12.5%;
-    margin-top: 5%;
+    min-width: 150px;
+    margin-top: 0;
+    padding-top: 5%;
 }
 
 .apy-container {
     margin-top: 6%;
+}
+
+.apy-global-btn {
+    margin-top: 5px;
+    background-color: transparent !important;
 }
 
 /* End Apy Css rules */
