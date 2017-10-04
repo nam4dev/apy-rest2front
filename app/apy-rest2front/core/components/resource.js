@@ -117,7 +117,6 @@
             return new Promise(function(resolve, reject) {
                 if (self.$endpointBase && self.$name) {
                     var on_success = function(response) {
-                        console.log(response);
                         self.selfUpdate(response, true);
                         self.setReadState();
                         return resolve(response);

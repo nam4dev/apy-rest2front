@@ -100,7 +100,12 @@
                 type = this.$schema.schema.type;
             }
             catch (e) {
-                type = null;
+                if(this.$schema.type && this.$schema.allowed) {
+                    type = $apy.helpers.$TYPES.STRING;
+                }
+                else {
+                    type = null;
+                }
             }
             this.$$createField(type, this.$name, this.$schema.schema, val || this.$value, this.$endpoint, true);
             return this;
@@ -149,8 +154,12 @@
             if (this.$memo !== this.$components.length) {
                 updated = true;
             }
+            if (!updated && this.$schema.allowed) {
+                updated = this.$value[0] !== this.$memoValue[0];
+            }
             if (!updated) {
                 this.$components.forEach(function(comp) {
+                    // console.log(comp);
                     if (comp.hasUpdated()) {
                         updated = true;
                     }
@@ -208,6 +217,10 @@
          * @return {apy.components.fields.List} `this`
          */
         function selfCommit() {
+            if (this.$allowed && this.$allowed.length) {
+                this.$originalValue = this.$memoValue = this.$value;
+                this.$components[0].$value = this.$value[0];
+            }
             this.$memo = this.$components.length;
             this.$components.forEach(function(comp) {
                 comp.selfCommit();

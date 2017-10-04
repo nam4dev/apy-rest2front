@@ -231,7 +231,7 @@
         if (!schema) {
             throw new $apy.errors.Error('No schema provided for name', name);
         }
-        var value = payload || this.schema2data(schema);
+        var value = payload || this.schema2data(schema, "");
         return new $apy.components.Resource(this.$service, name, schema, value,
             null, this.$endpoint, $apy.helpers.$TYPES.RESOURCE, name);
     };
