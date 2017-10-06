@@ -9,7 +9,7 @@
 Apy REST2Front is a small project, mostly meant as a proof of concept, to automate frontend CRUD views application based on REST API schema definitions.
 
 It tries to implement a generic data binding upon a REST API system to Web MMI.
-Authentication is managed only for Oauth2 protocol, others shall be implemented :).
+Authentication is managed only for Token-based, Oauth2 protocols, others shall be implemented :).
 
 For now, only [`python-eve`][eve] REST API framework has been integrated.
 For UI components (data representation & bindings), [`AngularJs`][angular] is used. 
@@ -25,7 +25,13 @@ You need git to clone the `apy-rest2front` repository. You can get git from
 [http://git-scm.com/](http://git-scm.com/).
 
 We also use a number of node.js tools to initialize and test `apy-rest2front`. You must have node.js and
-its package manager (npm) installed.  You can get them from [http://nodejs.org/](http://nodejs.org/).
+its package manager installed.  You can get them from [http://nodejs.org/](http://nodejs.org/).
+
+The project uses [Yarn](https://yarnpkg.com/en/) as package manager.
+
+[Yarn installation](https://yarnpkg.com/en/docs/install)
+
+[Yarn CLI details](https://yarnpkg.com/en/docs/cli)
 
 ### Clone `apy-rest2front`
 
@@ -49,23 +55,20 @@ The `depth=1` tells git to only pull down one commit worth of historical data.
 We have two kinds of dependencies in this project: tools and `apy-rest2front` framework code.  The tools help
 us manage and test the application.
 
-* We get the tools we depend upon via `npm`, the [node package manager][npm].
-* We get the `apy-rest2front` code via `bower`, a [client-side code package manager][bower].
+* We get both, tools we depend upon and `apy-rest2front` code via `yarn`, the [node package manager][yarn].
 
-We have preconfigured `npm` to automatically run `bower` so we can simply do:
+So we can simply do:
 
 ```
-npm install
+yarn
 ```
 
-Behind the scenes this will also call `bower install`.  You should find that you have two new
-folders in your project.
+You should find that you have two new folders in your project.
 
 * `node_modules` - contains the npm packages for the tools we need
-* `app/components` - contains the `apy-rest2front` framework files
+* `app/components` - contains the `apy-rest2front` framework files (symlink to node_modules/@bower_components)
 
-*Note that the `components` folder would normally be installed in the root folder but
-`apy-rest2front` changes this location through the `.bowerrc` file.  Putting it in the app folder makes
+*Note that the `components` folder is symlinked in the app folder as it makes
 it easier to serve the files by a webserver.*
 
 ## Get Configured
@@ -93,25 +96,56 @@ To ensure user experience of Media document(s) visualisation,
     EXTENDED_MEDIA_INFO = ['content_type', 'name']
 ```
 
+And to guarantee Media resources to be properly saved, especially when included in complex schema,
+
+```python
+    AUTO_CREATE_LISTS = True
+    AUTO_COLLAPSE_MULTI_KEYS = True
+    MULTIPART_FORM_FIELDS_AS_JSON = True
+```
+
 ### Frontend
 
 #### AngularJs
 
-Simply open ``apy-rest2front/integration/angular/app.js`` file.
+##### Create a Settings file
 
-**And edit lines**,
+Simply create a settings file (for example, ``mySettings.js``) through CLI.
 
+```
+yarn create -- --settings=./mySettings.js
+```
+
+##### Configure the Settings file
 
 ```javascript
-    var config = {
-        //...
-        endpoint: 'http://localhost:5000/',
-        schemasEndpointName: 'your-schema-endpoint-name',
-        //...
-        // If Eve logs endpoint is enabled
-        excludedEndpointByNames: ['logs'],
-        //...
+/* istanbul ignore next */
+(function ($apy) {
+
+    $apy.customSettings = {
+        // configuration here
+        endpoints: {
+            excluded: [
+                "<your-REST-API-excluded-endpoint>" // ie. logs
+            ],
+            definitions: "<your-REST-API-schemas-endpoint>", // ie. schemas
+            root: {
+                port: "<your-REST-API-endpoint-port>", // default 80
+                hostname: "<your-REST-API-endpoint-url>", // default http://localhost
+            }
+        },
+        authentication: {
+            // see Authentication section
+        },
+        // Override any endpoint schema here
+        // Some facilities can be used here as $displayed, $render
+        schemaOverrides: {
+            // see section
+        }
     };
+
+})(apy);
+
 ```
 
 ## Build
@@ -119,7 +153,7 @@ Simply open ``apy-rest2front/integration/angular/app.js`` file.
 Build is preconfigured with a simple command.  Simply run:
 
 ```
-npm run build
+yarn build
 ```
 
 **Several folders are created during this process**
@@ -139,7 +173,7 @@ We have preconfigured the project with a simple development web server.  The sim
 this server is:
 
 ```
-npm start
+yarn start
 ```
 
 **We need to ensure `Eve REST API` is running on our configured `endpoint`**
@@ -164,28 +198,98 @@ This section describes how to tweak Apy REST2Front behavior based on settings.
 
 ### Authentication
 
+Refer to [Create a Settings file](#create-a-settings-file) section.
+
 #### Oauth2
 
-Simply open ``apy-rest2front/integration/angular/app.js`` file.
+```javascript
+/* istanbul ignore next */
+(function ($apy) {
 
-**And edit lines**,
+    $apy.customSettings = {
+        // configuration here
+        endpoints: {
+            //...
+        },
+        authentication: {
+            enabled: true,
+            grant_type: 'password', // OAuth2 Grant Type
+            client_id: '0123456789yljgk98765432101kFEAHAAAH' // OAuth2 Client ID
+            endpoint: '<your-REST-API-auth-endpoint-url>', // ie. http://localhost:5000/oauth2
+            // Here you can adapt the data
+            // received from your authentication server.
+            // In order to fit expected format (email, password)
+            transformData: function (data) {
+                // for instance, if you use username
+                // data.email = data.username;
+                // delete data.username;
+            },
+            // Here you can adapt the Response
+            // received from your authentication server.
+            // In order to fit expected format (token_type, access_token)
+            transformResponse: function(authUser) {
+                // var transformed = JSON.parse(authUser);
+                // transformed.token_type = 'Bearer';
+                // transformed.access_token = transformed.token;
+                // delete transformed.token;
+                // return JSON.stringify(transformed);
+                return authUser;
+            }
+        },
+        // Override any endpoint schema here
+        // Some facilities can be used here as $displayed, $render
+        schemaOverrides: {
+            //...
+        }
+    };
+
+})(apy);
+
+```
+
+#### Token-based
 
 ```javascript
-    var config = {
-        //...
-        endpoint: 'http://localhost:5000/',
-        schemasEndpointName: 'your-schema-endpoint-name',
-        auth: {
+/* istanbul ignore next */
+(function ($apy) {
+
+    $apy.customSettings = {
+        // configuration here
+        endpoints: {
+            //...
+        },
+        authentication: {
             enabled: true,
-            grant_type: 'password', // OAUTH2 GRANT TYPE
-            endpoint: 'http://localhost:5000/oauth2', // OAUTH2 ENDPOINT
-            client_id: '0123456789yljgk98765432101kFEAHAAAH' // OAUTH2 CLIENT ID
+            endpoint: '<your-REST-API-auth-endpoint-url>', // ie. http://localhost:5000/authenticate
+            // Here you can adapt the data
+            // received from your authentication server.
+            // In order to fit expected format (email, password)
+            transformData: function (data) {
+                // for instance, if you use username
+                // data.email = data.username;
+                // delete data.username;
+            },
+            // Here you can adapt the Response
+            // received from your authentication server.
+            // In order to fit expected format (token_type, access_token)
+            transformResponse: function(authUser) {
+                // var transformed = JSON.parse(authUser);
+                // transformed.token_type = 'Bearer';
+                // transformed.access_token = transformed.token;
+                // delete transformed.token;
+                // return JSON.stringify(transformed);
+                return authUser;
+            }
+        },
+        // Override any endpoint schema here
+        // Some facilities can be used here as $displayed, $render
+        schemaOverrides: {
+            //...
         }
-        //...
-        // If Eve logs endpoint is enabled
-        excludedEndpointByNames: ['logs'],
-        //...
     };
+
+})(apy);
+
 ```
 
 **For backend authentication, refer to appropriated documentation**
@@ -233,7 +337,11 @@ MEMBER = {
             }
         },
         'email': {
-            'type': "string"
+            'type': 'string',
+            'minlength': 6,  # <1.letter>@<1.letter>.<2.letters>
+            'maxlength': 128,
+            'unique': True, # 'email' is an API entry-point, so we need it to be unique.
+            'required': True
         },
         'firstName': {
             'type': "string"
@@ -241,37 +349,15 @@ MEMBER = {
         'lastName': {
             'type': "string"
         },
-        'location': {
-            'type': "dict",
-            'schema': {
-                'entered_date': {
-                    'required': True,
-                    'type': "datetime"
-                },
-                'details': {
-                    'type': "dict",
-                    'schema': {
-                        'city': {
-                            'required': True,
-                            'type': "string"
-                        },
-                        'zip_code': {
-                            'required': True,
-                            'type': "integer"
-                        },
-                        'state': {
-                            'type': "string"
-                        },
-                        'address': {
-                            'required': True,
-                            'type': "string"
-                        },
-                        'address_complement': {
-                            'type': "string"
-                        }
-                    }
-                }
-            }
+        'token': {
+            'type': "string"
+        },
+        'password': {
+            'type': "string",
+            'required': True,
+        },
+        'home': {
+            'required': False,
         }
     }
 }
@@ -286,100 +372,42 @@ DOMAIN = {
 
 * frontend, [AngularJS][angular]
 
+
 ```javascript
-// AngularJS Integration example
-// apy-rest2front/integration/angular/app.js
+/* istanbul ignore next */
+(function ($apy) {
 
-//...
-
-// Member's Post endpoint schema
-var post = {
-    item_title: "Post",
-    schema: {
-        description: {
-            type: "string"
+    $apy.customSettings = {
+        // configuration here
+        endpoints: {
+            // ...
         },
-        title: {
-            type: "string"
-        }
-    }
-};
-
-// Member endpoint schema (aka User)
-var user = {
-    item_title: "Member",
-    schema: {
-        posts:{
-            type: "list",
-            schema: {
-                type: "objectid",
-                data_relation: {
-                    resource: "posts",
-                    embeddable: true
-                }
-            }
+        authentication: {
+            // ...
         },
-        email: {
-            type: "string"
-        },
-        firstName: {
-            type: "string"
-        },
-        lastName: {
-            type: "string"
-        },
-        location: {
-            type: "dict",
-            schema: {
-                entered_date: {
-                    required: true,
-                    type: "datetime"
+        // Override any endpoint schema here
+        // Some facilities can be used here as $displayed, $render
+        schemaOverrides: {
+            members: {
+                home: {
+                    $displayed: false
                 },
-                details: {
-                    type: "dict",
-                    schema: {
-                        city: {
-                            required: true,
-                            type: "string"
-                        },
-                        zip_code: {
-                            required: true,
-                            type: "integer"
-                        },
-                        state: {
-                            type: "string"
-                        },
-                        address: {
-                            required: true,
-                            type: "string"
-                        },
-                        address_complement: {
-                            type: "string"
-                        }
+                token: {
+                    $render: function () {
+                        return '******';
                     }
-                }
+                },
+                password: {
+                    $render: function () {
+                        return '******';
+                    }
+                },
             }
         }
-    }
-};
-
-//...
-
-var config = {
-    //...
-    schemas: {
-        posts: post,
-        members: user
-    }
-    //...
-};
-
-application.provider("apy", function apyProvider () {
-    this.$get = function apyFactory () {
-        //...
-        return new $apy.CompositeService($http, Upload, config);
     };
-});
+
+})(apy);
+
 ```
 
 #### Overriding backend's endpoint(s)
@@ -414,40 +442,35 @@ DOMAIN = {
 * frontend, [AngularJS][angular]
 
 ```javascript
-// AngularJS Integration example
-// apy-rest2front/integration/angular/app.js
+/* istanbul ignore next */
+(function ($apy) {
 
-// endpoint schema override
-var lists = {
-    item_title: "Interesting Events List",
-    schema: {
-        lists: {
-            type: 'list',
-            schema: {
-                type: "datetime",
-                default: function() {
-                    return new Date();
+    $apy.customSettings = {
+        // configuration here
+        endpoints: {
+            // ...
+        },
+        authentication: {
+            // ...
+        },
+        // Override any endpoint schema here
+        // Some facilities can be used here as $displayed, $render
+        schemaOverrides: {
+            // Endpoint schema override
+            lists: {
+                type: 'list',
+                schema: {
+                    type: "datetime",
+                    default: function() {
+                        return new Date();
+                    }
                 }
             }
         }
-    }
-};
-
-//...
-
-var config = {
-    //...
-    schemas: {
-        Lists: lists
-    }
-};
-
-application.provider("apy", function apyProvider () {
-    this.$get = function apyFactory () {
-        //...
-        return new $apy.CompositeService($http, Upload, config);
     };
-});
+
+})(apy);
+
 ```
 
 ## Testing
@@ -466,7 +489,7 @@ configuration file to run them.
 The easiest way to run the unit tests is to use the supplied npm script:
 
 ```
-npm test-with-watcher (dev mode through karma)
+yarn test-with-watcher (dev mode through karma)
 ```
 
 This script will start the Karma test runner to execute the unit tests. Moreover, Karma will sit and
@@ -479,7 +502,7 @@ check that a particular version of the code is operating as expected.  The proje
 predefined script to do this:
 
 ```
-npm run test (single run through gulp & karma)
+yarn test (single run through gulp & karma)
 ```
 
 ### End to end testing
@@ -496,14 +519,14 @@ correctly. Therefore, our web server needs to be serving up the application, so 
 can interact with it.
 
 ```
-npm start
+yarn start
 ```
 
 In addition, since Protractor is built upon WebDriver we need to install this.  The `apy-rest2front`
 project comes with a predefined script to do this:
 
 ```
-npm run update-webdriver
+yarn update-webdriver
 ```
 
 This will download and install the latest version of the stand-alone WebDriver tool.
@@ -512,7 +535,7 @@ Once you have ensured that the development web server hosting our application is
 and WebDriver is updated, you can run the end-to-end tests using the supplied npm script:
 
 ```
-npm run protractor
+yarn protractor
 ```
 
 This script will execute the end-to-end tests against the application being hosted on the
@@ -527,22 +550,11 @@ Previously we recommended that you merge in changes to `apy-rest2front` into you
 Now that the `apy-rest2front` framework library code and tools are acquired through package managers (npm and
 bower) you can use these tools instead to update the dependencies.
 
-You can update the tool dependencies by running:
+You can update both, tool & `apy-rest2front` dependencies by running:
 
 ```
-npm update
+yarn update
 ```
-
-This will find the latest versions that match the version ranges specified in the `package.json` file.
-
-You can update the `apy-rest2front` dependencies by running:
-
-```
-bower update
-```
-
-This will find the latest versions that match the version ranges specified in the `bower.json` file.
-
 
 ## Serving the Application Files
 
@@ -559,78 +571,18 @@ tool called [http-server][http-server].  You can start this webserver with `npm 
 install the tool globally:
 
 ```
-sudo npm install -g http-server
+sudo yarn global add http-server
 ```
 
 Then you can start your own development web server to serve static files from a folder by
 running:
 
 ```
-http-server -a localhost -p 8000
+http-server -a localhost -p 9000
 ```
 
 Alternatively, you can choose to configure your own webserver, such as apache or nginx. Just
 configure your server to serve the files under the `app/` directory.
-
-## Design
-
-### Classes Diagram
-
-![Apy REST2Front UML Classes diagram image](./design/UML_classes_diagram800x610.png)
-[Apy REST2Front UML Classes diagram](./design/UML_classes_diagram.png)
-
-### Directory Layout
-
-```
-app/
-  index.dev.html                  --> Angular integration development template
-  index.html                      --> Angular integration production template (cannot be used as is - need Gulp)
-  apy-rest2front/                 --> Apy REST2Front library
-    core/                         --> Apy REST2Front Core (fields, ...)
-      errors/                     --> Apy REST2Front Errors (`apy`, `python-eve`, ...)
-        bases.js                  --> Apy REST2Front Error bases
-        eve.js                    --> Apy REST2Front `python-eve` Error classes
-      components/                 --> Apy REST2Front Components (Collection, Resource, Field, ...)
-        base.js                   --> Apy REST2Front Base abstraction (ComponentMixin)
-        mixins.js                 --> Apy REST2Front Mixins (RequestMixin, CompositeMixin)
-        schemas.js                --> Apy REST2Front Schemas management abstraction
-        resource.js               --> Apy REST2Front Resource Component
-        collection.js             --> Apy REST2Front Collection Component
-        fields/                   --> Apy REST2Front fields (string, number, media, ...)
-          geo/                    --> Apy REST2Front Geo fields (Point, Polygon, Line, ...)
-            point.js              --> Apy REST2Front Geo Point Component
-          field.js                --> Apy REST2Front Field abstraction (FieldMixin)
-          poly.js                 --> Apy REST2Front PolyMorph field Component
-          list.js                 --> Apy REST2Front List field Component
-          boolean.js              --> Apy REST2Front Boolean field Component
-          string.js               --> Apy REST2Front String field Component
-          datetime.js             --> Apy REST2Front Datetime field Component
-          nested.js               --> Apy REST2Front Nested (dict) field Component
-          embedded.js             --> Apy REST2Front Object ID (Embedded Resource) field Component
-          media.js                --> Apy REST2Front Media field Component (any type of Resource, file, picture, music, ...)
-          number.js               --> Apy REST2Front Number field Component (groups Integer, Float & Number types)
-      core.js                     --> Apy REST2Front Core Service
-      helpers.js                  --> Apy REST2Front helpers
-      namespaces.js               --> Apy REST2Front namespace definitions (apy, components, fields, helpers, ...)
-    integration/                  --> Groups all available UI frameworks (AngularJS)
-      angular/                    --> AngularJS UI integration
-        app.js                    --> AngularJS Controller/Settings definition
-        services.js               --> AngularJS Services (ApyModalProvider, ApyProvider, ...)
-        login.css                 --> AngularJS Login view CSS rules (when authentication is enabled)
-        login.html                --> AngularJS Login view HTML representation (when authentication is enabled)
-        view.html                 --> AngularJS field views HTML representation
-        view.js                   --> AngularJS field views abstraction
-        directives/               --> AngularJS directives
-          field.js                --> Apy REST2Front generic directive to display any `apy.components.fields`
-          version/                --> Directive to display current Project version
-            version.js            --> ...
-            ...
-      common/                     --> Apy REST2Front Common integration UI components
-        css/                      --> Apy REST2Front common CSS rules
-          core.css                --> Apy REST2Front Core CSS rules
-          responsive.css          --> Apy REST2Front Responsive CSS rules
-        favicon.ico               --> Apy REST2Front favicon
-```
 
 ## [Contributing](CONTRIBUTING.md)
 ## [Contributors](CONTRIBUTORS.md)

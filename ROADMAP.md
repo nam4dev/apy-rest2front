@@ -34,7 +34,7 @@
 ## 0.8.4: Add progress handlers for files & Resources (partially implemented)
 ## 0.8.5: Add schema parsers to generate web MMI `apy-rest2front` based on Swagger format
 ## 0.8.6: Add Pagination system (HATEOS)
-## 0.9.7: Add an easy mechanism to override any `apy.components.fields.*` (configuration-based)
+## 0.8.7: Add an easy mechanism to override any `apy.components.fields.*` (configuration-based)
 
 [eve]: http://python-eve.org/
 [angular]: https://angularjs.org/

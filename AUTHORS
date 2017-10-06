@@ -6,7 +6,7 @@
 Development Lead
 ================
 
-- Namgyal BRISSON <n.brisson@apy-consulting.com>
+- Namgyal BRISSON <n.brisson@apysoft.fr>
 
 `apy-rest2front` contributors (sorted alphabetically)
 =====================================================

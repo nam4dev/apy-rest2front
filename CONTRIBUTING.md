@@ -10,12 +10,10 @@ To contribute simply fork this project then submit your Pull Request(s) - PR
 
 #### Travis CI
 
-[Travis CI][travis] is a continuous integration service, which can monitor GitHub for new commits
-to your repository and execute scripts such as building the app or running tests. The `apy-rest2front`
-project contains a Travis configuration file, `.travis.yml`, which will cause Travis to run your
-tests when you push to GitHub.
-
-You will need to enable the integration between Travis and GitHub. See the Travis website for more
-instruction on how to do this.
+[Travis CI][travis] is a continuous integration service,
+which monitors GitHub for new commits and execute scripts
+such as building the app or running tests.
+The `apy-rest2front` project contains a Travis configuration file, `.travis.yml`,
+which will cause Travis to run your tests when you push to GitHub.
 
 [travis]: https://travis-ci.org/
