@@ -237,6 +237,13 @@
 
                 var display;
 
+                $scope.selectLink = function (schemas, selected) {
+                    schemas.forEach(function (schema) {
+                        schema.$active = false;
+                    });
+                    selected.$active = true;
+                };
+
                 $scope.displayVerticalList = function() {
                     display = 'vertical';
                     localStorage.setItem('listDisplay', display);
@@ -287,8 +294,8 @@
             }])
         .directive('apyNavigation', [function() {
             return {
-                template: '<li class="nav-item" ng-repeat="schema in $schemas | orderBy:\'name\'" ng-if="!schema.hidden"> \
-                <a class="nav-link" href="#/{{ schema.name }}"> \
+                template: '<li class="nav-item" ng-repeat="schema in $schemas | orderBy:\'name\'" ng-if="!schema.hidden" ng-class="{active: schema.$active}"> \
+                <a class="nav-link" href="#/{{ schema.name }}" ng-click="selectLink($schemas, schema)"> \
                 <span class="text-capitalize"> \
                 <strong>{{ schema.humanName || schema.name }}</strong> \
                 </span> \
