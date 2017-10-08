@@ -118,6 +118,8 @@
                         controllerAs: 'ModalCtrl',
                         scope: $scope
                     });
+
+                    $scope.listDisplay = localStorage.getItem('listDisplay') || 'vertical';
                 }
 
                 function on_failure(error) {
