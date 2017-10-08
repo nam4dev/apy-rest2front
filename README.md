@@ -1,6 +1,6 @@
 ![Apy REST2Front Logo](./design/apy-rest2front-avatar.png)
 [![License](http://img.shields.io/:license-mit-blue.svg)](http://doge.mit-license.org)
-[![Coverage Status](https://coveralls.io/repos/nam4dev/apy-rest2front/badge.svg?branch=master)](https://coveralls.io/r/nam4dev/apy-rest2front?branch=master)
+[![Coverage Status](https://coveralls.io/repos/github/nam4dev/apy-rest2front/badge.svg?branch=master)](https://coveralls.io/github/nam4dev/apy-rest2front?branch=master)
 [![Github Build Status](https://travis-ci.com/nam4dev/apy-rest2front.svg?token=xmj27dsr9gMzXM1ACqjL&branch=master)](https://travis-ci.com/nam4dev/apy-rest2front)
 [![Documentation](http://inch-ci.org/github/remote-exec/command-designer.png)](https://docs.apy-consulting.com/apy-rest2front/)
 
