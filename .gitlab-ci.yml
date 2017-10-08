@@ -1,10 +1,9 @@
-image: node:6.10.0
+image: node:latest
 
 before_script:
   - yarn -v
-  - yarn install --silent
 
 test:
   script:
     - yarn test
-#    - DISPLAY=:10 npm run protractor
+#    - DISPLAY=:10 yarn protractor
