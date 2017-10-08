@@ -76,11 +76,20 @@
          */
         function selfCommit() {
             var cleaned = this.super_cleanedData() || {};
-            cleaned._id = this._id;
-            cleaned._etag = this._etag;
-            cleaned._links = this._links;
-            cleaned._created = this._created;
-            cleaned._updated = this._updated;
+
+            if(this.$template.id)
+                cleaned[this.$template.id] = this[this.$template.id];
+            if(this.$template.etag)
+                cleaned[this.$template.etag] = this[this.$template.etag];
+            if(this.$template.links)
+                cleaned[this.$template.links] = this[this.$template.links];
+            if(this.$template.created)
+                cleaned[this.$template.created] = this[this.$template.created];
+            if(this.$template.updated)
+                cleaned[this.$template.updated] = this[this.$template.updated];
+            if(this.$template.deleted)
+                cleaned[this.$template.deleted] = this[this.$template.deleted];
+
             this.$memo = cleaned;
             return this;
         }
@@ -96,11 +105,20 @@
          * @return {apy.components.fields.Embedded} `this`
          */
         function selfUpdate(update, commit) {
-            this._id = update._id;
-            this._etag = update._etag;
-            this._links = update._links;
-            this._created = update._created;
-            this._updated = update._updated;
+
+            if(this.$template.id)
+                this[this.$template.id] = update[this.$template.id];
+            if(this.$template.etag)
+                this[this.$template.etag] = update[this.$template.etag];
+            if(this.$template.links)
+                this[this.$template.links] = update[this.$template.links];
+            if(this.$template.created)
+                this[this.$template.created] = update[this.$template.created];
+            if(this.$template.updated)
+                this[this.$template.updated] = update[this.$template.updated];
+            if(this.$template.deleted)
+                this[this.$template.deleted] = update[this.$template.deleted];
+
             this.$components = update.$components || [];
             if (commit) {
                 this.selfCommit();
@@ -120,10 +138,10 @@
         function hasUpdated() {
             var updated;
             if (this.$memo && $apy.helpers.isObject(this.$memo)) {
-                updated = this.$memo._id !== this._id;
+                updated = this.$memo[this.$template.id] !== this[this.$template.id];
             }
             else {
-                updated = this.$memo !== this._id;
+                updated = this.$memo !== this[this.$template.id];
             }
             return updated;
         }
@@ -136,7 +154,7 @@
          * @return {string} The Embedded Resource ID
          */
         function cleanedData() {
-            return this._id;
+            return this[this.$template.id];
         }
 
         /**
@@ -151,7 +169,10 @@
          * @return {apy.components.fields.Embedded} `this`
          */
         function reset() {
-            if (this.hasUpdated()) {
+            if(this.inCreateState() && this.hasUpdated()) {
+                this.selfUpdate({});
+            }
+            else if (this.hasUpdated()) {
                 this.$components = [];
                 this.load(this.$memo);
             }
@@ -167,7 +188,7 @@
          * @throws {apy.errors.Error} When validation fails
          */
         function validate() {
-            var id = this._id;
+            var id = this[this.$template.id];
             if (id === undefined || id === null) {
                 var message = 'An Embedded Field should have a non-empty ID[' + typeof id + ']';
                 throw new $apy.errors.Error(message);
@@ -210,10 +231,14 @@
             if(this.$render) {
                 return this.$render(this);
             }
+            var undef = ['', 'undefined', undefined];
             var str = this.super_toString();
-            if (['', 'undefined'].indexOf(str) !== -1 && this._id) {
-                str = this._id;
+            if (undef.indexOf(str) !== -1 && this[this.$template.id]) {
+                str = this[this.$template.id];
             }
+            var None = ['0', 0, false].concat(undef);
+            if(None.indexOf(str) !== -1) str = '';
+
             return str;
         }
 
@@ -244,6 +269,7 @@
             this.super_cleanedData = this.cleanedData;
             this.cleanedData = cleanedData;
             this.$internalType = 'object';
+            this.$template = $apy.settings.get().bTemplate();
             this.initialize(service, name, schema, value, $states, $endpoint, $apy.helpers.$TYPES.OBJECTID, relationName);
             this.$Class = $apy.components.fields.Embedded;
             return this;
