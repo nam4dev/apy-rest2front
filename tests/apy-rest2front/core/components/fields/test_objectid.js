@@ -36,8 +36,28 @@
  */
 describe("Component.Field.ObjectID unit tests", function() {
 
-    var _createField = function (value, schema) {
-        return apy.tests.createFieldByType('embedded', value, schema);
+    var _createField = function (value, schema, withStates) {
+        var field;
+        withStates = withStates || false;
+        if(withStates) {
+            var states = {
+                READ: 'READ',
+                ERROR: 'ERROR',
+                CREATE: 'CREATE',
+                UPDATE: 'UPDATE',
+                DELETE: 'DELETE'
+            };
+            field =  apy.tests.createFieldByType(
+                'embedded', value, schema, undefined,
+                new apy.helpers.StateHolder(states[withStates], states)
+            );
+        }
+        else {
+            field = apy.tests.createFieldByType(
+                'embedded', value, schema, undefined
+            );
+        }
+        return field;
     };
 
     it("[toString] Shall return ID", function() {
@@ -93,7 +113,7 @@ describe("Component.Field.ObjectID unit tests", function() {
         var value = {
             _id: "0123456789A9876543210"
         };
-        var field = _createField({});
+        var field = _createField({}, undefined, 'READ');
         expect(field._id).toBeUndefined();
         field.selfUpdate(value, true);
         field.reset();

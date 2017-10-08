@@ -539,7 +539,7 @@
             if (this.hasUpdated()) {
                 this.$value = this.cloneValue(this.$memo);
             }
-            return this
+            return this;
         }
 
         /**

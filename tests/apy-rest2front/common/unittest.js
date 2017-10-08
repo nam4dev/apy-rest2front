@@ -128,14 +128,15 @@
      * @param {*} value Field's value
      * @param {Object} schema Field's schema object
      * @param {Object} config Global application configuration object
+     * @param {apy.helpers.StateHolder} states StateHolder object
      *
      * @returns {apy.components.fields} Any Field instance
      */
-    var _createFieldByType = function (type, value, schema, config) {
+    var _createFieldByType = function (type, value, schema, config, states) {
         schema = schema || {};
         schema.type = type;
         var fieldClass = apy.helpers.fieldClassByType(type);
-        return new fieldClass(_createService(config), type, schema, value);
+        return new fieldClass(_createService(config), type, schema, value, states);
     };
 
     /**
