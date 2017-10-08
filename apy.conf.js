@@ -22,7 +22,6 @@
         'app/apy-rest2front/core/helpers.js',
         'app/apy-rest2front/core/errors/bases.js',
         'app/apy-rest2front/core/errors/eve.js',
-        'app/apy-rest2front/core/components/base.js',
         'app/apy-rest2front/core/components/mixins.js',
         'app/apy-rest2front/core/components/fields/field.js',
         'app/apy-rest2front/core/components/fields/media.js',
