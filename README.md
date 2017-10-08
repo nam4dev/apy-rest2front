@@ -120,9 +120,9 @@ yarn create -- --settings=./mySettings.js
 
 ```javascript
 /* istanbul ignore next */
-(function ($apy) {
+(function () {
 
-    $apy.customSettings = {
+    apy.customSettings = {
         // configuration here
         endpoints: {
             excluded: [
@@ -144,7 +144,7 @@ yarn create -- --settings=./mySettings.js
         }
     };
 
-})(apy);
+})();
 
 ```
 
@@ -204,9 +204,9 @@ Refer to [Create a Settings file](#create-a-settings-file) section.
 
 ```javascript
 /* istanbul ignore next */
-(function ($apy) {
+(function () {
 
-    $apy.customSettings = {
+    apy.customSettings = {
         // configuration here
         endpoints: {
             //...
@@ -243,7 +243,7 @@ Refer to [Create a Settings file](#create-a-settings-file) section.
         }
     };
 
-})(apy);
+})();
 
 ```
 
@@ -251,9 +251,9 @@ Refer to [Create a Settings file](#create-a-settings-file) section.
 
 ```javascript
 /* istanbul ignore next */
-(function ($apy) {
+(function () {
 
-    $apy.customSettings = {
+    apy.customSettings = {
         // configuration here
         endpoints: {
             //...
@@ -288,7 +288,7 @@ Refer to [Create a Settings file](#create-a-settings-file) section.
         }
     };
 
-})(apy);
+})();
 
 ```
 
@@ -375,9 +375,9 @@ DOMAIN = {
 
 ```javascript
 /* istanbul ignore next */
-(function ($apy) {
+(function () {
 
-    $apy.customSettings = {
+    apy.customSettings = {
         // configuration here
         endpoints: {
             // ...
@@ -389,6 +389,7 @@ DOMAIN = {
         // Some facilities can be used here as $displayed, $render
         schemaOverrides: {
             members: {
+                $items_title: "User", // Will display
                 home: {
                     $displayed: false
                 },
@@ -406,7 +407,7 @@ DOMAIN = {
         }
     };
 
-})(apy);
+})();
 
 ```
 
@@ -443,9 +444,9 @@ DOMAIN = {
 
 ```javascript
 /* istanbul ignore next */
-(function ($apy) {
+(function () {
 
-    $apy.customSettings = {
+    apy.customSettings = {
         // configuration here
         endpoints: {
             // ...
@@ -469,7 +470,7 @@ DOMAIN = {
         }
     };
 
-})(apy);
+})();
 
 ```
 
