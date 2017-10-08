@@ -141,6 +141,7 @@
                     eve: {
                         id: '_id',
                         etag: '_etag',
+                        links: '_links',
                         created: '_created',
                         updated: '_updated',
                         deleted: '_deleted',
