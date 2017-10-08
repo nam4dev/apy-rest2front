@@ -38,6 +38,7 @@ body {
     width: 100%;
     height: 100%;
     position: relative;
+    font-size: 13px;
 }
 
 select[multiple], select[size] {
@@ -77,11 +78,12 @@ select[multiple], select[size] {
 
 .fix-issue-1012 .dropdown-menu {
     left: auto !important;
-    right: 0px;
+    right: 0;
 }
 
 .display {
-    border-top: .1em solid #8f8f8f;
+    margin-bottom: 1.25em;
+    border-top: .2em solid rgb(218, 222, 226);
 }
 
 .text-capitalize {
@@ -155,6 +157,10 @@ select[multiple], select[size] {
 }
 
 .table { width: 100%; }
+
+.btn-toolbar {
+    margin-top: .25em;
+}
 
 #content {
     position: relative;
