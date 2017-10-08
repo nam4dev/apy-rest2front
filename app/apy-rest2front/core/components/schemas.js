@@ -62,6 +62,7 @@
     var Schema = function Schema(schema, name, settings) {
         this.$base = schema;
         this.$name = name;
+        this.$active = false;
         this.$hasMedia = false;
         this.$embeddedURI = '';
         this.$bTemplate = settings.bTemplate();
@@ -261,8 +262,11 @@
     Schemas.prototype.load = function load() {
         var self = this;
         Object.keys(this.$schemas).forEach(function(schemaName) {
-            var schema = new $apy.components.Schema(self.$schemas[schemaName], schemaName, self.$settings);
-            var humanName = schemaName.replaceAll('_', ' ');
+            var schemaData = self.$schemas[schemaName];
+            var schema = new $apy.components.Schema(
+                schemaData, schemaData.pop('$items_title') || schemaName, self.$settings
+            );
+            var humanName = schema.$name.replaceAll('_', ' ');
             self.$names.push(schemaName);
             self.$humanNames.push(humanName);
             self.$components[schemaName] = schema;
