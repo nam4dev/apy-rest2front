@@ -59,10 +59,6 @@ select[multiple], select[size] {
     padding-top: 5%;
 }
 
-.apy-container {
-    margin-top: 6%;
-}
-
 .apy-global-btn {
     margin-top: 5px;
     background-color: transparent !important;

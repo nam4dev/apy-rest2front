@@ -73,35 +73,70 @@
 }
 /* End Media Queries selector */
 
-/* "backtop" button behavior adapted for mobile */
-@media screen and (max-width:768px) {
-    #backtop.light {
-        left: 0;
-        bottom: 0;
-        right: initial;
-        /*width: 100%;*/
+
+@media screen and (min-width:768px) {
+    .apy-container {
+        margin-top: 7.5%;
     }
-    #backtop.light button {
-        width: 100%;
+
+    .apy-navigation {
+        float: right;
     }
 }
 
 @media screen and (max-width:768px) {
+
+    body {
+        font-size: 11px;
+    }
+
+    .h1, h1 {
+         font-size: 26px;
+    }
+
+    .apy-container {}
+
+    .apy-navigation {
+        margin-top: 17.5%;
+    }
+
     .navbar {
         min-height: 30px;
         margin-bottom: 0;
     }
 
-    .navbar-toggle {
-        margin: 0;
+    .navbar-header {
+        float: left;
+    }
+
+    .navbar-right {
+        float: right;
+    }
+
+    .navbar-brand {
         padding: 0;
     }
 
-    .navbar-default .navbar-toggle {
-        border-color: transparent;
+    .navbar-brand > img {
+        width: 24px;
     }
 
-    .navbar-default .navbar-toggle:hover {
-        background-color: transparent;
+    .btn {
+        padding: 2px 4px;
+    }
+
+    /* "backtop" button behavior adapted for mobile */
+    #backtop.light {
+        left: 0;
+        bottom: 0;
+        right: initial;
+    }
+
+    #backtop.light button {
+        width: 100%;
+    }
+
+    #backtop.light button {
+        padding: 1px;
     }
 }

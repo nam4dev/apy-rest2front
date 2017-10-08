@@ -467,12 +467,17 @@
          * @constructor
          */
         return function(service, name, endpoint, components) {
-            this.initialize(service, name, service.$instance.get(name), null, null, endpoint + name, $apy.helpers.$TYPES.COLLECTION, null, components);
+            var schema = service.$instance.get(name);
+            this.initialize(
+                service, name, schema,
+                null, null, endpoint + name,
+                $apy.helpers.$TYPES.COLLECTION, null, components
+            );
             this.$endpointBase = endpoint;
             this.$Class = $apy.components.Collection;
-            if (this.$schema.$embeddedURI)
+            if (this.$schema.$embeddedURI) {
                 this.$endpoint += '?' + this.$schema.$embeddedURI;
-
+            }
             this.load = load;
             this.save = save;
             this.delete = del;
