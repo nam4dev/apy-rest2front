@@ -3,7 +3,7 @@ node_js:
   - "6.1"
 
 before_script:
-  - yarn install --silent
+  - yarn -v
 
 script:
   - yarn test
