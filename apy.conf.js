@@ -128,8 +128,6 @@
                 design: {
                     src: [
                         "design/apy-rest2front-avatar.png",
-                        "design/UML_classes_diagram.png",
-                        "design/UML_classes_diagram800x610.png"
                     ],
                     dest: 'build/docs/design'
                 }
