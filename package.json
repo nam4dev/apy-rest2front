@@ -76,6 +76,7 @@
     "pretest": "yarn install",
     "test": "./node_modules/gulp/bin/gulp.js test",
     "build": "./node_modules/gulp/bin/gulp.js build",
+    "make": "./node_modules/gulp/bin/gulp.js make",
     "test-with-watcher": "./node_modules/karma/bin/karma start karma.conf.js",
     "preupdate-webdriver": "yarn install",
     "update-webdriver": "./node_modules/protractor/bin/webdriver-manager update --standalone",
