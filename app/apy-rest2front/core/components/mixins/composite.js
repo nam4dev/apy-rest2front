@@ -36,7 +36,7 @@
      * CompositeMixin offer a common interface to manipulate `recursive` data.
      *
      * @mixin CompositeMixin
-     * @memberOf apy.components.CompositeMixin
+     * @memberOf apy.components
      */
     apy.components.CompositeMixin = (function CompositeMixin() {
 // Registering mixin globally

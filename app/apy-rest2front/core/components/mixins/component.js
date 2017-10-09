@@ -40,7 +40,7 @@
      * It relies on `composite` design pattern.
      *
      * @mixin ComponentMixin
-     * @memberOf apy.components.ComponentMixin
+     * @memberOf apy.components
      */
     apy.components.ComponentMixin = (function ComponentMixin() {
         /**

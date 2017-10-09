@@ -37,7 +37,7 @@
      *  low-level network resources
      *
      * @mixin RequestMixin
-     * @memberOf apy.components.RequestMixin
+     * @memberOf apy.components
      */
     apy.components.RequestMixin = (function RequestMixin() {
         // Registering mixin globally
