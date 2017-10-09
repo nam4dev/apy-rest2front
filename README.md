@@ -86,7 +86,7 @@ we shall ensure our backend has following settings enabled,
     SCHEMA_ENDPOINT = 'your-schema-endpoint-name'
 ```
 **If one cannot expose `schemas` endpoint,
-see [Advanced Frontend Configuration](#toc15__anchor), specifically, [Static backend mapping](#toc18__anchor)**
+see [Advanced Frontend Configuration](#advanced-configuration), specifically, [Static backend mapping](#static-backend-mapping)**
 
 To ensure user experience of Media document(s) visualisation,
 
@@ -113,7 +113,7 @@ And to guarantee Media resources to be properly saved, especially when included 
 Simply create a settings file (for example, ``mySettings.js``) through CLI.
 
 ```
-yarn create -- --settings=./mySettings.js
+yarn make --settings=./mySettings.js
 ```
 
 ##### Configure the Settings file
@@ -153,7 +153,12 @@ yarn create -- --settings=./mySettings.js
 Build is preconfigured with a simple command.  Simply run:
 
 ```
+// default configuration
+// Root Endpoint: http://localhost:5000/
+// Schemas Endpoint name: schemas
 yarn build
+// Custom settings
+yarn build --settings=./mySettings.js
 ```
 
 **Several folders are created during this process**
