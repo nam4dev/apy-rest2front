@@ -3,7 +3,7 @@
 
     $apy.customSettings = {
         // Custom Settings here (cf. documentation for all possibilities)
-        // npm run build -- --settings="./mySettings.js"
+        // yarn build --settings="./mySettings.js"
         endpoints: {
             root: {
                 port: 5000,
@@ -11,7 +11,7 @@
             }
         },
         authentication: {
-            enabled: true,
+            enabled: false,
             // Can be another endpoint than Root one.
             endpoint: 'http://127.0.0.1:5000/auth',
             isEnabled: function() {
@@ -46,7 +46,7 @@
             // }, ...
         },
         development: {
-            enabled: true
+            enabled: false
         }
     };
 
